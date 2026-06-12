@@ -1,0 +1,185 @@
+{
+ "source": "BattleShips Pro v1.187 object data + JASS, multi-agent audit pass 2",
+ "ships": [
+  {
+   "rawcode": "H000",
+   "name": "Battle Ship",
+   "gold": 200,
+   "hp": 200,
+   "armor": 0,
+   "moveSpeed": 170,
+   "inventorySlots": 6,
+   "special": "200g starter ship. Captain's Cannon (A01Y, AHtb Storm Bolt base), Enforced Hull (A007, AIlf life bonus), Ship Sails (A03W, AOae aura), Onboard Mechanics Crew (A009, Arll regen), Shore Leave (A01D)."
+  },
+  {
+   "rawcode": "H003",
+   "name": "Battle Ship",
+   "gold": 1000,
+   "hp": 600,
+   "armor": 2,
+   "moveSpeed": 230,
+   "inventorySlots": 6,
+   "special": "Armor 2 is wc3-default (udef not overridden; Hpal def=2 — matches its own tooltip). Intercept (A00N, Absk Berserk base), Reinforced Hull (A00Z), Ship Sails, Mechanics Crew."
+  },
+  {
+   "rawcode": "H001",
+   "name": "Battle Ship",
+   "gold": 1000,
+   "hp": 750,
+   "armor": 1,
+   "moveSpeed": 250,
+   "inventorySlots": 6,
+   "special": "Sub/trader hunter: Capsize (A01A, Auco Cyclone base), Fishing Net (A00Y, ANen Ensnare), Hide (A047, Aivs invisibility), True Sight detector (Adtg, standard WC3). No Mechanics Crew."
+  },
+  {
+   "rawcode": "H004",
+   "name": "Battle Ship",
+   "gold": 1200,
+   "hp": 700,
+   "armor": 3,
+   "moveSpeed": 170,
+   "inventorySlots": 6,
+   "special": "Hull Repair (A01E, Arej repair base), Reinforced Hull, Ship Sails, Mechanics Crew."
+  },
+  {
+   "rawcode": "H00Y",
+   "name": "Goblin Ship",
+   "gold": 1250,
+   "hp": 600,
+   "armor": 2,
+   "moveSpeed": 190,
+   "inventorySlots": 5,
+   "special": "Armor 2 is wc3-default (Hpal def=2, matches tooltip). 5-slot custom inventory (A054). Goblin Bomber (A055, Ashs Shadow Strike base), Goblin Repair Crew (A053, Arej — can repair team structures), Reinforced Hull."
+  },
+  {
+   "rawcode": "H007",
+   "name": "Cruiser",
+   "gold": 2200,
+   "hp": 2000,
+   "armor": 5,
+   "moveSpeed": 160,
+   "inventorySlots": 6,
+   "special": "Board Ship (A01R, Amls base), Disrupt Beacon (A038, ANsi Silence base), Reinforced Hull, Ship Sails, Mechanics Crew."
+  },
+  {
+   "rawcode": "H006",
+   "name": "Cruiser",
+   "gold": 2400,
+   "hp": 1750,
+   "armor": 5,
+   "moveSpeed": 180,
+   "inventorySlots": 6,
+   "special": "Slow Aura (A02D, AOae-based), Electro Magnetic Pulse (A037, AHtc Thunder Clap base), Reinforced Hull."
+  },
+  {
+   "rawcode": "H008",
+   "name": "Cruiser",
+   "gold": 5000,
+   "hp": 4500,
+   "armor": 8,
+   "moveSpeed": 180,
+   "inventorySlots": 6,
+   "special": "Freeze Water (A03M, AOw2 base), Send Spy (A02Z, Ashs base), Super Enforced Hull (A01Z)."
+  },
+  {
+   "rawcode": "H009",
+   "name": "Cruiser",
+   "gold": 5000,
+   "hp": 5000,
+   "armor": 10,
+   "moveSpeed": 160,
+   "inventorySlots": 6,
+   "special": "Spawn Seamonster (A02L, ACsf summon base), Sail Ripper Cannon (A03N, AEsh base), Super Enforced Hull."
+  },
+  {
+   "rawcode": "H00V",
+   "name": "Submarine",
+   "gold": 6000,
+   "hp": 2000,
+   "armor": 5,
+   "moveSpeed": 200,
+   "inventorySlots": 6,
+   "special": "Dive Dive! submerge (A04C, AEme Metamorphosis base — transforms to submerged form; tooltip claims submerged: 100 speed/1000 HP/0 armor), 2x Torpedo (A04X/A04Z, AHtb Storm Bolt base), Echo-Location (A04D, AIfa flare/detection), Repair Crew (A00G, Arel)."
+  },
+  {
+   "rawcode": "H00W",
+   "name": "Submarine",
+   "gold": 8500,
+   "hp": 1000,
+   "armor": 0,
+   "moveSpeed": 100,
+   "inventorySlots": 6,
+   "special": "Minimal kit: only inventory + standard WC3 Ghost (Agho) = PERMANENT INVISIBILITY. No Shore Leave/Sails/Mechanics/hero abilities."
+  },
+  {
+   "rawcode": "H00L",
+   "name": "Flagship",
+   "gold": 9400,
+   "hp": 6800,
+   "armor": 9,
+   "moveSpeed": 160,
+   "inventorySlots": 6,
+   "special": "*Unique*. Speed 160 objectdata (tooltip claims 190 — discrepancy). Ghost Crew (A01G, AUls Locust Swarm base), Ghost cloud (A01W, Aap1 base), Super Enforced Hull."
+  },
+  {
+   "rawcode": "H00K",
+   "name": "Flagship",
+   "gold": 9800,
+   "hp": 7200,
+   "armor": 10,
+   "moveSpeed": 160,
+   "inventorySlots": 6,
+   "special": "*Unique* elven counter-ship. Detector Flare (A02X, AIfa), Release Hunters (A01I, AUls base), Super Enforced Hull."
+  },
+  {
+   "rawcode": "H00X",
+   "name": "Leviathian",
+   "gold": 13250,
+   "hp": 8500,
+   "armor": 0,
+   "moveSpeed": 100,
+   "inventorySlots": 2,
+   "special": "HP 8500 objectdata (tooltip claims 11000 — discrepancy); uhpr 0.0 (tooltip claims 15 regen — discrepancy). 2-slot custom inventory (A04Q '(Monster)'). Eat Hero (A04R, ACdv Devour base), Digest Hero (A04N, Advc devour-cargo base)."
+  },
+  {
+   "rawcode": "H00A",
+   "name": "Royal Ship",
+   "gold": 14450,
+   "hp": 9800,
+   "armor": 7,
+   "moveSpeed": 185,
+   "inventorySlots": 6,
+   "special": "*Unique*, biggest ship. Speed 185 objectdata (tooltip claims 175 — discrepancy). Real HP regen uhpr=5.0. Nautical Engineer Crew (A02E, AUau Unholy Aura base), Super Enforced Hull, plus unnamed ANab(Acid Bomb)-based hero ability A01B."
+  },
+  {
+   "rawcode": "H00C",
+   "name": "Pirate Ship",
+   "gold": 16000,
+   "hp": 9000,
+   "armor": 10,
+   "moveSpeed": 250,
+   "inventorySlots": 6,
+   "special": "*Unique*, fastest capital ship. Pirate Crew (A00J, AUls Locust Swarm base), Super Enforced Hull."
+  },
+  {
+   "rawcode": "H00D",
+   "name": "Trade Boat",
+   "gold": 300,
+   "hp": 75,
+   "armor": 0,
+   "moveSpeed": 250,
+   "inventorySlots": 3,
+   "special": "Trading ship. 3-slot custom inventory (A04B). Barrier (A01V, AHds Divine Shield base), Hide (A047, Aivs), Shadow Replication (A03U, AOmi Mirror Image base)."
+  },
+  {
+   "rawcode": "H005",
+   "name": "Merchant Boat",
+   "gold": 4525,
+   "hp": 75,
+   "armor": 5,
+   "moveSpeed": 280,
+   "inventorySlots": 4,
+   "special": "Trading ship. Armor 5 and speed 280 objectdata (tooltip claims 0 and 250 — discrepancies). 4-slot custom inventory (A01T). Barrier (A01V, AHds), Confuse (A048, AOmi Mirror Image base), Integrated Smoke Machine (A00A, Aivs), Mechanics Crew."
+  }
+ ]
+}

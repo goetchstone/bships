@@ -1,0 +1,419 @@
+{
+ "source": "BattleShips Pro v1.187 object data + JASS, multi-agent audit pass 2",
+ "items": [
+  {
+   "rawcode": "I007",
+   "name": "Light Sail",
+   "category": "sail",
+   "gold": 100,
+   "effects": "+10% move speed (self-only Endurance Aura, aare=1, atar=self); attack speed bonus Oae2=0 (none). Non-stackable.",
+   "provenance": "Oae1: wc3-default (Endurance Aura L1 = 10% move speed, liquipedia.net/warcraft/Endurance_Aura; corroborated by map tooltip 'Sail Speed Bonus: 10%'). Oae2/area/targets: objectdata (A03X).",
+   "special": "Only sail whose Oae1 is not overridden at level 1 — live value comes from the WC3 base-ability default."
+  },
+  {
+   "rawcode": "I008",
+   "name": "Great Sail",
+   "category": "sail",
+   "gold": 610,
+   "effects": "+25% move speed (Oae1=0.25); no attack-speed bonus (Oae2=0). Non-stackable.",
+   "provenance": "objectdata (A03Y)",
+   "special": null
+  },
+  {
+   "rawcode": "I01A",
+   "name": "Goblin Sail",
+   "category": "sail",
+   "gold": 1385,
+   "effects": "+50% move speed (Oae1=0.5); no attack-speed bonus (Oae2=0). Non-stackable.",
+   "provenance": "objectdata (A039)",
+   "special": null
+  },
+  {
+   "rawcode": "I01U",
+   "name": "Royal Sail",
+   "category": "sail",
+   "gold": 2160,
+   "effects": "+75% move speed (Oae1=0.75); no attack-speed bonus (Oae2=0). Non-stackable.",
+   "provenance": "objectdata (A03O)",
+   "special": null
+  },
+  {
+   "rawcode": "I01V",
+   "name": "Silk Sail",
+   "category": "sail",
+   "gold": 2935,
+   "effects": "+100% move speed (Oae1=1.0); no attack-speed bonus (Oae2=0). Non-stackable.",
+   "provenance": "objectdata (A036)",
+   "special": null
+  },
+  {
+   "rawcode": "I01T",
+   "name": "Outboard Propeller",
+   "category": "sail",
+   "gold": 5425,
+   "effects": "+200% move speed (Oae1=2.0); no attack-speed bonus (Oae2=0). Non-stackable.",
+   "provenance": "objectdata (A03Z)",
+   "special": null
+  },
+  {
+   "rawcode": "I009",
+   "name": "Stone Hull",
+   "category": "hull",
+   "gold": 200,
+   "effects": "+100 max HP (A00E AIlf Ilif=100); 10% damage reduction (A03A AIsr isr2=0.10); -5% move speed (A040 AOae Oae1=-0.05, Oae2=0); +3 armor (AId3, unmodified stock). Non-stackable.",
+   "provenance": "HP/reduction/speed: objectdata; armor: wc3-default (AId3 = Item Armor Bonus +3; AIdN=+N stock convention, corroborated by this map's own AId5(+5->6) and AId8(+8->9) overrides). Tooltip claims '+6%' armor — tooltip-only, conflicts with object data.",
+   "special": "DISCREPANCY: tooltip says Armor Bonus +6, but AId3 is NOT overridden in abilities.json (the map overrode AId5 and AId8 but not AId3) -> live value +3. AIsr is the Runed-Bracers-type reduction (reduces spell damage in stock WC3; the map's weapons are Phoenix-Fire/spell-damage based, so it applies to them)."
+  },
+  {
+   "rawcode": "I016",
+   "name": "Bronze Hull",
+   "category": "hull",
+   "gold": 1100,
+   "effects": "+250 max HP (Ilif=250); 20% damage reduction (isr2=0.20); -10% move speed (Oae1=-0.10); +6 armor (AId5 overridden Idef=6). Non-stackable.",
+   "provenance": "objectdata (A00F/A02G/A041/AId5) — all four stats explicit; matches tooltip exactly.",
+   "special": null
+  },
+  {
+   "rawcode": "I00A",
+   "name": "Gold Hull",
+   "category": "hull",
+   "gold": 2500,
+   "effects": "+500 max HP (Ilif=500); 30% damage reduction (isr2=0.30); -20% move speed (Oae1=-0.20); +9 armor (AId8 overridden Idef=9). Non-stackable.",
+   "provenance": "objectdata (A00H/A03B/A042/AId8); matches tooltip.",
+   "special": null
+  },
+  {
+   "rawcode": "I01X",
+   "name": "Kraken shell",
+   "category": "hull",
+   "gold": 6600,
+   "effects": "+20 HP/sec regeneration (A044 Arel Ihpr=20); 20% damage reduction (A052 AIsr isr2=0.20); +30% move speed (A051 AOae Oae1=0.30, Oae2=0); +6 armor (AId5 Idef=6). Non-stackable.",
+   "provenance": "objectdata; matches tooltip.",
+   "special": "Tooltip carries the boilerplate 'Submarines may not carry this item' note, but the map script's sub whitelist explicitly allows Kraken shell on submarines (per orchestrator rule). Hybrid hull: only hull with no HP bonus and no speed penalty."
+  },
+  {
+   "rawcode": "I017",
+   "name": "Repair Crew",
+   "category": "repair",
+   "gold": 145,
+   "effects": "+2 HP/sec passive repair while sailing.",
+   "provenance": "Ihpr: wc3-default (Arel Item Life Regeneration base = 2 HP/sec, the Ring of Regeneration value, liquipedia.net/warcraft/Ring_of_Regeneration; A00G overrides only name/icon, no Ihpr at L1; corroborated by map tooltip 'Hit points / second: 2').",
+   "special": "Submarines may not carry (tooltip note)."
+  },
+  {
+   "rawcode": "I00B",
+   "name": "Mechanics Crew",
+   "category": "repair",
+   "gold": 720,
+   "effects": "+10 HP/sec passive repair (A00I Arel Ihpr=10).",
+   "provenance": "objectdata",
+   "special": "Submarines may not carry (tooltip note)."
+  },
+  {
+   "rawcode": "I011",
+   "name": "Swedish Repair Crew",
+   "category": "repair",
+   "gold": 2205,
+   "effects": "+30 HP/sec passive repair (A03T Arel Ihpr=30).",
+   "provenance": "objectdata",
+   "special": "Submarines may not carry (tooltip note)."
+  },
+  {
+   "rawcode": "I01W",
+   "name": "Goblin Mechanics Crew",
+   "category": "repair",
+   "gold": 5300,
+   "effects": "+70 HP/sec passive repair (A043 Arel Ihpr=70). Non-stackable.",
+   "provenance": "objectdata",
+   "special": "Submarines may not carry (tooltip note)."
+  },
+  {
+   "rawcode": "I01J",
+   "name": "Goblin Mechanic",
+   "category": "repair",
+   "gold": 2,
+   "effects": "Active (Rejuvenation-based A04I/Arej): repairs a friendly mechanical/structure target for 2500 HP over 20 s (Rej1=2500, adur=20); cast range 100; 0 mana. 1 charge, perishable.",
+   "provenance": "objectdata; matches tooltip (2500 over 20 s).",
+   "special": "Trade item — removed if dropped or given away; gold 2 is the trade-good price."
+  },
+  {
+   "rawcode": "I031",
+   "name": "Goblin Engineer",
+   "category": "repair",
+   "gold": 2,
+   "effects": "Active (A056/Arej): repairs a friendly mechanical/structure target for 3750 HP over 20 s (Rej1=3750, adur=20); cast range 100; 0 mana. 1 charge, perishable.",
+   "provenance": "objectdata; matches tooltip.",
+   "special": "Trade item — removed if dropped or given away."
+  },
+  {
+   "rawcode": "I00T",
+   "name": "GrandMaster Craftsman",
+   "category": "repair",
+   "gold": 1250,
+   "effects": "Active (A030/Arej): repairs a friendly mechanical/structure target for 20000 HP over 20 s (Rej1=20000, adur=20) — effectively a complete building repair; cast range 100; 0 mana. 1 charge, perishable.",
+   "provenance": "objectdata; tooltip says 'Completely repairs an allied building'.",
+   "special": "Shop restock delay 1200 s (isst)."
+  },
+  {
+   "rawcode": "I00C",
+   "name": "Weak Repair Wood",
+   "category": "repair",
+   "gold": 175,
+   "effects": "On use: restores 300 HP to the boat (A00K AIhx Ihpg=300); cooldown 45 s; endless charges (not consumed).",
+   "provenance": "objectdata; matches tooltip.",
+   "special": "Tooltip carries 'Submarines may not carry' note, but the map script's sub whitelist allows repair woods on submarines (per orchestrator rule)."
+  },
+  {
+   "rawcode": "I00D",
+   "name": "Normal Repair Wood",
+   "category": "repair",
+   "gold": 765,
+   "effects": "On use: restores 1500 HP (A00L AIhx Ihpg=1500); cooldown 80 s; endless charges.",
+   "provenance": "objectdata; matches tooltip.",
+   "special": "Same sub-carry note as I00C."
+  },
+  {
+   "rawcode": "I00E",
+   "name": "Swedish Repair Wood",
+   "category": "repair",
+   "gold": 2910,
+   "effects": "On use: restores 4000 HP (A00M AIhx Ihpg=4000); cooldown 100 s; endless charges.",
+   "provenance": "objectdata; matches tooltip.",
+   "special": "Same sub-carry note as I00C."
+  },
+  {
+   "rawcode": "I01H",
+   "name": "Goblin Repair Wood",
+   "category": "repair",
+   "gold": 5510,
+   "effects": "On use: restores 99999 HP = complete repair (A033 AIhx Ihpg=99999); cooldown 120 s; endless charges.",
+   "provenance": "objectdata; tooltip says 'Complete Repair'.",
+   "special": "Same sub-carry note as I00C."
+  },
+  {
+   "rawcode": "I01K",
+   "name": "Smoke Machine",
+   "category": "utility",
+   "gold": 1600,
+   "effects": "On use: ship becomes invisible for 10 s (A034 base AIv1, adur/ahdu=10); cooldown 70 s; endless charges; applies buff B00I.",
+   "provenance": "duration/cooldown: objectdata; break conditions: wc3-default (standard WC3 invisibility — broken when the unit attacks, casts, or uses an item; classic.battle.net invisibility basics).",
+   "special": null
+  },
+  {
+   "rawcode": "I01S",
+   "name": "Integrated Smoke Machine",
+   "category": "utility",
+   "gold": 3200,
+   "effects": "On use: ship becomes invisible for 30 s (A02Y base AIv1, adur=30); cooldown 240 s; endless charges; buff B00I.",
+   "provenance": "duration/cooldown: objectdata; break conditions: wc3-default invisibility.",
+   "special": "The Merchant Ship has a separate unit-ability version (modified stock Aivs, also 30 s / 240 s)."
+  },
+  {
+   "rawcode": "I01L",
+   "name": "Light Teleporter",
+   "category": "utility",
+   "gold": 700,
+   "effects": "On use: Blink (A035 base AEbl) — max distance 1200 (Ebl1=1200), min distance 0 (Ebl2=0); cooldown 50 s; 0 mana (amcs=0); endless charges.",
+   "provenance": "objectdata (all key fields overridden); matches tooltip.",
+   "special": "Tooltip: 'Can only target shallow water' — enforced by terrain/trigger, not object data."
+  },
+  {
+   "rawcode": "I020",
+   "name": "Spies",
+   "category": "utility",
+   "gold": 900,
+   "effects": "4 charges (iuse=4). Each use summons a stationary 'Spy' ward (unit nvil) at target point for 540 s (modified stock AIff: Ist1=nvil, adur=540, cooldown 0). Spy: invulnerable (Avul), True Sight / detects invisible (Atru), 1600 sight day & night, move speed 0, visible (Shade model).",
+   "provenance": "summon unit/duration/cooldown/charges + nvil stats: objectdata; base item is stock 'totw' Talisman of the Wild (default 3 charges, summons 1 Furbolg 180 s — forum.wc3edit.net rawcode list + liquipedia.net/warcraft/Talisman_of_the_Wild), retargeted by the map.",
+   "special": "Tooltip: 'Spies are visable, but invulnerable.' Identical clones: I020/I024/I025/totw (one per shop)."
+  },
+  {
+   "rawcode": "I024",
+   "name": "Spies",
+   "category": "utility",
+   "gold": 900,
+   "effects": "Identical to I020: 4 charges; summons invulnerable true-sight Spy ward (nvil, 1600 sight) for 540 s per use; no cooldown.",
+   "provenance": "objectdata (clone of I020)",
+   "special": "Clone of I020."
+  },
+  {
+   "rawcode": "I025",
+   "name": "Spies",
+   "category": "utility",
+   "gold": 900,
+   "effects": "Identical to I020: 4 charges; summons invulnerable true-sight Spy ward (nvil, 1600 sight) for 540 s per use; no cooldown.",
+   "provenance": "objectdata (clone of I020)",
+   "special": "Clone of I020."
+  },
+  {
+   "rawcode": "totw",
+   "name": "Spies",
+   "category": "utility",
+   "gold": 900,
+   "effects": "Identical to I020: 4 charges; summons invulnerable true-sight Spy ward (nvil, 1600 sight) for 540 s per use; no cooldown.",
+   "provenance": "objectdata (the modified stock item itself)",
+   "special": "This is the modified stock Talisman of the Wild entry; I020/I024/I025 are its clones."
+  },
+  {
+   "rawcode": "wshs",
+   "name": "Informant",
+   "category": "utility",
+   "gold": 950,
+   "effects": "Targeted reveal (stock Ashs Shadow Sight, modified): cast range 99999 (global), can target any enemy unit including invulnerable ones (atar=air,enemies,ground,invulnerable,vulnerable); applies Shadow Sight buff giving vision of the target. Unlimited uses (iuse=0, iper=0, non-perishable) and ignores cooldown (iicd=1).",
+   "provenance": "range/targets/charges/cooldown: objectdata; reveal duration: wc3-default (Ashs duration NOT overridden; stock value could not be confirmed from authoritative sources — campaign-only item, no liquipedia page; recommend treating as long-duration/until-dispelled buff reveal and verifying in-game).",
+   "special": "UNRESOLVED: exact stock Shadow Sight buff duration. Base item: stock 'wshs' Wand of Shadowsight (wc3edit rawcode list)."
+  },
+  {
+   "rawcode": "I021",
+   "name": "Sentry Ward",
+   "category": "utility",
+   "gold": 400,
+   "effects": "1 charge. Drops an invisible, invulnerable Sentry Ward that watches an area for 540 s (modified stock AIsw adur=540). Ward detects invisible units (true sight).",
+   "provenance": "duration/charges/gold: objectdata; true sight + ward vision: wc3-default (stock AIsw/oeye ward not otherwise modified; classic.battle.net heroitemscharged: 'Sentry Wards can be used to reveal invisible units'; ward sight ~1600 in 1.20-era data, modern liquipedia lists 1200).",
+   "special": "icid='Aeye' — shares a cooldown group with the other ward items. Item name not overridden (stock 'Sentry Wards'); map tooltip says 'Drops a Sentry Ward to spy upon an area for 540 seconds... Is Invisible and Invunerable.' Clones: I021/I022/I023/wswd."
+  },
+  {
+   "rawcode": "I022",
+   "name": "Sentry Ward",
+   "category": "utility",
+   "gold": 400,
+   "effects": "Identical to I021: 1 charge, invisible+invulnerable ward, 540 s, true sight.",
+   "provenance": "objectdata (clone of I021)",
+   "special": "Clone."
+  },
+  {
+   "rawcode": "I023",
+   "name": "Sentry Ward",
+   "category": "utility",
+   "gold": 400,
+   "effects": "Identical to I021: 1 charge, invisible+invulnerable ward, 540 s, true sight.",
+   "provenance": "objectdata (clone of I021)",
+   "special": "Clone."
+  },
+  {
+   "rawcode": "wswd",
+   "name": "Sentry Ward",
+   "category": "utility",
+   "gold": 400,
+   "effects": "Identical to I021: 1 charge, invisible+invulnerable ward, 540 s, true sight.",
+   "provenance": "objectdata (the modified stock 'wswd' Sentry Wards item itself)",
+   "special": "Modified stock entry; I021/I022/I023 are clones."
+  },
+  {
+   "rawcode": "whwd",
+   "name": "Motion Detectors",
+   "category": "utility",
+   "gold": null,
+   "effects": "5 charges (iuse=5). Drops a 'Motion Detector' ward (unit ohwd): invulnerable + permanently invisible (Avul+Agho), sight radius 1 (provides no vision itself), tiny wisp model. The stock Healing Ward aura buff is removed (AIhw abuf=''), so it heals nothing — its only function is the proximity warning ('warns you if any enemy units enter nearby'), which is trigger-driven.",
+   "provenance": "charges/ward unit stats/cleared heal buff: objectdata; ward lifetime: wc3-default (AIhw duration not overridden; stock item Healing Ward lasts ~20 s per classic.battle.net heroitemscharged — UNCERTAIN, likely trigger-managed in this map). No gold cost in object data (price possibly trigger/shop-set).",
+   "special": "Repurposed stock 'whwd' Healing Wards item. Warning behavior cannot be derived from object data — implement from map script."
+  },
+  {
+   "rawcode": "fgun",
+   "name": "Flare Gun",
+   "category": "utility",
+   "gold": 485,
+   "effects": "Reveals a target area of the map: radius 1200 (aare), reveal lasts 15 s (adur), cooldown 60 s (modified stock AIfa). Unlimited charges (iuse=0, iper=0, isto=1).",
+   "provenance": "radius/duration/cooldown/charges: objectdata; base = stock 'fgun' Flare Gun item (wc3edit rawcode list). Whether the flare detects invisible units was not confirmed — wc3-default flare behavior, verify in-game.",
+   "special": "Three price variants exist (different shops): fgun 485g, I028 425g, I029 510g."
+  },
+  {
+   "rawcode": "I028",
+   "name": "Flare Gun",
+   "category": "utility",
+   "gold": 425,
+   "effects": "Identical to fgun: reveals 1200-radius area for 15 s, cooldown 60 s, unlimited charges.",
+   "provenance": "objectdata (clone, class PowerUp)",
+   "special": "Clone of fgun at 425g."
+  },
+  {
+   "rawcode": "I029",
+   "name": "Flare Gun",
+   "category": "utility",
+   "gold": 510,
+   "effects": "Identical to fgun: reveals 1200-radius area for 15 s, cooldown 60 s, unlimited charges.",
+   "provenance": "objectdata (clone, class PowerUp)",
+   "special": "Clone of fgun at 510g."
+  },
+  {
+   "rawcode": "fgdg",
+   "name": "Leviathian Charm",
+   "category": "utility",
+   "gold": 5125,
+   "effects": "Summons a 'Leviathian' (unit nba2) to fight for you for 1200 s (modified stock AIfu: adur=1200, cooldown 0). 1 charge. Leviathian: 8500 HP, +7 HP/s regen, mechanical, 'fort' defense type, siege attack (range 1000, splash missile), move speed 140, sight 1800, food 0, abilities A04U/A04V/A04T/A04N/A04L (includes Eat Hero per tooltip).",
+   "provenance": "duration/cooldown/unit stats: objectdata; charges: wc3-default (stock 'fgdg' Demonic Figurine = 1 charge, summons Doom Guard (Summoned) i.e. unit nba2 — liquipedia.net/warcraft/Demonic_Figurine; map renamed nba2 to Leviathian).",
+   "special": "Shop restock delay 300 s (isst). Summon's exact attack damage fields are partially zeroed in object data (ua1b=0) — damage likely handled by its custom abilities; verify against the weapons agent's A04* analysis if needed."
+  },
+  {
+   "rawcode": "tst2",
+   "name": "Caribbean Music",
+   "category": "utility",
+   "gold": 50,
+   "effects": "No gameplay effect: granted-abilities list explicitly cleared (iabi=''). Plays the 'Pirates of the Caribbean' theme via trigger; item data field 91 matches the ~91 s track length.",
+   "provenance": "iabi cleared: objectdata; music playback: trigger-driven (tooltip-only). Base = stock 'tst2' Tome of Strength +2 (wc3edit rawcode list) with the strength ability removed.",
+   "special": "Pure flavor item."
+  },
+  {
+   "rawcode": "texp",
+   "name": "Tome of Experience",
+   "category": "consumable",
+   "gold": null,
+   "effects": "+200 XP on use by object data: iabi='AIem,AIem' grants the stock Item Experience Gain ability twice; AIem is unmodified in the map, default +100 XP each (Tome of Experience baseline).",
+   "provenance": "double AIem grant: objectdata; +100 per AIem: wc3-default (liquipedia.net/warcraft/Tome_of_Experience). Tooltip claims 'Gives 300 experience' — tooltip-only, conflicts (200 vs 300); a trigger may add the difference — verify in map script.",
+   "special": "DISCREPANCY flagged. No gold cost set (trigger drop / reward item). Clones: texp/I02D/I02E."
+  },
+  {
+   "rawcode": "I02D",
+   "name": "Tome of Experience",
+   "category": "consumable",
+   "gold": null,
+   "effects": "Identical to texp: 2x AIem = +200 XP by object data; tooltip claims 300.",
+   "provenance": "objectdata + wc3-default (clone of texp)",
+   "special": "Clone."
+  },
+  {
+   "rawcode": "I02E",
+   "name": "Tome of Experience",
+   "category": "consumable",
+   "gold": null,
+   "effects": "Identical to texp: 2x AIem = +200 XP by object data; tooltip claims 300.",
+   "provenance": "objectdata + wc3-default (clone of texp)",
+   "special": "Clone."
+  },
+  {
+   "rawcode": "tgxp",
+   "name": "Tome of Greater Experience",
+   "category": "consumable",
+   "gold": null,
+   "effects": "+500 XP on use (ability not modified in map).",
+   "provenance": "wc3-default (stock 'tgxp' Tome of Greater Experience = 500 XP, liquipedia.net/warcraft/Tome_of_Greater_Experience; no iabi/ability overrides in map data).",
+   "special": "PowerUp-class trigger drop; no shop price. Clones: tgxp/I02B/I02C."
+  },
+  {
+   "rawcode": "I02B",
+   "name": "Tome of Greater Experience",
+   "category": "consumable",
+   "gold": null,
+   "effects": "+500 XP on use (clone of tgxp).",
+   "provenance": "wc3-default (clone)",
+   "special": "Clone."
+  },
+  {
+   "rawcode": "I02C",
+   "name": "Tome of Greater Experience",
+   "category": "consumable",
+   "gold": null,
+   "effects": "+500 XP on use (clone of tgxp).",
+   "provenance": "wc3-default (clone)",
+   "special": "Clone."
+  },
+  {
+   "rawcode": "I00F",
+   "name": "Goblin Scout Crew",
+   "gold": 800,
+   "category": "utility",
+   "effects": "True sight: reveals hidden/invisible units in line of sight (inherent ability of base item gemt, Gem of True Seeing; no custom iabi). Direct counter to Smoke Machine invisibility.",
+   "special": "Banned in Instant Death mode (No_Repair trigger refunds it).",
+   "provenance": "items.json I00F objectdata (base=gemt, igol=800); true-sight from wc3-default gemt item ability; mode ban from script-rules.json"
+  }
+ ]
+}
