@@ -1,6 +1,126 @@
 {
  "source": "war3map.j (BattleShips Pro v1.187), multi-agent audit pass 1",
- "mechanism": "IMPORTANT NEGATIVE RESULT FIRST: BattleShips Pro v1.187's war3map.j (15,690 lines) contains NO parallel udg_ weapon-stat tables and NO periodic inventory-walking firing trigger. The script is plain GUI-generated JASS (Trig_*/InitTrig_* functions, udg_ globals at lines 1-517 only). There are ZERO UnitDamageTarget calls, no gamecache/hashtable storage, and no arrays mapping item rawcodes to damage/cooldown/range. Therefore the regular ship weapons (cannons, torpedoes, nuke, vulcan, sniper, etc.) are implemented purely in OBJECT DATA: each weapon item (war3map.w3t) grants the carrying ship an attack-granting/attack-modifying ability (war3map.w3a / dummy attack data in war3map.w3u), and the WC3 engine's native attack system fires every carried weapon automatically at enemies in range on each ability's own cooldown. Per-weapon damage, cooldown, range, AoE, and projectile art MUST be extracted from the object-data files (w3t/w3a/w3u, plus w3q for upgrades), not from the .j. The script only supplies the surrounding rules, which DO affect effective DPS and must still be honored:\n\n1) MISSILE SYSTEM (the one genuinely trigger-fired weapon) — gg_trg_Fire_Missiles (lines 10797-11129). Event: any unit casts ability 'A032' (Fire Missiles). The caster must carry item 'I01N' (launch prerequisite, consumed per shot) plus exactly one warhead tier: 'I01O', 'I01P', or 'I01Q' (the three missile items). Missing-item branches print TRIGSTR_5100/5101/5102 and abort. On launch: (a) ability 'A032' is temporarily stripped from all of the owner's 'n00D'-type units (launch-platform throttle preventing concurrent launches) and re-added ~2 s later; (b) one 'I01N' AND the warhead item are removed (each shot consumes both); (c) WarStomp + Flare effects play on the ship and a random 1-3 roll picks gg_snd_FireMissile2/3; (d) a dummy missile unit is created at the ship — 'h00N' for I01O, 'h00O' for I01P, 'h00P' for I01Q — owned by the TEAM main player (Player(0) if the caster is allied to south, Player(1) if north); (e) the dummy is issued \"selfdestruct\" (Goblin Sapper Kaboom) at GroupPickRandomUnit of the ENEMY main player's units filtered IsUnitType(STRUCTURE) == true. So missiles hit a uniformly random enemy structure; their damage/AoE is the dummy unit's Kaboom ability in object data (h00N/h00O/h00P in w3u + their A-ability), one shot per cast, no periodic component. gg_trg_Buggfix (11130-11157) runs every 20 s and re-issues \"selfdestruct\" to leftover h00N/h00O/h00P dummies — but only Player(0)-owned ones, always targeting Player(1) structures (asymmetric bug; north's stuck missiles are never fixed).\n\n2) CARRY-LIMIT / CLASSIFICATION TRIGGERS (pickup-event, define which rawcodes are weapons and their stack rules; all refund gold equal to R2I(GetItemLifeBJ(item)) — the item's HP field stores its gold price): Only_One_Hull I009/I016/I00A (1 per ship, banned on 'H001'); Only_One_Sail I008/I01A/I01U/I01V/I01T (1 per ship, banned on subs H00V/H00W); Only_One_Kraken I01X (exclusive with every hull/sail/repair item); Only_One_Repair I017/I00B/I011/I01W (1 per ship); Only_One_Nuke I01Y (max 1); Only_One_Vulcan I01Z (max 1); Only_One_Sniper I02F/I02M (max 1, enforced only when udg_ModeOnlySailors); Only_One_Torpedo1 I02N/I02O/I02P/I026 (max 1, submarine-only); SubItemsOnly_Copy (non-subs cannot carry ITEM_TYPE_ARTIFACT = torpedo class); SubAcquiredItems (subs may only carry I00C/I00D/I00E/I01H — the sub weapon set — plus repair/Kraken-family items). No_Repair (Instant Death mode) bans I017/I00B/I011/I01W/I01X/I00F/I00T.\n\n3) DAMAGE SCALING — Tech_Upgrade_South/North (14389-14675): upgrades 'R001'=Tower Damage, 'R000'=Tower Defense, 'R005'=Ship Cannons, 'R003'=Ship Hull, 'R004'=Ship Sails ('R002'=Tower Mechanics handled in same trigger): when any ally finishes a research, the trigger copies the new tech level to every allied player via SetPlayerTechResearchedSwap. 'R005' Ship Cannons is the team-wide multiplier on all item-weapon attack damage; per-level numbers live in war3map.w3q, not the script. This is the only damage scaling visible in script.\n\n4) FIXED SCRIPTED DAMAGE (special cases): suicide-mission detonations apply flat damage directly to the enemy HQ building via SetUnitLifeBJ — 4000.0 (goblin-bomb run, items I01E/I01F/I01G, lines 11408-11501) and 6000.0 (superbomb chain I032->I02Z + I02Q, lines 14199-14298); the ship is exploded. GoblinBomber (8752-8805): the 'Bstt' buff (goblin land bomb) kills the buffed ship 5 s after item use/spell cast.\n\n5) TARGETING RULES: Dont_Attack_Friends (8419-8433) issues \"stop\" to any unit that attacks an ally — global friendly-fire prevention applying to all weapon attacks. Items_Not_Buyable (8128-8224) blocks purchases from enemy-side shops. Lumber_Back_From_Contracts (8225-8403) gates the big contract purchases (I00S/I00W/I00M/I01I/I00Q need 4/10/10/18/25 lumber; I00U/I013/I012/I01E/I02I/I02H refund 25/50/50/80/80/80) — effective purchase requirements for top ships/weapons. Change_Ship (1296-1637) transfers all 6 inventory slots between old and new ship via udg_PlayerHandyMan, so weapons persist across hull changes.\n\nNET SEMANTICS FOR STAT EXTRACTION: 'damage per shot', cooldown, range, AoE and projectile of every standard weapon item are object-data attack-ability fields (extract from w3t item->ability links and w3a/w3u); the engine fires all carried weapons independently and simultaneously (no multi-shot counts in script); team upgrade R005 scales them; missiles are consumable two-item shots whose payload is the Kaboom of dummies h00N/h00O/h00P at a random enemy structure; suicide bombs are flat 4000/6000 HP removal from the HQ.",
+ "tradeRoutes": [
+  {
+   "contractItemId": "I00K",
+   "goodsItemId": "I00J",
+   "goodsName": "Barrel of Ale",
+   "pickupRegion": "AleFactory",
+   "team": null,
+   "carrierMaxItems": { "H00D": 3, "H005": 4 },
+   "deliverRegionByTeam": { "south": "SouthReward", "north": "NorthReward" },
+   "rewardGold": 200,
+   "rewardXp": 80,
+   "rewardLumber": 1,
+   "lines": [11222, 11241, 11266, 12179, 12229, 12040, 12091]
+  },
+  {
+   "contractItemId": "I00S",
+   "goodsItemId": "I003",
+   "goodsName": "Bundle of Raw Wood",
+   "pickupRegion": "SwedeLumberMill",
+   "team": null,
+   "carrierMaxItems": { "H00D": 3, "H005": 4 },
+   "deliverRegionByTeam": { "south": "SouthReward", "north": "NorthReward" },
+   "rewardGold": 400,
+   "rewardXp": 125,
+   "rewardLumber": 2,
+   "lines": [11503, 11521, 11546, 12187, 12241, 12048, 12103]
+  },
+  {
+   "contractItemId": "I02K",
+   "goodsItemId": "I00V",
+   "goodsName": "Ammo",
+   "pickupRegion": "GoblinBombShop",
+   "team": null,
+   "carrierMaxItems": { "H00D": 3, "H005": 4 },
+   "deliverRegionByTeam": { "south": "SouthReward", "north": "NorthReward" },
+   "rewardGold": 400,
+   "rewardXp": 125,
+   "rewardLumber": 2,
+   "lines": [11553, 11571, 11596, 12409, 12436, 12456, 12483]
+  },
+  {
+   "contractItemId": "I00W",
+   "goodsItemId": "I02J",
+   "goodsName": "Pig",
+   "pickupRegion": "Pigfarm",
+   "team": "south",
+   "carrierMaxItems": { "H00D": 3, "H005": 4 },
+   "deliverRegionByTeam": { "south": "SouthReward", "north": "NorthReward" },
+   "rewardGold": 1200,
+   "rewardXp": 300,
+   "rewardLumber": 5,
+   "lines": [11685, 11707, 11735, 12197, 12253]
+  },
+  {
+   "contractItemId": "I00M",
+   "goodsItemId": "I00N",
+   "goodsName": "Goblin Potion",
+   "pickupRegion": "GoblinPotionShop",
+   "team": "north",
+   "carrierMaxItems": { "H00D": 3, "H005": 4 },
+   "deliverRegionByTeam": { "south": "SouthReward", "north": "NorthReward" },
+   "rewardGold": 1200,
+   "rewardXp": 300,
+   "rewardLumber": 5,
+   "lines": [11741, 11763, 11791, 12058, 12115]
+  },
+  {
+   "contractItemId": "I00Q",
+   "goodsItemId": "I00R",
+   "goodsName": "Box",
+   "pickupRegion": "GhostShip",
+   "team": "south",
+   "carrierMaxItems": { "H00D": 3, "H005": 4 },
+   "deliverRegionByTeam": { "south": "SouthReward", "north": "NorthReward" },
+   "rewardGold": 2000,
+   "rewardXp": 450,
+   "rewardLumber": 6,
+   "lines": [11797, 11819, 11847, 12206, 12265]
+  },
+  {
+   "contractItemId": "I00U",
+   "goodsItemId": "I02L",
+   "goodsName": "Book",
+   "pickupRegion": "ElvenLibrary",
+   "team": "north",
+   "carrierMaxItems": { "H00D": 3, "H005": 4 },
+   "deliverRegionByTeam": { "south": "SouthReward", "north": "NorthReward" },
+   "rewardGold": 2000,
+   "rewardXp": 450,
+   "rewardLumber": 6,
+   "lines": [11853, 11875, 11903, 12067, 12127]
+  },
+  {
+   "contractItemId": "I013",
+   "goodsItemId": "I014",
+   "goodsName": "Rescued Captive",
+   "pickupRegion": "North_Main",
+   "team": "south",
+   "carrierMaxItems": { "H00D": 3, "H005": 4 },
+   "deliverRegionByTeam": { "south": "SouthReward", "north": "NorthReward" },
+   "rewardGold": 4500,
+   "rewardXp": 850,
+   "rewardLumber": 8,
+   "lines": [11909, 11931, 11959, 12215, 12277]
+  },
+  {
+   "contractItemId": "I012",
+   "goodsItemId": "I015",
+   "goodsName": "Rescued Captive",
+   "pickupRegion": "South_Main",
+   "team": "north",
+   "carrierMaxItems": { "H00D": 3, "H005": 4 },
+   "deliverRegionByTeam": { "south": "SouthReward", "north": "NorthReward" },
+   "rewardGold": 4500,
+   "rewardXp": 850,
+   "rewardLumber": 8,
+   "lines": [11965, 11987, 12015, 12076, 12139]
+  }
+ ],
+ "tradeRoutesProvenance": "Pickup: Trig_<Goods> (H00D, UnitInventoryCount < 3) and Trig_<Goods>_Copy (H005, < 4) on the pickup rect — carrier must hold the contract item and not the goods; team-gated routes additionally require IsPlayerAlly(Player(0|1)). Delivery: Trig_South_Rewards / Trig_North_Rewards (and the Ammo twins) on gg_rct_SouthReward / gg_rct_NorthReward — registered boat of type H00D or H005, ally of that side, carrying contract + goods; goods removed, contract kept, gold/XP paid directly and udg_PlayerLumber += rewardLumber. NOT yet extracted (OPEN): the Refinery upgrade chains (Beer/RefinedWood/etc. Pick_Up swaps at gg_rct_Refinery with higher *_Rewards_Refinery payouts), the Repair Buildings Mission (I01I -> I01J Goblin Mechanic), and the 8-stage Treasure Hunts (I02H/I02I).",
+ "mechanism": "IMPORTANT NEGATIVE RESULT FIRST: BattleShips Pro v1.187's war3map.j (15,690 lines) contains NO parallel udg_ weapon-stat tables and NO periodic inventory-walking firing trigger. The script is plain GUI-generated JASS (Trig_*/InitTrig_* functions, udg_ globals at lines 1-517 only). There are ZERO UnitDamageTarget calls, no gamecache/hashtable storage, and no arrays mapping item rawcodes to damage/cooldown/range. Therefore the regular ship weapons (cannons, torpedoes, nuke, vulcan, sniper, etc.) are implemented purely in OBJECT DATA: each weapon item (war3map.w3t) grants the carrying ship an attack-granting/attack-modifying ability (war3map.w3a / dummy attack data in war3map.w3u), and the WC3 engine's native attack system fires every carried weapon automatically at enemies in range on each ability's own cooldown. Per-weapon damage, cooldown, range, AoE, and projectile art MUST be extracted from the object-data files (w3t/w3a/w3u, plus w3q for upgrades), not from the .j. The script only supplies the surrounding rules, which DO affect effective DPS and must still be honored:\n\n1) MISSILE SYSTEM (the one genuinely trigger-fired weapon) — gg_trg_Fire_Missiles (lines 10797-11129). Event: any unit casts ability 'A032' (Fire Missiles). The caster must carry item 'I01N' (launch prerequisite, consumed per shot) plus exactly one warhead tier: 'I01O', 'I01P', or 'I01Q' (the three missile items). Missing-item branches print TRIGSTR_5100/5101/5102 and abort. On launch: (a) ability 'A032' is temporarily stripped from all of the owner's 'n00D'-type units (launch-platform throttle preventing concurrent launches) and re-added ~2 s later; (b) one 'I01N' AND the warhead item are removed (each shot consumes both); (c) WarStomp + Flare effects play on the ship and a random 1-3 roll picks gg_snd_FireMissile2/3; (d) a dummy missile unit is created at the ship — 'h00N' for I01O, 'h00O' for I01P, 'h00P' for I01Q — owned by the TEAM main player (Player(0) if the caster is allied to south, Player(1) if north); (e) the dummy is issued \"selfdestruct\" (Goblin Sapper Kaboom) at GroupPickRandomUnit of the ENEMY main player's units filtered IsUnitType(STRUCTURE) == true. So missiles hit a uniformly random enemy structure; their damage/AoE is the dummy unit's Kaboom ability in object data (h00N/h00O/h00P in w3u + their A-ability), one shot per cast, no periodic component. gg_trg_Buggfix (11130-11157) runs every 20 s and re-issues \"selfdestruct\" to leftover h00N/h00O/h00P dummies — but only Player(0)-owned ones, always targeting Player(1) structures (asymmetric bug; north's stuck missiles are never fixed).\n\n2) CARRY-LIMIT / CLASSIFICATION TRIGGERS (pickup-event, define which rawcodes are weapons and their stack rules; all refund gold equal to R2I(GetItemLifeBJ(item)) — the item's HP field stores its gold price): Only_One_Hull I009/I016/I00A (1 per ship, banned on 'H001'); Only_One_Sail I008/I01A/I01U/I01V/I01T (1 per ship — NOT banned on subs: the keep-condition at 8919-8939 checks only for another sail or Kraken I01X, and the H00V/H00W test at 8907-8918 sits in the violation branch purely to suppress the duplicate-refund message, so a submarine may carry one sail); Only_One_Kraken I01X (exclusive with every hull/sail/repair item); Only_One_Repair I017/I00B/I011/I01W (1 per ship); Only_One_Nuke I01Y (max 1); Only_One_Vulcan I01Z (max 1); Only_One_Sniper I02F/I02M (max 1, enforced only when udg_ModeOnlySailors); Only_One_Torpedo1 I02N/I02O/I02P/I026 (max 1, submarine-only); SubItemsOnly_Copy (non-subs cannot carry ITEM_TYPE_ARTIFACT = torpedo class); SubAcquiredItems (BLACKLIST, lines 9353-9404: subs H00V/H00W may NOT carry the repair woods I00C/I00D/I00E/I01H, the repair crews I017/I00B/I011/I01W, or the Kraken I01X — Func001C returns true iff the item is NONE of those nine; a banned pickup is refunded gold = item HP field and removed, everything else is carryable, so a sub cannot self-repair but can carry ordinary weapons). No_Repair (Instant Death mode) bans I017/I00B/I011/I01W/I01X/I00F/I00T.\n\n3) DAMAGE SCALING — Tech_Upgrade_South/North (14389-14675): upgrades 'R001'=Tower Damage, 'R000'=Tower Defense, 'R005'=Ship Cannons, 'R003'=Ship Hull, 'R004'=Ship Sails ('R002'=Tower Mechanics handled in same trigger): when any ally finishes a research, the trigger copies the new tech level to every allied player via SetPlayerTechResearchedSwap. 'R005' Ship Cannons is the team-wide multiplier on all item-weapon attack damage; per-level numbers live in war3map.w3q, not the script. This is the only damage scaling visible in script.\n\n4) FIXED SCRIPTED DAMAGE (special cases): suicide-mission detonations apply flat damage directly to the enemy HQ building via SetUnitLifeBJ — 4000.0 (goblin-bomb run, items I01E/I01F/I01G, lines 11408-11501) and 6000.0 (superbomb chain I032->I02Z + I02Q, lines 14199-14298); the ship is exploded. GoblinBomber (8752-8805): the 'Bstt' buff (goblin land bomb) kills the buffed ship 5 s after item use/spell cast.\n\n5) TARGETING RULES: Dont_Attack_Friends (8419-8433) issues \"stop\" to any unit that attacks an ally — global friendly-fire prevention applying to all weapon attacks. Items_Not_Buyable (8128-8224) blocks purchases from enemy-side shops. Lumber_Back_From_Contracts (8225-8403) gates the big contract purchases (I00S/I00W/I00M/I01I/I00Q need 4/10/10/18/25 lumber; I00U/I013/I012/I01E/I02I/I02H refund 25/50/50/80/80/80) — IMPORTANT SEMANTICS: the 'need N' amounts are udg_PlayerLumber thresholds (item removed when below, 8328-8390), and the 'refund N' amounts merely give back the ENGINE lumber charge (items.json ilum) that WC3 deducted at purchase; Trig_Lumber_Fix (7430-7441) re-syncs engine lumber to udg_PlayerLumber every 0.5 s, so every contract item is a never-consumed, never-granted lumber THRESHOLD at its items.json ilum value. udg_PlayerLumber is incremented ONLY by trade-route deliveries and the Captain Reward — purchases never mint trigger lumber. Change_Ship (1296-1637) transfers all 6 inventory slots between old and new ship via udg_PlayerHandyMan, so weapons persist across hull changes.\n\nNET SEMANTICS FOR STAT EXTRACTION: 'damage per shot', cooldown, range, AoE and projectile of every standard weapon item are object-data attack-ability fields (extract from w3t item->ability links and w3a/w3u); the engine fires all carried weapons independently and simultaneously (no multi-shot counts in script); team upgrade R005 scales them; missiles are consumable two-item shots whose payload is the Kaboom of dummies h00N/h00O/h00P at a random enemy structure; suicide bombs are flat 4000/6000 HP removal from the HQ.",
  "scriptedItems": [
   {
    "rawcode": "I01N",
@@ -116,7 +236,7 @@
    "aoe": null,
    "projectileSpeed": null,
    "shots": null,
-   "special": "Inert superbomb precursor - deals no damage itself. When a 'H005' Trade Ship carrying I01E + I032 (and NOT carrying I01G or I02Z) enters the cross-map reward refinery rect (gg_rct_NorthReward for south-allied, gg_rct_SouthReward for north-allied), I032 is removed and the armed superbomb I02Z is added in its place; enemy team gets a 12 s minimap ping on their own main base warning of the armed bomb.",
+   "special": "Inert superbomb precursor - deals no damage itself. When a 'H005' Trade Ship carrying I01E + I032 (and NOT carrying I01G or I02Z) enters the OWN team's reward rect (gg_rct_SouthReward for south-allied via Trig_Suicide_Mission_part2_South_Refinery with IsPlayerAlly(Player(0)), gg_rct_NorthReward for north-allied via North_Refinery with IsPlayerAlly(Player(1)) — war3map.j 14131-14198), I032 is removed and the armed superbomb I02Z is added in its place; enemy team gets a 12 s minimap ping on their own main base warning of the armed bomb. I032 itself is obtained at gg_rct_Refinery by swapping I01F while carrying I02Q (Trig_Superbomb_Pick_Up1, 13640-13658 — Refinery upgrade chain, not yet modeled in the sim).",
    "lines": [
     14131,
     14150,
@@ -178,7 +298,7 @@
    "aoe": null,
    "projectileSpeed": null,
    "shots": null,
-   "special": "Submarine weapon (whitelisted). SubAcquiredItems: submarines (H00V/H00W) may only carry I00C/I00D/I00E/I01H plus repair items I017/I00B/I011/I01W and Kraken I01X; anything else is auto-refunded (gold = item HP field) and removed. No stack limit on this item in script; no combat stats in script (object-data attack).",
+   "special": "Sub-banned item (SubAcquiredItems blacklist). Submarines (H00V/H00W) may NOT carry the repair woods I00C/I00D/I00E/I01H, the repair crews I017/I00B/I011/I01W, or the Kraken I01X — a banned pickup is auto-refunded (gold = item HP field) and removed (war3map.j 9353-9404, blacklist condition Func001C); anything NOT on that list is carryable by subs. No stack limit on this item in script; no combat stats in script (object-data heal).",
    "lines": [
     9353,
     9360,
@@ -262,7 +382,7 @@
    "aoe": null,
    "projectileSpeed": null,
    "shots": null,
-   "special": "Submarine weapon (whitelisted). One of the only four weapon items subs may carry (SubAcquiredItems whitelist). No stack limit in script; no combat stats in script (object-data attack).",
+   "special": "Sub-banned item (SubAcquiredItems blacklist). One of the nine items submarines may NOT carry (auto-refunded on pickup, war3map.j 9353-9404). No stack limit in script; no combat stats in script (object-data heal).",
    "lines": [
     9353,
     9360,
@@ -315,7 +435,7 @@
    "aoe": null,
    "projectileSpeed": null,
    "shots": null,
-   "special": "Submarine weapon (whitelisted). One of the only four weapon items subs may carry (SubAcquiredItems whitelist). No stack limit in script; no combat stats in script (object-data attack).",
+   "special": "Sub-banned item (SubAcquiredItems blacklist). One of the nine items submarines may NOT carry (auto-refunded on pickup, war3map.j 9353-9404). No stack limit in script; no combat stats in script (object-data heal).",
    "lines": [
     9353,
     9360,
@@ -393,7 +513,7 @@
    "aoe": null,
    "projectileSpeed": null,
    "shots": null,
-   "special": "Submarine weapon (whitelisted). One of the only four weapon items subs may carry (SubAcquiredItems whitelist). No stack limit in script; no combat stats in script (object-data attack).",
+   "special": "Sub-banned item (SubAcquiredItems blacklist). One of the nine items submarines may NOT carry (auto-refunded on pickup, war3map.j 9353-9404). No stack limit in script; no combat stats in script (object-data heal).",
    "lines": [
     9353,
     9360,

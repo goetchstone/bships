@@ -52,10 +52,10 @@ R005 does **not** touch player weapons. It applies only to the Imperial AI lane 
 | Flame Cannon | I006 | 335 | 50 | 3.00 | 800 | 16.67 | 4.98 | Ships only; **no burn DoT** (visual only); non-homing |
 | Grand Missile (warhead) †‡ | I01Q | 360 | 500* | ~2 (script) | map-wide | 250 | 69.44 | As Small Missile; +1 lumber/shot; fastest payload dummy (400) |
 | Cruiser Cannon | I004 | 405 | 30 | 1.50 | 900 | 20 | 4.94 | Ships & structures; non-homing |
-| Multi-Rocket Cannon | I00G | 650 | 11 | 0.33 | 550 | 33.33 | 5.13 | Ships only; rapid fire; non-homing |
+| Multi-Rocket Cannon | I00G | 650 | 11 | 0.33 | 550 | 33.33 | 5.13 | Ships only; rapid fire; non-homing. Sim quantization: 0.33 s → 7 ticks (0.35 s), effective 31.43 dps (−5.7%) — accepted divergence, see SEMANTICS.md conventions |
 | Cold-Arrows Cannon | I005 | 800 | 30 | 1.00 | 700 | 30 | 3.75 | Ships only; frost visual, **no slow** (tooltip agrees); non-homing |
 | Bowmen Crew | I01B | 1000 | 8 | 0.20 | 800 | 40 | 4.00 | Ships & structures; homing; high arc |
-| Machinegun Cannon | I00H | 1300 | 8 | 0.12 | 450 | 66.67 | 5.13 | Ships & structures; homing; very short range |
+| Machinegun Cannon | I00H | 1300 | 8 | 0.12 | 450 | 66.67 | 5.13 | Ships & structures; homing; very short range. Sim quantization: 0.12 s → 2 ticks (0.10 s), effective 80 dps (+20%) — accepted divergence, see SEMANTICS.md conventions |
 | Boulder Cannon | I010 | 1450 | 100 | 2.00 | 900 | 50 | 3.45 | Ships only; non-homing |
 | Catapult Cannon | I00P | 1875 | 270 | 2.30 | 730 | 117.39 | 6.26 | **Structures only** — cannot hit ships; homing |
 | Bombard Cannon | I00O | 2270 | 40 | 1.25 | 1600 | 32 | 1.41 | Ships only; extreme range; non-homing |

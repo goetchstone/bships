@@ -1,0 +1,1895 @@
+{
+  "provenance": {
+    "map": "BattleShips Pro v1.187",
+    "sources": [
+      "data/extracted/war3map.j (CreateUnitsForPlayer*/CreateNeutral*, CreateRegions, config, main, spawn/income/respawn triggers)",
+      "data/extracted/war3map.w3i (bounds)",
+      "data/json/units.json (names, bounty fields)"
+    ],
+    "coordinateSystem": "WC3 world units, +x east, +y north; facing in degrees (0 = east, CCW)",
+    "tickRate": 20
+  },
+  "mapBounds": {
+    "playableArea": {
+      "minX": -5536.0,
+      "minY": -8192.0,
+      "maxX": 5312.0,
+      "maxY": 6656.0,
+      "note": "matches editor Entire_Map rect and war3map.w3i playable size 85x116 tiles at 128 units/tile"
+    },
+    "cameraBoundsW3i": {
+      "minX": -4992.0,
+      "minY": -7424.0,
+      "maxX": 4864.0,
+      "maxY": 6912.0,
+      "complements": {
+        "left": 5,
+        "right": 6,
+        "bottom": 4,
+        "top": 8
+      }
+    },
+    "cameraBoundsScript": {
+      "minX": -5504.0,
+      "minY": -7680.0,
+      "maxX": 5376.0,
+      "maxY": 7168.0,
+      "note": "SetCameraBounds in main(), before camera-margin adjustment"
+    },
+    "tileset": "L (Lordaeron Summer)"
+  },
+  "playerStarts": {
+    "teams": {
+      "south": {
+        "aiPlayer": 0,
+        "humanPlayers": [
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "displayName": "Southern Alliance"
+      },
+      "north": {
+        "aiPlayer": 1,
+        "humanPlayers": [
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "displayName": "Northern Alliance"
+      }
+    },
+    "startingGold": 200,
+    "players": [
+      {
+        "player": 0,
+        "team": "south",
+        "control": "computer",
+        "startLocation": {
+          "x": -896.0,
+          "y": -6912.0
+        },
+        "note": "South Empire AI: owns south base, towers and creeps"
+      },
+      {
+        "player": 1,
+        "team": "north",
+        "control": "computer",
+        "startLocation": {
+          "x": -1152.0,
+          "y": 6400.0
+        },
+        "note": "North Empire AI: owns north base, towers and creeps"
+      },
+      {
+        "player": 2,
+        "team": "south",
+        "control": "user",
+        "startLocation": {
+          "x": -896.0,
+          "y": -6464.0
+        },
+        "shipSpawn": {
+          "type": "H000",
+          "name": "Battle Ship",
+          "x": -897.7,
+          "y": -6465.1,
+          "facing": 90.0
+        },
+        "startItems": [
+          "I001"
+        ]
+      },
+      {
+        "player": 3,
+        "team": "south",
+        "control": "user",
+        "startLocation": {
+          "x": -1088.0,
+          "y": -6592.0
+        },
+        "shipSpawn": {
+          "type": "H000",
+          "name": "Battle Ship",
+          "x": -1080.9,
+          "y": -6601.2,
+          "facing": 90.0
+        },
+        "startItems": [
+          "I001"
+        ]
+      },
+      {
+        "player": 4,
+        "team": "south",
+        "control": "user",
+        "startLocation": {
+          "x": -704.0,
+          "y": -6592.0
+        },
+        "shipSpawn": {
+          "type": "H000",
+          "name": "Battle Ship",
+          "x": -694.0,
+          "y": -6605.7,
+          "facing": 90.0
+        },
+        "startItems": [
+          "I001"
+        ]
+      },
+      {
+        "player": 5,
+        "team": "south",
+        "control": "user",
+        "startLocation": {
+          "x": -1216.0,
+          "y": -6784.0
+        },
+        "shipSpawn": {
+          "type": "H000",
+          "name": "Battle Ship",
+          "x": -1229.9,
+          "y": -6800.9,
+          "facing": 90.0
+        },
+        "startItems": [
+          "I001"
+        ]
+      },
+      {
+        "player": 6,
+        "team": "south",
+        "control": "user",
+        "startLocation": {
+          "x": -576.0,
+          "y": -6784.0
+        },
+        "shipSpawn": {
+          "type": "H000",
+          "name": "Battle Ship",
+          "x": -568.9,
+          "y": -6792.8,
+          "facing": 92.43
+        },
+        "startItems": [
+          "I001"
+        ]
+      },
+      {
+        "player": 7,
+        "team": "north",
+        "control": "user",
+        "startLocation": {
+          "x": -1152.0,
+          "y": 5952.0
+        },
+        "shipSpawn": {
+          "type": "H000",
+          "name": "Battle Ship",
+          "x": -1159.8,
+          "y": 5953.5,
+          "facing": 270.0
+        },
+        "startItems": [
+          "I001"
+        ]
+      },
+      {
+        "player": 8,
+        "team": "north",
+        "control": "user",
+        "startLocation": {
+          "x": -1344.0,
+          "y": 6080.0
+        },
+        "shipSpawn": {
+          "type": "H000",
+          "name": "Battle Ship",
+          "x": -1356.4,
+          "y": 6082.0,
+          "facing": 270.0
+        },
+        "startItems": [
+          "I001"
+        ]
+      },
+      {
+        "player": 9,
+        "team": "north",
+        "control": "user",
+        "startLocation": {
+          "x": -960.0,
+          "y": 6080.0
+        },
+        "shipSpawn": {
+          "type": "H000",
+          "name": "Battle Ship",
+          "x": -964.9,
+          "y": 6074.4,
+          "facing": 270.0
+        },
+        "startItems": [
+          "I001"
+        ]
+      },
+      {
+        "player": 10,
+        "team": "north",
+        "control": "user",
+        "startLocation": {
+          "x": -1536.0,
+          "y": 6336.0
+        },
+        "shipSpawn": {
+          "type": "H000",
+          "name": "Battle Ship",
+          "x": -1540.9,
+          "y": 6331.5,
+          "facing": 270.0
+        },
+        "startItems": [
+          "I001"
+        ]
+      },
+      {
+        "player": 11,
+        "team": "north",
+        "control": "user",
+        "startLocation": {
+          "x": -832.0,
+          "y": 6272.0
+        },
+        "shipSpawn": {
+          "type": "H000",
+          "name": "Battle Ship",
+          "x": -839.6,
+          "y": 6295.1,
+          "facing": 270.0
+        },
+        "startItems": [
+          "I001"
+        ]
+      }
+    ],
+    "startCameras": {
+      "south": {
+        "x": -908.6,
+        "y": -6616.0,
+        "note": "First_Camera_S; rotation 90, AoA 304, distance 1024.5"
+      },
+      "north": {
+        "x": -1148.6,
+        "y": 6191.5,
+        "note": "First_Camera_N; same fields"
+      }
+    }
+  },
+  "structures": [
+    {
+      "type": "n000",
+      "name": "Main Harbor",
+      "owner": 0,
+      "x": -896.0,
+      "y": -6912.0,
+      "facing": 270.0,
+      "role": "hq",
+      "id": "n000_0020"
+    },
+    {
+      "type": "n003",
+      "name": "Harbor",
+      "owner": 0,
+      "x": -2112.0,
+      "y": -5888.0,
+      "facing": 270.0,
+      "role": "spawnBuilding",
+      "id": "n003_0024",
+      "note": "south-west creep spawn harbor"
+    },
+    {
+      "type": "n003",
+      "name": "Harbor",
+      "owner": 0,
+      "x": 256.0,
+      "y": -5952.0,
+      "facing": 270.0,
+      "role": "spawnBuilding",
+      "id": "n003_0025",
+      "note": "south-east creep spawn harbor"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 0,
+      "x": 832.0,
+      "y": -2496.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 0,
+      "x": -192.0,
+      "y": -2496.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 0,
+      "x": -1664.0,
+      "y": -5696.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 0,
+      "x": -2560.0,
+      "y": -5696.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 0,
+      "x": -192.0,
+      "y": -5696.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 0,
+      "x": 704.0,
+      "y": -5696.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 0,
+      "x": -1600.0,
+      "y": -2496.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 0,
+      "x": -2752.0,
+      "y": -2496.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 0,
+      "x": -1600.0,
+      "y": -6208.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 0,
+      "x": -192.0,
+      "y": -6208.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 0,
+      "x": -1728.0,
+      "y": -7488.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 0,
+      "x": -960.0,
+      "y": -7488.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "nfnp",
+      "name": "Flux Repair System",
+      "owner": 0,
+      "x": -1344.0,
+      "y": -7552.0,
+      "facing": 270.0,
+      "role": "other",
+      "note": "in south repair bay (Repair_Station_South)"
+    },
+    {
+      "type": "H009",
+      "name": "Cruiser",
+      "owner": 0,
+      "x": -1352.5,
+      "y": -230.7,
+      "facing": 66.19,
+      "role": "other",
+      "removedAtMapStart": true,
+      "note": "showcase ship at map center, removed by Map_Start"
+    },
+    {
+      "type": "H00C",
+      "name": "Pirate Ship",
+      "owner": 0,
+      "x": -726.5,
+      "y": -35.4,
+      "facing": 134.25,
+      "role": "other",
+      "removedAtMapStart": true,
+      "note": "showcase ship at map center, removed by Map_Start"
+    },
+    {
+      "type": "H003",
+      "name": "Battle Ship",
+      "owner": 0,
+      "x": -877.0,
+      "y": -320.1,
+      "facing": 101.01,
+      "role": "other",
+      "removedAtMapStart": true,
+      "note": "showcase ship at map center, removed by Map_Start"
+    },
+    {
+      "type": "H006",
+      "name": "Cruiser",
+      "owner": 0,
+      "x": -1041.3,
+      "y": -570.1,
+      "facing": 192.6,
+      "role": "other",
+      "removedAtMapStart": true,
+      "note": "showcase ship at map center, removed by Map_Start"
+    },
+    {
+      "type": "H00D",
+      "name": "Trade Boat",
+      "owner": 0,
+      "x": -883.2,
+      "y": -650.4,
+      "facing": 35.98,
+      "role": "other",
+      "removedAtMapStart": true,
+      "note": "showcase ship at map center, removed by Map_Start"
+    },
+    {
+      "type": "H00J",
+      "name": "Handy-Man",
+      "owner": 0,
+      "x": -1185.7,
+      "y": -725.8,
+      "facing": 241.54,
+      "role": "other",
+      "removedAtMapStart": true,
+      "note": "showcase ship at map center, removed by Map_Start"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 1,
+      "x": -2752.0,
+      "y": 1472.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 1,
+      "x": -1600.0,
+      "y": 1472.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 1,
+      "x": -192.0,
+      "y": 1472.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 1,
+      "x": 832.0,
+      "y": 1472.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n003",
+      "name": "Harbor",
+      "owner": 1,
+      "x": -2304.0,
+      "y": 5248.0,
+      "facing": 270.0,
+      "role": "spawnBuilding",
+      "id": "n003_0016",
+      "note": "north-west creep spawn harbor"
+    },
+    {
+      "type": "n003",
+      "name": "Harbor",
+      "owner": 1,
+      "x": 128.0,
+      "y": 5248.0,
+      "facing": 270.0,
+      "role": "spawnBuilding",
+      "id": "n003_0017",
+      "note": "north-east creep spawn harbor"
+    },
+    {
+      "type": "n000",
+      "name": "Main Harbor",
+      "owner": 1,
+      "x": -1152.0,
+      "y": 6400.0,
+      "facing": 270.0,
+      "role": "hq",
+      "id": "n000_0018"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 1,
+      "x": -320.0,
+      "y": 4928.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 1,
+      "x": 576.0,
+      "y": 4928.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 1,
+      "x": -2752.0,
+      "y": 5056.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 1,
+      "x": -1856.0,
+      "y": 5056.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 1,
+      "x": -1984.0,
+      "y": 5568.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 1,
+      "x": -448.0,
+      "y": 5440.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 1,
+      "x": -1088.0,
+      "y": 6976.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "n004",
+      "name": "Cannon Tower",
+      "owner": 1,
+      "x": -320.0,
+      "y": 6976.0,
+      "facing": 270.0,
+      "role": "tower"
+    },
+    {
+      "type": "nfnp",
+      "name": "Flux Repair System",
+      "owner": 1,
+      "x": -704.0,
+      "y": 6912.0,
+      "facing": 270.0,
+      "role": "other",
+      "note": "in north repair bay (Repair_Station_North)"
+    },
+    {
+      "type": "H008",
+      "name": "Cruiser",
+      "owner": 1,
+      "x": -1095.9,
+      "y": -243.3,
+      "facing": 55.72,
+      "role": "other",
+      "removedAtMapStart": true,
+      "note": "showcase ship at map center, removed by Map_Start"
+    },
+    {
+      "type": "H001",
+      "name": "Battle Ship",
+      "owner": 1,
+      "x": -828.7,
+      "y": -461.6,
+      "facing": 148.52,
+      "role": "other",
+      "removedAtMapStart": true,
+      "note": "showcase ship at map center, removed by Map_Start"
+    },
+    {
+      "type": "H007",
+      "name": "Cruiser",
+      "owner": 1,
+      "x": -1324.5,
+      "y": -576.4,
+      "facing": 109.54,
+      "role": "other",
+      "removedAtMapStart": true,
+      "note": "showcase ship at map center, removed by Map_Start"
+    },
+    {
+      "type": "H004",
+      "name": "Battle Ship",
+      "owner": 1,
+      "x": -769.5,
+      "y": -303.2,
+      "facing": 52.36,
+      "role": "other",
+      "removedAtMapStart": true,
+      "note": "showcase ship at map center, removed by Map_Start"
+    },
+    {
+      "type": "H000",
+      "name": "Battle Ship",
+      "owner": 2,
+      "x": -897.7,
+      "y": -6465.1,
+      "facing": 90.0,
+      "role": "other",
+      "note": "player starting ship; item I001 (Basic Cannon) in slot 0"
+    },
+    {
+      "type": "H000",
+      "name": "Battle Ship",
+      "owner": 3,
+      "x": -1080.9,
+      "y": -6601.2,
+      "facing": 90.0,
+      "role": "other",
+      "note": "player starting ship; item I001 (Basic Cannon) in slot 0"
+    },
+    {
+      "type": "H000",
+      "name": "Battle Ship",
+      "owner": 4,
+      "x": -694.0,
+      "y": -6605.7,
+      "facing": 90.0,
+      "role": "other",
+      "note": "player starting ship; item I001 (Basic Cannon) in slot 0"
+    },
+    {
+      "type": "H000",
+      "name": "Battle Ship",
+      "owner": 5,
+      "x": -1229.9,
+      "y": -6800.9,
+      "facing": 90.0,
+      "role": "other",
+      "note": "player starting ship; item I001 (Basic Cannon) in slot 0"
+    },
+    {
+      "type": "H000",
+      "name": "Battle Ship",
+      "owner": 6,
+      "x": -568.9,
+      "y": -6792.8,
+      "facing": 92.43,
+      "role": "other",
+      "note": "player starting ship; item I001 (Basic Cannon) in slot 0"
+    },
+    {
+      "type": "H000",
+      "name": "Battle Ship",
+      "owner": 7,
+      "x": -1159.8,
+      "y": 5953.5,
+      "facing": 270.0,
+      "role": "other",
+      "note": "player starting ship; item I001 (Basic Cannon) in slot 0"
+    },
+    {
+      "type": "H000",
+      "name": "Battle Ship",
+      "owner": 8,
+      "x": -1356.4,
+      "y": 6082.0,
+      "facing": 270.0,
+      "role": "other",
+      "note": "player starting ship; item I001 (Basic Cannon) in slot 0"
+    },
+    {
+      "type": "H000",
+      "name": "Battle Ship",
+      "owner": 9,
+      "x": -964.9,
+      "y": 6074.4,
+      "facing": 270.0,
+      "role": "other",
+      "note": "player starting ship; item I001 (Basic Cannon) in slot 0"
+    },
+    {
+      "type": "H000",
+      "name": "Battle Ship",
+      "owner": 10,
+      "x": -1540.9,
+      "y": 6331.5,
+      "facing": 270.0,
+      "role": "other",
+      "note": "player starting ship; item I001 (Basic Cannon) in slot 0"
+    },
+    {
+      "type": "H000",
+      "name": "Battle Ship",
+      "owner": 11,
+      "x": -839.6,
+      "y": 6295.1,
+      "facing": 270.0,
+      "role": "other",
+      "note": "player starting ship; item I001 (Basic Cannon) in slot 0"
+    },
+    {
+      "type": "n00A",
+      "name": "Swedish Lumber Mill",
+      "owner": "neutral",
+      "x": -4640.0,
+      "y": -928.0,
+      "facing": 270.0,
+      "role": "shop",
+      "resourceAmount": 12500
+    },
+    {
+      "type": "n009",
+      "name": "Goblin Potion Dealer",
+      "owner": "neutral",
+      "x": -4960.0,
+      "y": -5344.0,
+      "facing": 270.0,
+      "role": "shop",
+      "resourceAmount": 12500
+    },
+    {
+      "type": "n00C",
+      "name": "Elven Library",
+      "owner": "neutral",
+      "x": -4832.0,
+      "y": 5216.0,
+      "facing": 270.0,
+      "role": "shop",
+      "resourceAmount": 12500,
+      "note": "north Elven Library copy"
+    },
+    {
+      "type": "n006",
+      "name": "Ship Wreck",
+      "owner": "neutral",
+      "x": 4768.0,
+      "y": 5024.0,
+      "facing": 270.0,
+      "role": "shop",
+      "resourceAmount": 12500,
+      "note": "in GhostShip region"
+    },
+    {
+      "type": "n00B",
+      "name": "Elven Library",
+      "owner": "neutral",
+      "x": 4704.0,
+      "y": -4960.0,
+      "facing": 270.0,
+      "role": "shop",
+      "resourceAmount": 12500,
+      "id": "n00B_0009"
+    },
+    {
+      "type": "n008",
+      "name": "Ale Brewery",
+      "owner": "neutral",
+      "x": 4768.0,
+      "y": -2016.0,
+      "facing": 270.0,
+      "role": "shop",
+      "resourceAmount": 12500,
+      "note": "in AleFactory region"
+    },
+    {
+      "type": "n002",
+      "name": "Equipment Merchant",
+      "owner": "neutral",
+      "x": -256.0,
+      "y": 5760.0,
+      "facing": 270.0,
+      "role": "shop",
+      "id": "n002_0011"
+    },
+    {
+      "type": "n007",
+      "name": "Heavy Weapons Merchant",
+      "owner": "neutral",
+      "x": -128.0,
+      "y": 6272.0,
+      "facing": 270.0,
+      "role": "shop",
+      "id": "n007_0012"
+    },
+    {
+      "type": "n001",
+      "name": "Weapons Merchant",
+      "owner": "neutral",
+      "x": 128.0,
+      "y": 5888.0,
+      "facing": 270.0,
+      "role": "shop",
+      "id": "n001_0013"
+    },
+    {
+      "type": "n002",
+      "name": "Equipment Merchant",
+      "owner": "neutral",
+      "x": -1664.0,
+      "y": -6528.0,
+      "facing": 270.0,
+      "role": "shop",
+      "id": "n002_0014"
+    },
+    {
+      "type": "n00F",
+      "name": "Bill (Trade Master)",
+      "owner": "neutral",
+      "x": -2048.0,
+      "y": 6464.0,
+      "facing": 270.0,
+      "role": "shop",
+      "id": "n00F_0015",
+      "note": "north contract turn-in (NorthReward)"
+    },
+    {
+      "type": "n005",
+      "name": "Pirate Boat Merchant",
+      "owner": "neutral",
+      "x": 3904.0,
+      "y": -256.0,
+      "facing": 270.0,
+      "role": "shop",
+      "id": "n005_0019",
+      "note": "in PiratePurchaseShop region"
+    },
+    {
+      "type": "n00E",
+      "name": "Will (Trade Master)",
+      "owner": "neutral",
+      "x": 0.0,
+      "y": -6464.0,
+      "facing": 270.0,
+      "role": "shop",
+      "id": "n00E_0021",
+      "note": "south contract turn-in (SouthReward)"
+    },
+    {
+      "type": "n001",
+      "name": "Weapons Merchant",
+      "owner": "neutral",
+      "x": -2048.0,
+      "y": -6656.0,
+      "facing": 270.0,
+      "role": "shop",
+      "id": "n001_0022"
+    },
+    {
+      "type": "n007",
+      "name": "Heavy Weapons Merchant",
+      "owner": "neutral",
+      "x": -1920.0,
+      "y": -7040.0,
+      "facing": 270.0,
+      "role": "shop",
+      "id": "n007_0023"
+    },
+    {
+      "type": "n00H",
+      "name": "Goblin Bomb Shop",
+      "owner": "neutral",
+      "x": 3712.0,
+      "y": 1152.0,
+      "facing": 270.0,
+      "role": "shop",
+      "note": "in GoblinBombShop region"
+    },
+    {
+      "type": "nten",
+      "name": null,
+      "owner": "neutral",
+      "x": 544.0,
+      "y": 6496.0,
+      "facing": 270.0,
+      "role": "other",
+      "note": "unmodified base unit, not in units.json (decorative)"
+    },
+    {
+      "type": "nten",
+      "name": null,
+      "owner": "neutral",
+      "x": -2592.0,
+      "y": -7200.0,
+      "facing": 270.0,
+      "role": "other",
+      "note": "unmodified base unit, not in units.json (decorative)"
+    },
+    {
+      "type": "n00L",
+      "name": "Refinery",
+      "owner": "neutral",
+      "x": -960.0,
+      "y": -1024.0,
+      "facing": 270.0,
+      "role": "other",
+      "resourceAmount": 12500,
+      "note": "contract delivery point (Refinery region)"
+    },
+    {
+      "type": "npig",
+      "name": null,
+      "owner": "neutral",
+      "x": -4781.1,
+      "y": 4933.0,
+      "facing": 347.025,
+      "role": "other",
+      "note": "critter (Pigfarm area), not in units.json"
+    },
+    {
+      "type": "npig",
+      "name": null,
+      "owner": "neutral",
+      "x": -4453.2,
+      "y": 5371.5,
+      "facing": 326.194,
+      "role": "other",
+      "note": "critter (Pigfarm area), not in units.json"
+    },
+    {
+      "type": "npig",
+      "name": null,
+      "owner": "neutral",
+      "x": -4951.2,
+      "y": 4871.4,
+      "facing": 89.377,
+      "role": "other",
+      "note": "critter (Pigfarm area), not in units.json"
+    },
+    {
+      "type": "nfro",
+      "name": null,
+      "owner": "neutral",
+      "x": -1001.8,
+      "y": -1431.7,
+      "facing": 33.905,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nfro",
+      "name": null,
+      "owner": "neutral",
+      "x": -1107.1,
+      "y": -1181.3,
+      "facing": 203.539,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nfro",
+      "name": null,
+      "owner": "neutral",
+      "x": -979.9,
+      "y": 3582.1,
+      "facing": 221.205,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nfro",
+      "name": null,
+      "owner": "neutral",
+      "x": -3934.6,
+      "y": 3049.6,
+      "facing": 47.495,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nfro",
+      "name": null,
+      "owner": "neutral",
+      "x": -3572.2,
+      "y": 3060.6,
+      "facing": 266.668,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nfro",
+      "name": null,
+      "owner": "neutral",
+      "x": -4076.2,
+      "y": 3553.4,
+      "facing": 187.696,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nfro",
+      "name": null,
+      "owner": "neutral",
+      "x": -3253.1,
+      "y": 3562.7,
+      "facing": 149.496,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nalb",
+      "name": null,
+      "owner": "neutral",
+      "x": -997.5,
+      "y": -4745.5,
+      "facing": 278.831,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nalb",
+      "name": null,
+      "owner": "neutral",
+      "x": -3732.4,
+      "y": -4498.2,
+      "facing": 297.486,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nalb",
+      "name": null,
+      "owner": "neutral",
+      "x": 3223.6,
+      "y": 425.3,
+      "facing": 330.215,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nalb",
+      "name": null,
+      "owner": "neutral",
+      "x": 4592.9,
+      "y": -2287.1,
+      "facing": 83.389,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nalb",
+      "name": null,
+      "owner": "neutral",
+      "x": -4582.0,
+      "y": 289.3,
+      "facing": 57.988,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nalb",
+      "name": null,
+      "owner": "neutral",
+      "x": -3678.5,
+      "y": 3462.6,
+      "facing": 156.999,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nalb",
+      "name": null,
+      "owner": "neutral",
+      "x": 1413.7,
+      "y": 3770.9,
+      "facing": 137.773,
+      "role": "other",
+      "note": "critter"
+    },
+    {
+      "type": "nalb",
+      "name": null,
+      "owner": "neutral",
+      "x": -1159.5,
+      "y": 4853.4,
+      "facing": 249.54,
+      "role": "other",
+      "note": "critter"
+    }
+  ],
+  "regions": [
+    {
+      "name": "South_Harbour",
+      "minX": -2880.0,
+      "minY": -7680.0,
+      "maxX": 1280.0,
+      "maxY": -5600.0,
+      "centerX": -800.0,
+      "centerY": -6640.0,
+      "purpose": "south team base zone; start vision; sub surface/dive boundary"
+    },
+    {
+      "name": "North_Harbour",
+      "minX": -3040.0,
+      "minY": 4736.0,
+      "maxX": 736.0,
+      "maxY": 7168.0,
+      "centerX": -1152.0,
+      "centerY": 5952.0,
+      "purpose": "north team base zone; start vision; sub surface/dive boundary"
+    },
+    {
+      "name": "Harbour1_South",
+      "minX": -2560.0,
+      "minY": -6144.0,
+      "maxX": -1632.0,
+      "maxY": -5248.0,
+      "centerX": -2096.0,
+      "centerY": -5696.0,
+      "purpose": "south-west creep spawn zone; north creeps re-order to south HQ on entry"
+    },
+    {
+      "name": "Harbour2_South",
+      "minX": -256.0,
+      "minY": -6208.0,
+      "maxX": 800.0,
+      "maxY": -5376.0,
+      "centerX": 272.0,
+      "centerY": -5792.0,
+      "purpose": "south-east creep spawn zone; north creeps re-order to south HQ on entry"
+    },
+    {
+      "name": "Harbour2_North",
+      "minX": -320.0,
+      "minY": 4736.0,
+      "maxX": 672.0,
+      "maxY": 5472.0,
+      "centerX": 176.0,
+      "centerY": 5104.0,
+      "purpose": "north-east creep spawn zone; south creeps re-order to north HQ on entry"
+    },
+    {
+      "name": "Harbour1_North",
+      "minX": -2848.0,
+      "minY": 4736.0,
+      "maxX": -1792.0,
+      "maxY": 5472.0,
+      "centerX": -2320.0,
+      "centerY": 5104.0,
+      "purpose": "north-west creep spawn zone; south creeps re-order to north HQ on entry"
+    },
+    {
+      "name": "Repair_Station_South",
+      "minX": -1632.0,
+      "minY": -7680.0,
+      "maxX": -1056.0,
+      "maxY": -7104.0,
+      "centerX": -1344.0,
+      "centerY": -7392.0,
+      "purpose": "south repair bay (4x h002 Repairman spawned; ship paused+invulnerable)"
+    },
+    {
+      "name": "Repair_Out_South",
+      "minX": -1408.0,
+      "minY": -7040.0,
+      "maxX": -1280.0,
+      "maxY": -6912.0,
+      "centerX": -1344.0,
+      "centerY": -6976.0,
+      "purpose": "south repair bay exit move target"
+    },
+    {
+      "name": "Repair_Station_North",
+      "minX": -992.0,
+      "minY": 6496.0,
+      "maxX": -416.0,
+      "maxY": 6944.0,
+      "centerX": -704.0,
+      "centerY": 6720.0,
+      "purpose": "north repair bay"
+    },
+    {
+      "name": "Repair_Out_North",
+      "minX": -768.0,
+      "minY": 6272.0,
+      "maxX": -640.0,
+      "maxY": 6400.0,
+      "centerX": -704.0,
+      "centerY": 6336.0,
+      "purpose": "north repair bay exit move target"
+    },
+    {
+      "name": "SouthReward",
+      "minX": -224.0,
+      "minY": -6720.0,
+      "maxX": 224.0,
+      "maxY": -6400.0,
+      "centerX": 0.0,
+      "centerY": -6560.0,
+      "purpose": "south contract/quest turn-in zone (Will, Trade Master)"
+    },
+    {
+      "name": "NorthReward",
+      "minX": -2272.0,
+      "minY": 6176.0,
+      "maxX": -1792.0,
+      "maxY": 6592.0,
+      "centerX": -2032.0,
+      "centerY": 6384.0,
+      "purpose": "north contract/quest turn-in zone (Bill, Trade Master)"
+    },
+    {
+      "name": "GoblinPotionShop",
+      "minX": -5248.0,
+      "minY": -5728.0,
+      "maxX": -4640.0,
+      "maxY": -5120.0,
+      "centerX": -4944.0,
+      "centerY": -5424.0,
+      "purpose": "contract pickup: Goblin Potion"
+    },
+    {
+      "name": "ElvenLibrary",
+      "minX": 4416.0,
+      "minY": -5280.0,
+      "maxX": 5024.0,
+      "maxY": -4640.0,
+      "centerX": 4720.0,
+      "centerY": -4960.0,
+      "purpose": "contract pickup: Elven Book",
+      "weatherEffect": "LRma"
+    },
+    {
+      "name": "GhostShip",
+      "minX": 4448.0,
+      "minY": 4640.0,
+      "maxX": 5056.0,
+      "maxY": 5248.0,
+      "centerX": 4752.0,
+      "centerY": 4944.0,
+      "purpose": "contract pickup: Ghost Box (Ship Wreck shop)",
+      "weatherEffect": "FDwh"
+    },
+    {
+      "name": "Pigfarm",
+      "minX": -5088.0,
+      "minY": 4928.0,
+      "maxX": -4480.0,
+      "maxY": 5568.0,
+      "centerX": -4784.0,
+      "centerY": 5248.0,
+      "purpose": "contract pickup: Fat Pig"
+    },
+    {
+      "name": "SwedeLumberMill",
+      "minX": -5184.0,
+      "minY": -1280.0,
+      "maxX": -4288.0,
+      "maxY": -512.0,
+      "centerX": -4736.0,
+      "centerY": -896.0,
+      "purpose": "contract pickup: Swedish Raw Wood; treasure hunt waypoint",
+      "weatherEffect": "LRaa"
+    },
+    {
+      "name": "AleFactory",
+      "minX": 4448.0,
+      "minY": -2304.0,
+      "maxX": 4992.0,
+      "maxY": -1696.0,
+      "centerX": 4720.0,
+      "centerY": -2000.0,
+      "purpose": "contract pickup: Barrel of Ale"
+    },
+    {
+      "name": "SouthRespawn",
+      "minX": -1024.0,
+      "minY": -6528.0,
+      "maxX": -768.0,
+      "maxY": -6272.0,
+      "centerX": -896.0,
+      "centerY": -6400.0,
+      "purpose": "south hero respawn/revive point"
+    },
+    {
+      "name": "NorthRespawn",
+      "minX": -1280.0,
+      "minY": 5824.0,
+      "maxX": -1024.0,
+      "maxY": 6080.0,
+      "centerX": -1152.0,
+      "centerY": 5952.0,
+      "purpose": "north hero respawn/revive point"
+    },
+    {
+      "name": "North_Main",
+      "minX": -1824.0,
+      "minY": 5824.0,
+      "maxX": -480.0,
+      "maxY": 6496.0,
+      "centerX": -1152.0,
+      "centerY": 6160.0,
+      "purpose": "north main-base interior; surfaced subs teleported out to SubMoveNorth"
+    },
+    {
+      "name": "South_Main",
+      "minX": -1472.0,
+      "minY": -6944.0,
+      "maxX": -320.0,
+      "maxY": -6272.0,
+      "centerX": -896.0,
+      "centerY": -6608.0,
+      "purpose": "south main-base interior; surfaced subs teleported out to SubMoveSouth"
+    },
+    {
+      "name": "Entire_Map",
+      "minX": -5536.0,
+      "minY": -8192.0,
+      "maxX": 5312.0,
+      "maxY": 6656.0,
+      "centerX": -112.0,
+      "centerY": -768.0,
+      "purpose": "editor whole-map rect (playable bounds)"
+    },
+    {
+      "name": "GoblinBombShop",
+      "minX": 3424.0,
+      "minY": 832.0,
+      "maxX": 4064.0,
+      "maxY": 1376.0,
+      "centerX": 3744.0,
+      "centerY": 1104.0,
+      "purpose": "contract pickup: Ammo / Repair Mission / Suicide Mission part 1"
+    },
+    {
+      "name": "RemoveShips",
+      "minX": -1856.0,
+      "minY": -960.0,
+      "maxX": -288.0,
+      "maxY": 704.0,
+      "centerX": -1072.0,
+      "centerY": -128.0,
+      "purpose": "showcase ships inside are removed at map start"
+    },
+    {
+      "name": "Temp_Item_Region",
+      "minX": -5376.0,
+      "minY": -7616.0,
+      "maxX": -4992.0,
+      "maxY": -7168.0,
+      "centerX": -5184.0,
+      "centerY": -7392.0,
+      "purpose": "dump location for disallowed/duplicate items"
+    },
+    {
+      "name": "StreetMerchant",
+      "minX": 352.0,
+      "minY": 6368.0,
+      "maxX": 448.0,
+      "maxY": 6464.0,
+      "centerX": 400.0,
+      "centerY": 6416.0,
+      "purpose": "random Street Merchant (n00R) spawn point, north"
+    },
+    {
+      "name": "StreetMerchant1",
+      "minX": -2496.0,
+      "minY": -7136.0,
+      "maxX": -2400.0,
+      "maxY": -7040.0,
+      "centerX": -2448.0,
+      "centerY": -7088.0,
+      "purpose": "random Street Merchant (n00R) spawn point, south"
+    },
+    {
+      "name": "SubMoveNorth",
+      "minX": -1248.0,
+      "minY": 4512.0,
+      "maxX": -1120.0,
+      "maxY": 4640.0,
+      "centerX": -1184.0,
+      "centerY": 4576.0,
+      "purpose": "teleport-out point for surfaced subs entering North_Main"
+    },
+    {
+      "name": "SubMoveSouth",
+      "minX": -1056.0,
+      "minY": -5088.0,
+      "maxX": -960.0,
+      "maxY": -4992.0,
+      "centerX": -1008.0,
+      "centerY": -5040.0,
+      "purpose": "teleport-out point for surfaced subs entering South_Main"
+    },
+    {
+      "name": "PiratePurchaseShop",
+      "minX": 3360.0,
+      "minY": -832.0,
+      "maxX": 4320.0,
+      "maxY": 256.0,
+      "centerX": 3840.0,
+      "centerY": -288.0,
+      "purpose": "Pirate Boat Merchant zone (Black Pearl purchase)"
+    },
+    {
+      "name": "Refinery",
+      "minX": -1440.0,
+      "minY": -832.0,
+      "maxX": -736.0,
+      "maxY": -480.0,
+      "centerX": -1088.0,
+      "centerY": -656.0,
+      "purpose": "contract delivery zone at map center (all *_Pick_Up triggers)"
+    }
+  ],
+  "creepSpawns": {
+    "description": "Periodic Imperial creep waves spawned for the two AI empire players (Trig_Rowboat_Spawn / Trig_Battle_Ship_Spawn / Trig_Cruiser_Spawn -> Trig_Spawn_Ships). Each wave spawns at every lane whose own Harbor (n003) is alive.",
+    "firstWavesFiredAtMapStart": true,
+    "waves": [
+      {
+        "name": "rowboat",
+        "periodSeconds": 35.0,
+        "periodTicks": 700,
+        "count": 6,
+        "preSpawnSleepSeconds": 0.0,
+        "typeWhileEnemyHarborAlive": "h00I",
+        "typeAfterEnemyHarborDestroyed": "h00E",
+        "unitNames": {
+          "h00I": "Imperial Rowboat",
+          "h00E": "Imperial Rowboat"
+        }
+      },
+      {
+        "name": "battleship",
+        "periodSeconds": 80.0,
+        "periodTicks": 1600,
+        "count": 4,
+        "preSpawnSleepSeconds": 2.0,
+        "typeWhileEnemyHarborAlive": "h00B",
+        "typeAfterEnemyHarborDestroyed": "h00F",
+        "unitNames": {
+          "h00B": "Imperial Battle Ship",
+          "h00F": "Imperial Battle Ship"
+        }
+      },
+      {
+        "name": "cruiser",
+        "periodSeconds": 190.0,
+        "periodTicks": 3800,
+        "count": 1,
+        "preSpawnSleepSeconds": 7.0,
+        "typeWhileEnemyHarborAlive": "h00H",
+        "typeAfterEnemyHarborDestroyed": "h00G",
+        "unitNames": {
+          "h00H": "Imperial Cruiser",
+          "h00G": "Imperial Cruiser"
+        }
+      }
+    ],
+    "spawnRule": "Per lane: spawn only if own n003 Harbor alive. While the destination (enemy) lane Harbor is alive spawn the bounty-giving type, after it is destroyed spawn the zero-bounty variant (identical combat stats, ubba/ubdi/ubsi = 0).",
+    "orderQuirk": "After spawning, ALL creep-owner units inside the spawn rect (not just the new ones) are issued attack-move to the lane waypoint.",
+    "lanes": [
+      {
+        "id": "south-west",
+        "creepOwner": 0,
+        "team": "south",
+        "spawnRegion": "Harbour1_South",
+        "spawnPoint": {
+          "x": -2096.0,
+          "y": -5696.0
+        },
+        "spawnFacing": 90.0,
+        "requiresOwnHarborAlive": "n003_0024",
+        "bountyGateEnemyHarbor": "n003_0016",
+        "waypoints": [
+          {
+            "order": "attack",
+            "kind": "regionCenter",
+            "region": "Harbour1_North",
+            "x": -2320.0,
+            "y": 5104.0
+          },
+          {
+            "order": "attack",
+            "kind": "unitPosition",
+            "unit": "n000_0018",
+            "x": -1152.0,
+            "y": 6400.0,
+            "issuedOnEnteringRegions": [
+              "Harbour1_North",
+              "Harbour2_North"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "south-east",
+        "creepOwner": 0,
+        "team": "south",
+        "spawnRegion": "Harbour2_South",
+        "spawnPoint": {
+          "x": 272.0,
+          "y": -5792.0
+        },
+        "spawnFacing": 90.0,
+        "requiresOwnHarborAlive": "n003_0025",
+        "bountyGateEnemyHarbor": "n003_0017",
+        "waypoints": [
+          {
+            "order": "attack",
+            "kind": "regionCenter",
+            "region": "Harbour2_North",
+            "x": 176.0,
+            "y": 5104.0
+          },
+          {
+            "order": "attack",
+            "kind": "unitPosition",
+            "unit": "n000_0018",
+            "x": -1152.0,
+            "y": 6400.0,
+            "issuedOnEnteringRegions": [
+              "Harbour1_North",
+              "Harbour2_North"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "north-west",
+        "creepOwner": 1,
+        "team": "north",
+        "spawnRegion": "Harbour1_North",
+        "spawnPoint": {
+          "x": -2320.0,
+          "y": 5104.0
+        },
+        "spawnFacing": 270.0,
+        "requiresOwnHarborAlive": "n003_0016",
+        "bountyGateEnemyHarbor": "n003_0024",
+        "waypoints": [
+          {
+            "order": "attack",
+            "kind": "regionCenter",
+            "region": "Harbour1_South",
+            "x": -2096.0,
+            "y": -5696.0
+          },
+          {
+            "order": "attack",
+            "kind": "unitPosition",
+            "unit": "n000_0020",
+            "x": -896.0,
+            "y": -6912.0,
+            "issuedOnEnteringRegions": [
+              "Harbour1_South",
+              "Harbour2_South"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "north-east",
+        "creepOwner": 1,
+        "team": "north",
+        "spawnRegion": "Harbour2_North",
+        "spawnPoint": {
+          "x": 176.0,
+          "y": 5104.0
+        },
+        "spawnFacing": 90.0,
+        "requiresOwnHarborAlive": "n003_0017",
+        "bountyGateEnemyHarbor": "n003_0025",
+        "waypoints": [
+          {
+            "order": "attack",
+            "kind": "regionCenter",
+            "region": "Harbour2_South",
+            "x": 272.0,
+            "y": -5792.0
+          },
+          {
+            "order": "attack",
+            "kind": "unitPosition",
+            "unit": "n000_0020",
+            "x": -896.0,
+            "y": -6912.0,
+            "issuedOnEnteringRegions": [
+              "Harbour1_South",
+              "Harbour2_South"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "income": {
+    "goldPerSecond": {
+      "intervalSeconds": 1.0,
+      "intervalTicks": 20,
+      "condition": "north Main Harbor (n000_0018) alive \u2014 BOTH teams' triggers check this same unit (apparent original-script bug; south HQ death does not stop income)",
+      "byHumanCountOnTeam": {
+        "1": {
+          "perHumanSlot": 5,
+          "toTeamAi": 5
+        },
+        "2": {
+          "perHumanSlot": 5,
+          "toTeamAi": 0
+        },
+        "3": {
+          "perHumanSlot": 3,
+          "toTeamAi": 1
+        },
+        "4": {
+          "perHumanSlot": 2,
+          "toTeamAi": 2
+        },
+        "5": {
+          "perHumanSlot": 2,
+          "toTeamAi": 0
+        }
+      },
+      "note": "Gold is granted to all five human slots of the team regardless of occupancy. humanCount = MAP_CONTROL_USER slots counted at start (clamped to min 1). Source: Trig_GoldPerSecondRed/Blue."
+    },
+    "empireGoldShare": {
+      "periodSeconds": {
+        "min": 60.0,
+        "max": 120.0
+      },
+      "note": "Trig_Empire_Gold: period is GetRandomReal(60,120) rolled ONCE at init (nondeterministic in original; replicate with seeded Rng). Each team AI player's accumulated gold is split evenly (integer division by team human count) to each non-AI ally, then AI gold is reset to 0."
+    },
+    "lumberSync": {
+      "periodSeconds": 0.5,
+      "periodTicks": 10,
+      "note": "Trig_Lumber_Fix: displayed lumber forced to trigger-managed udg_PlayerLumber (contract economy; see script-rules.json)."
+    },
+    "goldDump": {
+      "periodSeconds": 15.0,
+      "periodTicks": 300,
+      "note": "Opt-in via '-golddump on/off' chat: player's full gold transferred to own team AI every 15s (Trig_Dump_*)."
+    },
+    "bounty": {
+      "givesBountyEnabledForAllPlayers": true,
+      "source": "units.json ubba/ubdi/ubsi fields (bounty = ubba + ubdi rolls of 1..ubsi)",
+      "examples": {
+        "h00I": {
+          "base": 5,
+          "dice": 2,
+          "sides": 10
+        },
+        "h00B": {
+          "base": 12,
+          "dice": 2,
+          "sides": 25
+        },
+        "h00H": {
+          "base": 25,
+          "dice": 2,
+          "sides": 50
+        },
+        "h00E": {
+          "base": 0,
+          "dice": 0,
+          "sides": 0
+        },
+        "h00F": {
+          "base": 0,
+          "dice": 0,
+          "sides": 0
+        },
+        "h00G": {
+          "base": 0,
+          "dice": 0,
+          "sides": 0
+        },
+        "n003": {
+          "base": 499,
+          "dice": 1,
+          "sides": 1
+        },
+        "n004": {
+          "base": 499,
+          "dice": 1,
+          "sides": 1
+        },
+        "n00D": {
+          "base": 999,
+          "dice": 1,
+          "sides": 1
+        },
+        "n00Q": {
+          "base": 999,
+          "dice": 1,
+          "sides": 1
+        },
+        "H000": {
+          "base": 79,
+          "dice": 1,
+          "sides": 1
+        }
+      }
+    },
+    "heroRespawn": {
+      "delaySecondsFormula": "2 * heroLevel + 5 + randomInt(0, 3)",
+      "reviveRegion": {
+        "south": "SouthRespawn",
+        "north": "NorthRespawn"
+      },
+      "invulnerableAfterReviveSeconds": 5.0,
+      "source": "Trig_Kills_Respawn"
+    },
+    "xp": {
+      "combat": "standard WC3 hero XP from kills (no custom combat-XP triggers found)",
+      "questAwards": "AddHeroXP in contract triggers, e.g. 1200 (suicide mission turn-in), 300 (repair mission), 80/125 (trade deliveries) \u2014 quest economy detailed in script-rules.json"
+    }
+  },
+  "periodicTriggers": [
+    {
+      "name": "Rowboat_Spawn",
+      "periodSeconds": 35.0,
+      "effect": "creep wave (see creepSpawns)"
+    },
+    {
+      "name": "Battle_Ship_Spawn",
+      "periodSeconds": 80.0,
+      "effect": "creep wave"
+    },
+    {
+      "name": "Cruiser_Spawn",
+      "periodSeconds": 190.0,
+      "effect": "creep wave"
+    },
+    {
+      "name": "GoldPerSecondRed/Blue",
+      "periodSeconds": 1.0,
+      "effect": "team income (see income.goldPerSecond)"
+    },
+    {
+      "name": "Lumber_Fix",
+      "periodSeconds": 0.5,
+      "effect": "sync displayed lumber"
+    },
+    {
+      "name": "Empire_Gold",
+      "periodSeconds": "random 60-120 (single init roll)",
+      "effect": "AI gold redistribution"
+    },
+    {
+      "name": "Dump_<color> x10",
+      "periodSeconds": 15.0,
+      "effect": "opt-in golddump to team AI"
+    },
+    {
+      "name": "Buggfix",
+      "periodSeconds": 20.0,
+      "effect": "maintenance/stuck-state cleanup"
+    },
+    {
+      "name": "FlashQuest",
+      "periodSeconds": 60.0,
+      "effect": "cosmetic: flash quest button"
+    },
+    {
+      "name": "Weather",
+      "periodSeconds": "random 50-100 (single init roll)",
+      "effect": "cosmetic weather cycling"
+    },
+    {
+      "name": "Seagull_Sounds",
+      "periodSeconds": "random 60-120 (single init roll)",
+      "effect": "ambient sound"
+    },
+    {
+      "name": "SentryWard / SentryWard1",
+      "singleAtSeconds": [
+        5.0,
+        7.0
+      ],
+      "effect": "at t=5s roll randomInt(1,12); if >9, at t=7s spawn one n00R Street Merchant at StreetMerchant1 (facing 45) and StreetMerchant (facing 245)"
+    },
+    {
+      "name": "IDWarning / IDCountdown / RandomKill",
+      "singleAtSeconds": [
+        3900.0,
+        4500.0,
+        5400.0
+      ],
+      "effect": "anti-stall: warnings, then RandomKill (disabled by default) wipes one randomly chosen team at 90 min"
+    }
+  ],
+  "notes": [
+    "LANES: the script defines exactly TWO creep lanes per team (west Harbour1, east Harbour2). There is no third/middle spawn lane; the middle corridor only holds the four mid towers per side (y=-2496 south, y=1472 north) and the Refinery.",
+    "n00D Missile Firing-Ramp and n00Q Missile Silo are NOT preplaced; they are created by the missile system at runtime (see script-rules.json missile rules). Bounty fields included under income.bounty.examples.",
+    "Both GoldPerSecond triggers (Red and Blue) are conditioned on the NORTH Main Harbor (n000_0018) being alive \u2014 apparent original bug kept for faithfulness.",
+    "The 10 hero ships preplaced for players 0/1 near map center are a showcase; Map_Start removes every unit in the RemoveShips rect before play.",
+    "Players 2-11 each start with one H000 'Battle Ship' hero carrying item I001 (Basic Cannon); udg_PlayerBoat is bound to it at start.",
+    "Spawn facing quirk: south lanes and Harbour2_North spawn facing 90, Harbour1_North spawns facing 270 (verbatim from script).",
+    "Zero-bounty creep variants (h00E/h00F/h00G) have combat stats identical to their bounty twins (h00I/h00B/h00H) in units.json; only bounty and unit level differ.",
+    "nten (x2) and npig (x3) rawcodes are absent from units.json (unmodified base units); names left null.",
+    "Game-mode vote at start (Normal / NoPearl+NoTraders / NoBlackPearl / NoTraders / OnlyTraders / OnlySailors) alters availability, not layout; not extracted here.",
+    "Repair bays: entering Repair_Station_* with a damaged allied hero pauses it invulnerable, spawns 4 h002 Repairmen who repair to full, then the ship is moved to Repair_Out_*; one ship at a time per bay."
+  ]
+}

@@ -22,6 +22,21 @@ chosen name, claimable later with email/password.
 - Rulesets are pure data (JSON overrides) — the simulation core never
   hardcodes balance numbers.
 
+## Camera & rendering
+
+- 2.5D "slight angle": WC3-style tilted-camera look on the PixiJS 2D renderer —
+  slight vertical foreshortening of the world plane, ship/structure sprites
+  authored from a 3/4 angled view, y-sorted draw order so tall objects (sails,
+  towers) read as standing up. Not flat top-down, not full 3D. A true
+  perspective tilt (pixi-projection) is an allowed later upgrade; the renderer
+  must keep world-space and screen-space transforms behind one camera
+  abstraction so this can change without touching game code.
+- Zoom: mouse-wheel zoom-to-cursor, smooth, clamped [close-up … overview].
+  The allowed zoom range is a lobby/ruleset setting and is capped in ranked
+  play (zoom-out grants screen real estate; vision itself stays server-side
+  fog of war, so zoom never reveals unexplored/unscouted areas).
+- Camera pan: edge scroll + middle-drag + minimap click, WC3 muscle memory.
+
 ## Controls
 
 - All frequently-used keys must sit in the left-hand home cluster

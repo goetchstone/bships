@@ -1,0 +1,1226 @@
+/**
+ * Specials system: missiles, suicide quests, invisibility/detection, dive,
+ * teleports, region triggers, wards, exotic ship abilities.
+ *
+ * Responsibilities:
+ * - Visibility (SEMANTICS §5/§9): recomputeVisibility writes
+ *   entity.vision per tick — invisible ('invisible' status without
+ *   'revealed') defeats enemy vision unless a team detector covers the
+ *   unit: ship/unit detectionRadius (H001 Adtg 1200, Spy wards Atru, gemt
+ *   carrier), ward detectionRadius, or an active DetectionZone (flares).
+ *   Own team always sees its units. PF scans and unit-target casts in
+ *   combat require vision — so this MUST run before stepCombat.
+ * - Invisibility lifecycle: smoke statuses expire; breakInvisibilityOnAction
+ *   (exported; called by combat on attack/cast and economy on item use)
+ *   removes breaksOnAction invisibility permanently, and for Ghost (H00W)
+ *   adds a 'revealed' status for the action window instead.
+ * - Missile system (script-rules.json §1): fireMissile validates carried
+ *   I01N + at least one warhead + missileReadyAtTick, then fires ONE
+ *   missile per carried warhead tier in ascending rawcode order (the three
+ *   sequential non-exclusive JASS branches) — each launch consumes its own
+ *   I01N + warhead and rolls its own uniformly random STRUCTURE owned by
+ *   the ENEMY LEAD PLAYER (slot 0 or 1), candidates in ascending entity id
+ *   — sets the ~2 s throttle once and spawns kaboomMissile Projectiles
+ *   (combat flies/detonates them). Launching breaks invisibility.
+ *   Buggfix retry is a documented no-op divergence: sim projectiles cannot
+ *   stick, so the 20 s gg_trg_Buggfix re-order (and its south-only
+ *   asymmetry, MissileRules.buggfixSouthOnly) has nothing to repair.
+ * - Suicide quests (SuicideQuestSpec): region-driven token swaps
+ *   (pickupRegion -> unarmedToken, armRegionByTeam -> armedToken + enemy
+ *   warn event), detonation on entering detonateRegionByTeam: flat true
+ *   damage to the enemy HQ via combat.applyDamage, carrier dies (scripted
+ *   PendingDeath), pilot paid rewardGold + progression.grantXp,
+ *   'questProgress' events at each stage. Quest token add/swap is a
+ *   documented exception to economy's inventory ownership (like the
+ *   missile consumption). Verbatim behavior kept: detonation does NOT
+ *   remove the quest items — WC3 heroes keep their inventory through
+ *   death, so a revived carrier still holds the armed token.
+ * - Dive (SEMANTICS §5): castAbility dive swaps ShipSpec stat block
+ *   H00V <-> H00W on the SAME entity id (typeId, maxHp by HP FRACTION —
+ *   flagged OPEN, SEMANTICS §5 question 5), sets submerged, manages the
+ *   permanent-ghost 'invisible' status, 5 s cooldown. Sub base teleport:
+ *   SUBMERGED subs (subRules.submergedTypeId) entering
+ *   map.subTeleports[].mainRegion jump to exitRegion center — NOTE this
+ *   follows war3map.j (Trig_*SubHarbor_Copy conditions check 'H00W',
+ *   lines 9411-9435 / 9475-9499) and diverges from the map-layout.json
+ *   annotation ("surfaced") mirrored in types.ts; flagged for architect
+ *   review.
+ * - Repair bays: damaged allied hero entering stationRegion -> paused +
+ *   invulnerable for the scripted settle window, healed to full via
+ *   combat.applyHeal at release, then moved to exitRegion center; one ship
+ *   at a time per bay (war3map.j Trig_Start_Repair_*).
+ * - Wards & zones: ward/summon expiry (dead=true, no PendingDeath — expiry
+ *   is not a kill), DetectionZone expiry, motion-detector 'proximityWarning'
+ *   events (no vision granted); goblin-mine ('goblinMine' status) arming on
+ *   victim action + 5 s scripted kill.
+ * - Exotic ship abilities (AbilitySpec mechanic 'special'): pre-parity
+ *   stubs — always 'commandRejected' with reason 'unimplemented'.
+ *
+ * Ability cooldowns are tracked in PlayerState.cooldownGroups keyed by
+ * abilityId (the record is shared with item icid groups; rawcode namespaces
+ * cannot collide).
+ *
+ * Reads: ruleset.missiles/suicideQuests/subRules/abilities/ships/unitTypes/
+ * map.regions, player inventories (mutated ONLY for the documented missile
+ * consumption + quest tokens), entity positions (post-movement).
+ * Mutates: entity.vision/statuses/typeId/submerged/pausedUntilTick/
+ * invulnerableUntilTick/x/y (teleports), state.projectiles (missile spawn),
+ * state.detectionZones, wards/summons lifecycle, player gold (quest
+ * payouts) + missileReadyAtTick + cooldownGroups (ability cooldowns),
+ * state.pendingDeaths (scripted), state.events.
+ *
+ * Tick order: runs 3rd — after movement (fresh positions for region
+ * triggers), before combat (fresh vision for targeting).
+ */
+
+import { applyDamage, applyHeal } from './combat.js';
+import { grantXp } from './progression.js';
+import {
+  allocEntityId,
+  enemyTeam,
+  isUnitEntity,
+  pointInRegion,
+  rollInt,
+  sortedNumericKeys,
+} from './types.js';
+import type {
+  AbilitySpec,
+  CastAbilityCommand,
+  EntityId,
+  EquipmentActive,
+  FireMissileCommand,
+  PlayerState,
+  Ruleset,
+  ShipEntity,
+  SimState,
+  SpecialsCommandU,
+  Status,
+  StructureEntity,
+  SuicideQuestSpec,
+  SummonEntity,
+  TeamId,
+  UnitEntity,
+  WardEntity,
+} from './types.js';
+
+// ---------------------------------------------------------------------------
+// Scripted-trigger constants. These timings come from war3map.j trigger
+// bodies, not object data, and the current Ruleset shape has no field for
+// them (breakInvisibilityOnAction also has no ruleset parameter). Ticks at
+// the fixed TICK_RATE of 20 — flagged as an open question to migrate into
+// the Ruleset.
+// ---------------------------------------------------------------------------
+
+/** Bstt Goblin Mine fuse: kills the victim 5 s after its next action (war3map.j:8752-8805). */
+const GOBLIN_MINE_FUSE_TICKS = 100;
+
+/**
+ * Repair bay service window: the scripted 1.5 s settle sleep before
+ * pause/heal (war3map.j:9803). The original then drip-heals via four h002
+ * Repairmen until 100%; the sim collapses that to a full heal at release.
+ */
+const REPAIR_BAY_SERVICE_TICKS = 30;
+
+/**
+ * Goblin Scout Crew (I00F, base item gemt) grants carrier true sight.
+ * EquipmentSpec carries no detection field, so the item id and the ~900
+ * stock gemt radius live here as PROVISIONAL constants (SEMANTICS §5,
+ * confidence medium) — open question to move into the Ruleset.
+ */
+const GEM_TRUE_SIGHT_ITEM_ID = 'I00F';
+const GEM_TRUE_SIGHT_RADIUS = 900;
+
+/**
+ * Warhead WeaponSpecs always carry a projectile speed (dummy umvs 200-400);
+ * a null in patched data means "instant" — modeled as fast enough to arrive
+ * within one combat tick.
+ */
+const INSTANT_PROJECTILE_SPEED_PER_TICK = 1e9;
+
+// ---------------------------------------------------------------------------
+// Commands
+// ---------------------------------------------------------------------------
+
+/**
+ * fireMissile, plus castAbility for every non-weapon ability (dive,
+ * invisibility, flare, exotic specials). Weapon-mechanic casts are routed
+ * to combat by sim.ts before this is called.
+ */
+export function applySpecialsCommand(
+  state: SimState,
+  ruleset: Ruleset,
+  cmd: SpecialsCommandU,
+): void {
+  if (cmd.type === 'fireMissile') applyFireMissile(state, ruleset, cmd);
+  else applyCastAbility(state, ruleset, cmd);
+}
+
+/** One specials tick (see module doc). Calls recomputeVisibility last. */
+export function stepSpecials(state: SimState, ruleset: Ruleset): void {
+  pruneExpiredVisibilityStatuses(state);
+  detonateArmedGoblinMines(state);
+  expireWardsSummonsAndZones(state);
+  runSuicideQuests(state, ruleset);
+  runSubTeleports(state, ruleset);
+  runRepairBays(state, ruleset);
+  emitProximityWarnings(state);
+  recomputeVisibility(state, ruleset);
+}
+
+// ---------------------------------------------------------------------------
+// Visibility
+// ---------------------------------------------------------------------------
+
+interface DetectorPoint {
+  x: number;
+  y: number;
+  radius: number;
+}
+
+/**
+ * Recompute entity.vision for every unit from invisibility statuses,
+ * detectors and detection zones. Exported for tests; stepSpecials calls it
+ * after all status/position changes of this phase. Fog-of-war is not
+ * modeled — a non-invisible unit is visible to both teams.
+ */
+export function recomputeVisibility(state: SimState, ruleset: Ruleset): void {
+  const detectors: Record<TeamId, DetectorPoint[]> = { south: [], north: [] };
+
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.dead) continue;
+
+    if (e.kind === 'ward') {
+      if (e.expiresAtTick !== null && state.tick >= e.expiresAtTick) continue;
+      if (e.detectionRadius !== null && e.detectionRadius > 0) {
+        detectors[e.team].push({ x: e.x, y: e.y, radius: e.detectionRadius });
+      }
+      continue;
+    }
+
+    const team = e.team;
+    if (team === null) continue;
+
+    if (e.kind === 'ship') {
+      const spec = ruleset.ships[e.typeId];
+      if (spec && spec.detectionRadius !== null && spec.detectionRadius > 0) {
+        detectors[team].push({ x: e.x, y: e.y, radius: spec.detectionRadius });
+      }
+      // Carrier true sight (Goblin Scout Crew) — see constant doc above.
+      const player = state.players[e.owner];
+      if (player) {
+        for (const item of player.inventory) {
+          if (item && item.itemId === GEM_TRUE_SIGHT_ITEM_ID) {
+            detectors[team].push({ x: e.x, y: e.y, radius: GEM_TRUE_SIGHT_RADIUS });
+            break;
+          }
+        }
+      }
+    } else {
+      const spec = ruleset.unitTypes[e.typeId];
+      if (spec && spec.detectionRadius !== null && spec.detectionRadius > 0) {
+        detectors[team].push({ x: e.x, y: e.y, radius: spec.detectionRadius });
+      }
+    }
+  }
+
+  for (const zone of state.detectionZones) {
+    if (zone.expiresAtTick > state.tick) {
+      detectors[zone.team].push({ x: zone.x, y: zone.y, radius: zone.radius });
+    }
+  }
+
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.dead || !isUnitEntity(e)) continue;
+    const foe = enemyTeam(e.team);
+    const hidden =
+      hasActiveInvisible(e.statuses, state.tick) && !hasActiveRevealed(e.statuses, state.tick);
+    let foeSees = !hidden;
+    if (hidden) {
+      for (const d of detectors[foe]) {
+        if (distSq(d.x, d.y, e.x, e.y) <= d.radius * d.radius) {
+          foeSees = true;
+          break;
+        }
+      }
+    }
+    e.vision =
+      e.team === 'south' ? { south: true, north: foeSees } : { south: foeSees, north: true };
+  }
+}
+
+/**
+ * The acting unit attacked / cast / used an item (move & stop exempt):
+ * removes breaks-on-action invisibility permanently; Ghost units instead
+ * gain 'revealed' until the action completes (instant = 1 tick; wind-up
+ * casts until casting.completesAtTick). Also arms a pending 'goblinMine'
+ * (detonates GOBLIN_MINE_FUSE_TICKS later). Called by combat and economy —
+ * never for plain movement.
+ *
+ * Granularity note (open question, SEMANTICS §5 q6): an instant reveal
+ * expires at tick+1, so an action taken in the combat phase (after this
+ * tick's recomputeVisibility) is pruned before the next recompute and never
+ * surfaces in vision; actions from the applyCommands phase are revealed for
+ * exactly the action tick.
+ */
+export function breakInvisibilityOnAction(state: SimState, entityId: EntityId): void {
+  const e = state.entities[entityId];
+  if (!e || e.dead || !isUnitEntity(e)) return;
+
+  let ghost = false;
+  const kept: Status[] = [];
+  for (const s of e.statuses) {
+    if (s.kind === 'invisible') {
+      if (s.breaksOnAction) continue; // smoke: dispelled permanently
+      ghost = true; // Agho: suppressed, not removed
+    }
+    kept.push(s);
+  }
+  e.statuses = kept;
+
+  if (ghost) {
+    const completes =
+      e.kind === 'ship' && e.casting !== null ? e.casting.completesAtTick : state.tick + 1;
+    let extended = false;
+    for (const s of e.statuses) {
+      if (s.kind === 'revealed') {
+        s.expiresAtTick = Math.max(s.expiresAtTick, completes);
+        extended = true;
+        break;
+      }
+    }
+    if (!extended) e.statuses.push({ kind: 'revealed', expiresAtTick: completes });
+  }
+
+  for (const s of e.statuses) {
+    if (s.kind === 'goblinMine' && s.detonateAtTick === null) {
+      s.detonateAtTick = state.tick + GOBLIN_MINE_FUSE_TICKS;
+    }
+  }
+}
+
+/** Smoke/reveal timers run out (statuses with expiry at or before now). */
+function pruneExpiredVisibilityStatuses(state: SimState): void {
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.dead || e.kind === 'ward') continue;
+    let stale = false;
+    for (const s of e.statuses) {
+      if (
+        (s.kind === 'invisible' && s.expiresAtTick !== null && s.expiresAtTick <= state.tick) ||
+        (s.kind === 'revealed' && s.expiresAtTick <= state.tick)
+      ) {
+        stale = true;
+        break;
+      }
+    }
+    if (!stale) continue;
+    e.statuses = e.statuses.filter(
+      (s) =>
+        !(
+          (s.kind === 'invisible' && s.expiresAtTick !== null && s.expiresAtTick <= state.tick) ||
+          (s.kind === 'revealed' && s.expiresAtTick <= state.tick)
+        ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Missile system
+// ---------------------------------------------------------------------------
+
+function applyFireMissile(state: SimState, ruleset: Ruleset, cmd: FireMissileCommand): void {
+  const player = state.players[cmd.player];
+  if (!player) {
+    reject(state, cmd.player, cmd.type, 'unknownPlayer');
+    return;
+  }
+  // The missile dummy spawns at the player's boat (war3map.j:11029ff) —
+  // a live boat is required as the launch origin.
+  const ship = player.shipId !== null ? state.entities[player.shipId] : undefined;
+  if (!ship || ship.kind !== 'ship' || ship.dead) {
+    reject(state, cmd.player, cmd.type, 'noShip');
+    return;
+  }
+  if (ship.pausedUntilTick > state.tick) {
+    reject(state, cmd.player, cmd.type, 'paused');
+    return;
+  }
+  if (ship.casting !== null) {
+    reject(state, cmd.player, cmd.type, 'casting');
+    return;
+  }
+  if (player.missileReadyAtTick > state.tick) {
+    reject(state, cmd.player, cmd.type, 'missileNotReady');
+    return;
+  }
+
+  const rules = ruleset.missiles;
+  if (findItemSlot(player, rules.lumberItemId) < 0) {
+    reject(state, cmd.player, cmd.type, 'missingLumber');
+    return;
+  }
+  let anyWarhead = false;
+  for (const item of player.inventory) {
+    if (item && rules.warheads[item.itemId] !== undefined) anyWarhead = true;
+  }
+  if (!anyWarhead) {
+    reject(state, cmd.player, cmd.type, 'missingWarhead');
+    return;
+  }
+
+  // Candidate structures of the ENEMY LEAD PLAYER ONLY (slot 0 or 1) —
+  // other enemy players' structures are never hit (preserved verbatim
+  // behavior, war3map.j:11029-11035). Ascending entity id before the draw.
+  const enemyLeadSlot = state.teams[enemyTeam(player.team)].aiPlayerSlot;
+  const candidates: StructureEntity[] = [];
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (e && e.kind === 'structure' && !e.dead && e.owner === enemyLeadSlot) candidates.push(e);
+  }
+  // Divergence (documented): the verbatim script consumes the items before
+  // targeting and strands a dummy when the pool is empty; the sim rejects
+  // pre-consumption instead (the pool only empties once the match is over).
+  if (candidates.length === 0) {
+    reject(state, cmd.player, cmd.type, 'noTarget');
+    return;
+  }
+
+  // One missile per carried warhead TIER, in ascending warhead rawcode
+  // order (the three sequential non-exclusive JASS branches, war3map.j
+  // 11006-11129): each launch consumes its own I01N + that warhead and
+  // rolls its own random target; stops when the lumber runs out. At most
+  // one shot per tier per cast even when duplicates are carried.
+  let launched = false;
+  for (const warheadItemId of Object.keys(rules.warheads)) {
+    const warheadSlot = findItemSlot(player, warheadItemId);
+    if (warheadSlot < 0) continue;
+    const lumberSlot = findItemSlot(player, rules.lumberItemId);
+    if (lumberSlot < 0) break; // out of lumber: later branches silently skip
+    const link = rules.warheads[warheadItemId];
+    const weapon = link ? ruleset.weapons[link.weaponId] : undefined;
+    if (!link || !weapon) {
+      reject(state, cmd.player, cmd.type, 'unknownWarheadWeapon');
+      continue;
+    }
+
+    // Launch: consume BOTH items (documented exception to economy's
+    // inventory ownership), roll the target, spawn the projectile.
+    consumeItemAt(player, lumberSlot);
+    consumeItemAt(player, warheadSlot);
+    launched = true;
+
+    const target = candidates[rollInt(state, 0, candidates.length - 1)];
+    if (!target) continue; // unreachable: index in [0, length-1]
+
+    const projId = allocEntityId(state);
+    state.projectiles[projId] = {
+      id: projId,
+      // The dummy is owned by the firing TEAM's lead player (war3map.j:
+      // Player(0)/Player(1)), not the casting player.
+      ownerPlayer: state.teams[player.team].aiPlayerSlot,
+      team: player.team,
+      sourceEntityId: ship.id,
+      weaponId: weapon.id,
+      mechanic: 'kaboomMissile',
+      x: ship.x,
+      y: ship.y,
+      speedPerTick: weapon.projectileSpeedPerTick ?? INSTANT_PROJECTILE_SPEED_PER_TICK,
+      homingTargetId: weapon.homing ? target.id : null,
+      targetX: target.x,
+      targetY: target.y,
+      intendedTargetId: target.id,
+      payload: {
+        amount: weapon.damage,
+        attackType: weapon.attackType,
+        damageType: weapon.damageType,
+        noTypeMult: weapon.noTypeMult,
+      },
+    };
+
+    state.events.push({
+      type: 'missileLaunched',
+      tick: state.tick,
+      player: cmd.player,
+      warheadItemId,
+      targetEntityId: target.id,
+    });
+  }
+
+  if (launched) {
+    player.missileReadyAtTick = state.tick + rules.throttleTicks;
+    // Launching is an action: breaks smoke / reveals a ghost (§9).
+    breakInvisibilityOnAction(state, ship.id);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Ability casts (non-weapon mechanics)
+// ---------------------------------------------------------------------------
+
+function applyCastAbility(state: SimState, ruleset: Ruleset, cmd: CastAbilityCommand): void {
+  const player = state.players[cmd.player];
+  if (!player) {
+    reject(state, cmd.player, cmd.type, 'unknownPlayer');
+    return;
+  }
+  const ship = player.shipId !== null ? state.entities[player.shipId] : undefined;
+  if (!ship || ship.kind !== 'ship' || ship.dead) {
+    reject(state, cmd.player, cmd.type, 'noShip');
+    return;
+  }
+  if (ship.pausedUntilTick > state.tick) {
+    reject(state, cmd.player, cmd.type, 'paused');
+    return;
+  }
+  if (ship.casting !== null) {
+    reject(state, cmd.player, cmd.type, 'casting');
+    return;
+  }
+  // Mirror the combat cast path: stunned/silenced units cannot cast
+  // (combat.applyCombatCommand / castStormBolt enforce the same).
+  if (hasActiveTimedStatus(ship, 'stunned', state.tick)) {
+    reject(state, cmd.player, cmd.type, 'stunned');
+    return;
+  }
+  if (hasActiveTimedStatus(ship, 'silenced', state.tick)) {
+    reject(state, cmd.player, cmd.type, 'silenced');
+    return;
+  }
+  const spec = ruleset.abilities[cmd.abilityId];
+  if (!spec) {
+    reject(state, cmd.player, cmd.type, 'unknownAbility');
+    return;
+  }
+
+  switch (spec.mechanic) {
+    case 'special':
+      // Exotic kit (Capsize, EMP, Eat Hero, ...) — pre-parity stubs must
+      // reject loudly, never silently succeed.
+      reject(state, cmd.player, cmd.type, 'unimplemented');
+      return;
+    case 'dive':
+      castDive(state, ruleset, cmd, player, ship, spec);
+      return;
+    case 'invisibility':
+      castInvisibility(state, cmd, player, ship, spec, abilityRank(ruleset, player, ship, spec));
+      return;
+    case 'flareDetection':
+      castFlare(state, cmd, player, ship, spec, abilityRank(ruleset, player, ship, spec));
+      return;
+    default:
+      // Passive mechanics (hullHp/sailSpeed/mechanicsRegen/trueSightPassive)
+      // and misrouted weapon casts cannot be activated.
+      reject(state, cmd.player, cmd.type, 'notActivatable');
+      return;
+  }
+}
+
+/**
+ * Castable rank of an ability for this player's current ship: hero skills
+ * use the learned rank (and must be in the hull's kit), innates are rank 1
+ * when present on the hull. 0 = not castable.
+ */
+function abilityRank(
+  ruleset: Ruleset,
+  player: PlayerState,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+): number {
+  const shipSpec = ruleset.ships[ship.typeId];
+  const onShip = shipSpec ? shipSpec.abilityIds.includes(spec.abilityId) : false;
+  if (!onShip) return 0;
+  if (spec.kind === 'heroSkill') return player.heroSkillLevels[spec.abilityId] ?? 0;
+  return 1;
+}
+
+function castDive(
+  state: SimState,
+  ruleset: Ruleset,
+  cmd: CastAbilityCommand,
+  player: PlayerState,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+): void {
+  const sub = ruleset.subRules;
+  // The submerged form casts the morph-back natively (AEme alternate form)
+  // even though H00W's data kit is empty; the surfaced form must carry the
+  // ability.
+  const surfacing = ship.typeId === sub.submergedTypeId;
+  if (!surfacing && ship.typeId !== sub.surfacedTypeId) {
+    reject(state, cmd.player, cmd.type, 'notASubmarine');
+    return;
+  }
+  if (!surfacing && abilityRank(ruleset, player, ship, spec) === 0) {
+    reject(state, cmd.player, cmd.type, 'notOnShip');
+    return;
+  }
+  if ((player.cooldownGroups[spec.abilityId] ?? 0) > state.tick) {
+    reject(state, cmd.player, cmd.type, 'onCooldown');
+    return;
+  }
+  const fromSpec = ruleset.ships[ship.typeId];
+  const toTypeId = surfacing ? sub.surfacedTypeId : sub.submergedTypeId;
+  const toSpec = ruleset.ships[toTypeId];
+  if (!fromSpec || !toSpec) {
+    reject(state, cmd.player, cmd.type, 'unknownShipType');
+    return;
+  }
+
+  // Casting dive is an action: breaks smoke (the submerged ghost status is
+  // managed explicitly below, so the transient reveal is harmless).
+  breakInvisibilityOnAction(state, ship.id);
+
+  // HP FRACTION carryover across differing max HP (flagged OPEN — WC3
+  // morph carryover needs in-engine verification, SEMANTICS §5 q5). The
+  // maxHp delta swap keeps whatever equipment/skill bonuses economy baked
+  // into entity.maxHp without duplicating its recompute.
+  const frac = ship.maxHp > 0 ? ship.hp / ship.maxHp : 1;
+  ship.typeId = toTypeId;
+  ship.maxHp = Math.max(1, ship.maxHp - fromSpec.maxHp + toSpec.maxHp);
+  ship.hp = frac * ship.maxHp;
+  ship.submerged = !surfacing;
+
+  if (surfacing) {
+    // Surfaced form loses the permanent ghost invisibility.
+    ship.statuses = ship.statuses.filter(
+      (s) => !(s.kind === 'invisible' && s.expiresAtTick === null),
+    );
+  } else {
+    let hasGhost = false;
+    for (const s of ship.statuses) {
+      if (s.kind === 'invisible' && s.expiresAtTick === null) hasGhost = true;
+    }
+    if (!hasGhost) {
+      ship.statuses.push({
+        kind: 'invisible',
+        buffId: null,
+        expiresAtTick: null,
+        breaksOnAction: false,
+      });
+    }
+  }
+
+  player.cooldownGroups[spec.abilityId] = state.tick + sub.diveCooldownTicks;
+}
+
+function castInvisibility(
+  state: SimState,
+  cmd: CastAbilityCommand,
+  player: PlayerState,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+  rank: number,
+): void {
+  if (rank === 0) {
+    reject(state, cmd.player, cmd.type, 'notLearned');
+    return;
+  }
+  if ((player.cooldownGroups[spec.abilityId] ?? 0) > state.tick) {
+    reject(state, cmd.player, cmd.type, 'onCooldown');
+    return;
+  }
+  const dur = spec.durationTicksPerRank?.[rank - 1];
+  if (dur === undefined) {
+    reject(state, cmd.player, cmd.type, 'missingAbilityData');
+    return;
+  }
+  // Casting the invisibility itself does not break it (SEMANTICS §9) —
+  // no breakInvisibilityOnAction here.
+  applyTimedInvisibility(ship, spec.abilityId, state.tick + dur);
+  player.cooldownGroups[spec.abilityId] = state.tick + (spec.cooldownTicks ?? 0);
+}
+
+function castFlare(
+  state: SimState,
+  cmd: CastAbilityCommand,
+  player: PlayerState,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+  rank: number,
+): void {
+  if (rank === 0) {
+    reject(state, cmd.player, cmd.type, 'notLearned');
+    return;
+  }
+  if ((player.cooldownGroups[spec.abilityId] ?? 0) > state.tick) {
+    reject(state, cmd.player, cmd.type, 'onCooldown');
+    return;
+  }
+  if (cmd.x === undefined || cmd.y === undefined) {
+    reject(state, cmd.player, cmd.type, 'missingTarget');
+    return;
+  }
+  // magnitudePerRank carries the flare area (AIfa aare, 1500 for
+  // Echo-Location/Detector Flare); durationTicksPerRank the reveal time.
+  const radius = spec.magnitudePerRank[rank - 1];
+  const dur = spec.durationTicksPerRank?.[rank - 1];
+  if (radius === undefined || dur === undefined) {
+    reject(state, cmd.player, cmd.type, 'missingAbilityData');
+    return;
+  }
+  // Plain multiplication, not `**`: Number::exponentiate is implementation-
+  // approximated (same class as Math.pow) and not bit-identical across engines.
+  if (
+    spec.rangeUnits !== null &&
+    distSq(ship.x, ship.y, cmd.x, cmd.y) > spec.rangeUnits * spec.rangeUnits
+  ) {
+    reject(state, cmd.player, cmd.type, 'outOfRange');
+    return;
+  }
+
+  breakInvisibilityOnAction(state, ship.id);
+  state.detectionZones.push({
+    team: ship.team,
+    x: cmd.x,
+    y: cmd.y,
+    radius,
+    expiresAtTick: state.tick + dur,
+  });
+  player.cooldownGroups[spec.abilityId] = state.tick + (spec.cooldownTicks ?? 0);
+}
+
+// ---------------------------------------------------------------------------
+// Equipment actives (specials-owned kinds), called by economy.useItem
+// ---------------------------------------------------------------------------
+
+/**
+ * Execute the specials-owned part of an equipment active for economy's
+ * useItem routing (MODULES.md: "utility actives -> the matching specials
+ * helper"). Returns true when the active was handled and applied; false
+ * when the kind is owned elsewhere (instantHeal/rejuvenation/xpTome/flavor)
+ * or its data is unresolved (reveal without a duration — wshs open
+ * question). The CALLER owns validation (charges, cooldowns, range), the
+ * 'itemUsed' event and breakInvisibilityOnAction — call the break BEFORE
+ * this so a freshly granted smoke status survives its own activation.
+ */
+export function applyEquipmentActive(
+  state: SimState,
+  ruleset: Ruleset,
+  playerSlot: number,
+  active: EquipmentActive,
+  x?: number,
+  y?: number,
+  targetId?: EntityId,
+): boolean {
+  const player = state.players[playerSlot];
+  if (!player) return false;
+  const ship = player.shipId !== null ? state.entities[player.shipId] : undefined;
+  if (!ship || ship.kind !== 'ship' || ship.dead) return false;
+  const px = x ?? ship.x;
+  const py = y ?? ship.y;
+
+  switch (active.kind) {
+    case 'invisibility':
+      applyTimedInvisibility(ship, active.buffId, state.tick + active.durationTicks);
+      return true;
+    case 'flare':
+      // Reveal-only flares (detectsInvisible false) have no sim effect:
+      // fog-of-war is not modeled, vision flags only track invisibility.
+      if (active.detectsInvisible) {
+        state.detectionZones.push({
+          team: ship.team,
+          x: px,
+          y: py,
+          radius: active.radius,
+          expiresAtTick: state.tick + active.durationTicks,
+        });
+      }
+      return true;
+    case 'summonWard': {
+      const unitSpec = ruleset.unitTypes[active.wardTypeId];
+      if (!unitSpec) return false;
+      const id = allocEntityId(state);
+      const ward: WardEntity = {
+        id,
+        typeId: active.wardTypeId,
+        x: px,
+        y: py,
+        facingRad: 0,
+        dead: false,
+        kind: 'ward',
+        owner: playerSlot,
+        team: ship.team,
+        expiresAtTick: state.tick + active.durationTicks,
+        sightRadius: unitSpec.sightRadius,
+        detectionRadius: unitSpec.detectionRadius,
+        invisible: unitSpec.permanentlyInvisible,
+        invulnerable: unitSpec.invulnerable,
+      };
+      state.entities[id] = ward;
+      return true;
+    }
+    case 'summonUnit': {
+      const unitSpec = ruleset.unitTypes[active.unitTypeId];
+      if (!unitSpec) return false;
+      const id = allocEntityId(state);
+      const summon: SummonEntity = {
+        id,
+        typeId: active.unitTypeId,
+        x: px,
+        y: py,
+        facingRad: ship.facingRad,
+        dead: false,
+        kind: 'summon',
+        owner: playerSlot,
+        team: ship.team,
+        hp: unitSpec.maxHp,
+        maxHp: unitSpec.maxHp,
+        order: { type: 'idle' },
+        statuses: [],
+        vision: { south: true, north: true },
+        attackReadyAtTick: 0,
+        expiresAtTick: state.tick + active.durationTicks,
+      };
+      state.entities[id] = summon;
+      return true;
+    }
+    case 'blink': {
+      if (x === undefined || y === undefined) return false;
+      const d = Math.sqrt(distSq(ship.x, ship.y, x, y));
+      if (d > active.maxDistance && d > 0) {
+        const f = active.maxDistance / d;
+        ship.x += (x - ship.x) * f;
+        ship.y += (y - ship.y) * f;
+      } else {
+        ship.x = x;
+        ship.y = y;
+      }
+      ship.order = { type: 'idle' };
+      return true;
+    }
+    case 'reveal': {
+      // wshs Informant: stock Shadow Sight duration is UNRESOLVED
+      // (equipment.json) — reject until the data lands.
+      if (active.durationTicks === null) return false;
+      const target = targetId !== undefined ? state.entities[targetId] : undefined;
+      if (!target || target.dead || !isUnitEntity(target)) return false;
+      const expiresAtTick = state.tick + active.durationTicks;
+      let extended = false;
+      for (const s of target.statuses) {
+        if (s.kind === 'revealed') {
+          s.expiresAtTick = Math.max(s.expiresAtTick, expiresAtTick);
+          extended = true;
+          break;
+        }
+      }
+      if (!extended) target.statuses.push({ kind: 'revealed', expiresAtTick });
+      return true;
+    }
+    default:
+      return false;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Goblin mines (Bstt) — armed by breakInvisibilityOnAction
+// ---------------------------------------------------------------------------
+
+function detonateArmedGoblinMines(state: SimState): void {
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.dead || !isUnitEntity(e)) continue;
+    let mine: Status | null = null;
+    for (const s of e.statuses) {
+      if (s.kind === 'goblinMine' && s.detonateAtTick !== null && state.tick >= s.detonateAtTick) {
+        mine = s;
+        break;
+      }
+    }
+    if (!mine || mine.kind !== 'goblinMine') continue;
+    e.statuses = e.statuses.filter((s) => s !== mine);
+    e.dead = true;
+    state.pendingDeaths.push({
+      entityId: e.id,
+      victimPlayer: e.owner,
+      killerPlayer: mine.sourcePlayer,
+      killerEntityId: null,
+      scripted: true,
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Ward / summon / detection-zone expiry
+// ---------------------------------------------------------------------------
+
+function expireWardsSummonsAndZones(state: SimState): void {
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.dead) continue;
+    if (
+      (e.kind === 'ward' || e.kind === 'summon') &&
+      e.expiresAtTick !== null &&
+      state.tick >= e.expiresAtTick
+    ) {
+      // Expiry is not a kill: no PendingDeath, no bounty/XP — finalize
+      // deletes dead entities regardless.
+      e.dead = true;
+    }
+  }
+  if (state.detectionZones.some((z) => z.expiresAtTick <= state.tick)) {
+    state.detectionZones = state.detectionZones.filter((z) => z.expiresAtTick > state.tick);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Suicide quests
+// ---------------------------------------------------------------------------
+
+/**
+ * Region-driven quest stage machine, generic over SuicideQuestSpec:
+ * - pickup (pickupRegion != null): carrier of startItemId without either
+ *   token and with a free slot gains unarmedTokenId.
+ * - arm (armRegionByTeam[team]): startItemId + unarmedTokenId and no
+ *   armedTokenId -> swap unarmed -> armed in place, warn the enemy.
+ * - detonate (detonateRegionByTeam[team]): startItemId + armedTokenId +
+ *   every requiredItemIds entry (extra detonation requirements, e.g. the
+ *   superbomb's I02Q) -> true damage to the enemy HQ, scripted carrier
+ *   death, pilot rewards.
+ * Verbatim JASS uses enter-rect events; the sim re-checks containment per
+ * tick with conditions that stop matching after each mutation (divergence:
+ * a carrier parked in the pickup region that drops its token re-gains it
+ * without leaving first).
+ */
+function runSuicideQuests(state: SimState, ruleset: Ruleset): void {
+  if (ruleset.suicideQuests.length === 0) return;
+  for (const id of sortedNumericKeys(state.entities)) {
+    const ship = state.entities[id];
+    if (!ship || ship.kind !== 'ship' || ship.dead) continue;
+    if (ship.pausedUntilTick > state.tick) continue;
+    const player = state.players[ship.owner];
+    if (!player) continue;
+    for (const quest of ruleset.suicideQuests) {
+      if (ship.typeId !== quest.shipTypeId) continue;
+      tryQuestPickup(state, ruleset, quest, ship, player);
+      tryQuestArm(state, ruleset, quest, ship, player);
+      if (tryQuestDetonate(state, ruleset, quest, ship, player)) break;
+    }
+  }
+}
+
+function tryQuestPickup(
+  state: SimState,
+  ruleset: Ruleset,
+  quest: SuicideQuestSpec,
+  ship: ShipEntity,
+  player: PlayerState,
+): void {
+  if (quest.pickupRegion === null || quest.unarmedTokenId === null) return;
+  const region = ruleset.map.regions[quest.pickupRegion];
+  if (!region || !pointInRegion(region, ship.x, ship.y)) return;
+  if (findItemSlot(player, quest.startItemId) < 0) return;
+  if (findItemSlot(player, quest.unarmedTokenId) >= 0) return;
+  if (findItemSlot(player, quest.armedTokenId) >= 0) return;
+  // JASS UnitInventoryCount gate (goblin run: < 4 carried items).
+  if (
+    quest.pickupMaxCarriedItems !== null &&
+    countCarriedItems(player) >= quest.pickupMaxCarriedItems
+  ) {
+    return;
+  }
+  const slots = ruleset.ships[ship.typeId]?.inventorySlots ?? player.inventory.length;
+  if (!addItemToFreeSlot(player, quest.unarmedTokenId, slots)) return;
+  state.events.push({
+    type: 'questProgress',
+    tick: state.tick,
+    player: ship.owner,
+    questId: quest.id,
+    stage: 'pickedUp',
+  });
+}
+
+function tryQuestArm(
+  state: SimState,
+  ruleset: Ruleset,
+  quest: SuicideQuestSpec,
+  ship: ShipEntity,
+  player: PlayerState,
+): void {
+  if (quest.unarmedTokenId === null) return;
+  const region = ruleset.map.regions[quest.armRegionByTeam[ship.team]];
+  if (!region || !pointInRegion(region, ship.x, ship.y)) return;
+  if (findItemSlot(player, quest.startItemId) < 0) return;
+  if (findItemSlot(player, quest.armedTokenId) >= 0) return;
+  // Extra arm blockers (superbomb: carrying the goblin armed token I01G).
+  for (const forbidden of quest.armForbiddenItemIds) {
+    if (findItemSlot(player, forbidden) >= 0) return;
+  }
+  const slot = findItemSlot(player, quest.unarmedTokenId);
+  if (slot < 0) return;
+  player.inventory[slot] = { itemId: quest.armedTokenId, charges: null, readyAtTick: 0 };
+  state.events.push({
+    type: 'questProgress',
+    tick: state.tick,
+    player: ship.owner,
+    questId: quest.id,
+    stage: 'armed',
+  });
+  // The 12 s enemy minimap ping (warnPingTicks) is client presentation;
+  // the sim emits the warning stage for it.
+  state.events.push({
+    type: 'questProgress',
+    tick: state.tick,
+    player: ship.owner,
+    questId: quest.id,
+    stage: 'enemyWarned',
+  });
+}
+
+/** Returns true when the carrier detonated (and is dead). */
+function tryQuestDetonate(
+  state: SimState,
+  ruleset: Ruleset,
+  quest: SuicideQuestSpec,
+  ship: ShipEntity,
+  player: PlayerState,
+): boolean {
+  const region = ruleset.map.regions[quest.detonateRegionByTeam[ship.team]];
+  if (!region || !pointInRegion(region, ship.x, ship.y)) return false;
+  if (findItemSlot(player, quest.startItemId) < 0) return false;
+  if (findItemSlot(player, quest.armedTokenId) < 0) return false;
+  for (const required of quest.requiredItemIds) {
+    if (findItemSlot(player, required) < 0) return false;
+  }
+
+  // Flat true damage to the enemy HQ (SetUnitLifeBJ — bypasses armor and
+  // reductions entirely; attackType is inert for damageType 'true').
+  const hq = findEnemyHq(state, ship.team);
+  if (hq) {
+    applyDamage(state, ruleset, hq.id, {
+      amount: quest.hqDamage,
+      attackType: 'chaos',
+      damageType: 'true',
+      noTypeMult: true,
+      nonLethal: false,
+      sourcePlayer: ship.owner,
+      sourceEntityId: ship.id,
+      weaponId: quest.armedTokenId,
+    });
+  }
+
+  ship.dead = true;
+  state.pendingDeaths.push({
+    entityId: ship.id,
+    victimPlayer: ship.owner,
+    killerPlayer: null,
+    killerEntityId: null,
+    scripted: true,
+  });
+  player.gold += quest.rewardGold;
+  grantXp(state, ruleset, ship.owner, quest.rewardXp, `quest:${quest.id}`);
+  state.events.push({
+    type: 'questProgress',
+    tick: state.tick,
+    player: ship.owner,
+    questId: quest.id,
+    stage: 'detonated',
+  });
+  return true;
+}
+
+function findEnemyHq(state: SimState, team: TeamId): StructureEntity | null {
+  const foe = enemyTeam(team);
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (e && e.kind === 'structure' && !e.dead && e.role === 'hq' && e.team === foe) return e;
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Sub base teleports
+// ---------------------------------------------------------------------------
+
+function runSubTeleports(state: SimState, ruleset: Ruleset): void {
+  if (ruleset.map.subTeleports.length === 0) return;
+  const submergedTypeId = ruleset.subRules.submergedTypeId;
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    // war3map.j Trig_*SubHarbor_Copy checks unit type 'H00W' (the SUBMERGED
+    // form) with no ownership filter — any submerged sub entering a main
+    // base interior is bounced out. See module doc for the divergence flag
+    // vs the "surfaced" annotation.
+    if (!e || e.kind !== 'ship' || e.dead || e.typeId !== submergedTypeId) continue;
+    if (e.pausedUntilTick > state.tick) continue;
+    for (const tp of ruleset.map.subTeleports) {
+      const main = ruleset.map.regions[tp.mainRegion];
+      const exit = ruleset.map.regions[tp.exitRegion];
+      if (!main || !exit || !pointInRegion(main, e.x, e.y)) continue;
+      e.x = exit.centerX;
+      e.y = exit.centerY;
+      e.order = { type: 'idle' }; // JASS issues "stop" before the move
+      break;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Repair bays
+// ---------------------------------------------------------------------------
+
+function runRepairBays(state: SimState, ruleset: Ruleset): void {
+  for (const bay of ruleset.map.repairBays) {
+    const station = ruleset.map.regions[bay.stationRegion];
+    const exit = ruleset.map.regions[bay.exitRegion];
+    if (!station || !exit) continue;
+
+    // Current occupant: an allied ship inside the station whose service
+    // window is still open. The release happens one tick BEFORE the pause
+    // lapses (pausedUntilTick === tick + 1) so movement — which runs
+    // earlier in the tick and unlocks at pausedUntilTick <= tick — can
+    // never step the occupant out of the station before its heal/eject.
+    let occupant: ShipEntity | null = null;
+    for (const id of sortedNumericKeys(state.entities)) {
+      const e = state.entities[id];
+      if (!e || e.kind !== 'ship' || e.dead || e.team !== bay.team) continue;
+      if (e.pausedUntilTick < state.tick) continue;
+      if (!pointInRegion(station, e.x, e.y)) continue;
+      occupant = e;
+      break;
+    }
+
+    if (occupant) {
+      if (occupant.pausedUntilTick === state.tick + 1) {
+        // Release: full heal (the original drip-heals to 100% while
+        // paused), then eject to the exit region center.
+        applyHeal(state, occupant.id, occupant.maxHp - occupant.hp);
+        occupant.x = exit.centerX;
+        occupant.y = exit.centerY;
+        occupant.order = { type: 'idle' };
+      }
+      continue; // one ship at a time per bay
+    }
+
+    // Admit the lowest-id damaged allied hero ship standing in the station.
+    // The +1 keeps the ship locked through its release tick (see above).
+    for (const id of sortedNumericKeys(state.entities)) {
+      const e = state.entities[id];
+      if (!e || e.kind !== 'ship' || e.dead || e.team !== bay.team) continue;
+      if (e.hp >= e.maxHp) continue;
+      if (e.pausedUntilTick >= state.tick) continue;
+      if (!pointInRegion(station, e.x, e.y)) continue;
+      e.pausedUntilTick = state.tick + REPAIR_BAY_SERVICE_TICKS + 1;
+      e.invulnerableUntilTick = state.tick + REPAIR_BAY_SERVICE_TICKS + 1;
+      break;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Motion detectors
+// ---------------------------------------------------------------------------
+
+/**
+ * Wards without true sight (detectionRadius null — the Motion Detector
+ * ohwd) warn their owner about enemies inside sightRadius. NOTE: no warning
+ * trigger exists in the extracted war3map.j and ohwd's sight is 1, so this
+ * is inert with verbatim data (matching the script) — the radius source is
+ * an open question. Emits every tick while an intruder is inside (events
+ * are derived output; clients de-duplicate).
+ */
+function emitProximityWarnings(state: SimState): void {
+  for (const id of sortedNumericKeys(state.entities)) {
+    const ward = state.entities[id];
+    if (!ward || ward.kind !== 'ward' || ward.dead) continue;
+    if (ward.detectionRadius !== null) continue;
+    if (ward.expiresAtTick !== null && state.tick >= ward.expiresAtTick) continue;
+    const radius = ward.sightRadius;
+    if (radius <= 0) continue;
+    for (const intruderId of sortedNumericKeys(state.entities)) {
+      const intruder = state.entities[intruderId];
+      if (!intruder || intruder.dead || !isUnitEntity(intruder)) continue;
+      if (intruder.team === ward.team) continue;
+      if (distSq(ward.x, ward.y, intruder.x, intruder.y) > radius * radius) continue;
+      state.events.push({
+        type: 'proximityWarning',
+        tick: state.tick,
+        ownerPlayer: ward.owner,
+        wardEntityId: ward.id,
+        intruderEntityId: intruder.id,
+      });
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Shared helpers
+// ---------------------------------------------------------------------------
+
+function reject(state: SimState, player: number, commandType: string, reason: string): void {
+  state.events.push({ type: 'commandRejected', tick: state.tick, player, commandType, reason });
+}
+
+function distSq(ax: number, ay: number, bx: number, by: number): number {
+  const dx = bx - ax;
+  const dy = by - ay;
+  return dx * dx + dy * dy;
+}
+
+function hasActiveTimedStatus(
+  unit: UnitEntity,
+  kind: 'stunned' | 'silenced',
+  tick: number,
+): boolean {
+  return unit.statuses.some((s) => s.kind === kind && s.expiresAtTick > tick);
+}
+
+function hasActiveInvisible(statuses: Status[], tick: number): boolean {
+  for (const s of statuses) {
+    if (s.kind === 'invisible' && (s.expiresAtTick === null || s.expiresAtTick > tick)) return true;
+  }
+  return false;
+}
+
+function hasActiveRevealed(statuses: Status[], tick: number): boolean {
+  for (const s of statuses) {
+    if (s.kind === 'revealed' && s.expiresAtTick > tick) return true;
+  }
+  return false;
+}
+
+/** Timed smoke replaces existing timed smoke; the permanent ghost is kept. */
+function applyTimedInvisibility(unit: UnitEntity, buffId: string | null, expiresAtTick: number): void {
+  unit.statuses = unit.statuses.filter(
+    (s) => !(s.kind === 'invisible' && s.expiresAtTick !== null),
+  );
+  unit.statuses.push({ kind: 'invisible', buffId, expiresAtTick, breaksOnAction: true });
+}
+
+function findItemSlot(player: PlayerState, itemId: string): number {
+  for (let i = 0; i < player.inventory.length; i++) {
+    const item = player.inventory[i];
+    if (item && item.itemId === itemId) return i;
+  }
+  return -1;
+}
+
+/** Remove one use: multi-charge stacks decrement, single items vacate the slot. */
+function consumeItemAt(player: PlayerState, slot: number): void {
+  const item = player.inventory[slot];
+  if (!item) return;
+  if (item.charges !== null && item.charges > 1) item.charges = item.charges - 1;
+  else player.inventory[slot] = null;
+}
+
+/** Carried item count (JASS UnitInventoryCount). */
+function countCarriedItems(player: PlayerState): number {
+  let n = 0;
+  for (const item of player.inventory) {
+    if (item !== null) n += 1;
+  }
+  return n;
+}
+
+/** Place a trigger-granted token in the first free slot within the hull's capacity. */
+function addItemToFreeSlot(player: PlayerState, itemId: string, maxSlots: number): boolean {
+  const limit = Math.min(maxSlots, player.inventory.length);
+  for (let i = 0; i < limit; i++) {
+    if (player.inventory[i] === null) {
+      player.inventory[i] = { itemId, charges: null, readyAtTick: 0 };
+      return true;
+    }
+  }
+  return false;
+}
