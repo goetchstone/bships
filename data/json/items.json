@@ -1,0 +1,7031 @@
+{
+ "version": 2,
+ "objects": {
+  "wshs": {
+   "base": "wshs",
+   "mods": [
+    {
+     "id": "igol",
+     "value": 950
+    },
+    {
+     "id": "iicd",
+     "value": 1
+    },
+    {
+     "id": "iprn",
+     "value": 0
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "Gather logistical information on the enemy of your choice..."
+    },
+    {
+     "id": "isto",
+     "value": 1
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "utip",
+     "value": "Hire Informants |cffffcc00(950)|r"
+    },
+    {
+     "id": "unam",
+     "value": "Informant"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNVillagerWoman.blp"
+    },
+    {
+     "id": "ihtp",
+     "value": 950
+    }
+   ]
+  },
+  "wswd": {
+   "base": "wswd",
+   "mods": [
+    {
+     "id": "istr",
+     "value": 600
+    },
+    {
+     "id": "iuse",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 400
+    },
+    {
+     "id": "utub",
+     "value": "Drops a Sentry Ward to spy upon an area for 540 seconds. |nHas 1 charge.  Is Invisible and Invunerable."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Sentry Ward (|cffffcc00400|r)"
+    },
+    {
+     "id": "ihtp",
+     "value": 400
+    },
+    {
+     "id": "icid",
+     "value": "Aeye"
+    }
+   ]
+  },
+  "fgun": {
+   "base": "fgun",
+   "mods": [
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "isto",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 3600
+    },
+    {
+     "id": "igol",
+     "value": 485
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00F|rlare Gun  (|cffffcc00485|r)"
+    },
+    {
+     "id": "utub",
+     "value": "Reveals a target area on the map."
+    },
+    {
+     "id": "ihtp",
+     "value": 485
+    }
+   ]
+  },
+  "texp": {
+   "base": "texp",
+   "mods": [
+    {
+     "id": "istr",
+     "value": 3600
+    },
+    {
+     "id": "iabi",
+     "value": "AIem,AIem"
+    },
+    {
+     "id": "utub",
+     "value": "Gives 300 experience to the Hero when used."
+    },
+    {
+     "id": "ihtp",
+     "value": 500
+    }
+   ]
+  },
+  "tgxp": {
+   "base": "tgxp",
+   "mods": [
+    {
+     "id": "istr",
+     "value": 3600
+    },
+    {
+     "id": "ihtp",
+     "value": 1000
+    }
+   ]
+  },
+  "fgdg": {
+   "base": "fgdg",
+   "mods": [
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNForgottenOne.blp"
+    },
+    {
+     "id": "ides",
+     "value": "Summons a Leviathian."
+    },
+    {
+     "id": "unam",
+     "value": "Leviathian Charm"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Leviathian Charm (|cffffcc005125|r)"
+    },
+    {
+     "id": "utub",
+     "value": "Summons a Leviathian to fight for you. Lasts 1200 seconds.  Can cast Eat Hero."
+    },
+    {
+     "id": "istr",
+     "value": 1200
+    },
+    {
+     "id": "igol",
+     "value": 5125
+    },
+    {
+     "id": "ihtp",
+     "value": 5125
+    },
+    {
+     "id": "isst",
+     "value": 300
+    }
+   ]
+  },
+  "totw": {
+   "base": "totw",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Spies"
+    },
+    {
+     "id": "utip",
+     "value": "Hire Spies (|cffffcc00900|r)"
+    },
+    {
+     "id": "utub",
+     "value": "Hire a Spy to watch an area for 540 seconds. |nHas 4 charges.  Spies are visable, but invulnerable."
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShade.blp"
+    },
+    {
+     "id": "ides",
+     "value": "Hire a Spy to watch an area for 540 seconds. |nHas 4 charges.  Spies are visable, but invulnerable."
+    },
+    {
+     "id": "iuse",
+     "value": 4
+    },
+    {
+     "id": "istr",
+     "value": 600
+    },
+    {
+     "id": "ipri",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 900
+    },
+    {
+     "id": "ihtp",
+     "value": 900
+    }
+   ]
+  },
+  "whwd": {
+   "base": "whwd",
+   "mods": [
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFrost.blp"
+    },
+    {
+     "id": "unam",
+     "value": "Motion Detectors"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Motion Detectors"
+    },
+    {
+     "id": "utub",
+     "value": "Drops a device that warns you in any enemy units enter a nearby.  |nContains 5 detectors."
+    },
+    {
+     "id": "ides",
+     "value": "Allows placement of a Motion Detector."
+    },
+    {
+     "id": "istr",
+     "value": 600
+    },
+    {
+     "id": "iuse",
+     "value": 5
+    }
+   ]
+  },
+  "bspd": {
+   "base": "bspd",
+   "mods": [
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNKoboldGeomancer.blp"
+    }
+   ]
+  },
+  "ratc": {
+   "base": "ratc",
+   "mods": [
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanMissileUpThree.blp"
+    }
+   ]
+  },
+  "tst2": {
+   "base": "tst2",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Caribbean Music"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Caribbean Music (|cffffcc0050|r)"
+    },
+    {
+     "id": "utub",
+     "value": "Plays the theme music to 'Pirates of the Caribbean'"
+    },
+    {
+     "id": "ides",
+     "value": "Plays the theme music to 'Pirates of the Caribbean'"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "istr",
+     "value": 91
+    },
+    {
+     "id": "igol",
+     "value": 50
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\PassiveButtons\\PASBTNElunesBlessing.blp"
+    }
+   ]
+  },
+  "I000": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Arrow Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStrengthOfTheMoon.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A001"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with an Arrow attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Arrow attack. |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB7|r |nRange: |cff33BBBB625|r |nCooldown: |cff33BBBB0.55 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase A|cffffcc00r|rrow Cannon (|cffffcc00160|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "R"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 160
+    },
+    {
+     "id": "ihtp",
+     "value": 160
+    }
+   ]
+  },
+  "I001": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Basic Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A000"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Cannon attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Cannon attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB20|r |nRange: |cff33BBBB700|r |nCooldown: |cff33BBBB1.5 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00B|rasic Cannon (|cffffcc00200|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "B"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 200
+    },
+    {
+     "id": "ihtp",
+     "value": 200
+    }
+   ]
+  },
+  "I002": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Rocket Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanArtilleryUpOne.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A002"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Rocket attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Rocket attack. |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB3|r |nRange: |cff33BBBB1600|r |nCooldown: |cff33BBBB0.5 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase R|cffffcc00o|rcket Cannon (|cffffcc00155|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "O"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 155
+    },
+    {
+     "id": "ihtp",
+     "value": 155
+    }
+   ]
+  },
+  "I004": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Cruiser Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFlare.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A004"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Cannon attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Cannon attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB30|r |nRange: |cff33BBBB900|r |nCooldown: |cff33BBBB1.5 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Cru|cffffcc00i|rser Cannon (|cffffcc00405|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "I"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 405
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 405
+    }
+   ]
+  },
+  "I005": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Cold-Arrows Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNColdArrows.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A006"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Cold-Arrows attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Cold-Arrows attack.  Does not slow enemy ships.  |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB30|r |nRange: |cff33BBBB700|r |nCooldown: |cff33BBBB1 second|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Col|cffffcc00d|r-Arrows Cannon (|cffffcc00800|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "D"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 800
+    },
+    {
+     "id": "ihtp",
+     "value": 800
+    }
+   ]
+  },
+  "I006": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Flame Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFireForTheCannon.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A00B"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Flame attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Flame attack. |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB50|r |nRange: |cff33BBBB800|r |nCooldown: |cff33BBBB3 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00F|rlame Cannon (|cffffcc00335|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "F"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 335
+    },
+    {
+     "id": "ihtp",
+     "value": 335
+    }
+   ]
+  },
+  "I007": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Light Sail"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A03X"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Sail speed of your boat."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebNon-Stackable|r|nIncreases the Sail speed of your boat. |n|nSail Speed Bonus: |cff33BBBB10|r%"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Light |cffffcc00S|rail (|cffffcc00100|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "S"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 100
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 100
+    }
+   ]
+  },
+  "I008": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Great Sail"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A03Y"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Sail speed of your boat."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebNon-Stackable|r|nIncreases the Sail speed of your boat. |n|nSail Speed Bonus: |cff33BBBB25|r%"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Gre|cffffcc00a|rt Sail (|cffffcc00610|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "A"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 610
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 610
+    }
+   ]
+  },
+  "I009": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Stone Hull"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A00E,A03A,A040,AId3"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Hit points of your boat. Also adds damage reduction."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebNon-Stackable|r|nIncreases the Hit points of your boat, but the wheight will slow you down. Also adds damage reduction. |n|nHitpoint Bonus: |cff33BBBB100|r |nDamage Reduction: |cff33BBBB10|r% |nSpeed Decrease: |cff33BBBB5|r% |nArmor Bonus: |cff33BBBB+6|r%"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase S|cffffcc00t|rone Hull (|cffffcc00200|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "T"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 200
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 200
+    }
+   ]
+  },
+  "I00A": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Gold Hull"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNImbuedMasonry.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A00H,A03B,A042,AId8"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Hit points of your boat. Also adds damage reduction."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebNon-Stackable|r|nIncreases the Hit points of your boat, but the wheight will slow you down. Also adds damage reduction. |n|nHitpoint Bonus: |cff33BBBB500|r |nDamage Reduction: |cff33BBBB30|r% |nSpeed Decrease: |cff33BBBB20|r%  |nArmor Bonus: |cff33BBBB+9|r%"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00G|rold Hull (|cffffcc002500|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "G"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 600
+    },
+    {
+     "id": "igol",
+     "value": 2500
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 2500
+    }
+   ]
+  },
+  "I00B": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Mechanics Crew"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A00I"
+    },
+    {
+     "id": "ides",
+     "value": "Repairs your boat while you travel the seas."
+    },
+    {
+     "id": "utub",
+     "value": "Repairs your boat while you travel the seas. |n|nHit points / second: |cff33BBBB10|r |cffFF1100Note: Submarines may not carry this item|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00M|rechanics Crew (|cffffcc00720|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "M"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 720
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 720
+    }
+   ]
+  },
+  "I00C": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Weak Repair Wood"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanLumberUpgrade1.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A00K"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Hit points of your boat."
+    },
+    {
+     "id": "utub",
+     "value": "Is used to repair the boat. Not very strong wood. |n|nHitpoints Repaired: |cff33BBBB300|r|nCooldown: |cff33BBBB45|r|nQuantity: |cff33BBBBEndless|r |cffFF1100Note: Submarines may not carry this item|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase W|cffffcc00e|rak Repair Wood (|cffffcc00175|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "E"
+    },
+    {
+     "id": "icid",
+     "value": "A00K"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 175
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    },
+    {
+     "id": "iper",
+     "value": 1
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 175
+    }
+   ]
+  },
+  "I00D": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Normal Repair Wood"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanLumberUpgrade2.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A00L"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Hit points of your boat."
+    },
+    {
+     "id": "utub",
+     "value": "Is used to repair the boat. Basic Wood. |n|nHitpoints Repaired: |cff33BBBB1500|r|nCooldown: |cff33BBBB80|r|nQuantity: |cff33BBBBEndless|r |cffFF1100Note: Submarines may not carry this item|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00N|rormal Repair Wood (|cffffcc00765|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "N"
+    },
+    {
+     "id": "icid",
+     "value": "A00K"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 765
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    },
+    {
+     "id": "iper",
+     "value": 1
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 765
+    }
+   ]
+  },
+  "I00E": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Swedish Repair Wood"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBundleOfLumber.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A00M"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Hit points of your boat."
+    },
+    {
+     "id": "utub",
+     "value": "Is used to repair the boat. Very strong. |n|nHitpoints Repaired: |cff33BBBB4000|r|nCooldown: |cff33BBBB100|r|nQuantity: |cff33BBBBEndless|r |cffFF1100Note: Submarines may not carry this item|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase S|cffffcc00w|redish Repair Wood (|cffffcc002910|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "W"
+    },
+    {
+     "id": "icid",
+     "value": "A00K"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    },
+    {
+     "id": "iper",
+     "value": 1
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 2910
+    },
+    {
+     "id": "igol",
+     "value": 2910
+    }
+   ]
+  },
+  "I00G": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Multi-Rocket Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNClusterRockets.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A00O"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Multi-Rocket attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Multi-Rocket attack. |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB11|r |nRange: |cff33BBBB550|r |nCooldown: |cff33BBBB0.33 second|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Mu|cffffcc00l|rti-Rocket Cannon (|cffffcc00650|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "L"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 650
+    },
+    {
+     "id": "ihtp",
+     "value": 650
+    }
+   ]
+  },
+  "I00H": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Machinegun Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFlakCannons.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A00P"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Machinegun attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Machinegun attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB8|r |nRange: |cff33BBBB450|r |nCooldown: |cff33BBBB0.12 second|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Mac|cffffcc00h|rinegun Cannon (|cffffcc001300|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "H"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 1300
+    },
+    {
+     "id": "ihtp",
+     "value": 1300
+    }
+   ]
+  },
+  "I00J": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Barrel of Ale"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBarrel.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "A barrel filled with ale."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA barrel filled with ale."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Barrel of Ale"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    }
+   ]
+  },
+  "I00K": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cff66FF66Trading Ale Contract|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cff66FF66Trading Ale Contract|r (|cff66FF66free|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to trade Ale.|r |n|nRequirements: |cff33BBBBA Trade Boat & This Contract.|r|nTrade Description: |cff33BBBBGo get a Barrel of Ale from the Ale Brewery on the East Island.|r|n- |cff33BBBBThen bring it to your Trade Master.|r|n|nReward: |cff33BBBB80 experience. 200 Gold. 1 Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    }
+   ]
+  },
+  "I00L": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Glaive Thrower"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNUpgradeMoonGlaive.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A01J"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Molotov Cocktail attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Glaive attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB125|r |nRange: |cff33BBBB630|r |nCooldown: |cff33BBBB1.1 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Gla|cffffcc00i|rve Thrower (|cffffcc004500|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "I"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 4500
+    },
+    {
+     "id": "ihtp",
+     "value": 4500
+    }
+   ]
+  },
+  "I00M": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cff66FF66Trading Goblin Potions Contract|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cff66FF66Trading Goblin Potions Contract|r (|cff66FF6610|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to trade Goblin Potions. |n|nRequirements: |cff33BBBBA Trade Boat & This Contract.|r|n Trade Description: |cff33BBBBGo get a Goblin Potion from the Goblin Potion Dealer on the South-West Island. Then bring it to your Trade Master.|r|n|nReward: |cff33BBBB300 experience. 1200 Gold. 5 Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSnazzyScrollPurple.blp"
+    },
+    {
+     "id": "ilum",
+     "value": 10
+    },
+    {
+     "id": "ubpy",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    }
+   ]
+  },
+  "I00N": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Goblin Potion"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNPotionGreen.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "A very strange potion."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA very strange potion."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Goblin Potion"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    }
+   ]
+  },
+  "I00O": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Bombard Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFragmentationBombs.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A003"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Bombard attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Bombard attack. |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB40|r |nRange: |cff33BBBB1600|r |nCooldown: |cff33BBBB1.25 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Bo|cffffcc00m|rbard Cannon (|cffffcc002270|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "M"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 2270
+    },
+    {
+     "id": "igol",
+     "value": 2270
+    }
+   ]
+  },
+  "I00P": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Catapult Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFireRocks.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A01L"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Catapult attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Catapult attack. |n|nAttacks: |cff33BBBBStructures Only|r|n|nDamage: |cff33BBBB270|r |nRange: |cff33BBBB730|r |nCooldown: |cff33BBBB2.3 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Catap|cffffcc00u|rlt Cannon (|cffffcc001875|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "U"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 1875
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 1875
+    }
+   ]
+  },
+  "I00Q": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cff66FF66Trading Boxes Contract|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cff66FF66Trading Boxes Contract|r (|cff66FF6625|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to trade Boxes. |n|nRequirements: |cff33BBBBA Trade Boat & This Contract.|r|nTrade Description: |cff33BBBBGo get a Box from the Ship Wreck on the North-East Island. Then bring it to your Trade Master.|r|n|nReward: |cff33BBBB450 experience. 2000 Gold. 6 Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBansheeMaster.blp"
+    },
+    {
+     "id": "ubpy",
+     "value": 1
+    },
+    {
+     "id": "ilum",
+     "value": 25
+    },
+    {
+     "id": "ubpx",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    }
+   ]
+  },
+  "I00R": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Box"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBox.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "A mysterious Box."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA mysterious Box from a Ship Wreck."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Box"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    }
+   ]
+  },
+  "I003": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Bundle of Raw Wood"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBundleOfLumber.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "Raw Wood made by Swedes."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nRaw Wood made by Swedes."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Bundle of Raw Wood"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    }
+   ]
+  },
+  "I00S": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cff66FF66Trading Raw Wood Contract|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cff66FF66Trading Raw Wood Contract|r (|cff66FF664|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to trade Raw Wood. |n|nRequirements: |cff33BBBBA Trade Boat & This Contract.|r|n Trade Description: |cff33BBBBGo get a Bundle of Raw Wood from the Lumber Mill on the West Island. Then bring it to your Trade Master.|r|n|nReward: |cff33BBBB125 experience. 400 Gold. 2 Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSnazzyScrollGreen.blp"
+    },
+    {
+     "id": "ilum",
+     "value": 4
+    },
+    {
+     "id": "ubpx",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    }
+   ]
+  },
+  "I00U": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cff66FF66Trading Books Contract|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cff66FF66Trading Books Contract|r (|cff66FF6625|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to trade Books. |n|nRequirements: |cff33BBBBA Trade Boat & This Contract.|r|nTrade Description: |cff33BBBBGo get a Book from the Elven Library on the South-East Island. Then bring it to  your Trade Master.|r|n|nReward: |cff33BBBB450 experience. 2000 Gold. 6 Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBansheeAdept.blp"
+    },
+    {
+     "id": "ubpy",
+     "value": 1
+    },
+    {
+     "id": "ilum",
+     "value": 25
+    },
+    {
+     "id": "ubpx",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    }
+   ]
+  },
+  "I00V": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Ammo"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanMissileUpTwo.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "A fat pig."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA sizeable amount of munitions."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Ammo"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    }
+   ]
+  },
+  "I00W": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cff66FF66Trading Pigs Contract|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cff66FF66Trading Pigs Contract|r (|cff66FF6610|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to trade Pigs. |n|nRequirements: |cff33BBBBA Trade Boat & This Contract.|r|nTrade Description: |cff33BBBBGo get a Pig from the Pig Farm on the North-West Island. Then bring it to your Trade Master.|r|n|nReward: |cff33BBBB300 experience. 1200 Gold. 5 Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNScroll.blp"
+    },
+    {
+     "id": "ilum",
+     "value": 10
+    },
+    {
+     "id": "ubpy",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    }
+   ]
+  },
+  "I00X": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Molotov Cocktail Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNLiquidFire.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A01K"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Cargo attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Cargo attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB250|r |nRange: |cff33BBBB700|r |nCooldown: |cff33BBBB2 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Moloto|cffffcc00v|r Cocktail Cannon (|cffffcc006000|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "V"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 6000
+    },
+    {
+     "id": "ihtp",
+     "value": 6000
+    }
+   ]
+  },
+  "I00Y": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Laser Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStasisTrap.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A01M"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Laser attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Laser attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB15|r |nRange: |cff33BBBB600|r |nCooldown: |cff33BBBB0.05 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00L|raser Cannon (|cffffcc0011000|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "L"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 11000
+    },
+    {
+     "id": "ihtp",
+     "value": 11000
+    }
+   ]
+  },
+  "I010": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Boulder Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGolemStormBolt.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A01C"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Boulder attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Boulder attack. |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB100|r |nRange: |cff33BBBB900|r |nCooldown: |cff33BBBB2 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Bo|cffffcc00u|rlder Cannon (|cffffcc001450|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "U"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 1450
+    },
+    {
+     "id": "ihtp",
+     "value": 1450
+    }
+   ]
+  },
+  "I00Z": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Knuckle Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFanOfKnives.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A01N"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Knife Hurl attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Knife Hurl attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB35|r |nRange: |cff33BBBB600|r |nCooldown: |cff33BBBB0.3 second|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00K|rnuckle Cannon (|cffffcc004650|r)"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 4650
+    },
+    {
+     "id": "ihtp",
+     "value": 4650
+    }
+   ]
+  },
+  "I012": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cffFF6666South Captives Contract|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffFF6666South Captives Contract|r (|cff66FF6650|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to save captives. |n|nRequirements: |cff33BBBBA Trade Boat & This Contract.|r|nDescription: |cff33BBBBGo rescue a captive from the enemy Main Harbour. Then bring him to your Trade Master.|r|n|nReward: |cff33BBBB850 experience. 4500 Gold. 8 Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNScrollOfProtection.blp"
+    },
+    {
+     "id": "ubpy",
+     "value": 2
+    },
+    {
+     "id": "ilum",
+     "value": 50
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ubpx",
+     "value": 1
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    }
+   ]
+  },
+  "I013": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cffFF6666North Captives Contract|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffFF6666North Captives Contract|r (|cff66FF6650|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to save captives. |n|nRequirements: |cff33BBBBA Trade Boat & This Contract.|r|nDescription: |cff33BBBBGo rescue a captive from the enemy Main Harbour. Then bring him to your Trade Master.|r|n|nReward: |cff33BBBB850 experience. 4500 Gold. 8 Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNScrollOfHealing.blp"
+    },
+    {
+     "id": "ubpy",
+     "value": 2
+    },
+    {
+     "id": "ilum",
+     "value": 50
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ubpx",
+     "value": 1
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    }
+   ]
+  },
+  "I014": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Rescued Captive"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNVillagerMan.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "A rescued Captive."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA rescued Captive from the north Main Harbour."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Rescued Captive"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    }
+   ]
+  },
+  "I015": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Rescued Captive"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNVillagerMan1.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "A rescued Captive."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA rescued Captive from the south Main Harbour."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Rescued Captive"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    }
+   ]
+  },
+  "I00I": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Fire-Arrow Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSearingArrows.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A01H"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with an Arrow attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with an Arrow attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB35|r |nRange: |cff33BBBB850|r |nCooldown: |cff33BBBB0.5 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Fire-Arro|cffffcc00w|r Cannon (|cffffcc002500|r)"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2500
+    },
+    {
+     "id": "ihtp",
+     "value": 2500
+    },
+    {
+     "id": "uhot",
+     "value": "W"
+    }
+   ]
+  },
+  "I016": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Bronze Hull"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNArcaniteArchitecture.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A00F,A02G,A041,AId5"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Hit points of your boat. Also adds damage reduction."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebNon-Stackable|r|nIncreases the Hit points of your boat, but the wheight will slow you down. Also adds damage reduction. |n|nHitpoint Bonus: |cff33BBBB250|r |nDamage Reduction: |cff33BBBB20|r% |nSpeed Decrease: |cff33BBBB10|r% |nArmor Bonus: |cff33BBBB+6|r%"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Bron|cffffcc00z|re Hull (|cffffcc001100|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "Z"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 300
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 1100
+    },
+    {
+     "id": "igol",
+     "value": 1100
+    }
+   ]
+  },
+  "I017": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Repair Crew"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNRepair.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A00G"
+    },
+    {
+     "id": "ides",
+     "value": "Repairs your boat while you travel the seas."
+    },
+    {
+     "id": "utub",
+     "value": "Repairs your boat while you travel the seas. |n|nHit points / second: |cff33BBBB2|r |cffFF1100Note: Submarines may not carry this item|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Repa|cffffcc00i|rr Crew (|cffffcc00145|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "M"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 145
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 145
+    }
+   ]
+  },
+  "I018": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Guard Tower Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNImprovedStrengthOfTheMoon.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A01P"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with an Guard Tower attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with an Guard attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB50|r |nRange: |cff33BBBB900|r |nCooldown: |cff33BBBB0.5 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00G|ruard Tower Cannon (|cffffcc004200|r)"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 4200
+    },
+    {
+     "id": "ihtp",
+     "value": 4200
+    },
+    {
+     "id": "uhot",
+     "value": "G"
+    }
+   ]
+  },
+  "I019": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Thor's Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStormHammer.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A01Q"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Hammer attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Hammer attack. |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB220|r |nRange: |cff33BBBB1000|r |nCooldown: |cff33BBBB1.55 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase T|cffffcc00h|ror's Cannon (|cffffcc006925|r)"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 6925
+    },
+    {
+     "id": "ihtp",
+     "value": 6925
+    },
+    {
+     "id": "uhot",
+     "value": "H"
+    }
+   ]
+  },
+  "I01A": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Goblin Sail"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A039"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Sail speed of your boat."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebNon-Stackable|r|nIncreases the Sail speed of your boat. |n|nSail Speed Bonus: |cff33BBBB50|r%"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00G|roblin Sail (|cffffcc001385|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "G"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 60
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 1385
+    },
+    {
+     "id": "igol",
+     "value": 1385
+    }
+   ]
+  },
+  "I01B": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Bowmen Crew"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNImprovedBows.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A01O"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with an Multi-Arrow attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with an Multi-Arrow attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB8|r |nRange: |cff33BBBB800|r |nCooldown: |cff33BBBB0.2 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Bowm|cffffcc00e|rn Crew (|cffffcc001000|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "E"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 1000
+    }
+   ]
+  },
+  "I01C": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Hammer Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHammer.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A01U"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Hammer attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Hammer attack. |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB110|r |nRange: |cff33BBBB700|r |nCooldown: |cff33BBBB1.25 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00H|rammer Cannon (|cffffcc003200|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "B"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 3200
+    },
+    {
+     "id": "ihtp",
+     "value": 3200
+    }
+   ]
+  },
+  "I01D": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Chaos Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBanish.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A01X"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with an Arrow attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with an Chaos attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB90|r |nRange: |cff33BBBB825|r |nCooldown: |cff33BBBB0.7 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00C|rhaos Cannon (|cffffcc006300|r)"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 6300
+    },
+    {
+     "id": "ihtp",
+     "value": 6300
+    },
+    {
+     "id": "uhot",
+     "value": "C"
+    }
+   ]
+  },
+  "I00F": {
+   "base": "gemt",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Goblin Scout Crew"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpell_Nature_MoonGlow.blp"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Goblin Scout |cffffcc00C|rrew (|cffffcc00800|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "C"
+    },
+    {
+     "id": "utub",
+     "value": "Allows your ship to detect hidden or invisible units in the line of sight."
+    },
+    {
+     "id": "ihtp",
+     "value": 800
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "igol",
+     "value": 800
+    },
+    {
+     "id": "istr",
+     "value": 600
+    },
+    {
+     "id": "isst",
+     "value": 1
+    }
+   ]
+  },
+  "I01E": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cffFF6666Suicide Mission|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffFF6666Suicide Mission|r (|cffffcc001000|r) (|cff66FF6680|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to go on a suicide mission. |n|nRequirements: |cff33BBBBA Merchant Boat Only & This Contract.|r|nDescription: |cff33BBBBGet a Barrel of Explosives from the Goblin Bomb Shop (Near the Pirate Harbour). Then arm it by your Trade Master. After that, just sail strait into the enemy Main Harbour and blow up 4000 hitpoints. |cffFF1100Note: while you use this contract, you will not be able to turn invisible.|r |r|n|nReward: |cff33BBBB1200 experience. 8000 Gold. No Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 1000
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNScrollUber.blp"
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ubpy",
+     "value": 2
+    },
+    {
+     "id": "ubpx",
+     "value": 2
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ilum",
+     "value": 80
+    }
+   ]
+  },
+  "I01F": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Barrel of Explosives (|cff66FF66Unarmed|r)"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNOtherBarrel.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "A barrel filled with explosive powder."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA barrel filled with explosive powder.|n|cff66FF66Safe.|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Barrel of Explosives (|cff66FF66Unarmed|r)"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    }
+   ]
+  },
+  "I01G": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Barrel of Explosives (|cffFF6666Armed|r)"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNOtherBarrel.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "A barrel filled with explosive powder."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA barrel filled with explosive powder. |n|cffFF6666Ready to go off!|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Barrel of Explosives (|cffFF6666Armed|r)"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    }
+   ]
+  },
+  "I01I": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cffFF6666Repair Buildings Mission|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffFF6666Repair Buildings Mission|r (|cff66FF6618|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to go on a repair mission. |n|nRequirements: |cff33BBBBA Trade Boat & This Contract.|r|nDescription: |cff33BBBBGo get a Goblin Mechanic from the Goblin Bomb Shop (Near the Pirate Harbour). Then make him repair one of your teams buildings for 2500 hitpoints.|r|n|nReward: |cff33BBBB300 experience. 700 Gold. 3 Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNScrollOfHaste.blp"
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ilum",
+     "value": 18
+    },
+    {
+     "id": "ubpy",
+     "value": 2
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    }
+   ]
+  },
+  "I01J": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Goblin Mechanic"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHeroTinker.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A04I"
+    },
+    {
+     "id": "ides",
+     "value": "A Goblin Mechanic."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA trustworthy goblin repairman, can repair a building for 2500 hitpoints over 20 seconds."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Goblin Mechanic"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "iuse",
+     "value": 1
+    },
+    {
+     "id": "iper",
+     "value": 1
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    },
+    {
+     "id": "ipri",
+     "value": 1
+    }
+   ]
+  },
+  "I01H": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Goblin Repair Wood"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNNaturesBlessing.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A033"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Hit points of your boat."
+    },
+    {
+     "id": "utub",
+     "value": "Pretty rough around the corners. Is used to repair your ship. Grand quality. |n|nHitpoints Repaired: |cff33BBBBComplete Repair|r|nCooldown: |cff33BBBB120|r|nQuantity: |cff33BBBBEndless|r |cffFF1100Note: Submarines may not carry this item|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Goblin |cffffcc00R|repair Wood (|cffffcc005510|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "R"
+    },
+    {
+     "id": "icid",
+     "value": "A00K"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 5510
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 5510
+    }
+   ]
+  },
+  "I01K": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Smoke Machine"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHealingSpray.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A034"
+    },
+    {
+     "id": "ides",
+     "value": "Makes your boat invisable for a time."
+    },
+    {
+     "id": "utub",
+     "value": "Is used to make your ship invisible. |n|nDuration: |cff33BBBB10|r|nCooldown: |cff33BBBB70|r|nCharges: |cff33BBBBEndless|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Smo|cffffcc00k|re Machine (|cffffcc001600|r)"
+    },
+    {
+     "id": "icid",
+     "value": "A034"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 1600
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 1600
+    }
+   ]
+  },
+  "I01L": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Light Teleporter"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpell_Shadow_ImpPhaseShift.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A035"
+    },
+    {
+     "id": "ides",
+     "value": "is used to teleport a short distance."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebCan only target shallow water|r|nIs used to teleport a short distance. |n|nRange: |cff33BBBB1200|r |nCooldown: |cff33BBBB50|r |nCharges: |cff33BBBBEndless|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Light Tele|cffffcc00p|rorter (|cffffcc00700|r)"
+    },
+    {
+     "id": "icid",
+     "value": "A035"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 700
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 700
+    },
+    {
+     "id": "uhot",
+     "value": "P"
+    }
+   ]
+  },
+  "I01M": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Frag-Fire Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNWallOfFire.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A03C"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Frag-Fire attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Frag-Fire attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB115|r |nRange: |cff33BBBB1125|r |nCooldown: |cff33BBBB.5 second|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00F|rrag-Fire Cannon (|cffffcc0010750|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "F"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 10750
+    },
+    {
+     "id": "ihtp",
+     "value": 10750
+    }
+   ]
+  },
+  "I01N": {
+   "base": "lmbr",
+   "mods": [
+    {
+     "id": "ides",
+     "value": "A piece of Lumber."
+    },
+    {
+     "id": "utub",
+     "value": "A regular piece of Lumber. Used in firing Missiles."
+    },
+    {
+     "id": "icla",
+     "value": "Permanent"
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "iicd",
+     "value": 1
+    },
+    {
+     "id": "ipow",
+     "value": 0
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Piece of Lumber"
+    },
+    {
+     "id": "unam",
+     "value": "Piece of Lumber"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "isto",
+     "value": 1
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    }
+   ]
+  },
+  "I01O": {
+   "base": "lmbr",
+   "mods": [
+    {
+     "id": "ides",
+     "value": "A cheap and light damaging missile."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebMissile|r|n|cff87ceebCan only be fired using a Firing-Ramp|r|nA cheap and light damaging missile. Can only be used in a Missile Firing-Ramp. |n|nTarget: |cff33BBBBRandom Structure|r|nDamage: |cff33BBBB100|r"
+    },
+    {
+     "id": "icla",
+     "value": "Permanent"
+    },
+    {
+     "id": "igol",
+     "value": 40
+    },
+    {
+     "id": "ihtp",
+     "value": 40
+    },
+    {
+     "id": "iicd",
+     "value": 1
+    },
+    {
+     "id": "ipow",
+     "value": 0
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Small |cffffcc00M|rissile"
+    },
+    {
+     "id": "unam",
+     "value": "Small Missile"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanArtilleryUpOne.blp"
+    },
+    {
+     "id": "ifil",
+     "value": "Abilities\\Weapons\\CannonTowerMissile\\CannonTowerMissile.mdl"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "isto",
+     "value": 1
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "uhot",
+     "value": "M"
+    },
+    {
+     "id": "isca",
+     "value": 0.8
+    }
+   ]
+  },
+  "I01P": {
+   "base": "lmbr",
+   "mods": [
+    {
+     "id": "ides",
+     "value": "A cheap and light damaging missile."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebMissile|r|nA cheap and light damaging missile. Can only be used in a Missile Firing-Ramp. |n|nTarget: |cff33BBBBRandom Structure|r|nDamage: |cff33BBBB500|r"
+    },
+    {
+     "id": "icla",
+     "value": "Permanent"
+    },
+    {
+     "id": "igol",
+     "value": 180
+    },
+    {
+     "id": "ihtp",
+     "value": 180
+    },
+    {
+     "id": "iicd",
+     "value": 1
+    },
+    {
+     "id": "ipow",
+     "value": 0
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00C|rruiser Missile"
+    },
+    {
+     "id": "unam",
+     "value": "Cruiser Missile"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFlare.blp"
+    },
+    {
+     "id": "ifil",
+     "value": "Abilities\\Weapons\\GyroCopter\\GyroCopterMissile.mdl"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "isto",
+     "value": 1
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "ubpx",
+     "value": 1
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "uhot",
+     "value": "C"
+    }
+   ]
+  },
+  "I01Q": {
+   "base": "lmbr",
+   "mods": [
+    {
+     "id": "ides",
+     "value": "A cheap and light damaging missile."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebMissile|r|nA cheap and light damaging missile. Can only be used in a Missile Firing-Ramp. |n|nTarget: |cff33BBBBRandom Structure|r|nDamage: |cff33BBBB1000|r"
+    },
+    {
+     "id": "icla",
+     "value": "Permanent"
+    },
+    {
+     "id": "igol",
+     "value": 360
+    },
+    {
+     "id": "ihtp",
+     "value": 360
+    },
+    {
+     "id": "iicd",
+     "value": 1
+    },
+    {
+     "id": "ipow",
+     "value": 0
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00G|rrand Missile"
+    },
+    {
+     "id": "unam",
+     "value": "Grand Missile"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNScatterRockets.blp"
+    },
+    {
+     "id": "ifil",
+     "value": "Abilities\\Weapons\\Mortar\\MortarMissile.mdl"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "isto",
+     "value": 1
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "ubpx",
+     "value": 2
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "uhot",
+     "value": "G"
+    },
+    {
+     "id": "isca",
+     "value": 1.2
+    }
+   ]
+  },
+  "I011": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Swedish Repair Crew"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNPeasant.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A03T"
+    },
+    {
+     "id": "ides",
+     "value": "Repairs your boat while you travel the seas."
+    },
+    {
+     "id": "utub",
+     "value": "Repairs your boat while you travel the seas. |n|nHit points / second: |cff33BBBB30|r |cffFF1100Note: Submarines may not carry this item|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00S|rwedish Repair Crew (|cffffcc002205|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "S"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2205
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 2205
+    }
+   ]
+  },
+  "I01R": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cff6666FFCaptain Wood Contract|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cff6666FFCaptain Wood Contract|r (|cff66FF66free|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to trade lumber.|r |n|nRequirements: |cff33BBBBA Handy-Man & This Contract.|r|nTrade Description: |n- |cff33BBBBGo chop down 5 trees, then bring all the |cffffcc00Pieces of Lumber|r|cff33BBBB to your Trade Master.|r|n|nReward: |cff33BBBB80 experience. 200 Gold. 1 Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ubpx",
+     "value": 3
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNScrollOfRegenerationGreen.blp"
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    }
+   ]
+  },
+  "I01S": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Integrated Smoke Machine"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpell_Fire_WindsofWoe.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A02Y"
+    },
+    {
+     "id": "ides",
+     "value": "Makes your boat invisable for a time."
+    },
+    {
+     "id": "utub",
+     "value": "Is used to make your ship invisible. |n|nDuration: |cff33BBBB30|r|nCooldown: |cff33BBBB240|r|nCharges: |cff33BBBBEndless|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Integrated Smo|cffffcc00k|re Machine (|cffffcc003200|r)"
+    },
+    {
+     "id": "icid",
+     "value": "A034"
+    },
+    {
+     "id": "istr",
+     "value": 600
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 3200
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 3200
+    }
+   ]
+  },
+  "I01T": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Outboard Propeller"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHeartOfSearinox.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A03Z"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Sail speed of your boat."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebNon-Stackable|r|nIncreases the Sail speed of your boat. |n|nSail Speed Bonus: |cff33BBBB200|r%"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00O|rutboard Propeller (|cffffcc005425|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "O"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 3600
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 5425
+    },
+    {
+     "id": "igol",
+     "value": 5425
+    }
+   ]
+  },
+  "I01U": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Royal Sail"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A03O"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Sail speed of your boat."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebNon-Stackable|r|nIncreases the Sail speed of your boat. |n|nSail Speed Bonus: |cff33BBBB75|r%"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00R|royal Sail (|cffffcc002160|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "R"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 600
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 2160
+    },
+    {
+     "id": "igol",
+     "value": 2160
+    }
+   ]
+  },
+  "I01V": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Silk Sail"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A036"
+    },
+    {
+     "id": "ides",
+     "value": "Increases the Sail speed of your boat."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebNon-Stackable|r|nIncreases the Sail speed of your boat. |n|nSail Speed Bonus: |cff33BBBB100|r%"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00S|rilk Sail (|cffffcc002935|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "S"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1800
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 2935
+    },
+    {
+     "id": "igol",
+     "value": 2935
+    }
+   ]
+  },
+  "I01W": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Goblin Mechanics Crew"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGoblinSapper.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A043"
+    },
+    {
+     "id": "ides",
+     "value": "Repairs your boat while you travel the seas."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebNon-Stackable|r|nThe knowledge of the goblin engineers bless you. Repairs your boat while you travel the seas at high rate. |n|nHit points / second: |cff33BBBB70|r |cffFF1100Note: Submarines may not carry this item|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Goblin |cffffcc00M|rechanics Crew (|cffffcc005300|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "M"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 5300
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 5300
+    }
+   ]
+  },
+  "I01X": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Kraken shell"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNNagaArmorUp3.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A044,A051,A052,AId5"
+    },
+    {
+     "id": "ides",
+     "value": "Adds various upgrades for your boat!"
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebNon-Stackable|r|nMakes your boat faster and resistant against enemy attacks. |n|nHit points / second: |cff33BBBB20|r |nDamage Reduction: |cff33BBBB20|r% |nSail speed increase: |cff33BBBB30|r% |nArmor Bonus: |cff33BBBB+6|r% |cffFF1100Note: Submarines may not carry this item|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00K|rraken Shell (|cffffcc006600|r)"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "igol",
+     "value": 6600
+    },
+    {
+     "id": "icla",
+     "value": "Purchasable"
+    },
+    {
+     "id": "ihtp",
+     "value": 6600
+    },
+    {
+     "id": "istr",
+     "value": 1
+    }
+   ]
+  },
+  "I01Y": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Nuclear Strike"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSelfDestructOn.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A045"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Nuclear attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a low-yield nuclear attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB2000|r |nRange: |cff33BBBB1500|r |nCooldown: |cff33BBBB5 seconds  Also causes 100 damage per second (for 2 seconds) from nuclear fallout.  Limit one per ship.|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00N|ruclear Strike (|cffffcc0018640|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "N"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 18640
+    },
+    {
+     "id": "ihtp",
+     "value": 18640
+    }
+   ]
+  },
+  "I01Z": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Vulcan Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFlakCannons.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A046"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a Vulcan Cannon attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a strafing attack. |n|nAttacks: |cff33BBBBShips & Structures|r|n|nDamage: |cff33BBBB30|r |nRange: |cff33BBBB450|r |nCooldown: |cff33BBBB0.05 seconds.  Limit one per ship.|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00V|rulcan Cannon (|cffffcc0019750|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "H"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 19750
+    },
+    {
+     "id": "ihtp",
+     "value": 19750
+    }
+   ]
+  },
+  "I021": {
+   "base": "wswd",
+   "mods": [
+    {
+     "id": "istr",
+     "value": 600
+    },
+    {
+     "id": "iuse",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 400
+    },
+    {
+     "id": "utub",
+     "value": "Drops a Sentry Ward to spy upon an area for 540 seconds. |nHas 1 charge.  Is Invisible and Invunerable."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Sentry Ward (|cffffcc00400|r)"
+    },
+    {
+     "id": "ihtp",
+     "value": 400
+    },
+    {
+     "id": "icid",
+     "value": "Aeye"
+    }
+   ]
+  },
+  "I022": {
+   "base": "wswd",
+   "mods": [
+    {
+     "id": "istr",
+     "value": 600
+    },
+    {
+     "id": "iuse",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 400
+    },
+    {
+     "id": "utub",
+     "value": "Drops a Sentry Ward to spy upon an area for 540 seconds. |nHas 1 charge.  Is Invisible and Invunerable."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Sentry Ward (|cffffcc00400|r)"
+    },
+    {
+     "id": "ihtp",
+     "value": 400
+    },
+    {
+     "id": "icid",
+     "value": "Aeye"
+    }
+   ]
+  },
+  "I023": {
+   "base": "wswd",
+   "mods": [
+    {
+     "id": "istr",
+     "value": 600
+    },
+    {
+     "id": "iuse",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 400
+    },
+    {
+     "id": "utub",
+     "value": "Drops a Sentry Ward to spy upon an area for 540 seconds. |nHas 1 charge.  Is Invisible and Invunerable."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Sentry Ward (|cffffcc00400|r)"
+    },
+    {
+     "id": "ihtp",
+     "value": 400
+    },
+    {
+     "id": "icid",
+     "value": "Aeye"
+    }
+   ]
+  },
+  "I027": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Acid Bomber"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNAcidBomb.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A049"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a acid attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a acid attack. |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB40 (plus 20 per second for 20 seconds)|r |nRange: |cff33BBBB700|r |nCooldown: |cff33BBBB3 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Hire |cffffcc00A|rcid Bomber (|cffffcc003250|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "A"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 3250
+    },
+    {
+     "id": "ihtp",
+     "value": 3250
+    },
+    {
+     "id": "istr",
+     "value": 1
+    }
+   ]
+  },
+  "I028": {
+   "base": "fgun",
+   "mods": [
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "isto",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 3600
+    },
+    {
+     "id": "igol",
+     "value": 425
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00F|rlare Gun  (|cffffcc00425|r)"
+    },
+    {
+     "id": "utub",
+     "value": "Reveals a target area on the map."
+    },
+    {
+     "id": "ihtp",
+     "value": 425
+    },
+    {
+     "id": "icla",
+     "value": "PowerUp"
+    }
+   ]
+  },
+  "I029": {
+   "base": "fgun",
+   "mods": [
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "isto",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 3600
+    },
+    {
+     "id": "igol",
+     "value": 510
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00F|rlare Gun  (|cffffcc00510|r)"
+    },
+    {
+     "id": "utub",
+     "value": "Reveals a target area on the map."
+    },
+    {
+     "id": "ihtp",
+     "value": 510
+    },
+    {
+     "id": "icla",
+     "value": "PowerUp"
+    }
+   ]
+  },
+  "I02A": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Corpse Cannon"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\PassiveButtons\\PASBTNExhumeCorpses.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A04A"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your boat with a dirty attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a dirty attack. |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB75|r |nRange: |cff33BBBB600|r |nCooldown: |cff33BBBB1 second|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00C|rorpse Cannon (|cffffcc003750|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "B"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 3750
+    },
+    {
+     "id": "ihtp",
+     "value": 3750
+    }
+   ]
+  },
+  "I02B": {
+   "base": "tgxp",
+   "mods": [
+    {
+     "id": "istr",
+     "value": 3600
+    },
+    {
+     "id": "ihtp",
+     "value": 1000
+    },
+    {
+     "id": "icla",
+     "value": "PowerUp"
+    }
+   ]
+  },
+  "I02C": {
+   "base": "tgxp",
+   "mods": [
+    {
+     "id": "istr",
+     "value": 3600
+    },
+    {
+     "id": "ihtp",
+     "value": 1000
+    },
+    {
+     "id": "icla",
+     "value": "PowerUp"
+    }
+   ]
+  },
+  "I02D": {
+   "base": "texp",
+   "mods": [
+    {
+     "id": "istr",
+     "value": 3600
+    },
+    {
+     "id": "utub",
+     "value": "Gives 300 experience to the Hero when used."
+    },
+    {
+     "id": "iabi",
+     "value": "AIem,AIem"
+    },
+    {
+     "id": "ihtp",
+     "value": 500
+    }
+   ]
+  },
+  "I02E": {
+   "base": "texp",
+   "mods": [
+    {
+     "id": "istr",
+     "value": 3600
+    },
+    {
+     "id": "utub",
+     "value": "Gives 300 experience to the Hero when used."
+    },
+    {
+     "id": "iabi",
+     "value": "AIem,AIem"
+    },
+    {
+     "id": "ihtp",
+     "value": 500
+    }
+   ]
+  },
+  "I02F": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Sniper Crew"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNMarksmanship.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A04E"
+    },
+    {
+     "id": "ides",
+     "value": "Provides a special sniping attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Sniper attack. |n|nAttacks: |cff33BBBBHero Ships Only|r|n|nDamage: |cff33BBBB115|r |nRange: |cff33BBBB2500|r |nCooldown: |cff33BBBB 2.2 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffffcc00S|rniper Crew (|cffffcc005100|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "B"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 5100
+    },
+    {
+     "id": "ihtp",
+     "value": 5100
+    }
+   ]
+  },
+  "I02G": {
+   "base": "gold",
+   "mods": [
+    {
+     "id": "ides",
+     "value": "A Golden Treasure."
+    },
+    {
+     "id": "unam",
+     "value": "Treasure"
+    },
+    {
+     "id": "utip",
+     "value": "A golden treasure."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA valuable Golden Treasure."
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ipow",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isto",
+     "value": 1
+    },
+    {
+     "id": "ipri",
+     "value": 126
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "icla",
+     "value": "Miscellaneous"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "isel",
+     "value": 1
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "ilvo",
+     "value": 10
+    },
+    {
+     "id": "ilev",
+     "value": 8
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "iper",
+     "value": 0
+    }
+   ]
+  },
+  "I02H": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cffFF1100Finding Treasure Contract (South)|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffFF1100Finding Treasure Contract|r (|cffffcc001000|r) (|cff66FF6680|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to find hidden treasure. |n|nRequirements: |cff33BBBBA Merchant Boat Only & This Contract.|r|nTrade Description: |cff33BBBBGo and search around the various trading locations (both North & South) for treasure.  It is random and will change each time. (excluding Refinery)|cffFF1100Once you find treasure, the enemy will be alerted to your position and you will lose your ability to turn invisible.|r|r|n|nReward: |cff33BBBB2500 experience. 14000 Gold. No Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 1000
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpy.blp"
+    },
+    {
+     "id": "ubpy",
+     "value": 1
+    },
+    {
+     "id": "ubpx",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ilum",
+     "value": 80
+    }
+   ]
+  },
+  "I02I": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cffFF1100Finding Treasure Contract (North)|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cffFF1100Finding Treasure Contract|r (|cffffcc001000|r) (|cff66FF6680|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to find hidden treasure. |n|nRequirements: |cff33BBBBA Merchant Boat Only & This Contract.|r|nTrade Description: |cff33BBBBGo and search around the various trading locations (both North & South) for treasure.  It is random and will change each time. (excluding Refinery)|cffFF1100Once you find treasure, the enemy will be alerted to your position and you will lose your ability to turn invisible.|r|r|n|nReward: |cff33BBBB2500 experience. 14000 Gold. No Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 1000
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpy.blp"
+    },
+    {
+     "id": "ubpy",
+     "value": 1
+    },
+    {
+     "id": "ubpx",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ilum",
+     "value": 80
+    }
+   ]
+  },
+  "I02J": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Pig"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNPig.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "A fat pig."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA fat pig."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Pig"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    }
+   ]
+  },
+  "I02K": {
+   "base": "srrc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "|cff66FF66Trading Ammo Contract|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cff66FF66Trading Ammo Contract|r (|cff66FF664|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A contract."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis Item is used to trade Ammo. |n|nRequirements: |cff33BBBBA Trade Boat & This Contract.|r|n Trade Description: |cff33BBBBGo to the Goblin Bomb Shop on the Eastern coastline and pick up some much needed munitions for your team. Then bring it to your Trade Master.|r|n|nReward: |cff33BBBB125 experience. 400 Gold. 2 Lumber|r"
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "istr",
+     "value": 0
+    },
+    {
+     "id": "isst",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGreaterRejuvScroll.blp"
+    },
+    {
+     "id": "ilum",
+     "value": 4
+    },
+    {
+     "id": "ubpx",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "ipaw",
+     "value": 0
+    }
+   ]
+  },
+  "I02L": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Book"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpellBookBLS.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "An elven book."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nAn old elven Book."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Book"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    }
+   ]
+  },
+  "I00T": {
+   "base": "afac",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "GrandMaster Craftsman"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBloodElfPeasant.blp"
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 1250
+    },
+    {
+     "id": "ihtp",
+     "value": 1250
+    },
+    {
+     "id": "iuse",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 1200
+    },
+    {
+     "id": "isst",
+     "value": 1200
+    },
+    {
+     "id": "ides",
+     "value": "A GrandMaster craftsman."
+    },
+    {
+     "id": "utub",
+     "value": "Completely repairs an allied building of your choice."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase GrandMaster Craftsman (|cffffcc001250|r)"
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "icid",
+     "value": "AOeq"
+    },
+    {
+     "id": "iper",
+     "value": 1
+    },
+    {
+     "id": "iabi",
+     "value": "A030"
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    }
+   ]
+  },
+  "I02M": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Advanced Sniper Rifle"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanMissileUpOne.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A04J"
+    },
+    {
+     "id": "ides",
+     "value": "Provides a special sniping attack."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your boat with a Sniper attack. |n|nAttacks: |cff33BBBBHero Ships Only|r|n|nDamage: |cff33BBBB157|r |nRange: |cff33BBBB2500|r |nCooldown: |cff33BBBB 2.2 seconds|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Advanced |cffffcc00S|rniper Rifle (|cffffcc006955|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "B"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 6955
+    },
+    {
+     "id": "ihtp",
+     "value": 6955
+    }
+   ]
+  },
+  "I02N": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Custom Torpedo Bay"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanArtilleryUpOne.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A050"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your submarine with the ability to launch another torpedo.  Perfect for a large amount of quick damage."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your submarine with the ability to launch another torpedo. |cffFF1100Only Submarines may carry this item|r  |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB500|r |nRange: |cff33BBBB900|r |nCooldown: |cff33BBBB22.5 seconds|r (Actively used)\n\n(Limit 1 extra torpedo per sub)"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Custom |cffffcc00T|rorpedo Bay (|cffffcc003325|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "T"
+    },
+    {
+     "id": "icid",
+     "value": "A050"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 3325
+    },
+    {
+     "id": "ihtp",
+     "value": 3325
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    }
+   ]
+  },
+  "I02O": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "High Yield Torpedo Bay"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNClusterRockets.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A04Y"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your submarine with the ability to launch another torpedo.  Perfect for a large amount of quick damage."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your submarine with the ability to launch another torpedo. |cffFF1100Only Submarines may carry this item|r  |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB1000|r |nRange: |cff33BBBB1050|r |nCooldown: |cff33BBBB45 seconds|r (Actively used)\n\n(Limit 1 extra torpedo per sub)"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Custom High Yield |cffffcc00T|rorpedo Bay (|cffffcc006750|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "T"
+    },
+    {
+     "id": "icid",
+     "value": "A04Y"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 6750
+    },
+    {
+     "id": "ihtp",
+     "value": 6750
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    }
+   ]
+  },
+  "I02P": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Nuclear Torpedo Bay"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSelfDestructOn.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A04F"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your submarine with the ability to launch another torpedo.  Perfect for a large amount of quick damage."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your submarine with the ability to launch another torpedo. |cffFF1100Only Submarines may carry this item|r |n|nAttacks: |cff33BBBBShips Only|r|n|nDamage: |cff33BBBB2500|r |nRange: |cff33BBBB1200|r |nCooldown: |cff33BBBB45 seconds|r (Actively used)\n\n(Limit 1 extra torpedo per sub)"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Nuclear |cffffcc00T|rorpedo Bay (|cffffcc0016875|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "T"
+    },
+    {
+     "id": "icid",
+     "value": "A04F"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 16875
+    },
+    {
+     "id": "ihtp",
+     "value": 16875
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    }
+   ]
+  },
+  "I020": {
+   "base": "totw",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Spies"
+    },
+    {
+     "id": "utip",
+     "value": "Hire Spies (|cffffcc00900|r)"
+    },
+    {
+     "id": "utub",
+     "value": "Hire a Spy to watch an area for 540 seconds. |nHas 4 charges.  Spies are visable, but invulnerable."
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShade.blp"
+    },
+    {
+     "id": "ides",
+     "value": "Hire a Spy to watch an area for 540 seconds. |nHas 4 charges.  Spies are visable, but invulnerable."
+    },
+    {
+     "id": "iuse",
+     "value": 4
+    },
+    {
+     "id": "istr",
+     "value": 600
+    },
+    {
+     "id": "ipri",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 900
+    },
+    {
+     "id": "ihtp",
+     "value": 900
+    }
+   ]
+  },
+  "I024": {
+   "base": "totw",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Spies"
+    },
+    {
+     "id": "utip",
+     "value": "Hire Spies (|cffffcc00900|r)"
+    },
+    {
+     "id": "utub",
+     "value": "Hire a Spy to watch an area for 540 seconds. |nHas 4 charges.  Spies are visable, but invulnerable."
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShade.blp"
+    },
+    {
+     "id": "ides",
+     "value": "Hire a Spy to watch an area for 540 seconds. |nHas 4 charges.  Spies are visable, but invulnerable."
+    },
+    {
+     "id": "iuse",
+     "value": 4
+    },
+    {
+     "id": "istr",
+     "value": 600
+    },
+    {
+     "id": "ipri",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 900
+    },
+    {
+     "id": "ihtp",
+     "value": 900
+    }
+   ]
+  },
+  "I025": {
+   "base": "totw",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Spies"
+    },
+    {
+     "id": "utip",
+     "value": "Hire Spies (|cffffcc00900|r)"
+    },
+    {
+     "id": "utub",
+     "value": "Hire a Spy to watch an area for 540 seconds. |nHas 4 charges.  Spies are visable, but invulnerable."
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShade.blp"
+    },
+    {
+     "id": "ides",
+     "value": "Hire a Spy to watch an area for 540 seconds. |nHas 4 charges.  Spies are visable, but invulnerable."
+    },
+    {
+     "id": "iuse",
+     "value": 4
+    },
+    {
+     "id": "istr",
+     "value": 600
+    },
+    {
+     "id": "ipri",
+     "value": 0
+    },
+    {
+     "id": "igol",
+     "value": 900
+    },
+    {
+     "id": "ihtp",
+     "value": 900
+    }
+   ]
+  },
+  "I026": {
+   "base": "ckng",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Underwater Launch"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNWellSpring.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A04G"
+    },
+    {
+     "id": "ides",
+     "value": "Provides your submarine with the ability to launch against enemy buildings."
+    },
+    {
+     "id": "utub",
+     "value": "Provides your submarine with the ability to launch a massive strike against enemy buildings. |cffFF1100Only Submarines may carry this item|r  |n|nAttacks: |cff33BBBBStructures Only|r|n|nDamage: |cff33BBBB3000|r |nRange: |cff33BBBB900|r |nCooldown: |cff33BBBB45 seconds|r (Actively used)\n\n(Limit 1 per sub)"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Underwa|cffffcc00t|rer Launch (|cffffcc008950|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "T"
+    },
+    {
+     "id": "icid",
+     "value": "A04G"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 8950
+    },
+    {
+     "id": "ihtp",
+     "value": 8950
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    }
+   ]
+  },
+  "I02Q": {
+   "base": "fgsk",
+   "mods": [
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "igol",
+     "value": 0
+    },
+    {
+     "id": "ihtp",
+     "value": 1
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "unam",
+     "value": "|cff0000f0Book of Formulas|r"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase |cff0000f0Book of Formulas|r"
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis book is used to refine trade items.|r |n|nRequirements: |cff33BBBBA Trade Boat, This Book & a Trade Item.|r|nTrade Description: |cff33BBBBBring any completed trade item (and the contract) to the area directly north of the Refinery.|r|n- |cff33BBBBThen bring it to your Trade Master (or complete the contract).  This book must be in your inventory when you complete the mission to recieve the bonus.|r|n|nReward: |cff33BBBB150% of gold listed on contract.  No extra lumber.|r"
+    },
+    {
+     "id": "ides",
+     "value": "A book."
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    }
+   ]
+  },
+  "I02R": {
+   "base": "bspd",
+   "mods": [
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNKoboldGeomancer.blp"
+    },
+    {
+     "id": "unam",
+     "value": "Mutated Pig"
+    },
+    {
+     "id": "ides",
+     "value": "The other white meat."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThe other white meat."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Mutated Pig"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    }
+   ]
+  },
+  "I02S": {
+   "base": "spsh",
+   "mods": [
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "Freshly sawn wood."
+    },
+    {
+     "id": "unam",
+     "value": "Carpenter's Wood"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Carpenter's Wood"
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nFreshly sawn wood."
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanLumberUpgrade2.blp"
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "ipri",
+     "value": 1
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    }
+   ]
+  },
+  "I02T": {
+   "base": "afac",
+   "mods": [
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNLesserInvisibility.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "ipri",
+     "value": 1
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "ides",
+     "value": "A potion made from goblin elixers."
+    },
+    {
+     "id": "unam",
+     "value": "Strange Potion"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Strange Potion"
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA potion made from goblin elixers."
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    }
+   ]
+  },
+  "I02U": {
+   "base": "bgst",
+   "mods": [
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDalaranMutant.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "This has the beginnings of a cheap horror movie..."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nThis has the beginnings of a cheap horror movie..."
+    },
+    {
+     "id": "utip",
+     "value": "Mutated Saptive"
+    },
+    {
+     "id": "unam",
+     "value": "Mutated Captive"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "ipri",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    }
+   ]
+  },
+  "I02V": {
+   "base": "bgst",
+   "mods": [
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStrongDrink.blp"
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "ides",
+     "value": "Ahhh the good stuff.  It is vital that you drop this off to your Trade Master immidately."
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "unam",
+     "value": "Beer"
+    },
+    {
+     "id": "utip",
+     "value": "Pickup Beer"
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nAhhh the good stuff.  It is vital that you drop this off to your Trade Master immidately."
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    }
+   ]
+  },
+  "I02W": {
+   "base": "ratc",
+   "mods": [
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanMissileUpThree.blp"
+    },
+    {
+     "id": "ides",
+     "value": "Upgraded ammo.  Much more potent."
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |n Desperate times call for desperate measures."
+    },
+    {
+     "id": "unam",
+     "value": "Custom Ammo"
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Custom Ammo"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "ipri",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    }
+   ]
+  },
+  "I02X": {
+   "base": "hval",
+   "mods": [
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSorceressMaster.blp"
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "ides",
+     "value": "A compendium from the distant parts of our world..."
+    },
+    {
+     "id": "unam",
+     "value": "World Compendium"
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA compendium from the distant parts of our world..."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase World Compendium"
+    },
+    {
+     "id": "ipri",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    }
+   ]
+  },
+  "I02Y": {
+   "base": "crys",
+   "mods": [
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNMedalionOfCourage.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "unam",
+     "value": "Pirates Treasure"
+    },
+    {
+     "id": "utip",
+     "value": "Find Pirates Treasure"
+    },
+    {
+     "id": "ides",
+     "value": "So that is what is in those boxes!"
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nSo that is what was in those boxes!"
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "ipri",
+     "value": 1
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    }
+   ]
+  },
+  "I02Z": {
+   "base": "rwiz",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "SuperBomb (|cffFF6666Armed|r)"
+    },
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "ipri",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "A huge bomb designed for only one thing..."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Superbomb (|cffFF6666Armed|r)"
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA bomb that causes 6000 damage to an enemy harbor."
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNExplBarrel.blp"
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    }
+   ]
+  },
+  "I030": {
+   "base": "clfm",
+   "mods": [
+    {
+     "id": "icla",
+     "value": "Miscellaneous"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "unam",
+     "value": "Golden Statue"
+    },
+    {
+     "id": "ides",
+     "value": "A priceless treasure of ages long ago..."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Golden Statue"
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |n A priceless treasure of ages long ago..."
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNTransmute.blp"
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "ipri",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "isst",
+     "value": 1
+    }
+   ]
+  },
+  "I031": {
+   "base": "bgst",
+   "mods": [
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "unam",
+     "value": "Goblin Engineer"
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "ides",
+     "value": "A Goblin Engineer."
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Goblin Engineer"
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA trustworthy goblin repairman, can repair a building for 3750 hitpoints over 20 seconds."
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "isst",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "ipri",
+     "value": 1
+    },
+    {
+     "id": "iper",
+     "value": 1
+    },
+    {
+     "id": "iuse",
+     "value": 1
+    },
+    {
+     "id": "iusa",
+     "value": 1
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGoblinZeppelin.blp"
+    },
+    {
+     "id": "iabi",
+     "value": "A056"
+    }
+   ]
+  },
+  "I032": {
+   "base": "fgsk",
+   "mods": [
+    {
+     "id": "icla",
+     "value": "Campaign"
+    },
+    {
+     "id": "idrp",
+     "value": 1
+    },
+    {
+     "id": "icid",
+     "value": "Aslo"
+    },
+    {
+     "id": "igol",
+     "value": 2
+    },
+    {
+     "id": "ihtp",
+     "value": 2
+    },
+    {
+     "id": "ipri",
+     "value": 1
+    },
+    {
+     "id": "istr",
+     "value": 1
+    },
+    {
+     "id": "iusa",
+     "value": 0
+    },
+    {
+     "id": "ifil",
+     "value": ".mdl"
+    },
+    {
+     "id": "iico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNExplBarrel.blp"
+    },
+    {
+     "id": "iabi",
+     "value": ""
+    },
+    {
+     "id": "utip",
+     "value": "Purchase Superbomb (|cff66FF66Unarmed|r)"
+    },
+    {
+     "id": "unam",
+     "value": "Superbomb (|cff66FF66Unarmed|r)"
+    },
+    {
+     "id": "ides",
+     "value": "A huge bomb designed for only one thing..."
+    },
+    {
+     "id": "utub",
+     "value": "|cff87ceebTrade Item |nNon-Stackable |n(Removed if dropped or given away)|r |nA bomb that causes 6000 damage to an enemy harbor."
+    },
+    {
+     "id": "iper",
+     "value": 0
+    },
+    {
+     "id": "iuse",
+     "value": 0
+    }
+   ]
+  }
+ }
+}

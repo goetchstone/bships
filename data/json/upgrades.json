@@ -1,0 +1,9629 @@
+{
+ "version": 2,
+ "objects": {
+  "R000": {
+   "base": "Rhac",
+   "mods": [
+    {
+     "id": "gnam",
+     "value": "Tower Defense - Level 1",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense - Level 2",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense - Level 3",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "glvl",
+     "value": 10,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gef2",
+     "value": "",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gba2",
+     "value": 500.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gmo2",
+     "value": 500.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "greq",
+     "value": "",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "greq",
+     "value": "",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense - Level 4",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense - Level 5",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense - Level 6",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense - Level 7",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense - Level 8",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense - Level 9",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense - Level 10",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense - [|cffffcc00Level 1 / 10|r]",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense - [|cffffcc00Level 2 / 10|r]",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense - [|cffffcc00Level 3 / 10|r]",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense - [|cffffcc00Level 4 / 10|r]",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense - [|cffffcc00Level 5 / 10|r]",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense - [|cffffcc00Level 6 / 10|r]",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense - [|cffffcc00Level 7 / 10|r]",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense - [|cffffcc00Level 8 / 10|r]",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense - [|cffffcc00Level 9 / 10|r]",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense - [|cffffcc00Level 10 / 10|r]",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by |cff33BBBB500|r.",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by |cff33BBBB500|r.",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by |cff33BBBB500|r.",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by |cff33BBBB500|r.",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by |cff33BBBB500|r.",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by |cff33BBBB500|r.",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by |cff33BBBB500|r.",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by |cff33BBBB500|r.",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by |cff33BBBB500|r.",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by |cff33BBBB500|r.",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "glmb",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "glmm",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gglb",
+     "value": 400,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gglm",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gtib",
+     "value": 180,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gtim",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gbpy",
+     "value": 1,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gef1",
+     "value": "rhpx",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gmo1",
+     "value": 500.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gba1",
+     "value": 500.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "W",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Defense",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade To|cffffcc00w|rer Defense",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Towers by 400.",
+     "level": 50,
+     "data": 0
+    }
+   ]
+  },
+  "R001": {
+   "base": "Rhac",
+   "mods": [
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 1",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 2",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 3",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "glvl",
+     "value": 10,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gef2",
+     "value": "",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gba2",
+     "value": 30.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gmo2",
+     "value": 30.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "greq",
+     "value": "",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "greq",
+     "value": "",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 4",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 5",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 6",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 7",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 8",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 9",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 10",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 1 / 10|r]",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 2 / 10|r]",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 3 / 10|r]",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 4 / 10|r]",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 5 / 10|r]",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 6 / 10|r]",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 7 / 10|r]",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 8 / 10|r]",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 9 / 10|r]",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 10 / 10|r]",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by an average of |cff33BBBB13|r.",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by an average of |cff33BBBB13|r.",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by an average of |cff33BBBB13|r.",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by an average of |cff33BBBB13|r.",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by an average of |cff33BBBB13|r.",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by an average of |cff33BBBB13|r.",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by an average of |cff33BBBB13|r.",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by an average of |cff33BBBB13|r.",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by an average of |cff33BBBB13|r.",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by an average of |cff33BBBB13|r.",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "glmb",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "glmm",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gglb",
+     "value": 325,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gglm",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gtib",
+     "value": 180,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gtim",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gbpy",
+     "value": 1,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gef1",
+     "value": "ratx",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gbpx",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gmo1",
+     "value": 10.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gba1",
+     "value": 40.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gcls",
+     "value": "artillery",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 50,
+     "data": 0
+    }
+   ]
+  },
+  "R003": {
+   "base": "Rhac",
+   "mods": [
+    {
+     "id": "gnam",
+     "value": "Ship Hull - Level 1",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull - Level 2",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull - Level 3",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "glvl",
+     "value": 10,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gef2",
+     "value": "",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gba2",
+     "value": 100.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gmo2",
+     "value": 100.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "greq",
+     "value": "",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "greq",
+     "value": "",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull - Level 4",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull - Level 5",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull - Level 6",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull - Level 7",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull - Level 8",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull - Level 9",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull - Level 10",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull - [|cffffcc00Level 1 / 10|r]",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull - [|cffffcc00Level 2 / 10|r]",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull - [|cffffcc00Level 3 / 10|r]",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull - [|cffffcc00Level 4 / 10|r]",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull - [|cffffcc00Level 5 / 10|r]",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull - [|cffffcc00Level 6 / 10|r]",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull - [|cffffcc00Level 7 / 10|r]",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull - [|cffffcc00Level 8 / 10|r]",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull - [|cffffcc00Level 9 / 10|r]",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull - [|cffffcc00Level 10 / 10|r]",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships to |cff33BBBB25|r% from base.",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships to |cff33BBBB50|r% from base.",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships to |cff33BBBB75|r% from base.",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships to |cff33BBBB100|r% from base.",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships to |cff33BBBB125|r% from base.",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships to |cff33BBBB150|r% from base.",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships to |cff33BBBB175|r% from base.",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships to |cff33BBBB200|r% from base.",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships to |cff33BBBB250|r% from base.",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships to |cff33BBBB275|r% from base.",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "glmb",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "glmm",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gglb",
+     "value": 800,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gglm",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gtib",
+     "value": 45,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gtim",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gef1",
+     "value": "rhpo",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gmo1",
+     "value": 0.25,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gba1",
+     "value": 0.25,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "H",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Hull",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Ships |cffffcc00H|rull",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points for the Empire Ships & Hire Ships by +|cff33BBBB25|r% from base.",
+     "level": 50,
+     "data": 0
+    }
+   ]
+  },
+  "R004": {
+   "base": "Rhac",
+   "mods": [
+    {
+     "id": "gnam",
+     "value": "Ship Sails - Level 1",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails - Level 2",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails - Level 3",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "glvl",
+     "value": 10,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gef2",
+     "value": "",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gba2",
+     "value": 10.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gmo2",
+     "value": 10.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "greq",
+     "value": "",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "greq",
+     "value": "",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails - Level 4",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails - Level 5",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails - Level 6",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails - Level 7",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails - Level 8",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails - Level 9",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails - Level 10",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails - [|cffffcc00Level 1 / 10|r]",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails - [|cffffcc00Level 2 / 10|r]",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails - [|cffffcc00Level 3 / 10|r]",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails - [|cffffcc00Level 4 / 10|r]",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails - [|cffffcc00Level 5 / 10|r]",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails - [|cffffcc00Level 6 / 10|r]",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails - [|cffffcc00Level 7 / 10|r]",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails - [|cffffcc00Level 8 / 10|r]",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails - [|cffffcc00Level 9 / 10|r]",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails - [|cffffcc00Level 10 / 10|r]",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships by |cff33BBBB10|r.",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships by |cff33BBBB10|r.",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships by |cff33BBBB10|r.",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships by |cff33BBBB10|r.",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships by |cff33BBBB10|r.",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships by |cff33BBBB10|r.",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships by |cff33BBBB10|r.",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships by |cff33BBBB10|r.",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships by |cff33BBBB10|r.",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships by |cff33BBBB10|r.",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "glmb",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "glmm",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gglb",
+     "value": 150,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gglm",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gtib",
+     "value": 30,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gtim",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gef1",
+     "value": "rmvx",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gbpx",
+     "value": 2,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gmo1",
+     "value": 10.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gba1",
+     "value": 10.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gcls",
+     "value": "",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "I",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Sails",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Sh|cffffcc00i|rps Sails",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the sail speed for the Empire Ships & Hire Ships by 10.",
+     "level": 50,
+     "data": 0
+    }
+   ]
+  },
+  "R005": {
+   "base": "Rhac",
+   "mods": [
+    {
+     "id": "gnam",
+     "value": "Ship Cannons - Level 1",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons - Level 2",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons - Level 3",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "glvl",
+     "value": 10,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gef2",
+     "value": "",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gba2",
+     "value": 8.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gmo2",
+     "value": 8.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "greq",
+     "value": "",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "greq",
+     "value": "",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons - Level 4",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons - Level 5",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons - Level 6",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons - Level 7",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons - Level 8",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons - Level 9",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons - Level 10",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons - [|cffffcc00Level 1 / 10|r]",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons - [|cffffcc00Level 2 / 10|r]",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons - [|cffffcc00Level 3 / 10|r]",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons - [|cffffcc00Level 4 / 10|r]",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons - [|cffffcc00Level 5 / 10|r]",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons - [|cffffcc00Level 6 / 10|r]",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons - [|cffffcc00Level 7 / 10|r]",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons - [|cffffcc00Level 8 / 10|r]",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons - [|cffffcc00Level 9 / 10|r]",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons - [|cffffcc00Level 10 / 10|r]",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-8|r|nCruisers Damage Bonus: |cff33BBBB1-12|r",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-8|r|nCruisers Damage Bonus: |cff33BBBB1-12|r",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-8|r|nCruisers Damage Bonus: |cff33BBBB1-12|r",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-8|r|nCruisers Damage Bonus: |cff33BBBB1-12|r",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-8|r|nCruisers Damage Bonus: |cff33BBBB1-12|r",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-8|r|nCruisers Damage Bonus: |cff33BBBB1-12|r",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-8|r|nCruisers Damage Bonus: |cff33BBBB1-12|r",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-8|r|nCruisers Damage Bonus: |cff33BBBB1-12|r",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-8|r|nCruisers Damage Bonus: |cff33BBBB1-12|r",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-8|r|nCruisers Damage Bonus: |cff33BBBB1-12|r",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "glmb",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "glmm",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gglb",
+     "value": 600,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gglm",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gtib",
+     "value": 45,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gtim",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gef1",
+     "value": "ratd",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gbpx",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gmo1",
+     "value": 1.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gba1",
+     "value": 1.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gcls",
+     "value": "ranged",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "S",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Ship Cannons",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00S|rhip Cannons",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Ships & Hire Ships.|nRowboats Damage Bonus: |cff33BBBB1-3|r|nBattle Ships Damage Bonus: |cff33BBBB1-6|r|nRowboats Damage Bonus: |cff33BBBB1-12|r",
+     "level": 50,
+     "data": 0
+    }
+   ]
+  },
+  "R002": {
+   "base": "Rhac",
+   "mods": [
+    {
+     "id": "gnam",
+     "value": "Tower Mechanics Upgrade",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 2",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 3",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "glvl",
+     "value": 1,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gef2",
+     "value": "",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gba2",
+     "value": 30.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gmo2",
+     "value": 30.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "greq",
+     "value": "",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "greq",
+     "value": "",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 4",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 5",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 6",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 7",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 8",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 9",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage - Level 10",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade Main Harbor |cffffcc00M|rechanics Upgrade - [|cffffcc00Level 1 / 1|r]",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 2|r]",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 3|r]",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 4|r]",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 5|r]",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 6|r]",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 7|r]",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 8|r]",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 9|r]",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage - [|cffffcc00Level 10|r]",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases the hit points per second regeneration rate on the Main Harbor to |cff33BBBB20|r.",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB2-26|r.",
+     "level": 2,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB2-26|r.",
+     "level": 3,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB2-26|r.",
+     "level": 4,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB2-26|r.",
+     "level": 5,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB2-26|r.",
+     "level": 6,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB2-26|r.",
+     "level": 7,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB2-26|r.",
+     "level": 8,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB2-26|r.",
+     "level": 9,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB2-26|r.",
+     "level": 10,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 11,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 12,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 13,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 14,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 15,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 16,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 17,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 18,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 19,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 20,
+     "data": 0
+    },
+    {
+     "id": "glmb",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "glmm",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gglb",
+     "value": 2500,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gglm",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gtib",
+     "value": 300,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gtim",
+     "value": 0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gbpy",
+     "value": 1,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gef1",
+     "value": "rhpr",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp",
+     "level": 1,
+     "data": 0
+    },
+    {
+     "id": "gbpx",
+     "value": 2,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gmo1",
+     "value": 20.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gba1",
+     "value": 20.0,
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gcls",
+     "value": "",
+     "level": 0,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gar1",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "ghk1",
+     "value": "T",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gnam",
+     "value": "Tower Damage",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gtp1",
+     "value": "Upgrade |cffffcc00T|rower Damage",
+     "level": 50,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 21,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 22,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 23,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 24,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 25,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 26,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 27,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 28,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 29,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 30,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 31,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 32,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 33,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 34,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 35,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 36,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 37,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 38,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 39,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 40,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 41,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 42,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 43,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 44,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 45,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 46,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 47,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 48,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 49,
+     "data": 0
+    },
+    {
+     "id": "gub1",
+     "value": "Increases damage for the Empire Towers by |cff33BBBB1-8|r.",
+     "level": 50,
+     "data": 0
+    }
+   ]
+  }
+ }
+}

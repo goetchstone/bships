@@ -1,0 +1,13 @@
+# Original map file and raw extracted assets are not redistributed here.
+# Run `make extract` with your own copy of the map (see tools/extractor/README.md).
+/reference/
+/data/extracted/
+
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+.env
+.venv/
+__pycache__/

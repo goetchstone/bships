@@ -1,0 +1,1736 @@
+{
+ "version": 2,
+ "objects": {
+  "Bpxf": {
+   "base": "Bpxf",
+   "mods": [
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "ftip",
+     "value": "Damaged"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is being damaged."
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp"
+    }
+   ]
+  },
+  "Bmlt": {
+   "base": "Bmlt",
+   "mods": [
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "ftip",
+     "value": "Board Ship"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is being Boarded; it cannot move and will take damage over time."
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    }
+   ]
+  },
+  "BOac": {
+   "base": "BOac",
+   "mods": [
+    {
+     "id": "fube",
+     "value": "This unit has been hit by Capain's Cannon; it has been damaged."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNDwarvenLongRifle.blp"
+    },
+    {
+     "id": "ftip",
+     "value": "Captain's Cannon"
+    }
+   ]
+  },
+  "Bdvv": {
+   "base": "Bdvv",
+   "mods": [
+    {
+     "id": "fube",
+     "value": "A unit is being disassembled; it will take damage while providing vision to the owner."
+    },
+    {
+     "id": "ftip",
+     "value": "Hangar Ship"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNOrcBattleStandard.blp"
+    }
+   ]
+  },
+  "BNcs": {
+   "base": "BNcs",
+   "mods": [
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanArtilleryUpOne.blp"
+    },
+    {
+     "id": "fnam",
+     "value": "Artillery"
+    },
+    {
+     "id": "ftip",
+     "value": "Artillery"
+    },
+    {
+     "id": "fube",
+     "value": "Artillery."
+    }
+   ]
+  },
+  "BHad": {
+   "base": "BHad",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Upgraded Sails"
+    },
+    {
+     "id": "ftip",
+     "value": "Upgraded Sails"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fube",
+     "value": "This unit is has Upgraded Sails; it has increased sail speed."
+    }
+   ]
+  },
+  "BOae": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "ftip",
+     "value": "Enforced Hull"
+    },
+    {
+     "id": "fnam",
+     "value": "Enforced Hull"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is has Enforced Hull; it has increased hitpoints."
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNImprovedSpikedBarricades.blp"
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    }
+   ]
+  },
+  "BEah": {
+   "base": "BEah",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Onboard Mechanics Crew"
+    },
+    {
+     "id": "ftip",
+     "value": "Onboard Mechanics Crew"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is has Onboard Mechanics Crew; it has increased repair speed."
+    },
+    {
+     "id": "fsat",
+     "value": ""
+    },
+    {
+     "id": "fspt",
+     "value": ""
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp"
+    }
+   ]
+  },
+  "Bfzy": {
+   "base": "Bfzy",
+   "mods": [
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fta1",
+     "value": ""
+    },
+    {
+     "id": "ftip",
+     "value": "-"
+    },
+    {
+     "id": "fube",
+     "value": "-"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNLoadDwarf.blp"
+    }
+   ]
+  },
+  "Bstt": {
+   "base": "Bstt",
+   "mods": [
+    {
+     "id": "ftip",
+     "value": "Goblin Mine"
+    },
+    {
+     "id": "fube",
+     "value": "THIS BOAT HAS BEEN RIGGED TO BLOW UP.  IF YOU USE AN ABILITY OR AN ITEM IT WILL EXPLODE.  Go to your repair bay to remove the bomb."
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpell_Shadow_MindBomb.blp"
+    }
+   ]
+  },
+  "Bshs": {
+   "base": "Bshs",
+   "mods": [
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNVillagerWoman.blp"
+    },
+    {
+     "id": "fube",
+     "value": "This ship has a spy onboard; it is revealed to an enemy player.  This effect can be removed by repairing your ship in the hangar in your base."
+    },
+    {
+     "id": "ftip",
+     "value": "Informant"
+    }
+   ]
+  },
+  "BEme": {
+   "base": "BEme",
+   "mods": [
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpell_Shadow_DemonBreath.blp"
+    },
+    {
+     "id": "ftip",
+     "value": "Dive Dive!"
+    },
+    {
+     "id": "fube",
+     "value": "Allows the Submarine to remain below the waves..."
+    }
+   ]
+  },
+  "Bapl": {
+   "base": "Bapl",
+   "mods": [
+    {
+     "id": "ftip",
+     "value": "Aura of Fright"
+    },
+    {
+     "id": "fube",
+     "value": "This unit's crew are terrified; The ship is suffering damage because of this."
+    },
+    {
+     "id": "fart",
+     "value": "war3mapImported\\BTN29b.BLP"
+    }
+   ]
+  },
+  "BHds": {
+   "base": "BHds",
+   "mods": [
+    {
+     "id": "ftip",
+     "value": "Nautical Engineer"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is being repaired by nautical engineers."
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpell_Frost_ChillingArmor.blp"
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\NightElf\\TargetArtLumber\\TargetArtLumber.mdl"
+    }
+   ]
+  },
+  "B000": {
+   "base": "Bbsk",
+   "mods": [
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp"
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\Orc\\Shockwave\\ShockwaveMissile.mdl"
+    },
+    {
+     "id": "fta1",
+     "value": ""
+    },
+    {
+     "id": "ftac",
+     "value": 1
+    },
+    {
+     "id": "fta0",
+     "value": "origin"
+    },
+    {
+     "id": "ftip",
+     "value": "Intercept"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has increased movement speed."
+    }
+   ]
+  },
+  "B004": {
+   "base": "Beng",
+   "mods": [
+    {
+     "id": "fnsf",
+     "value": " (Boat)"
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\Orc\\Ensnare\\ensnareTarget.mdl,Abilities\\Spells\\Orc\\Ensnare\\ensnare_AirTarget.mdl"
+    },
+    {
+     "id": "fta0",
+     "value": "chest"
+    }
+   ]
+  },
+  "B001": {
+   "base": "Brej",
+   "mods": [
+    {
+     "id": "ftip",
+     "value": "Hull Repair"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is being Repaired; it is gaining hit points over time."
+    },
+    {
+     "id": "frac",
+     "value": "orc"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNRepair.blp"
+    },
+    {
+     "id": "ftat",
+     "value": "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl"
+    }
+   ]
+  },
+  "B002": {
+   "base": "BEar",
+   "mods": [
+    {
+     "id": "frac",
+     "value": "orc"
+    },
+    {
+     "id": "ftip",
+     "value": "Gunner's Aura"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\PassiveButtons\\PASBTNTrueShot.blp"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is under the effects of Gunner's Aura; its attacks will deal more damage."
+    }
+   ]
+  },
+  "B006": {
+   "base": "BEsh",
+   "mods": [
+    {
+     "id": "ftip",
+     "value": "Sail Ripper"
+    },
+    {
+     "id": "fube",
+     "value": "This unit was hit by Sail Ripper; it will move more slowly while the sails are rebuilt."
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Weapons\\SentinelMissile\\SentinelMissile.mdl"
+    },
+    {
+     "id": "fta0",
+     "value": "head"
+    },
+    {
+     "id": "frac",
+     "value": "orc"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNUpgradeMoonGlaive.blp"
+    }
+   ]
+  },
+  "B007": {
+   "base": "Bvul",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Barrier"
+    },
+    {
+     "id": "ftip",
+     "value": "Barrier"
+    },
+    {
+     "id": "fube",
+     "value": "A protective barrier that blocks all attacks."
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\Items\\StaffOfSanctuary\\Staff_Sanctuary_Target.mdl"
+    },
+    {
+     "id": "frac",
+     "value": "orc"
+    },
+    {
+     "id": "fta0",
+     "value": "chest"
+    }
+   ]
+  },
+  "B005": {
+   "base": "Binv",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Hide"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpell_Shadow_Haunting.blp"
+    },
+    {
+     "id": "ftip",
+     "value": "Hide"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is hidden; enemy units cannot see it. If it uses an ability, it will become visible."
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\Human\\CloudOfFog\\CloudOfFog.mdl"
+    },
+    {
+     "id": "fta0",
+     "value": "chest"
+    }
+   ]
+  },
+  "B003": {
+   "base": "BUau",
+   "mods": [
+    {
+     "id": "ftip",
+     "value": "Repairman's Aura"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is under the effects of Repairman's Aura; it has an increased repair speed."
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp"
+    },
+    {
+     "id": "frac",
+     "value": "orc"
+    }
+   ]
+  },
+  "B008": {
+   "base": "BOsf",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Scout Boat"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanTransport.blp"
+    },
+    {
+     "id": "ftip",
+     "value": "Scout Boat"
+    },
+    {
+     "id": "fube",
+     "value": "Built for scouting and espionage."
+    }
+   ]
+  },
+  "B009": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Enforced Hull"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is has Enforced Hull; it has increased hitpoints."
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpikedBarricades.blp"
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "frac",
+     "value": "human"
+    },
+    {
+     "id": "ftip",
+     "value": "Enforced Hull"
+    }
+   ]
+  },
+  "B00A": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Reinforced Hull"
+    },
+    {
+     "id": "ftip",
+     "value": "Reinforced Hull"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is has Reinforced Hull; it has increased hitpoints."
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNImprovedSpikedBarricades.blp"
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "frac",
+     "value": "human"
+    }
+   ]
+  },
+  "B00B": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Super Enforced Hull"
+    },
+    {
+     "id": "ftip",
+     "value": "Super Enforced Hull"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is has Super Enforced Hull; it has increased hitpoints."
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNAdvancedSpikedBarricades.blp"
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "frac",
+     "value": "human"
+    }
+   ]
+  },
+  "B00C": {
+   "base": "BEah",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Onboard Mechanics Crew"
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fsat",
+     "value": ""
+    },
+    {
+     "id": "fspt",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fube",
+     "value": "This unit is has Onboard Mechanics Crew; it has increased repair speed."
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNEngineeringUpgrade.blp"
+    },
+    {
+     "id": "frac",
+     "value": "human"
+    },
+    {
+     "id": "ftip",
+     "value": "Onboard Mechanics Crew"
+    }
+   ]
+  },
+  "B00D": {
+   "base": "BHad",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Upgraded Sails"
+    },
+    {
+     "id": "ftip",
+     "value": "Upgraded Sails"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is has Upgraded Sails; it has increased sail speed."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    }
+   ]
+  },
+  "B00E": {
+   "base": "BOsf",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Seamonster"
+    },
+    {
+     "id": "ftip",
+     "value": "Seamonster"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNForgottenOne.blp"
+    },
+    {
+     "id": "feat",
+     "value": "Abilities\\Weapons\\WaterElementalMissile\\WaterElementalMissile.mdl"
+    }
+   ]
+  },
+  "B00F": {
+   "base": "BOwd",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Tentacle"
+    },
+    {
+     "id": "ftip",
+     "value": "Tentacle"
+    }
+   ]
+  },
+  "B00G": {
+   "base": "Brej",
+   "mods": [
+    {
+     "id": "ftip",
+     "value": "Building Repair"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is being Repaired; it is gaining hit points over time."
+    },
+    {
+     "id": "frac",
+     "value": "orc"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHeroTinker.blp"
+    },
+    {
+     "id": "ftat",
+     "value": "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl"
+    }
+   ]
+  },
+  "B00H": {
+   "base": "BNcs",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Artillery"
+    },
+    {
+     "id": "ftip",
+     "value": "Artillery"
+    },
+    {
+     "id": "fube",
+     "value": "Artillery."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanArtilleryUpOne.blp"
+    },
+    {
+     "id": "frac",
+     "value": "orc"
+    }
+   ]
+  },
+  "B00I": {
+   "base": "Binv",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Smoke Machine"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpell_Shadow_Haunting.blp"
+    },
+    {
+     "id": "ftip",
+     "value": "Smoke Machine"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is hidden in smoke; enemy units cannot see it. If it uses an ability, it will become visible."
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\Human\\CloudOfFog\\CloudOfFog.mdl"
+    },
+    {
+     "id": "fta0",
+     "value": "chest"
+    }
+   ]
+  },
+  "B00J": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Slow Aura"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSlow.blp"
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\Human\\slow\\slowtarget.mdl"
+    },
+    {
+     "id": "ftip",
+     "value": "Slow Aura"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is under the effects of Slow Aura; it has decreased sail speed."
+    }
+   ]
+  },
+  "B00K": {
+   "base": "BNsi",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Disrupt Beacon"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNWandOfNeutralization.blp"
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\Other\\HowlOfTerror\\HowlTarget.mdl"
+    },
+    {
+     "id": "fta0",
+     "value": "chest"
+    },
+    {
+     "id": "frac",
+     "value": "orc"
+    }
+   ]
+  },
+  "B00L": {
+   "base": "BHtc",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Electro Magnetic Pulse"
+    },
+    {
+     "id": "ftip",
+     "value": "Electro Magnetic Pulse"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has been hit by Electro Magnetic Pulse; its sail speed is reduced."
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Weapons\\Bolt\\BoltImpact.mdl"
+    },
+    {
+     "id": "fta0",
+     "value": "chest"
+    },
+    {
+     "id": "fart",
+     "value": "war3mapImported\\BTN15b.BLP"
+    }
+   ]
+  },
+  "B00M": {
+   "base": "Bshs",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Spy"
+    },
+    {
+     "id": "ftip",
+     "value": "Spy"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is infiltrated by a Spy; it is revealed to the enemy. (Can only be removed in your teams Repair Station)"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBeastMaster.blp"
+    },
+    {
+     "id": "frac",
+     "value": "orc"
+    }
+   ]
+  },
+  "B00N": {
+   "base": "Bhea",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Repair"
+    },
+    {
+     "id": "ftip",
+     "value": "Repair"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is being repaired; lost hit points are being restored."
+    }
+   ]
+  },
+  "B00O": {
+   "base": "BOsf",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Guard Tower"
+    },
+    {
+     "id": "ftip",
+     "value": "Guard Tower"
+    },
+    {
+     "id": "feat",
+     "value": "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp"
+    }
+   ]
+  },
+  "B00P": {
+   "base": "BOsf",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Transport Ship"
+    },
+    {
+     "id": "ftip",
+     "value": "Transport Ship"
+    },
+    {
+     "id": "feat",
+     "value": "Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanBattleShip.blp"
+    }
+   ]
+  },
+  "B00Q": {
+   "base": "Bblo",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Power Fuel"
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\Other\\Doom\\DoomTarget.mdl"
+    },
+    {
+     "id": "fta1",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": "origin"
+    },
+    {
+     "id": "ftip",
+     "value": "Power Fuel"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has Power Fuel; its sail speed is increased."
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNResurrection.blp"
+    }
+   ]
+  },
+  "B00R": {
+   "base": "BPSE",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Freezed"
+    },
+    {
+     "id": "ftip",
+     "value": "Freezed"
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\Undead\\FreezingBreath\\FreezingBreathTargetArt.mdl"
+    },
+    {
+     "id": "fta0",
+     "value": "origin"
+    },
+    {
+     "id": "fart",
+     "value": "war3mapImported\\BTN24b.BLP"
+    }
+   ]
+  },
+  "B00S": {
+   "base": "Bvul",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Fire Missile"
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\Human\\Flare\\FlareCaster.mdl,Abilities\\Spells\\Orc\\WarStomp\\WarStompCaster.mdl"
+    },
+    {
+     "id": "ftip",
+     "value": "Fire Missile"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is Firing Missiles; it will not take damage from attacks and cannot be targeted by spells."
+    },
+    {
+     "id": "fta1",
+     "value": "origin"
+    },
+    {
+     "id": "ftac",
+     "value": 2
+    }
+   ]
+  },
+  "B00T": {
+   "base": "BOmi",
+   "mods": [
+    {
+     "id": "fsat",
+     "value": "Abilities\\Spells\\Orc\\FeralSpirit\\feralspiritdone.mdl"
+    },
+    {
+     "id": "ftip",
+     "value": "Shadow Replication"
+    },
+    {
+     "id": "fube",
+     "value": "A duplicate illusion of a Trader."
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBlink.blp"
+    }
+   ]
+  },
+  "B00U": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Ship Sails"
+    },
+    {
+     "id": "ftip",
+     "value": "Ship Sails"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is has upgraded Ship Sails; it has increased sail speed."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    }
+   ]
+  },
+  "B00V": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Stone Hull"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Stone Hull"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has a Stone Hull; Increased damage reduction."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    },
+    {
+     "id": "fnsf",
+     "value": "Dam Reduction)"
+    }
+   ]
+  },
+  "B00W": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Bronze Hull"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Bronze Hull"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has a Bronze Hull; decreases sail speed."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNArcaniteArchitecture.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    },
+    {
+     "id": "fnsf",
+     "value": "(decreases sail speed)"
+    }
+   ]
+  },
+  "B00X": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Gold Hull"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Gold Hull"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has a Gold Hull; decreases sail speed."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNImbuedMasonry.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    },
+    {
+     "id": "fnsf",
+     "value": "(sail Speed)"
+    }
+   ]
+  },
+  "B00Y": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Light Sails"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Light Sails"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has Light Sails; it has increased sail speed."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    }
+   ]
+  },
+  "B00Z": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Great Sails"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Great Sails"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has Great Sails; it has increased sail speed."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    }
+   ]
+  },
+  "B010": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Silk Sail"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Silk Sail"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has Silk Sails; it has increased sail speed."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    }
+   ]
+  },
+  "B011": {
+   "base": "Bstt",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Boat Mine"
+    },
+    {
+     "id": "ftip",
+     "value": "Boat Mine"
+    },
+    {
+     "id": "fube",
+     "value": "This mine will deal damage to nearby enemy ships when triggered."
+    }
+   ]
+  },
+  "B012": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Royal Sail"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Royal Sail"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has Royal Sails; it has increased sail speed."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    }
+   ]
+  },
+  "B013": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Outboard Propeller"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Outboard Propeller"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has an Outboard Propeller-- It really moves!"
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHeartOfSearinox.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    }
+   ]
+  },
+  "B014": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Goblin Sail"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Goblin Sail"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has Goblin Sails; it has increased sail speed."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    }
+   ]
+  },
+  "B015": {
+   "base": "Binv",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Integrated Smoke Machine"
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSpell_Fire_WindsofWoe.blp"
+    },
+    {
+     "id": "ftip",
+     "value": "Integrated Smoke Machine"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is hidden; enemy units cannot see it."
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\Human\\CloudOfFog\\CloudOfFog.mdl"
+    },
+    {
+     "id": "fta0",
+     "value": "chest"
+    }
+   ]
+  },
+  "B01D": {
+   "base": "BOac",
+   "mods": [
+    {
+     "id": "fube",
+     "value": "This unit has been hit by a Torpedo; it has been damaged."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanArtilleryUpOne.blp"
+    },
+    {
+     "id": "ftip",
+     "value": "Torpedo"
+    }
+   ]
+  },
+  "B016": {
+   "base": "Bapl",
+   "mods": [
+    {
+     "id": "ftip",
+     "value": "Nuclear Fallout"
+    },
+    {
+     "id": "fube",
+     "value": "This unit is suffering from Nuclear Fallout; it will take damage over time."
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNSelfDestructOn.blp"
+    },
+    {
+     "id": "ftat",
+     "value": "Abilities\\Spells\\NightElf\\CorrosiveBreath\\ChimaeraAcidTargetArt.mdl"
+    }
+   ]
+  },
+  "B017": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Kraken Shell"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Kraken Shell"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has a Kraken Shell; it has increased sail speed."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNNagaArmorUp3.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    },
+    {
+     "id": "fnsf",
+     "value": "(Sail Speed)"
+    }
+   ]
+  },
+  "B018": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Bronze Hull"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Bronze Hull"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has a Bronze Hull; Increases damage reduction."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNArcaniteArchitecture.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    },
+    {
+     "id": "fnsf",
+     "value": "Dam Reduction)"
+    }
+   ]
+  },
+  "B019": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Kraken Shell"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Kraken Shell"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has a Kraken Shell; Increases damage reduction."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNNagaArmorUp3.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    },
+    {
+     "id": "fnsf",
+     "value": "(Dam Reduction)"
+    }
+   ]
+  },
+  "B01A": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Gold Hull"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Gold Hull"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has a Gold Hull; Increases damage reduction."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNImbuedMasonry.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    },
+    {
+     "id": "fnsf",
+     "value": "(Dam reduction)"
+    }
+   ]
+  },
+  "B01B": {
+   "base": "BOae",
+   "mods": [
+    {
+     "id": "fnam",
+     "value": "Item: Stone Hull"
+    },
+    {
+     "id": "ftip",
+     "value": "Item: Stone Hull"
+    },
+    {
+     "id": "fube",
+     "value": "This unit has a Stone Hull; decreases sail speed."
+    },
+    {
+     "id": "ftat",
+     "value": ""
+    },
+    {
+     "id": "fta0",
+     "value": ""
+    },
+    {
+     "id": "fart",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNStoneArchitecture.blp"
+    },
+    {
+     "id": "frac",
+     "value": "undead"
+    },
+    {
+     "id": "fnsf",
+     "value": "(Sail Speed)"
+    }
+   ]
+  }
+ }
+}

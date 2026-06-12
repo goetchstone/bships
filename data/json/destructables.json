@@ -1,0 +1,14 @@
+{
+ "version": 2,
+ "objects": {
+  "BTsc": {
+   "base": "BTsc",
+   "mods": [
+    {
+     "id": "bgse",
+     "value": 0
+    }
+   ]
+  }
+ }
+}

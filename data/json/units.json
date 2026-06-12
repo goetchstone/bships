@@ -1,0 +1,11799 @@
+{
+ "version": 2,
+ "objects": {
+  "nalb": {
+   "base": "nalb",
+   "mods": [
+    {
+     "id": "ussc",
+     "value": 0.1
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "umvh",
+     "value": 400.0
+    },
+    {
+     "id": "uslz",
+     "value": 0.0
+    },
+    {
+     "id": "usid",
+     "value": 500
+    },
+    {
+     "id": "ushh",
+     "value": 20.0
+    },
+    {
+     "id": "ushw",
+     "value": 20.0
+    },
+    {
+     "id": "usew",
+     "value": 1
+    }
+   ]
+  },
+  "nfro": {
+   "base": "nfro",
+   "mods": [
+    {
+     "id": "ussc",
+     "value": 0.1
+    },
+    {
+     "id": "usca",
+     "value": 0.8
+    },
+    {
+     "id": "usid",
+     "value": 500
+    },
+    {
+     "id": "ushx",
+     "value": 0.0
+    },
+    {
+     "id": "ushy",
+     "value": 0.0
+    },
+    {
+     "id": "ushh",
+     "value": 0.0
+    },
+    {
+     "id": "ushw",
+     "value": 0.0
+    }
+   ]
+  },
+  "oeye": {
+   "base": "oeye",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "Avul,Adt1,Aeth"
+    },
+    {
+     "id": "unsf",
+     "value": "(Invis, 9 mins, 400)"
+    }
+   ]
+  },
+  "hhou": {
+   "base": "hhou",
+   "mods": [
+    {
+     "id": "ufma",
+     "value": 300
+    },
+    {
+     "id": "usca",
+     "value": 0.1
+    },
+    {
+     "id": "ussc",
+     "value": 0.3
+    },
+    {
+     "id": "ucol",
+     "value": 15.0
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "ushr",
+     "value": 0
+    },
+    {
+     "id": "ushb",
+     "value": ""
+    },
+    {
+     "id": "usid",
+     "value": 0
+    },
+    {
+     "id": "usin",
+     "value": 0
+    },
+    {
+     "id": "uabi",
+     "value": "Avul,Abds"
+    }
+   ]
+  },
+  "nba2": {
+   "base": "nba2",
+   "mods": [
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNForgottenOne.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "Units\\Creeps\\ForgottenOne\\ForgottenOne.mdl"
+    },
+    {
+     "id": "uabi",
+     "value": "A04U,A04V,A04T,A04N,A04L"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "ussc",
+     "value": 5.3
+    },
+    {
+     "id": "ua1p",
+     "value": "_"
+    },
+    {
+     "id": "udty",
+     "value": "fort"
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "udtm",
+     "value": 3.5
+    },
+    {
+     "id": "umvs",
+     "value": 140
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "ucol",
+     "value": 30.0
+    },
+    {
+     "id": "usnd",
+     "value": "WaterElemental"
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "ubba",
+     "value": 349
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "uhpm",
+     "value": 8500
+    },
+    {
+     "id": "uhpr",
+     "value": 7.0
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "umpm",
+     "value": 0
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "upoi",
+     "value": 8500
+    },
+    {
+     "id": "upri",
+     "value": 9
+    },
+    {
+     "id": "urac",
+     "value": "human"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "urtm",
+     "value": 35
+    },
+    {
+     "id": "usid",
+     "value": 1800
+    },
+    {
+     "id": "usin",
+     "value": 1800
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "unam",
+     "value": "Leviathian"
+    },
+    {
+     "id": "utip",
+     "value": "Summon Leviathian"
+    },
+    {
+     "id": "utub",
+     "value": "Mysterious sea creature with amazing abilities..."
+    },
+    {
+     "id": "ua1b",
+     "value": 0
+    },
+    {
+     "id": "ua2b",
+     "value": 0
+    },
+    {
+     "id": "ua2s",
+     "value": 1
+    }
+   ]
+  },
+  "nvil": {
+   "base": "nvil",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Spy"
+    },
+    {
+     "id": "utip",
+     "value": "Hire Spy"
+    },
+    {
+     "id": "utub",
+     "value": "A spy will only be around for so long..."
+    },
+    {
+     "id": "usid",
+     "value": 1600
+    },
+    {
+     "id": "usin",
+     "value": 1600
+    },
+    {
+     "id": "uhom",
+     "value": 1
+    },
+    {
+     "id": "umvs",
+     "value": 0
+    },
+    {
+     "id": "umvr",
+     "value": 0.1
+    },
+    {
+     "id": "uabi",
+     "value": "Avul,Atru"
+    },
+    {
+     "id": "urac",
+     "value": "human"
+    },
+    {
+     "id": "usnd",
+     "value": "Shade"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\undead\\Shade\\Shade.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShade.blp"
+    },
+    {
+     "id": "usca",
+     "value": 0.6
+    }
+   ]
+  },
+  "ohwd": {
+   "base": "ohwd",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "Avul,Agho"
+    },
+    {
+     "id": "usid",
+     "value": 1
+    },
+    {
+     "id": "usin",
+     "value": 1
+    },
+    {
+     "id": "unam",
+     "value": "Motion Detector"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\nightelf\\Wisp\\Wisp.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.3
+    },
+    {
+     "id": "ucol",
+     "value": 0.0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFrost.blp"
+    }
+   ]
+  },
+  "obea": {
+   "base": "obea",
+   "mods": [
+    {
+     "id": "unbm",
+     "value": 1
+    },
+    {
+     "id": "unam",
+     "value": "Refinery"
+    },
+    {
+     "id": "utub",
+     "value": "A strange building that many avoid altogether..."
+    },
+    {
+     "id": "usca",
+     "value": 1.2
+    }
+   ]
+  },
+  "nfnp": {
+   "base": "nfnp",
+   "mods": [
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNPowerGenerator.blp"
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "usca",
+     "value": 0.5
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\other\\PowerGenerator\\PowerGenerator.mdl"
+    },
+    {
+     "id": "upat",
+     "value": ""
+    },
+    {
+     "id": "ussc",
+     "value": 2.0
+    },
+    {
+     "id": "uabi",
+     "value": "ACnr,Avul"
+    },
+    {
+     "id": "unam",
+     "value": "Flux Repair System"
+    }
+   ]
+  },
+  "H000": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 2
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\HumanTransportShip\\HumanTransportShip.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.6
+    },
+    {
+     "id": "ussc",
+     "value": 1.8
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "upro",
+     "value": "Sailor"
+    },
+    {
+     "id": "unam",
+     "value": "Battle Ship"
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanTransport.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanTransport.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A01Y,A007,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "unknown"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 170
+    },
+    {
+     "id": "utip",
+     "value": "Change to |cffffcc00S|railor (|cffffcc00200|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "S"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBBattle Ship|r |nSpeed: |cff33BBBB170|r |nAbilities: |cff33BBBBCaptains Cannon|r |nHit Points: |cff33BBBB200|r |nArmor: |cff33BBBB0|r |nSize: |cff33BBBBSmall|r |nDescription: |cff33BBBBPretty reliable small boat.|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 79
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 200
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "usid",
+     "value": 1100
+    },
+    {
+     "id": "uhpm",
+     "value": 200
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "umvr",
+     "value": 1.0
+    },
+    {
+     "id": "udef",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 5.0
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "urtm",
+     "value": 40
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upoi",
+     "value": 200
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "usin",
+     "value": 1100
+    },
+    {
+     "id": "uabi",
+     "value": "AInv,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    }
+   ]
+  },
+  "H001": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 2
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\nightelf\\NightElfTransportShip\\NightElfTransportShip.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 2.0
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Crusader,Raider,Destroyer"
+    },
+    {
+     "id": "unam",
+     "value": "Battle Ship"
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNNightElfTransport.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNNightElfTransport.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A01A,A00Y,Adtg,A047,A03W"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "unknown"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 250
+    },
+    {
+     "id": "utip",
+     "value": "Change to |cffffcc00C|rrusader (|cffffcc001000|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "C"
+    },
+    {
+     "id": "upru",
+     "value": 3
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBBattle Ship|r |nSpeed: |cff33BBBB250|r |nAbilities: |cff33BBBBCapsize, Fishing Net & Hide|r |nHit Points: |cff33BBBB750|r |nArmor: |cff33BBBB1|r |nSize: |cff33BBBBSmall / Medium|r |nDescription: |cff33BBBBAn improved Sailor Ship. Designed to hunt down merchants, traders & submarines.  May Not carry hulls of any type.|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 99
+    },
+    {
+     "id": "uhpm",
+     "value": 750
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 1000
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "umvr",
+     "value": 0.8
+    },
+    {
+     "id": "udef",
+     "value": 1
+    },
+    {
+     "id": "ucol",
+     "value": 7.5
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "upoi",
+     "value": 1000
+    },
+    {
+     "id": "usca",
+     "value": 0.65
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "usin",
+     "value": 1200
+    },
+    {
+     "id": "urtm",
+     "value": 50
+    },
+    {
+     "id": "uabi",
+     "value": "AInv,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    }
+   ]
+  },
+  "n000": {
+   "base": "nmer",
+   "mods": [
+    {
+     "id": "unsf",
+     "value": ""
+    },
+    {
+     "id": "unam",
+     "value": "Main Harbor"
+    },
+    {
+     "id": "ides",
+     "value": "Allows you to change to various boats."
+    },
+    {
+     "id": "useu",
+     "value": "H000,H001,H003,H004,H006,H007,H008,H009,H00D,H005,H00Y"
+    },
+    {
+     "id": "util",
+     "value": "*"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\human\\HumanShipyard\\HumanShipyard.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 1.2
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanShipyard.blp"
+    },
+    {
+     "id": "ushb",
+     "value": "ShadowHumanShipyard"
+    },
+    {
+     "id": "usin",
+     "value": 1800
+    },
+    {
+     "id": "usnd",
+     "value": "GoblinShipyard"
+    },
+    {
+     "id": "utco",
+     "value": -1
+    },
+    {
+     "id": "usid",
+     "value": 1800
+    },
+    {
+     "id": "uabi",
+     "value": "A057"
+    },
+    {
+     "id": "uhpm",
+     "value": 20000
+    },
+    {
+     "id": "uaen",
+     "value": 1
+    },
+    {
+     "id": "ua1b",
+     "value": 49
+    },
+    {
+     "id": "ua1s",
+     "value": 41
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1g",
+     "value": "air,enemies,ground"
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\GuardTowerMissile\\GuardTowerMissile.mdl"
+    },
+    {
+     "id": "ua1z",
+     "value": 1600
+    },
+    {
+     "id": "ua1r",
+     "value": 1100
+    },
+    {
+     "id": "uacq",
+     "value": 1100.0
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "ua1c",
+     "value": 0.9
+    },
+    {
+     "id": "urtm",
+     "value": 200
+    },
+    {
+     "id": "uma1",
+     "value": 0.15
+    },
+    {
+     "id": "ugor",
+     "value": 20000
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "ugol",
+     "value": 10000
+    },
+    {
+     "id": "ubld",
+     "value": 200
+    }
+   ]
+  },
+  "n001": {
+   "base": "ngme",
+   "mods": [
+    {
+     "id": "umdl",
+     "value": "buildings\\human\\Blacksmith\\Blacksmith.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBlacksmith.blp"
+    },
+    {
+     "id": "ushb",
+     "value": "ShadowBlacksmith"
+    },
+    {
+     "id": "usei",
+     "value": "I002,I000,I001,I006,I004,I00G,I005,I01B,I00H,I00O,I02F"
+    },
+    {
+     "id": "unam",
+     "value": "Weapons Merchant"
+    },
+    {
+     "id": "utip",
+     "value": "Weapons Merchant"
+    },
+    {
+     "id": "ides",
+     "value": "Sells various Boat Cannons."
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "usin",
+     "value": 1200
+    },
+    {
+     "id": "usnd",
+     "value": "Blacksmith"
+    }
+   ]
+  },
+  "h002": {
+   "base": "hpea",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "Avul,A005"
+    },
+    {
+     "id": "upgr",
+     "value": "Rguv"
+    },
+    {
+     "id": "ubui",
+     "value": ""
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "ussc",
+     "value": 0.7
+    },
+    {
+     "id": "ucol",
+     "value": 0.0
+    },
+    {
+     "id": "udaa",
+     "value": "A005"
+    },
+    {
+     "id": "unam",
+     "value": "Repairman"
+    },
+    {
+     "id": "uhpm",
+     "value": 20
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    }
+   ]
+  },
+  "H003": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 2
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\HumanDestroyerShip\\HumanDestroyerShip.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 2.8
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Interceptor"
+    },
+    {
+     "id": "unam",
+     "value": "Battle Ship"
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanDestroyer.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A00N,A00Z,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "unknown"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 230
+    },
+    {
+     "id": "utip",
+     "value": "Change to |cffffcc00I|rnterceptor (|cffffcc001000|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "I"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBBattle Ship|r |nSpeed: |cff33BBBB230|r |nAbilities: |cff33BBBBIntercept|r |nHit Points: |cff33BBBB600|r |nArmor: |cff33BBBB2|r |nSize: |cff33BBBBMedium|r |nDescription: |cff33BBBBThe most regular boat used in the military sea forces. A sturdy medium boat with great speed. Perfect for agile captains.|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 124
+    },
+    {
+     "id": "uhpm",
+     "value": 600
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 1000
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "usid",
+     "value": 1400
+    },
+    {
+     "id": "urtm",
+     "value": 60
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "umvr",
+     "value": 0.5
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 10.0
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "upoi",
+     "value": 1000
+    },
+    {
+     "id": "usca",
+     "value": 0.9
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "usin",
+     "value": 1400
+    },
+    {
+     "id": "uabi",
+     "value": "AInv,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    }
+   ]
+  },
+  "H004": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 2
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\OrcishDestroyerShip\\OrcishDestroyerShip.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 2.8
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Sea Punisher"
+    },
+    {
+     "id": "unam",
+     "value": "Battle Ship"
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNOrcDestroyer.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNOrcDestroyer.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A01E,A00Z,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "unknown"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 170
+    },
+    {
+     "id": "utip",
+     "value": "Change to Sea |cffffcc00P|runisher (|cffffcc001200|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "P"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBBattle Ship|r |nSpeed: |cff33BBBB170|r |nAbilities: |cff33BBBBHull Repair|r |nHit Points: |cff33BBBB700|r |nArmor: |cff33BBBB3|r |nSize: |cff33BBBBMedium|r |nDescription: |cff33BBBBAn old orcish design makes this boat more sturdy than any other medium boats on the market. Although not very fast.|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 149
+    },
+    {
+     "id": "uhpm",
+     "value": 700
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 1200
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "usid",
+     "value": 1400
+    },
+    {
+     "id": "urtm",
+     "value": 60
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "umvr",
+     "value": 0.5
+    },
+    {
+     "id": "usca",
+     "value": 0.95
+    },
+    {
+     "id": "udef",
+     "value": 3
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 10.0
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "upoi",
+     "value": 1200
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "usin",
+     "value": 1400
+    },
+    {
+     "id": "uabi",
+     "value": "AInv,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    }
+   ]
+  },
+  "n002": {
+   "base": "ngme",
+   "mods": [
+    {
+     "id": "umdl",
+     "value": "buildings\\other\\FruitStand\\FruitStand.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNMarketplace.blp"
+    },
+    {
+     "id": "ushb",
+     "value": "ShadowBlacksmith"
+    },
+    {
+     "id": "usei",
+     "value": "I00C,I00D,I017,I00B,I008,I00F,I01K,I01L,I009,I016,I00A"
+    },
+    {
+     "id": "unam",
+     "value": "Equipment Merchant"
+    },
+    {
+     "id": "utip",
+     "value": "Equipment Merchant"
+    },
+    {
+     "id": "ides",
+     "value": "Sells various Boat Equipment."
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "usin",
+     "value": 1200
+    },
+    {
+     "id": "usnd",
+     "value": "Marketplace"
+    }
+   ]
+  },
+  "H006": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 2
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\NightElfBattleship\\NightElfBattleship.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 3.5
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Dominator"
+    },
+    {
+     "id": "unam",
+     "value": "Cruiser"
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNNightElfBattleCruiser.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNNightElfBattleCruiser.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A02D,A037,A00Z,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 180
+    },
+    {
+     "id": "utip",
+     "value": "Change to Do|cffffcc00m|rinator (|cffffcc002400|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "M"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBCruiser|r |nSpeed: |cff33BBBB180|r |nAbilities: |cff33BBBBSlow Aura & Electro Magnetic Pulse|r |nHit Points: |cff33BBBB1750|r |nArmor: |cff33BBBB5|r |nSize: |cff33BBBBLarge|r |nDescription: |cff33BBBBA light Cruiser, equipped with high tech machinery. An elfish touch to the design also makes it pretty fast, even thought the great weight of this ship.|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 199
+    },
+    {
+     "id": "uhpm",
+     "value": 1750
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 2400
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "urtm",
+     "value": 80
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "umvr",
+     "value": 0.4
+    },
+    {
+     "id": "udef",
+     "value": 5
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 12.5
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "upoi",
+     "value": 2600
+    },
+    {
+     "id": "usca",
+     "value": 0.85
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "usid",
+     "value": 1600
+    },
+    {
+     "id": "usin",
+     "value": 1600
+    },
+    {
+     "id": "uabi",
+     "value": "AInv,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    }
+   ]
+  },
+  "H007": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 2
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\UndeadDestroyerShip\\UndeadDestroyerShip.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 3.7
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Destroyer"
+    },
+    {
+     "id": "unam",
+     "value": "Cruiser"
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNUndeadDestroyer.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNUndeadDestroyer.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A01R,A038,A00Z,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 160
+    },
+    {
+     "id": "utip",
+     "value": "Change to |cffffcc00D|restroyer (|cffffcc002200|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "D"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBCruiser|r |nSpeed: |cff33BBBB160|r |nAbilities: |cff33BBBBBoard Ship & Disrupt Beacon|r |nHit Points: |cff33BBBB2000|r |nArmor: |cff33BBBB5|r |nSize: |cff33BBBBLarge|r |nDescription: |cff33BBBBLooks very much like an old wrecked boat, but in mysteriously great shape. This ship can easily create disorder among the emeny ships. Also called \"Ghost\".|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 174
+    },
+    {
+     "id": "uhpm",
+     "value": 2000
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 2200
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "usid",
+     "value": 1550
+    },
+    {
+     "id": "urtm",
+     "value": 80
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "umvr",
+     "value": 0.4
+    },
+    {
+     "id": "usca",
+     "value": 1.2
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 12.5
+    },
+    {
+     "id": "udef",
+     "value": 5
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "upoi",
+     "value": 2400
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "usin",
+     "value": 1550
+    },
+    {
+     "id": "uabi",
+     "value": "AInv,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    }
+   ]
+  },
+  "H008": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 2
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\UndeadShipBattleShip\\UndeadShipBattleShip.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 5.0
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Overlord"
+    },
+    {
+     "id": "unam",
+     "value": "Cruiser"
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNUndeadBattleShip.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNUndeadBattleShip.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A03M,A02Z,A01Z,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 180
+    },
+    {
+     "id": "utip",
+     "value": "Change to |cffffcc00O|rverlord (|cffffcc005000|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "O"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBCruiser|r |nSpeed: |cff33BBBB180|r |nAbilities: |cff33BBBBFreeze Water & Send Spy|r |nHit Points: |cff33BBBB4500|r |nArmor: |cff33BBBB8|r |nSize: |cff33BBBBHuge|r |nDescription: |cff33BBBBOne of the most feared ships on the sea. A really terrifying cruiser ship.|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 299
+    },
+    {
+     "id": "uhpm",
+     "value": 4500
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 5000
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "urtm",
+     "value": 100
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "usca",
+     "value": 1.2
+    },
+    {
+     "id": "udef",
+     "value": 8
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 15.0
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "umvr",
+     "value": 0.25
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "upoi",
+     "value": 6000
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "usin",
+     "value": 1800
+    },
+    {
+     "id": "uabi",
+     "value": "AInv,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    }
+   ]
+  },
+  "H009": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 2
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "Units\\Critters\\OrcJuggernaught\\OrcJuggernaught.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 5.5
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Juggernaut"
+    },
+    {
+     "id": "unam",
+     "value": "Cruiser"
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNJuggernaut.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNJuggernaut.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A02L,A03N,A01Z,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 160
+    },
+    {
+     "id": "utip",
+     "value": "Change to |cffffcc00J|ruggernaut (|cffffcc005000|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "J"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBCruiser|r |nSpeed: |cff33BBBB160|r |nAbilities: |cff33BBBBSpawn Seamonster & Sail Ripper Cannon|r |nHit Points: |cff33BBBB5000|r |nArmor: |cff33BBBB10|r |nSize: |cff33BBBBHuge|r |nDescription: |cff33BBBBHas a reputation to crush everything in its path. A very respected ship. Very good at scouting.|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 299
+    },
+    {
+     "id": "uhpm",
+     "value": 5000
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 5000
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "urtm",
+     "value": 100
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "usca",
+     "value": 1.1
+    },
+    {
+     "id": "udef",
+     "value": 10
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 15.0
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "umvr",
+     "value": 0.25
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "upoi",
+     "value": 6000
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "usin",
+     "value": 1800
+    },
+    {
+     "id": "uabi",
+     "value": "AInv,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    }
+   ]
+  },
+  "u000": {
+   "base": "uloc",
+   "mods": [
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\OrcishDestroyerShip\\OrcishDestroyerShip.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "unam",
+     "value": "Pirate Boat"
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "usca",
+     "value": 0.6
+    },
+    {
+     "id": "umvh",
+     "value": 0.0
+    },
+    {
+     "id": "umvf",
+     "value": 0.0
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "urac",
+     "value": "human"
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBanditLord.blp"
+    },
+    {
+     "id": "ussc",
+     "value": 1.5
+    },
+    {
+     "id": "umvr",
+     "value": 0.6
+    },
+    {
+     "id": "ubba",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "uhrt",
+     "value": "none"
+    },
+    {
+     "id": "ua1r",
+     "value": 300
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "ua1b",
+     "value": 199
+    },
+    {
+     "id": "ubs1",
+     "value": 0.2
+    },
+    {
+     "id": "udp1",
+     "value": 0.5
+    },
+    {
+     "id": "ua1z",
+     "value": 900
+    },
+    {
+     "id": "umvs",
+     "value": 300
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ua1g",
+     "value": "air,debris,ground,item,structure"
+    },
+    {
+     "id": "ushu",
+     "value": "Shadow"
+    },
+    {
+     "id": "uine",
+     "value": 1
+    }
+   ]
+  },
+  "n003": {
+   "base": "nmer",
+   "mods": [
+    {
+     "id": "unsf",
+     "value": ""
+    },
+    {
+     "id": "unam",
+     "value": "Harbor"
+    },
+    {
+     "id": "ides",
+     "value": "Produces Boats."
+    },
+    {
+     "id": "useu",
+     "value": ""
+    },
+    {
+     "id": "util",
+     "value": "*"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\other\\GoblinShipyard\\GoblinShipyard.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 1.0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGoblinShipyard.blp"
+    },
+    {
+     "id": "ushb",
+     "value": "ShadowHumanShipyard"
+    },
+    {
+     "id": "usid",
+     "value": 1000
+    },
+    {
+     "id": "usin",
+     "value": 1000
+    },
+    {
+     "id": "uabi",
+     "value": ""
+    },
+    {
+     "id": "uhpm",
+     "value": 10000
+    },
+    {
+     "id": "usnd",
+     "value": "GoblinShipyard"
+    },
+    {
+     "id": "utco",
+     "value": -1
+    },
+    {
+     "id": "ubba",
+     "value": 499
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubld",
+     "value": 100
+    },
+    {
+     "id": "ugol",
+     "value": 100
+    },
+    {
+     "id": "ugor",
+     "value": 10000
+    },
+    {
+     "id": "urtm",
+     "value": 100
+    }
+   ]
+  },
+  "h00B": {
+   "base": "hdes",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Imperial Battle Ship"
+    },
+    {
+     "id": "ua1b",
+     "value": 9
+    },
+    {
+     "id": "ua1s",
+     "value": 8
+    },
+    {
+     "id": "uhpm",
+     "value": 400
+    },
+    {
+     "id": "ubba",
+     "value": 12
+    },
+    {
+     "id": "ubdi",
+     "value": 2
+    },
+    {
+     "id": "ubsi",
+     "value": 25
+    },
+    {
+     "id": "umvs",
+     "value": 220
+    },
+    {
+     "id": "ucol",
+     "value": 15.0
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ua1z",
+     "value": 800
+    },
+    {
+     "id": "ua1h",
+     "value": 50
+    },
+    {
+     "id": "ua1q",
+     "value": 100
+    },
+    {
+     "id": "uma1",
+     "value": 0.15
+    },
+    {
+     "id": "usid",
+     "value": 1000
+    },
+    {
+     "id": "usin",
+     "value": 800
+    },
+    {
+     "id": "ua1c",
+     "value": 2.2
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "ussc",
+     "value": 2.0
+    },
+    {
+     "id": "uacq",
+     "value": 700.0
+    },
+    {
+     "id": "ua1r",
+     "value": 700
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\MoonPriestessMissile\\MoonPriestessMissile.mdl"
+    },
+    {
+     "id": "ua1d",
+     "value": 2
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "unsf",
+     "value": "(Ger Guld)"
+    },
+    {
+     "id": "upgr",
+     "value": "R005,R003,R004"
+    }
+   ]
+  },
+  "n004": {
+   "base": "nmer",
+   "mods": [
+    {
+     "id": "unsf",
+     "value": ""
+    },
+    {
+     "id": "unam",
+     "value": "Cannon Tower"
+    },
+    {
+     "id": "ides",
+     "value": "Fires at nearby enemies."
+    },
+    {
+     "id": "useu",
+     "value": ""
+    },
+    {
+     "id": "util",
+     "value": "*"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\human\\HumanTower\\HumanTower.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNGuardTower.blp"
+    },
+    {
+     "id": "ushb",
+     "value": "ShadowCannonTower"
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "usin",
+     "value": 1200
+    },
+    {
+     "id": "uabi",
+     "value": "Ane2"
+    },
+    {
+     "id": "uhpm",
+     "value": 6500
+    },
+    {
+     "id": "usnd",
+     "value": "GuardTower"
+    },
+    {
+     "id": "uani",
+     "value": "upgrade,first"
+    },
+    {
+     "id": "ussc",
+     "value": 1.8
+    },
+    {
+     "id": "urac",
+     "value": "human"
+    },
+    {
+     "id": "upat",
+     "value": "PathTextures\\4x4SimpleSolid.tga"
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "uarm",
+     "value": "Stone"
+    },
+    {
+     "id": "ubs1",
+     "value": 0.3
+    },
+    {
+     "id": "udp1",
+     "value": 0.3
+    },
+    {
+     "id": "ua1w",
+     "value": "artillery"
+    },
+    {
+     "id": "ua1f",
+     "value": 100
+    },
+    {
+     "id": "ua1h",
+     "value": 200
+    },
+    {
+     "id": "ua1q",
+     "value": 300
+    },
+    {
+     "id": "ua1b",
+     "value": 20
+    },
+    {
+     "id": "ua1d",
+     "value": 10
+    },
+    {
+     "id": "ua1s",
+     "value": 2
+    },
+    {
+     "id": "ua1z",
+     "value": 1000
+    },
+    {
+     "id": "ua1m",
+     "value": "abilities\\weapons\\DemolisherMissile\\DemolisherMissile.mdl"
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "uma1",
+     "value": 0.23
+    },
+    {
+     "id": "ua1p",
+     "value": "debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "ua1g",
+     "value": "air,debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "utco",
+     "value": -1
+    },
+    {
+     "id": "ua1c",
+     "value": 1.5
+    },
+    {
+     "id": "uaen",
+     "value": 1
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "uacq",
+     "value": 1000.0
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 499
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ugol",
+     "value": 1000
+    },
+    {
+     "id": "ubld",
+     "value": 40
+    },
+    {
+     "id": "ugor",
+     "value": 1000
+    },
+    {
+     "id": "urtm",
+     "value": 160
+    },
+    {
+     "id": "usca",
+     "value": 0.9
+    },
+    {
+     "id": "uhot",
+     "value": "C"
+    },
+    {
+     "id": "utip",
+     "value": "Build |cffffcc00C|rannon Tower"
+    },
+    {
+     "id": "utub",
+     "value": "A great tower, perfect for defending your Main Harbour.|n|nBase Hit Points: |cff33BBBB6000|r |nDamage: |cff33BBBB30-40|r"
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "upap",
+     "value": "unwalkable"
+    },
+    {
+     "id": "upgr",
+     "value": "R001,R000"
+    },
+    {
+     "id": "uhpr",
+     "value": 7.0
+    },
+    {
+     "id": "uhrt",
+     "value": "always"
+    }
+   ]
+  },
+  "H00C": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 3600
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\nightelf\\NightElfDestroyerShip\\NightElfDestroyerShip.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 5.3
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "The Black Pearl"
+    },
+    {
+     "id": "unam",
+     "value": "Pirate Ship"
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNNightElfDestroyer.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNNightElfDestroyer.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A00J,A01Z,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 250
+    },
+    {
+     "id": "utip",
+     "value": "Change to The Black |cffffcc00P|rearl (|cffffcc0016000|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "P"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBPirate Ship|r |nSpeed: |cff33BBBB250|r |nAbilities: |cff33BBBBPirate Crew|r |nHit Points: |cff33BBBB9000|r |nArmor: |cff33BBBB10|r |nSize: |cff33BBBBGigantic|r |nDescription: |cff33BBBBThe fastest ship ever to sail the seas. *|cffFF6666Unique|r*|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 399
+    },
+    {
+     "id": "uhpm",
+     "value": 9000
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 16000
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "urtm",
+     "value": 120
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "umvr",
+     "value": 0.3
+    },
+    {
+     "id": "usca",
+     "value": 1.8
+    },
+    {
+     "id": "udef",
+     "value": 10
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 17.5
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "upoi",
+     "value": 16000
+    },
+    {
+     "id": "usin",
+     "value": 1800
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "uabi",
+     "value": "AInv,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    },
+    {
+     "id": "udty",
+     "value": "fort"
+    }
+   ]
+  },
+  "n005": {
+   "base": "nmer",
+   "mods": [
+    {
+     "id": "unsf",
+     "value": ""
+    },
+    {
+     "id": "unam",
+     "value": "Pirate Boat Merchant"
+    },
+    {
+     "id": "ides",
+     "value": "Allows you to change to various pirate ships."
+    },
+    {
+     "id": "useu",
+     "value": "H00V,H00L,H00K,H00A,H00C"
+    },
+    {
+     "id": "util",
+     "value": "*"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\undead\\UndeadShipyard\\UndeadShipyard.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 1.2
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNUndeadShipyard.blp"
+    },
+    {
+     "id": "ushb",
+     "value": "ShadowHumanShipyard"
+    },
+    {
+     "id": "usid",
+     "value": 800
+    },
+    {
+     "id": "usin",
+     "value": 800
+    },
+    {
+     "id": "usnd",
+     "value": "GoblinShipyard"
+    },
+    {
+     "id": "utco",
+     "value": -1
+    },
+    {
+     "id": "uabi",
+     "value": "Aneu,Avul"
+    }
+   ]
+  },
+  "u001": {
+   "base": "uloc",
+   "mods": [
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\HumanDestroyerShip\\HumanDestroyerShip.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "unam",
+     "value": "Royal Boat"
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "usca",
+     "value": 0.6
+    },
+    {
+     "id": "umvh",
+     "value": 0.0
+    },
+    {
+     "id": "umvf",
+     "value": 0.0
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "urac",
+     "value": "human"
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNTheCaptain.blp"
+    },
+    {
+     "id": "ussc",
+     "value": 1.5
+    },
+    {
+     "id": "ubba",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "uhrt",
+     "value": "none"
+    },
+    {
+     "id": "ua1r",
+     "value": 300
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "ua1b",
+     "value": 99
+    },
+    {
+     "id": "ubs1",
+     "value": 0.2
+    },
+    {
+     "id": "udp1",
+     "value": 0.5
+    },
+    {
+     "id": "ua1z",
+     "value": 900
+    },
+    {
+     "id": "umvs",
+     "value": 250
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ua1g",
+     "value": "air,debris,ground,item,structure"
+    },
+    {
+     "id": "ushu",
+     "value": "Shadow"
+    },
+    {
+     "id": "uine",
+     "value": 1
+    },
+    {
+     "id": "uabi",
+     "value": "Aloc,A01W"
+    }
+   ]
+  },
+  "H00D": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 300
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\OrcishTransportShip\\OrcishTransportShip.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.65
+    },
+    {
+     "id": "ussc",
+     "value": 2.0
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Trader"
+    },
+    {
+     "id": "unam",
+     "value": "Trade Boat"
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNOrcishTransport.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNOrcishTransport.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A01V,A047,A03U,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 250
+    },
+    {
+     "id": "utip",
+     "value": "Change to |cffffcc00T|rrader (|cffffcc00300|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "T"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBTrade Boat|r |nSpeed: |cff33BBBB250|r |nAbilities: |cff33BBBBBarrier, Hide, Shadow Replication & Trading|r |nHit Points: |cff33BBBB75|r |nArmor: |cff33BBBB0|r |nSize: |cff33BBBBSmall|r |nDescription: |cff33BBBBThe only ship made for Trading. Adept at working in secret and breaking enemy lines without trouble.|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 499
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 300
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "udef",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 5.0
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "urtm",
+     "value": 30
+    },
+    {
+     "id": "uabi",
+     "value": "A04B,A01D"
+    },
+    {
+     "id": "upoi",
+     "value": 400
+    },
+    {
+     "id": "usin",
+     "value": 1800
+    },
+    {
+     "id": "umvr",
+     "value": 0.75
+    },
+    {
+     "id": "uhpm",
+     "value": 75
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    }
+   ]
+  },
+  "n008": {
+   "base": "nefm",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Ale Brewery"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNTavern.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\other\\Tavern\\Tavern.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 5.0
+    },
+    {
+     "id": "usnd",
+     "value": "Cantina"
+    },
+    {
+     "id": "uhpm",
+     "value": 500000
+    },
+    {
+     "id": "uabi",
+     "value": "Agld,Avul"
+    },
+    {
+     "id": "ides",
+     "value": "Makes Barrels of Ale. Can only be picked up by Trade Boats with an Ale Contract (Sold at your home Harbour)."
+    },
+    {
+     "id": "utyp",
+     "value": "_"
+    },
+    {
+     "id": "ufma",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": "HMED"
+    }
+   ]
+  },
+  "n009": {
+   "base": "nefm",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Goblin Potion Dealer"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBlackMarket.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\other\\Marketplace\\Marketplace.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 5.0
+    },
+    {
+     "id": "usnd",
+     "value": "Marketplace"
+    },
+    {
+     "id": "uhpm",
+     "value": 500000
+    },
+    {
+     "id": "uabi",
+     "value": "Agld,Avul"
+    },
+    {
+     "id": "ides",
+     "value": "Makes Goblin Potions. Can only be picked up by Trade Boats with a Goblin Potion Contract (Sold at your home Harbour)."
+    },
+    {
+     "id": "utyp",
+     "value": "_"
+    },
+    {
+     "id": "ufma",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": "HMED"
+    }
+   ]
+  },
+  "n006": {
+   "base": "nefm",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Ship Wreck"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNShip.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "Doodads\\Northrend\\Water\\BattleshipDestroyed\\BattleshipDestroyed.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 5.0
+    },
+    {
+     "id": "usnd",
+     "value": "Marketplace"
+    },
+    {
+     "id": "uhpm",
+     "value": 500000
+    },
+    {
+     "id": "uabi",
+     "value": "Agld,Avul"
+    },
+    {
+     "id": "ides",
+     "value": "Holds alot of Boxes for Trading. Can only be picked up by Trade Boats with a Box Contract (Sold at your home Harbour)."
+    },
+    {
+     "id": "utyp",
+     "value": "_"
+    },
+    {
+     "id": "ufma",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    }
+   ]
+  },
+  "n00A": {
+   "base": "nefm",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Swedish Lumber Mill"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanLumberMill.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\human\\HumanLumbermill\\HumanLumbermill.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 4.25
+    },
+    {
+     "id": "usnd",
+     "value": "HumanLumberMill"
+    },
+    {
+     "id": "uhpm",
+     "value": 500000
+    },
+    {
+     "id": "uabi",
+     "value": "Agld,Aneu,Avul,Apit"
+    },
+    {
+     "id": "ides",
+     "value": "Makes Swedish Raw Wood. Can only be picked up by Trade Boats with a Raw Wood Contract (Sold at your home Harbour)."
+    },
+    {
+     "id": "utyp",
+     "value": "_"
+    },
+    {
+     "id": "ufma",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": "HMED"
+    },
+    {
+     "id": "usei",
+     "value": "I01U,I01V,I01T,I011,I00E,I00T,I02M,I02N,I02O,I02P,tst2"
+    }
+   ]
+  },
+  "h00H": {
+   "base": "hdes",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Imperial Cruiser"
+    },
+    {
+     "id": "ua1b",
+     "value": 24
+    },
+    {
+     "id": "ua1s",
+     "value": 14
+    },
+    {
+     "id": "uhpm",
+     "value": 1500
+    },
+    {
+     "id": "ulev",
+     "value": 6
+    },
+    {
+     "id": "ubdi",
+     "value": 2
+    },
+    {
+     "id": "ubsi",
+     "value": 50
+    },
+    {
+     "id": "umvs",
+     "value": 180
+    },
+    {
+     "id": "ucol",
+     "value": 30.0
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ua1z",
+     "value": 800
+    },
+    {
+     "id": "ua1h",
+     "value": 60
+    },
+    {
+     "id": "ua1q",
+     "value": 120
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "usin",
+     "value": 800
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanBattleShip.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\HumanBattleship\\HumanBattleship.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.8
+    },
+    {
+     "id": "ua1c",
+     "value": 3.0
+    },
+    {
+     "id": "ua1r",
+     "value": 900
+    },
+    {
+     "id": "uacq",
+     "value": 900.0
+    },
+    {
+     "id": "ua1p",
+     "value": "debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "ua1d",
+     "value": 2
+    },
+    {
+     "id": "ua1f",
+     "value": 30
+    },
+    {
+     "id": "ubba",
+     "value": 25
+    },
+    {
+     "id": "unsf",
+     "value": "(Ger Guld)"
+    },
+    {
+     "id": "upgr",
+     "value": "R005,R003,R004"
+    }
+   ]
+  },
+  "h00I": {
+   "base": "hdes",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Imperial Rowboat"
+    },
+    {
+     "id": "ua1b",
+     "value": 3
+    },
+    {
+     "id": "ua1s",
+     "value": 3
+    },
+    {
+     "id": "uhpm",
+     "value": 100
+    },
+    {
+     "id": "ulev",
+     "value": 2
+    },
+    {
+     "id": "ubba",
+     "value": 5
+    },
+    {
+     "id": "ubdi",
+     "value": 2
+    },
+    {
+     "id": "ubsi",
+     "value": 10
+    },
+    {
+     "id": "umvs",
+     "value": 250
+    },
+    {
+     "id": "ucol",
+     "value": 5.0
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ua1z",
+     "value": 800
+    },
+    {
+     "id": "ua1h",
+     "value": 50
+    },
+    {
+     "id": "ua1q",
+     "value": 100
+    },
+    {
+     "id": "usid",
+     "value": 1000
+    },
+    {
+     "id": "usin",
+     "value": 800
+    },
+    {
+     "id": "ua1c",
+     "value": 1.7
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanTransport.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\HumanTransportShip\\HumanTransportShip.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.45
+    },
+    {
+     "id": "ussc",
+     "value": 1.4
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl"
+    },
+    {
+     "id": "ua1r",
+     "value": 550
+    },
+    {
+     "id": "ua1d",
+     "value": 2
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "uacq",
+     "value": 550.0
+    },
+    {
+     "id": "unsf",
+     "value": "(Ger Guld)"
+    },
+    {
+     "id": "upgr",
+     "value": "R005,R003,R004"
+    }
+   ]
+  },
+  "n007": {
+   "base": "ngme",
+   "mods": [
+    {
+     "id": "umdl",
+     "value": "buildings\\human\\Workshop\\Workshop.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNWorkshop.blp"
+    },
+    {
+     "id": "ushb",
+     "value": "ShadowBlacksmith"
+    },
+    {
+     "id": "usei",
+     "value": "I00P,I00I,I01C,I018,I00L,I00Z,I00X,I01D,I019,I01M,I00Y"
+    },
+    {
+     "id": "unam",
+     "value": "Heavy Weapons Merchant"
+    },
+    {
+     "id": "utip",
+     "value": "Heavy Weapons Merchant"
+    },
+    {
+     "id": "ides",
+     "value": "Sells various Boat Cannons."
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "usin",
+     "value": 1200
+    },
+    {
+     "id": "usnd",
+     "value": "Blacksmith"
+    }
+   ]
+  },
+  "n00B": {
+   "base": "nefm",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Elven Library"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHuntersHall.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\nightelf\\HuntersHall\\HuntersHall.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 5.0
+    },
+    {
+     "id": "usnd",
+     "value": "Marketplace"
+    },
+    {
+     "id": "uhpm",
+     "value": 500000
+    },
+    {
+     "id": "uabi",
+     "value": "Agld,Avul"
+    },
+    {
+     "id": "ides",
+     "value": "Stores old Books. Can only be picked up by Trade Boats with a Goblin Potion Contract (Sold at your home Harbour)."
+    },
+    {
+     "id": "utyp",
+     "value": "_"
+    },
+    {
+     "id": "ufma",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": "HMED"
+    }
+   ]
+  },
+  "n00C": {
+   "base": "nefm",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Elven Library"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNPigFarm.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\other\\PigFarm\\PigFarm.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 5.0
+    },
+    {
+     "id": "usnd",
+     "value": "Marketplace"
+    },
+    {
+     "id": "uhpm",
+     "value": 500000
+    },
+    {
+     "id": "uabi",
+     "value": "Agld,Avul"
+    },
+    {
+     "id": "ides",
+     "value": "Stores old Books. Can only be picked up by Trade Boats with a Goblin Potion Contract (Sold at your home Harbour)."
+    },
+    {
+     "id": "utyp",
+     "value": "_"
+    },
+    {
+     "id": "ufma",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": "OMED"
+    },
+    {
+     "id": "usca",
+     "value": 1.4
+    }
+   ]
+  },
+  "n00E": {
+   "base": "ngme",
+   "mods": [
+    {
+     "id": "umdl",
+     "value": "units\\other\\Proudmoore\\Proudmoore.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNProudmoore.blp"
+    },
+    {
+     "id": "ushb",
+     "value": ""
+    },
+    {
+     "id": "usei",
+     "value": "I00K,I01R,I00W,I00Q,I00S,I013,I01E,I02H,I02Q,I02K,I01I"
+    },
+    {
+     "id": "unam",
+     "value": "Will (|cff33BBBBTrade Master|r)"
+    },
+    {
+     "id": "utip",
+     "value": "Will (|cff33BBBBTrade Master|r)"
+    },
+    {
+     "id": "ides",
+     "value": "Sells various Trade Items."
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "usin",
+     "value": 1200
+    },
+    {
+     "id": "usnd",
+     "value": "Arthas"
+    },
+    {
+     "id": "uhpm",
+     "value": 500000
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ussc",
+     "value": 1.4
+    },
+    {
+     "id": "usca",
+     "value": 0.85
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "upat",
+     "value": "none"
+    }
+   ]
+  },
+  "n00F": {
+   "base": "ngme",
+   "mods": [
+    {
+     "id": "umdl",
+     "value": "Units\\Creeps\\Beastmaster\\Beastmaster.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBeastMaster.blp"
+    },
+    {
+     "id": "ushb",
+     "value": ""
+    },
+    {
+     "id": "usei",
+     "value": "I00K,I01R,I00M,I00U,I00S,I012,I01E,I02I,I02Q,I02K,I01I"
+    },
+    {
+     "id": "unam",
+     "value": "Bill (|cff33BBBBTrade Master|r)"
+    },
+    {
+     "id": "utip",
+     "value": "Bill (|cff33BBBBTrade Master|r)"
+    },
+    {
+     "id": "ides",
+     "value": "Sells various Trade Items."
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "usin",
+     "value": 1200
+    },
+    {
+     "id": "usnd",
+     "value": "Thrall"
+    },
+    {
+     "id": "uhpm",
+     "value": 500000
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ussc",
+     "value": 1.75
+    },
+    {
+     "id": "usca",
+     "value": 0.85
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "upat",
+     "value": "none"
+    }
+   ]
+  },
+  "n00H": {
+   "base": "ngme",
+   "mods": [
+    {
+     "id": "umdl",
+     "value": "buildings\\other\\AmmoDump\\AmmoDump.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNAmmoDump.blp"
+    },
+    {
+     "id": "ushb",
+     "value": "ShadowBlacksmith"
+    },
+    {
+     "id": "usei",
+     "value": "I01W,I01X,I01A,I01H,I01S,wshs,I010,I027,I026,I01Y,I01Z"
+    },
+    {
+     "id": "unam",
+     "value": "Goblin Bomb Shop"
+    },
+    {
+     "id": "utip",
+     "value": "Goblin Bomb Shop"
+    },
+    {
+     "id": "ides",
+     "value": "Sells various Boat Equipment."
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "usin",
+     "value": 1200
+    },
+    {
+     "id": "usnd",
+     "value": "Marketplace"
+    }
+   ]
+  },
+  "n00I": {
+   "base": "nfgo",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "A02O"
+    },
+    {
+     "id": "unam",
+     "value": "Seamonster"
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "usle",
+     "value": 0
+    },
+    {
+     "id": "urac",
+     "value": "orc"
+    },
+    {
+     "id": "util",
+     "value": "*"
+    },
+    {
+     "id": "uaen",
+     "value": 0
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "umpm",
+     "value": 0
+    },
+    {
+     "id": "umpr",
+     "value": 999.0
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\WaterElementalMissile\\WaterElementalMissile.mdl"
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "umvr",
+     "value": 0.1
+    },
+    {
+     "id": "umas",
+     "value": 40
+    },
+    {
+     "id": "umis",
+     "value": 40
+    },
+    {
+     "id": "umvs",
+     "value": 40
+    },
+    {
+     "id": "umvh",
+     "value": -10.0
+    },
+    {
+     "id": "umvf",
+     "value": -10.0
+    },
+    {
+     "id": "upat",
+     "value": ""
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "ua1c",
+     "value": 0.8
+    },
+    {
+     "id": "ua1b",
+     "value": 20
+    },
+    {
+     "id": "unsf",
+     "value": "(Level 1)"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "usca",
+     "value": 0.6
+    },
+    {
+     "id": "ussc",
+     "value": 3.5
+    },
+    {
+     "id": "ushh",
+     "value": 200.0
+    },
+    {
+     "id": "ushw",
+     "value": 200.0
+    },
+    {
+     "id": "uhpm",
+     "value": 3000
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    }
+   ]
+  },
+  "u002": {
+   "base": "uloc",
+   "mods": [
+    {
+     "id": "umdl",
+     "value": "Units\\Creeps\\ForgottenOne\\ForgottenOneTent.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "usca",
+     "value": 0.45
+    },
+    {
+     "id": "umvh",
+     "value": -10.0
+    },
+    {
+     "id": "umvf",
+     "value": -10.0
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "urac",
+     "value": "human"
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNTentacle.blp"
+    },
+    {
+     "id": "ubba",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "uhrt",
+     "value": "none"
+    },
+    {
+     "id": "ua1r",
+     "value": 250
+    },
+    {
+     "id": "ua1m",
+     "value": ".mdl"
+    },
+    {
+     "id": "ua1b",
+     "value": 34
+    },
+    {
+     "id": "ubs1",
+     "value": 0.2
+    },
+    {
+     "id": "udp1",
+     "value": 0.6
+    },
+    {
+     "id": "ua1z",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 200
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ucs1",
+     "value": "WoodMediumBash"
+    },
+    {
+     "id": "ua1g",
+     "value": "air,debris,ground,item,structure"
+    },
+    {
+     "id": "umvr",
+     "value": 0.5
+    },
+    {
+     "id": "uabi",
+     "value": "Aloc,A02R"
+    },
+    {
+     "id": "ushu",
+     "value": "Shadow"
+    },
+    {
+     "id": "uine",
+     "value": 1
+    },
+    {
+     "id": "ushh",
+     "value": 70.0
+    },
+    {
+     "id": "ushw",
+     "value": 70.0
+    },
+    {
+     "id": "ua1w",
+     "value": "normal"
+    },
+    {
+     "id": "unam",
+     "value": "Tentacle"
+    }
+   ]
+  },
+  "n00J": {
+   "base": "nfgo",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "A02S"
+    },
+    {
+     "id": "unam",
+     "value": "Seamonster"
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "usle",
+     "value": 0
+    },
+    {
+     "id": "urac",
+     "value": "orc"
+    },
+    {
+     "id": "util",
+     "value": "*"
+    },
+    {
+     "id": "uaen",
+     "value": 0
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "umpm",
+     "value": 0
+    },
+    {
+     "id": "umpr",
+     "value": 999.0
+    },
+    {
+     "id": "uhpm",
+     "value": 3600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\WaterElementalMissile\\WaterElementalMissile.mdl"
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "umvr",
+     "value": 0.1
+    },
+    {
+     "id": "umas",
+     "value": 60
+    },
+    {
+     "id": "umis",
+     "value": 60
+    },
+    {
+     "id": "umvs",
+     "value": 60
+    },
+    {
+     "id": "umvh",
+     "value": -10.0
+    },
+    {
+     "id": "umvf",
+     "value": -10.0
+    },
+    {
+     "id": "upat",
+     "value": ""
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "ua1c",
+     "value": 0.8
+    },
+    {
+     "id": "ua1b",
+     "value": 20
+    },
+    {
+     "id": "unsf",
+     "value": "(Level 2)"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "usca",
+     "value": 0.65
+    },
+    {
+     "id": "ussc",
+     "value": 3.65
+    },
+    {
+     "id": "ushh",
+     "value": 210.0
+    },
+    {
+     "id": "ushw",
+     "value": 210.0
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    }
+   ]
+  },
+  "n00K": {
+   "base": "nfgo",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "A02T"
+    },
+    {
+     "id": "unam",
+     "value": "Seamonster"
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "usle",
+     "value": 0
+    },
+    {
+     "id": "urac",
+     "value": "orc"
+    },
+    {
+     "id": "util",
+     "value": "*"
+    },
+    {
+     "id": "uaen",
+     "value": 0
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "umpm",
+     "value": 0
+    },
+    {
+     "id": "umpr",
+     "value": 999.0
+    },
+    {
+     "id": "uhpm",
+     "value": 4200
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\WaterElementalMissile\\WaterElementalMissile.mdl"
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "umvr",
+     "value": 0.1
+    },
+    {
+     "id": "umas",
+     "value": 80
+    },
+    {
+     "id": "umis",
+     "value": 80
+    },
+    {
+     "id": "umvs",
+     "value": 80
+    },
+    {
+     "id": "umvh",
+     "value": -10.0
+    },
+    {
+     "id": "umvf",
+     "value": -10.0
+    },
+    {
+     "id": "upat",
+     "value": ""
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "ua1c",
+     "value": 0.8
+    },
+    {
+     "id": "ua1b",
+     "value": 20
+    },
+    {
+     "id": "unsf",
+     "value": "(Level 3)"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ushh",
+     "value": 250.0
+    },
+    {
+     "id": "ushw",
+     "value": 250.0
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "ussc",
+     "value": 3.8
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    }
+   ]
+  },
+  "n00M": {
+   "base": "nfgo",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "A02V"
+    },
+    {
+     "id": "unam",
+     "value": "Seamonster"
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "usle",
+     "value": 0
+    },
+    {
+     "id": "urac",
+     "value": "orc"
+    },
+    {
+     "id": "util",
+     "value": "*"
+    },
+    {
+     "id": "uaen",
+     "value": 0
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "umpm",
+     "value": 0
+    },
+    {
+     "id": "umpr",
+     "value": 999.0
+    },
+    {
+     "id": "uhpm",
+     "value": 5400
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\WaterElementalMissile\\WaterElementalMissile.mdl"
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "umvr",
+     "value": 0.1
+    },
+    {
+     "id": "umas",
+     "value": 120
+    },
+    {
+     "id": "umis",
+     "value": 120
+    },
+    {
+     "id": "umvs",
+     "value": 120
+    },
+    {
+     "id": "umvh",
+     "value": -10.0
+    },
+    {
+     "id": "umvf",
+     "value": -10.0
+    },
+    {
+     "id": "upat",
+     "value": ""
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "ua1c",
+     "value": 0.8
+    },
+    {
+     "id": "ua1b",
+     "value": 20
+    },
+    {
+     "id": "unsf",
+     "value": "(Level 5)"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "usca",
+     "value": 0.8
+    },
+    {
+     "id": "ussc",
+     "value": 4.15
+    },
+    {
+     "id": "ushh",
+     "value": 230.0
+    },
+    {
+     "id": "ushw",
+     "value": 230.0
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    }
+   ]
+  },
+  "n00N": {
+   "base": "nfgo",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "A02U"
+    },
+    {
+     "id": "unam",
+     "value": "Seamonster"
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "usle",
+     "value": 0
+    },
+    {
+     "id": "urac",
+     "value": "orc"
+    },
+    {
+     "id": "util",
+     "value": "*"
+    },
+    {
+     "id": "uaen",
+     "value": 0
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "umpm",
+     "value": 0
+    },
+    {
+     "id": "umpr",
+     "value": 999.0
+    },
+    {
+     "id": "uhpm",
+     "value": 4800
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\WaterElementalMissile\\WaterElementalMissile.mdl"
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "umvr",
+     "value": 0.1
+    },
+    {
+     "id": "umas",
+     "value": 100
+    },
+    {
+     "id": "umis",
+     "value": 100
+    },
+    {
+     "id": "umvs",
+     "value": 100
+    },
+    {
+     "id": "umvh",
+     "value": -10.0
+    },
+    {
+     "id": "umvf",
+     "value": -10.0
+    },
+    {
+     "id": "upat",
+     "value": ""
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "ua1c",
+     "value": 0.8
+    },
+    {
+     "id": "ua1b",
+     "value": 20
+    },
+    {
+     "id": "unsf",
+     "value": "(Level 4)"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "usca",
+     "value": 0.75
+    },
+    {
+     "id": "ussc",
+     "value": 4.0
+    },
+    {
+     "id": "ushh",
+     "value": 240.0
+    },
+    {
+     "id": "ushw",
+     "value": 240.0
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    }
+   ]
+  },
+  "n00O": {
+   "base": "nefm",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Hire Merchant"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNMercenaryCamp.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\other\\Mercenary\\Mercenary.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 4.25
+    },
+    {
+     "id": "usnd",
+     "value": "Merchant"
+    },
+    {
+     "id": "uhpm",
+     "value": 500000
+    },
+    {
+     "id": "uabi",
+     "value": "Aneu,Avul"
+    },
+    {
+     "id": "ides",
+     "value": "Sells ships for your fleet."
+    },
+    {
+     "id": "utyp",
+     "value": "_"
+    },
+    {
+     "id": "ufma",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": "HMED"
+    },
+    {
+     "id": "usca",
+     "value": 0.75
+    },
+    {
+     "id": "useu",
+     "value": "h00L,h00M,h005"
+    }
+   ]
+  },
+  "h00E": {
+   "base": "hdes",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Imperial Rowboat"
+    },
+    {
+     "id": "ua1b",
+     "value": 3
+    },
+    {
+     "id": "ua1s",
+     "value": 3
+    },
+    {
+     "id": "uhpm",
+     "value": 100
+    },
+    {
+     "id": "ulev",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 250
+    },
+    {
+     "id": "ucol",
+     "value": 5.0
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ua1z",
+     "value": 800
+    },
+    {
+     "id": "ua1h",
+     "value": 50
+    },
+    {
+     "id": "ua1q",
+     "value": 100
+    },
+    {
+     "id": "usid",
+     "value": 1000
+    },
+    {
+     "id": "usin",
+     "value": 800
+    },
+    {
+     "id": "ua1c",
+     "value": 1.7
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanTransport.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\HumanTransportShip\\HumanTransportShip.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.45
+    },
+    {
+     "id": "ussc",
+     "value": 1.4
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl"
+    },
+    {
+     "id": "ua1r",
+     "value": 550
+    },
+    {
+     "id": "ua1d",
+     "value": 2
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "uacq",
+     "value": 550.0
+    },
+    {
+     "id": "unsf",
+     "value": "(Ger Inte Guld)"
+    },
+    {
+     "id": "upgr",
+     "value": "R005,R003,R004"
+    }
+   ]
+  },
+  "h00F": {
+   "base": "hdes",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Imperial Battle Ship"
+    },
+    {
+     "id": "ua1b",
+     "value": 9
+    },
+    {
+     "id": "ua1s",
+     "value": 8
+    },
+    {
+     "id": "uhpm",
+     "value": 400
+    },
+    {
+     "id": "ulev",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 220
+    },
+    {
+     "id": "ucol",
+     "value": 15.0
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ua1z",
+     "value": 800
+    },
+    {
+     "id": "ua1h",
+     "value": 50
+    },
+    {
+     "id": "ua1q",
+     "value": 100
+    },
+    {
+     "id": "uma1",
+     "value": 0.15
+    },
+    {
+     "id": "usid",
+     "value": 1000
+    },
+    {
+     "id": "usin",
+     "value": 800
+    },
+    {
+     "id": "ua1c",
+     "value": 2.2
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "ussc",
+     "value": 2.0
+    },
+    {
+     "id": "uacq",
+     "value": 700.0
+    },
+    {
+     "id": "ua1r",
+     "value": 700
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\MoonPriestessMissile\\MoonPriestessMissile.mdl"
+    },
+    {
+     "id": "ua1d",
+     "value": 2
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "unsf",
+     "value": "(Ger Inte Guld)"
+    },
+    {
+     "id": "upgr",
+     "value": "R005,R003,R004"
+    }
+   ]
+  },
+  "h00G": {
+   "base": "hdes",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Imperial Cruiser"
+    },
+    {
+     "id": "ua1b",
+     "value": 24
+    },
+    {
+     "id": "ua1s",
+     "value": 14
+    },
+    {
+     "id": "uhpm",
+     "value": 1500
+    },
+    {
+     "id": "ulev",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 180
+    },
+    {
+     "id": "ucol",
+     "value": 30.0
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ua1z",
+     "value": 800
+    },
+    {
+     "id": "ua1h",
+     "value": 60
+    },
+    {
+     "id": "ua1q",
+     "value": 120
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "usin",
+     "value": 800
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanBattleShip.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\HumanBattleship\\HumanBattleship.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.8
+    },
+    {
+     "id": "ua1c",
+     "value": 3.0
+    },
+    {
+     "id": "ua1r",
+     "value": 900
+    },
+    {
+     "id": "uacq",
+     "value": 900.0
+    },
+    {
+     "id": "ua1p",
+     "value": "debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "ua1d",
+     "value": 2
+    },
+    {
+     "id": "ua1f",
+     "value": 30
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "unsf",
+     "value": "(Ger Inte Guld)"
+    },
+    {
+     "id": "upgr",
+     "value": "R005,R003,R004"
+    }
+   ]
+  },
+  "H00J": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 1
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Uther"
+    },
+    {
+     "id": "usca",
+     "value": 0.6
+    },
+    {
+     "id": "ussc",
+     "value": 1.0
+    },
+    {
+     "id": "upro",
+     "value": "Captain"
+    },
+    {
+     "id": "unam",
+     "value": "Handy-Man"
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHeroPaladin.blp"
+    },
+    {
+     "id": "uhab",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "unknown"
+    },
+    {
+     "id": "uhpr",
+     "value": 2.0
+    },
+    {
+     "id": "ua1g",
+     "value": "enemies,ground,mechanical,structure,vulnerable"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 210
+    },
+    {
+     "id": "utip",
+     "value": "Sell S|cffffcc00h|rip"
+    },
+    {
+     "id": "uhot",
+     "value": "H"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "Gives you half the price of your ship back.|nLeaves you without a ship. When you are without a ship you are only usable for support in base. Can carry items, but not use them. |n|nCapain Abilities: |cff33BBBBRepair|r, |cff33BBBBConstruct Buildings|r, |cff33BBBBChop Wood|r, |cff33BBBBMissile Commanding|r & |cff33BBBBFlare Gun|r."
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 79
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "uhpm",
+     "value": 20
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "umvr",
+     "value": 1.0
+    },
+    {
+     "id": "udef",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 1.0
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "urtm",
+     "value": 40
+    },
+    {
+     "id": "upoi",
+     "value": 0
+    },
+    {
+     "id": "ua1b",
+     "value": 5
+    },
+    {
+     "id": "ua1c",
+     "value": 1.55
+    },
+    {
+     "id": "uabi",
+     "value": "A03D,A03J,A03K,A03I,A03L,Avul"
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "ushh",
+     "value": 120.0
+    },
+    {
+     "id": "ushw",
+     "value": 120.0
+    },
+    {
+     "id": "ubui",
+     "value": "h00V,n004,n00P,n00Q,n00D"
+    },
+    {
+     "id": "ua2c",
+     "value": 2.15
+    },
+    {
+     "id": "ua1s",
+     "value": 3
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    },
+    {
+     "id": "uhhb",
+     "value": 1
+    }
+   ]
+  },
+  "n00D": {
+   "base": "nmer",
+   "mods": [
+    {
+     "id": "unsf",
+     "value": ""
+    },
+    {
+     "id": "unam",
+     "value": "Missile Firing-Ramp"
+    },
+    {
+     "id": "ides",
+     "value": "Fires missiles."
+    },
+    {
+     "id": "useu",
+     "value": ""
+    },
+    {
+     "id": "util",
+     "value": "*"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\human\\HumanTower\\HumanTower.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanWatchTower.blp"
+    },
+    {
+     "id": "ushb",
+     "value": "ShadowCannonTower"
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "usin",
+     "value": 1200
+    },
+    {
+     "id": "uabi",
+     "value": "A03S,A032"
+    },
+    {
+     "id": "uhpm",
+     "value": 500
+    },
+    {
+     "id": "usnd",
+     "value": "GuardTower"
+    },
+    {
+     "id": "ussc",
+     "value": 1.4
+    },
+    {
+     "id": "urac",
+     "value": "human"
+    },
+    {
+     "id": "upat",
+     "value": "PathTextures\\4x4SimpleSolid.tga"
+    },
+    {
+     "id": "uubs",
+     "value": "HSMA"
+    },
+    {
+     "id": "uarm",
+     "value": "Stone"
+    },
+    {
+     "id": "ubs1",
+     "value": 0.3
+    },
+    {
+     "id": "udp1",
+     "value": 0.3
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "ua1f",
+     "value": 100
+    },
+    {
+     "id": "ua1h",
+     "value": 200
+    },
+    {
+     "id": "ua1q",
+     "value": 300
+    },
+    {
+     "id": "ua1b",
+     "value": 5
+    },
+    {
+     "id": "ua1d",
+     "value": 2
+    },
+    {
+     "id": "ua1s",
+     "value": 4
+    },
+    {
+     "id": "ua1z",
+     "value": 1100
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\Arrow\\ArrowMissile.mdl"
+    },
+    {
+     "id": "ua1r",
+     "value": 800
+    },
+    {
+     "id": "uma1",
+     "value": 0.15
+    },
+    {
+     "id": "ua1p",
+     "value": "debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "ua1g",
+     "value": "air,debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "utco",
+     "value": -1
+    },
+    {
+     "id": "ua1c",
+     "value": 1.3
+    },
+    {
+     "id": "uaen",
+     "value": 1
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "uacq",
+     "value": 800.0
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 999
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ugol",
+     "value": 250
+    },
+    {
+     "id": "ubld",
+     "value": 20
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "urtm",
+     "value": 40
+    },
+    {
+     "id": "usca",
+     "value": 0.6
+    },
+    {
+     "id": "uhot",
+     "value": "F"
+    },
+    {
+     "id": "utip",
+     "value": "Build Missile |cffffcc00F|riring-Ramp"
+    },
+    {
+     "id": "utub",
+     "value": "Used for firing missiles made in a Missile Silo. To do so, you need some kind of |cff33BBBBMissile|r and a |cffffcc00Piece of Lumber|r.|n|nCan not be built in water."
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "upap",
+     "value": "unbuildable"
+    },
+    {
+     "id": "ubpx",
+     "value": 1
+    },
+    {
+     "id": "ubpy",
+     "value": 2
+    }
+   ]
+  },
+  "n00P": {
+   "base": "nmer",
+   "mods": [
+    {
+     "id": "unsf",
+     "value": ""
+    },
+    {
+     "id": "unam",
+     "value": "Upgrade Center"
+    },
+    {
+     "id": "ides",
+     "value": "Upgrades your teams buildings."
+    },
+    {
+     "id": "useu",
+     "value": ""
+    },
+    {
+     "id": "util",
+     "value": "*"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\human\\ArcaneVault\\ArcaneVault.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNArcaneVault.blp"
+    },
+    {
+     "id": "ushb",
+     "value": "ShadowCannonTower"
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "usin",
+     "value": 1200
+    },
+    {
+     "id": "uabi",
+     "value": ""
+    },
+    {
+     "id": "uhpm",
+     "value": 500
+    },
+    {
+     "id": "usnd",
+     "value": "GuardTower"
+    },
+    {
+     "id": "uani",
+     "value": "upgrade,first"
+    },
+    {
+     "id": "ussc",
+     "value": 1.9
+    },
+    {
+     "id": "urac",
+     "value": "human"
+    },
+    {
+     "id": "upat",
+     "value": "PathTextures\\4x4SimpleSolid.tga"
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "uarm",
+     "value": "Stone"
+    },
+    {
+     "id": "ubs1",
+     "value": 0.3
+    },
+    {
+     "id": "udp1",
+     "value": 0.3
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "ua1f",
+     "value": 100
+    },
+    {
+     "id": "ua1h",
+     "value": 200
+    },
+    {
+     "id": "ua1q",
+     "value": 300
+    },
+    {
+     "id": "ua1b",
+     "value": 10
+    },
+    {
+     "id": "ua1d",
+     "value": 2
+    },
+    {
+     "id": "ua1s",
+     "value": 8
+    },
+    {
+     "id": "ua1z",
+     "value": 1100
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\MoonPriestessMissile\\MoonPriestessMissile.mdl"
+    },
+    {
+     "id": "ua1r",
+     "value": 900
+    },
+    {
+     "id": "uma1",
+     "value": 0.15
+    },
+    {
+     "id": "ua1p",
+     "value": "debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "ua1g",
+     "value": "air,debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "utco",
+     "value": -1
+    },
+    {
+     "id": "ua1c",
+     "value": 1.4
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "uacq",
+     "value": 900.0
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 999
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ugol",
+     "value": 100
+    },
+    {
+     "id": "ubld",
+     "value": 35
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "urtm",
+     "value": 60
+    },
+    {
+     "id": "uhot",
+     "value": "U"
+    },
+    {
+     "id": "utip",
+     "value": "Build |cffffcc00U|rpgrade Center"
+    },
+    {
+     "id": "utub",
+     "value": "Use this to upgrade things for your alliance. |nUpgrades Available: |cff33BBBBShip Damage|r, |cff33BBBBShip Hull|r, |cff33BBBBShip Sails|r, |cff33BBBBTower Defense|r & |cff33BBBBTower Damage|r."
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "usca",
+     "value": 0.4
+    },
+    {
+     "id": "upap",
+     "value": "unbuildable"
+    },
+    {
+     "id": "ures",
+     "value": "R005,R003,R004,R001,R000"
+    },
+    {
+     "id": "ubpx",
+     "value": 1
+    }
+   ]
+  },
+  "n00Q": {
+   "base": "nefm",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Missile Silo"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBeastiary.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\orc\\Beastiary\\Beastiary.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 2.7
+    },
+    {
+     "id": "usnd",
+     "value": "Merchant"
+    },
+    {
+     "id": "uhpm",
+     "value": 500
+    },
+    {
+     "id": "uabi",
+     "value": "Ane2"
+    },
+    {
+     "id": "ides",
+     "value": "Sells missiles."
+    },
+    {
+     "id": "ufma",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": "OSMA"
+    },
+    {
+     "id": "usca",
+     "value": 0.5
+    },
+    {
+     "id": "upat",
+     "value": "PathTextures\\4x4SimpleSolid.tga"
+    },
+    {
+     "id": "ucol",
+     "value": 5.0
+    },
+    {
+     "id": "ugol",
+     "value": 500
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "utip",
+     "value": "Build |cffffcc00M|rissile Silo"
+    },
+    {
+     "id": "uhot",
+     "value": "M"
+    },
+    {
+     "id": "utub",
+     "value": "Is used for building different missiles. Missiles can only be fired from a Missile Tower.|n|nCan not be buildt in water."
+    },
+    {
+     "id": "ubpy",
+     "value": 2
+    },
+    {
+     "id": "upap",
+     "value": "unbuildable"
+    },
+    {
+     "id": "ucam",
+     "value": 0
+    },
+    {
+     "id": "usei",
+     "value": "I01O,I01P,I01Q"
+    },
+    {
+     "id": "ubba",
+     "value": 999
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "usin",
+     "value": 1200
+    }
+   ]
+  },
+  "h00N": {
+   "base": "hpea",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "A03P,Avul"
+    },
+    {
+     "id": "upgr",
+     "value": "Rguv"
+    },
+    {
+     "id": "ubui",
+     "value": ""
+    },
+    {
+     "id": "usca",
+     "value": 0.8
+    },
+    {
+     "id": "ussc",
+     "value": 0.1
+    },
+    {
+     "id": "ucol",
+     "value": 0.0
+    },
+    {
+     "id": "unam",
+     "value": "Small Missile"
+    },
+    {
+     "id": "uhpm",
+     "value": 20
+    },
+    {
+     "id": "umvt",
+     "value": "fly"
+    },
+    {
+     "id": "uhpr",
+     "value": 1000.0
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "usid",
+     "value": 500
+    },
+    {
+     "id": "usin",
+     "value": 500
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "usnd",
+     "value": "GuardTower"
+    },
+    {
+     "id": "umvs",
+     "value": 200
+    },
+    {
+     "id": "uaen",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "uslz",
+     "value": -10.0
+    },
+    {
+     "id": "umdl",
+     "value": "Abilities\\Weapons\\CannonTowerMissile\\CannonTowerMissile.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanArtilleryUpOne.blp"
+    },
+    {
+     "id": "ushx",
+     "value": 17.0
+    },
+    {
+     "id": "ushu",
+     "value": "ShadowFlyer"
+    },
+    {
+     "id": "ushy",
+     "value": 30.0
+    },
+    {
+     "id": "ushh",
+     "value": 30.0
+    },
+    {
+     "id": "ushw",
+     "value": 30.0
+    },
+    {
+     "id": "uspa",
+     "value": ""
+    },
+    {
+     "id": "umvh",
+     "value": 200.0
+    },
+    {
+     "id": "umvf",
+     "value": 20.0
+    },
+    {
+     "id": "udtm",
+     "value": 1.0
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    }
+   ]
+  },
+  "h00O": {
+   "base": "hpea",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "A03Q,Avul"
+    },
+    {
+     "id": "upgr",
+     "value": "Rguv"
+    },
+    {
+     "id": "ubui",
+     "value": ""
+    },
+    {
+     "id": "ussc",
+     "value": 0.1
+    },
+    {
+     "id": "ucol",
+     "value": 0.0
+    },
+    {
+     "id": "unam",
+     "value": "Cruiser Missile"
+    },
+    {
+     "id": "uhpm",
+     "value": 20
+    },
+    {
+     "id": "umvt",
+     "value": "fly"
+    },
+    {
+     "id": "uhpr",
+     "value": 1000.0
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "usid",
+     "value": 500
+    },
+    {
+     "id": "usin",
+     "value": 500
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "usnd",
+     "value": "GuardTower"
+    },
+    {
+     "id": "umvs",
+     "value": 300
+    },
+    {
+     "id": "uaen",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "uslz",
+     "value": -10.0
+    },
+    {
+     "id": "umdl",
+     "value": "Abilities\\Weapons\\GyroCopter\\GyroCopterMissile.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFlare.blp"
+    },
+    {
+     "id": "ushx",
+     "value": 17.0
+    },
+    {
+     "id": "ushu",
+     "value": "ShadowFlyer"
+    },
+    {
+     "id": "ushy",
+     "value": 30.0
+    },
+    {
+     "id": "ushh",
+     "value": 30.0
+    },
+    {
+     "id": "ushw",
+     "value": 30.0
+    },
+    {
+     "id": "uspa",
+     "value": ""
+    },
+    {
+     "id": "umvh",
+     "value": 225.0
+    },
+    {
+     "id": "umvf",
+     "value": 20.0
+    },
+    {
+     "id": "udtm",
+     "value": 1.0
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    }
+   ]
+  },
+  "h00P": {
+   "base": "hpea",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "A03R,Avul"
+    },
+    {
+     "id": "upgr",
+     "value": "Rguv"
+    },
+    {
+     "id": "ubui",
+     "value": ""
+    },
+    {
+     "id": "usca",
+     "value": 1.2
+    },
+    {
+     "id": "ussc",
+     "value": 0.1
+    },
+    {
+     "id": "ucol",
+     "value": 0.0
+    },
+    {
+     "id": "unam",
+     "value": "Grand Missile"
+    },
+    {
+     "id": "uhpm",
+     "value": 20
+    },
+    {
+     "id": "umvt",
+     "value": "fly"
+    },
+    {
+     "id": "uhpr",
+     "value": 1000.0
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "usid",
+     "value": 500
+    },
+    {
+     "id": "usin",
+     "value": 500
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "usnd",
+     "value": "GuardTower"
+    },
+    {
+     "id": "umvs",
+     "value": 400
+    },
+    {
+     "id": "uaen",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "uslz",
+     "value": -10.0
+    },
+    {
+     "id": "umdl",
+     "value": "Abilities\\Weapons\\Mortar\\MortarMissile.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNScatterRockets.blp"
+    },
+    {
+     "id": "ushx",
+     "value": 17.0
+    },
+    {
+     "id": "ushu",
+     "value": "ShadowFlyer"
+    },
+    {
+     "id": "ushy",
+     "value": 30.0
+    },
+    {
+     "id": "ushh",
+     "value": 30.0
+    },
+    {
+     "id": "ushw",
+     "value": 30.0
+    },
+    {
+     "id": "uspa",
+     "value": ""
+    },
+    {
+     "id": "umvh",
+     "value": 250.0
+    },
+    {
+     "id": "umvf",
+     "value": 20.0
+    },
+    {
+     "id": "udtm",
+     "value": 1.0
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    }
+   ]
+  },
+  "n00G": {
+   "base": "nglm",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Goblin Boat Mine"
+    },
+    {
+     "id": "umdl",
+     "value": "Abilities\\Weapons\\MakuraMissile\\MakuraMissile.mdl"
+    },
+    {
+     "id": "umvh",
+     "value": -30.0
+    },
+    {
+     "id": "umvf",
+     "value": -30.0
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "ucol",
+     "value": 0.0
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Human\\HCancelDeath\\HCancelDeath.mdl"
+    }
+   ]
+  },
+  "H005": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\UndeadTransportShip\\UndeadTransportShip.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.6
+    },
+    {
+     "id": "ussc",
+     "value": 2.0
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Trader"
+    },
+    {
+     "id": "unam",
+     "value": "Merchant Boat"
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNUndeadTransport.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNUndeadTransport.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A048,A01V,A00A,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 280
+    },
+    {
+     "id": "utip",
+     "value": "Change to M|cffffcc00e|rrchant (|cffffcc004525 gold, 51 wood|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "E"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBTrade Boat|r |nSpeed: |cff33BBBB250|r |nAbilities: |cff33BBBBBarrier, Hide, Integrated Smoke Machine, Confuse, Onboard Mechanics Crew & Trading|r |nHit Points: |cff33BBBB75|r |nArmor: |cff33BBBB0|r |nSize: |cff33BBBBSmall|r |nDescription: |cff33BBBBAwesome ship made for Trading. Very fast but vulnerable.  Has 4 open inventory slots.|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 749
+    },
+    {
+     "id": "ulum",
+     "value": 51
+    },
+    {
+     "id": "ugol",
+     "value": 4525
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "udef",
+     "value": 5
+    },
+    {
+     "id": "ucol",
+     "value": 5.0
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "udtm",
+     "value": 2.73
+    },
+    {
+     "id": "urtm",
+     "value": 15
+    },
+    {
+     "id": "uabi",
+     "value": "A01T,A01D"
+    },
+    {
+     "id": "upoi",
+     "value": 3000
+    },
+    {
+     "id": "usin",
+     "value": 1600
+    },
+    {
+     "id": "umvr",
+     "value": 0.75
+    },
+    {
+     "id": "uhpm",
+     "value": 75
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    },
+    {
+     "id": "uclg",
+     "value": 140
+    },
+    {
+     "id": "uclb",
+     "value": 140
+    },
+    {
+     "id": "uclr",
+     "value": 185
+    },
+    {
+     "id": "usid",
+     "value": 1600
+    },
+    {
+     "id": "usrg",
+     "value": 3600
+    },
+    {
+     "id": "usst",
+     "value": 0
+    }
+   ]
+  },
+  "H00A": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 3600
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\HumanBattleship\\HumanBattleship.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 4.8
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Battle Royal"
+    },
+    {
+     "id": "unam",
+     "value": "Royal Ship"
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanBattleShip.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNHumanBattleShip.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A02E,A01Z,A03W,A009,A01B"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "uhpr",
+     "value": 5.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 185
+    },
+    {
+     "id": "utip",
+     "value": "Change to  Battle |cffffcc00R|royal (|cffffcc0014450|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "R"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBRoyal Ship|r |nSpeed: |cff33BBBB175|r |nAbilities: |cff33BBBBNautical Engineer crew, has base regeneration of 15 points|r |nHit Points: |cff33BBBB9800|r |nArmor: |cff33BBBB7|r |nSize: |cff33BBBBGigantic|r |nDescription: |cff33BBBBThe biggest ship ever to sail the seas. *|cffFF6666Unique|r*|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 399
+    },
+    {
+     "id": "uhpm",
+     "value": 9800
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 14450
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "urtm",
+     "value": 90
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "umvr",
+     "value": 0.4
+    },
+    {
+     "id": "usca",
+     "value": 1.42
+    },
+    {
+     "id": "udef",
+     "value": 7
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 17.5
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "upoi",
+     "value": 14450
+    },
+    {
+     "id": "usin",
+     "value": 1800
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "uabi",
+     "value": "AInv,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    },
+    {
+     "id": "udty",
+     "value": "fort"
+    }
+   ]
+  },
+  "H00K": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 3600
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\undead\\UndeadAirBarge\\UndeadAirBarge.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 3.8
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 700
+    },
+    {
+     "id": "ua1z",
+     "value": 900
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Elven predator"
+    },
+    {
+     "id": "unam",
+     "value": "Flagship"
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNUndeadAirBarge.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNUndeadAirBarge.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A01I,A01Z,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 160
+    },
+    {
+     "id": "utip",
+     "value": "Change to El|cffffcc00v|ren predator (|cffffcc009800|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "V"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBFlagship|r |nSpeed: |cff33BBBB160|r |nAbilities: |cff33BBBBDetector flare, also has Release Hunters. |r |nHit Points: |cff33BBBB7200|r |nArmor: |cff33BBBB10|r |nSize: |cff33BBBBHuge|r |nDescription: |cff33BBBBMysterious and unusual elven ship. Adept at countering almost anything.|r  *|cffFF6666Unique|r*|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 349
+    },
+    {
+     "id": "uhpm",
+     "value": 7200
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 9800
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "urtm",
+     "value": 80
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "usca",
+     "value": 1.4
+    },
+    {
+     "id": "udef",
+     "value": 10
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 15.0
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "umvr",
+     "value": 0.35
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "upoi",
+     "value": 9800
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "usin",
+     "value": 1700
+    },
+    {
+     "id": "uabi",
+     "value": "A02X,AInv,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    },
+    {
+     "id": "udty",
+     "value": "fort"
+    },
+    {
+     "id": "uclr",
+     "value": 165
+    },
+    {
+     "id": "uclb",
+     "value": 165
+    },
+    {
+     "id": "uerd",
+     "value": 0.0
+    },
+    {
+     "id": "uacq",
+     "value": 700.0
+    },
+    {
+     "id": "usid",
+     "value": 1700
+    },
+    {
+     "id": "usst",
+     "value": 0
+    }
+   ]
+  },
+  "H00L": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 3600
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\HumanDestroyerShip\\HumanDestroyerShip.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 3.8
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Ghost armada"
+    },
+    {
+     "id": "unam",
+     "value": "Flagship"
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNRevenant.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNRevenant.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A01G,A01Z,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 160
+    },
+    {
+     "id": "utip",
+     "value": "Change to |cffffcc00G|rhost armada (|cffffcc009400|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "G"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBFlagship|r |nSpeed: |cff33BBBB190|r |nAbilities: |cff33BBBBGhost crew|r |nHit Points: |cff33BBBB6800|r |nArmor: |cff33BBBB9|r |nSize: |cff33BBBBHuge|r |nDescription: |cff33BBBBWorst of the fallen pirates.|r  *|cffFF6666Unique|r*|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 349
+    },
+    {
+     "id": "uhpm",
+     "value": 6800
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 9400
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "urtm",
+     "value": 80
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "usca",
+     "value": 1.2
+    },
+    {
+     "id": "udef",
+     "value": 9
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 15.0
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "umvr",
+     "value": 0.35
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "upoi",
+     "value": 9400
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "usin",
+     "value": 1700
+    },
+    {
+     "id": "uabi",
+     "value": "A01W,AInv,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    },
+    {
+     "id": "udty",
+     "value": "fort"
+    },
+    {
+     "id": "uclg",
+     "value": 55
+    },
+    {
+     "id": "uclr",
+     "value": 55
+    },
+    {
+     "id": "uclb",
+     "value": 55
+    },
+    {
+     "id": "usid",
+     "value": 1700
+    },
+    {
+     "id": "usst",
+     "value": 0
+    }
+   ]
+  },
+  "h00M": {
+   "base": "hdes",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Greenhawk"
+    },
+    {
+     "id": "ua1b",
+     "value": 90
+    },
+    {
+     "id": "ua1s",
+     "value": 5
+    },
+    {
+     "id": "uhpm",
+     "value": 1000
+    },
+    {
+     "id": "ulev",
+     "value": 2
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ucol",
+     "value": 8.0
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ua1z",
+     "value": 500
+    },
+    {
+     "id": "ua1h",
+     "value": 60
+    },
+    {
+     "id": "ua1q",
+     "value": 120
+    },
+    {
+     "id": "uma1",
+     "value": 0.05
+    },
+    {
+     "id": "usid",
+     "value": 900
+    },
+    {
+     "id": "usin",
+     "value": 500
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNWarEagle.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\WarEagle\\WarEagle.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "ua1c",
+     "value": 1.0
+    },
+    {
+     "id": "ua1r",
+     "value": 350
+    },
+    {
+     "id": "uacq",
+     "value": 800.0
+    },
+    {
+     "id": "ua1p",
+     "value": "debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "ua1d",
+     "value": 6
+    },
+    {
+     "id": "ua1f",
+     "value": 30
+    },
+    {
+     "id": "ubba",
+     "value": 99
+    },
+    {
+     "id": "unsf",
+     "value": "(Level 1)"
+    },
+    {
+     "id": "upgr",
+     "value": ""
+    },
+    {
+     "id": "urac",
+     "value": "other"
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "utip",
+     "value": ""
+    },
+    {
+     "id": "utub",
+     "value": ""
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "urtm",
+     "value": 1
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "uhpr",
+     "value": 2.0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ubld",
+     "value": 1
+    },
+    {
+     "id": "usnd",
+     "value": "WarEagle"
+    },
+    {
+     "id": "umvt",
+     "value": "fly"
+    },
+    {
+     "id": "umvr",
+     "value": 0.6
+    },
+    {
+     "id": "umvh",
+     "value": 240.0
+    },
+    {
+     "id": "umvf",
+     "value": 90.0
+    },
+    {
+     "id": "urpg",
+     "value": 0
+    },
+    {
+     "id": "urpp",
+     "value": 0
+    },
+    {
+     "id": "ucam",
+     "value": 0
+    },
+    {
+     "id": "uspe",
+     "value": 1
+    },
+    {
+     "id": "utar",
+     "value": "air"
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\DragonHawkMissile\\DragonHawkMissile.mdl"
+    },
+    {
+     "id": "uclb",
+     "value": 100
+    },
+    {
+     "id": "ussc",
+     "value": 1.25
+    },
+    {
+     "id": "uslz",
+     "value": 230.0
+    },
+    {
+     "id": "uaap",
+     "value": ""
+    },
+    {
+     "id": "ushu",
+     "value": "ShadowFlyer"
+    },
+    {
+     "id": "ushx",
+     "value": 60.0
+    },
+    {
+     "id": "ushy",
+     "value": 60.0
+    },
+    {
+     "id": "ushh",
+     "value": 120.0
+    },
+    {
+     "id": "ushw",
+     "value": 120.0
+    },
+    {
+     "id": "uori",
+     "value": 1
+    },
+    {
+     "id": "uabi",
+     "value": "Aloc"
+    },
+    {
+     "id": "uclr",
+     "value": 100
+    },
+    {
+     "id": "urb1",
+     "value": 100.0
+    },
+    {
+     "id": "ua1t",
+     "value": "chaos"
+    }
+   ]
+  },
+  "h00Q": {
+   "base": "hdes",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Greenhawk"
+    },
+    {
+     "id": "ua1b",
+     "value": 100
+    },
+    {
+     "id": "ua1s",
+     "value": 9
+    },
+    {
+     "id": "uhpm",
+     "value": 1000
+    },
+    {
+     "id": "ulev",
+     "value": 2
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ucol",
+     "value": 8.0
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ua1z",
+     "value": 500
+    },
+    {
+     "id": "ua1h",
+     "value": 60
+    },
+    {
+     "id": "ua1q",
+     "value": 120
+    },
+    {
+     "id": "uma1",
+     "value": 0.05
+    },
+    {
+     "id": "usid",
+     "value": 1000
+    },
+    {
+     "id": "usin",
+     "value": 600
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNWarEagle.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\WarEagle\\WarEagle.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "ua1c",
+     "value": 1.0
+    },
+    {
+     "id": "ua1r",
+     "value": 350
+    },
+    {
+     "id": "uacq",
+     "value": 800.0
+    },
+    {
+     "id": "ua1p",
+     "value": "debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "ua1d",
+     "value": 7
+    },
+    {
+     "id": "ua1f",
+     "value": 30
+    },
+    {
+     "id": "ubba",
+     "value": 99
+    },
+    {
+     "id": "unsf",
+     "value": "(Level 2)"
+    },
+    {
+     "id": "upgr",
+     "value": ""
+    },
+    {
+     "id": "urac",
+     "value": "other"
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "utip",
+     "value": ""
+    },
+    {
+     "id": "utub",
+     "value": ""
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "urtm",
+     "value": 1
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "uhpr",
+     "value": 2.0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ubld",
+     "value": 1
+    },
+    {
+     "id": "usnd",
+     "value": "WarEagle"
+    },
+    {
+     "id": "umvt",
+     "value": "fly"
+    },
+    {
+     "id": "umvr",
+     "value": 0.6
+    },
+    {
+     "id": "umvh",
+     "value": 240.0
+    },
+    {
+     "id": "umvf",
+     "value": 90.0
+    },
+    {
+     "id": "urpg",
+     "value": 0
+    },
+    {
+     "id": "urpp",
+     "value": 0
+    },
+    {
+     "id": "ucam",
+     "value": 0
+    },
+    {
+     "id": "uspe",
+     "value": 1
+    },
+    {
+     "id": "utar",
+     "value": "air"
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\DragonHawkMissile\\DragonHawkMissile.mdl"
+    },
+    {
+     "id": "uclb",
+     "value": 90
+    },
+    {
+     "id": "ussc",
+     "value": 1.25
+    },
+    {
+     "id": "uslz",
+     "value": 230.0
+    },
+    {
+     "id": "uaap",
+     "value": ""
+    },
+    {
+     "id": "ushu",
+     "value": "ShadowFlyer"
+    },
+    {
+     "id": "ushx",
+     "value": 60.0
+    },
+    {
+     "id": "ushy",
+     "value": 60.0
+    },
+    {
+     "id": "ushh",
+     "value": 120.0
+    },
+    {
+     "id": "ushw",
+     "value": 120.0
+    },
+    {
+     "id": "uori",
+     "value": 1
+    },
+    {
+     "id": "uabi",
+     "value": "ACct,Aloc"
+    },
+    {
+     "id": "uclr",
+     "value": 90
+    },
+    {
+     "id": "urb1",
+     "value": 100.0
+    },
+    {
+     "id": "umvs",
+     "value": 370
+    },
+    {
+     "id": "ua1t",
+     "value": "chaos"
+    }
+   ]
+  },
+  "h00R": {
+   "base": "hdes",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Greenhawk"
+    },
+    {
+     "id": "ua1b",
+     "value": 110
+    },
+    {
+     "id": "ua1s",
+     "value": 9
+    },
+    {
+     "id": "uhpm",
+     "value": 1000
+    },
+    {
+     "id": "ulev",
+     "value": 2
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ucol",
+     "value": 8.0
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ua1z",
+     "value": 500
+    },
+    {
+     "id": "ua1h",
+     "value": 60
+    },
+    {
+     "id": "ua1q",
+     "value": 120
+    },
+    {
+     "id": "uma1",
+     "value": 0.05
+    },
+    {
+     "id": "usid",
+     "value": 1100
+    },
+    {
+     "id": "usin",
+     "value": 700
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNWarEagle.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\WarEagle\\WarEagle.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "ua1c",
+     "value": 0.9
+    },
+    {
+     "id": "ua1r",
+     "value": 400
+    },
+    {
+     "id": "uacq",
+     "value": 800.0
+    },
+    {
+     "id": "ua1p",
+     "value": "debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "ua1d",
+     "value": 9
+    },
+    {
+     "id": "ua1f",
+     "value": 30
+    },
+    {
+     "id": "ubba",
+     "value": 99
+    },
+    {
+     "id": "unsf",
+     "value": "(Level 3)"
+    },
+    {
+     "id": "upgr",
+     "value": ""
+    },
+    {
+     "id": "urac",
+     "value": "other"
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "utip",
+     "value": ""
+    },
+    {
+     "id": "utub",
+     "value": ""
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "urtm",
+     "value": 1
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "uhpr",
+     "value": 2.0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ubld",
+     "value": 1
+    },
+    {
+     "id": "usnd",
+     "value": "WarEagle"
+    },
+    {
+     "id": "umvt",
+     "value": "fly"
+    },
+    {
+     "id": "umvr",
+     "value": 0.6
+    },
+    {
+     "id": "umvh",
+     "value": 240.0
+    },
+    {
+     "id": "umvf",
+     "value": 90.0
+    },
+    {
+     "id": "urpg",
+     "value": 0
+    },
+    {
+     "id": "urpp",
+     "value": 0
+    },
+    {
+     "id": "ucam",
+     "value": 0
+    },
+    {
+     "id": "uspe",
+     "value": 1
+    },
+    {
+     "id": "utar",
+     "value": "air"
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\GargoyleMissile\\GargoyleMissile.mdl"
+    },
+    {
+     "id": "uclb",
+     "value": 80
+    },
+    {
+     "id": "ussc",
+     "value": 1.25
+    },
+    {
+     "id": "uslz",
+     "value": 230.0
+    },
+    {
+     "id": "uaap",
+     "value": ""
+    },
+    {
+     "id": "ushu",
+     "value": "ShadowFlyer"
+    },
+    {
+     "id": "ushx",
+     "value": 60.0
+    },
+    {
+     "id": "ushy",
+     "value": 60.0
+    },
+    {
+     "id": "ushh",
+     "value": 120.0
+    },
+    {
+     "id": "ushw",
+     "value": 120.0
+    },
+    {
+     "id": "uori",
+     "value": 1
+    },
+    {
+     "id": "uabi",
+     "value": "ACct,Aloc"
+    },
+    {
+     "id": "uclr",
+     "value": 80
+    },
+    {
+     "id": "urb1",
+     "value": 100.0
+    },
+    {
+     "id": "umvs",
+     "value": 390
+    },
+    {
+     "id": "ua1t",
+     "value": "chaos"
+    }
+   ]
+  },
+  "h00S": {
+   "base": "hdes",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Greenhawk"
+    },
+    {
+     "id": "ua1b",
+     "value": 120
+    },
+    {
+     "id": "ua1s",
+     "value": 14
+    },
+    {
+     "id": "uhpm",
+     "value": 1000
+    },
+    {
+     "id": "ulev",
+     "value": 2
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ucol",
+     "value": 8.0
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ua1z",
+     "value": 500
+    },
+    {
+     "id": "ua1h",
+     "value": 60
+    },
+    {
+     "id": "ua1q",
+     "value": 120
+    },
+    {
+     "id": "uma1",
+     "value": 0.05
+    },
+    {
+     "id": "usid",
+     "value": 1200
+    },
+    {
+     "id": "usin",
+     "value": 800
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNWarEagle.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\WarEagle\\WarEagle.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "ua1c",
+     "value": 0.8
+    },
+    {
+     "id": "ua1r",
+     "value": 400
+    },
+    {
+     "id": "uacq",
+     "value": 800.0
+    },
+    {
+     "id": "ua1p",
+     "value": "debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "ua1d",
+     "value": 9
+    },
+    {
+     "id": "ua1f",
+     "value": 30
+    },
+    {
+     "id": "ubba",
+     "value": 99
+    },
+    {
+     "id": "unsf",
+     "value": "(Level 4)"
+    },
+    {
+     "id": "upgr",
+     "value": ""
+    },
+    {
+     "id": "urac",
+     "value": "other"
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "utip",
+     "value": ""
+    },
+    {
+     "id": "utub",
+     "value": ""
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "urtm",
+     "value": 1
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "uhpr",
+     "value": 2.0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ubld",
+     "value": 1
+    },
+    {
+     "id": "usnd",
+     "value": "WarEagle"
+    },
+    {
+     "id": "umvt",
+     "value": "fly"
+    },
+    {
+     "id": "umvr",
+     "value": 0.6
+    },
+    {
+     "id": "umvh",
+     "value": 240.0
+    },
+    {
+     "id": "umvf",
+     "value": 90.0
+    },
+    {
+     "id": "urpg",
+     "value": 0
+    },
+    {
+     "id": "urpp",
+     "value": 0
+    },
+    {
+     "id": "ucam",
+     "value": 0
+    },
+    {
+     "id": "uspe",
+     "value": 1
+    },
+    {
+     "id": "utar",
+     "value": "air"
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\GargoyleMissile\\GargoyleMissile.mdl"
+    },
+    {
+     "id": "uclb",
+     "value": 70
+    },
+    {
+     "id": "ussc",
+     "value": 1.25
+    },
+    {
+     "id": "uslz",
+     "value": 230.0
+    },
+    {
+     "id": "uaap",
+     "value": ""
+    },
+    {
+     "id": "ushu",
+     "value": "ShadowFlyer"
+    },
+    {
+     "id": "ushx",
+     "value": 60.0
+    },
+    {
+     "id": "ushy",
+     "value": 60.0
+    },
+    {
+     "id": "ushh",
+     "value": 120.0
+    },
+    {
+     "id": "ushw",
+     "value": 120.0
+    },
+    {
+     "id": "uori",
+     "value": 1
+    },
+    {
+     "id": "uabi",
+     "value": "ACct,Atru,Aloc"
+    },
+    {
+     "id": "uclr",
+     "value": 70
+    },
+    {
+     "id": "urb1",
+     "value": 100.0
+    },
+    {
+     "id": "umvs",
+     "value": 410
+    },
+    {
+     "id": "ua1t",
+     "value": "chaos"
+    }
+   ]
+  },
+  "h00T": {
+   "base": "hdes",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Greenhawk"
+    },
+    {
+     "id": "ua1b",
+     "value": 150
+    },
+    {
+     "id": "ua1s",
+     "value": 25
+    },
+    {
+     "id": "uhpm",
+     "value": 1000
+    },
+    {
+     "id": "ulev",
+     "value": 2
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ucol",
+     "value": 8.0
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ua1z",
+     "value": 500
+    },
+    {
+     "id": "ua1h",
+     "value": 60
+    },
+    {
+     "id": "ua1q",
+     "value": 120
+    },
+    {
+     "id": "uma1",
+     "value": 0.05
+    },
+    {
+     "id": "usid",
+     "value": 1300
+    },
+    {
+     "id": "usin",
+     "value": 900
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNWarEagle.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\WarEagle\\WarEagle.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "ua1c",
+     "value": 0.7
+    },
+    {
+     "id": "ua1r",
+     "value": 450
+    },
+    {
+     "id": "uacq",
+     "value": 800.0
+    },
+    {
+     "id": "ua1p",
+     "value": "debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "ua1d",
+     "value": 10
+    },
+    {
+     "id": "ua1f",
+     "value": 30
+    },
+    {
+     "id": "ubba",
+     "value": 99
+    },
+    {
+     "id": "unsf",
+     "value": "(Level 5)"
+    },
+    {
+     "id": "upgr",
+     "value": ""
+    },
+    {
+     "id": "urac",
+     "value": "other"
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "utip",
+     "value": ""
+    },
+    {
+     "id": "utub",
+     "value": ""
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "urtm",
+     "value": 1
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "uhpr",
+     "value": 2.0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ubld",
+     "value": 1
+    },
+    {
+     "id": "usnd",
+     "value": "WarEagle"
+    },
+    {
+     "id": "umvt",
+     "value": "fly"
+    },
+    {
+     "id": "umvr",
+     "value": 0.6
+    },
+    {
+     "id": "umvh",
+     "value": 240.0
+    },
+    {
+     "id": "umvf",
+     "value": 90.0
+    },
+    {
+     "id": "urpg",
+     "value": 0
+    },
+    {
+     "id": "urpp",
+     "value": 0
+    },
+    {
+     "id": "ucam",
+     "value": 0
+    },
+    {
+     "id": "uspe",
+     "value": 1
+    },
+    {
+     "id": "utar",
+     "value": "air"
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\GreenDragonMissile\\GreenDragonMissile.mdl"
+    },
+    {
+     "id": "uclb",
+     "value": 50
+    },
+    {
+     "id": "ussc",
+     "value": 1.25
+    },
+    {
+     "id": "uslz",
+     "value": 230.0
+    },
+    {
+     "id": "uaap",
+     "value": ""
+    },
+    {
+     "id": "ushu",
+     "value": "ShadowFlyer"
+    },
+    {
+     "id": "ushx",
+     "value": 60.0
+    },
+    {
+     "id": "ushy",
+     "value": 60.0
+    },
+    {
+     "id": "ushh",
+     "value": 120.0
+    },
+    {
+     "id": "ushw",
+     "value": 120.0
+    },
+    {
+     "id": "uori",
+     "value": 1
+    },
+    {
+     "id": "uabi",
+     "value": "Afra,ACct,Atru,Aloc"
+    },
+    {
+     "id": "uclr",
+     "value": 50
+    },
+    {
+     "id": "urb1",
+     "value": 100.0
+    },
+    {
+     "id": "umvs",
+     "value": 470
+    },
+    {
+     "id": "ua1t",
+     "value": "chaos"
+    }
+   ]
+  },
+  "h00U": {
+   "base": "hdes",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Greenhawk"
+    },
+    {
+     "id": "ua1b",
+     "value": 200
+    },
+    {
+     "id": "ua1s",
+     "value": 26
+    },
+    {
+     "id": "uhpm",
+     "value": 1000
+    },
+    {
+     "id": "ulev",
+     "value": 2
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ucol",
+     "value": 8.0
+    },
+    {
+     "id": "udup",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ua1z",
+     "value": 500
+    },
+    {
+     "id": "ua1h",
+     "value": 60
+    },
+    {
+     "id": "ua1q",
+     "value": 120
+    },
+    {
+     "id": "uma1",
+     "value": 0.05
+    },
+    {
+     "id": "usid",
+     "value": 1400
+    },
+    {
+     "id": "umh1",
+     "value": 1
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNWarEagle.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "units\\creeps\\WarEagle\\WarEagle.mdl"
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "ua1c",
+     "value": 0.65
+    },
+    {
+     "id": "ua1r",
+     "value": 450
+    },
+    {
+     "id": "uacq",
+     "value": 800.0
+    },
+    {
+     "id": "ua1p",
+     "value": "debris,enemies,ground,neutral,structure"
+    },
+    {
+     "id": "ua1d",
+     "value": 12
+    },
+    {
+     "id": "ua1f",
+     "value": 30
+    },
+    {
+     "id": "ubba",
+     "value": 99
+    },
+    {
+     "id": "unsf",
+     "value": "(Level 6)"
+    },
+    {
+     "id": "upgr",
+     "value": ""
+    },
+    {
+     "id": "urac",
+     "value": "other"
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "uhot",
+     "value": ""
+    },
+    {
+     "id": "utip",
+     "value": ""
+    },
+    {
+     "id": "utub",
+     "value": ""
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "urtm",
+     "value": 1
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "uhpr",
+     "value": 2.0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ubld",
+     "value": 1
+    },
+    {
+     "id": "usnd",
+     "value": "WarEagle"
+    },
+    {
+     "id": "umvt",
+     "value": "fly"
+    },
+    {
+     "id": "umvr",
+     "value": 0.3
+    },
+    {
+     "id": "umvh",
+     "value": 240.0
+    },
+    {
+     "id": "umvf",
+     "value": 90.0
+    },
+    {
+     "id": "urpg",
+     "value": 0
+    },
+    {
+     "id": "urpp",
+     "value": 0
+    },
+    {
+     "id": "ucam",
+     "value": 0
+    },
+    {
+     "id": "uspe",
+     "value": 1
+    },
+    {
+     "id": "utar",
+     "value": "air"
+    },
+    {
+     "id": "ua1w",
+     "value": "missile"
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\GreenDragonMissile\\GreenDragonMissile.mdl"
+    },
+    {
+     "id": "uclb",
+     "value": 60
+    },
+    {
+     "id": "ussc",
+     "value": 1.25
+    },
+    {
+     "id": "uslz",
+     "value": 230.0
+    },
+    {
+     "id": "uaap",
+     "value": ""
+    },
+    {
+     "id": "ushu",
+     "value": "ShadowFlyer"
+    },
+    {
+     "id": "ushx",
+     "value": 60.0
+    },
+    {
+     "id": "ushy",
+     "value": 60.0
+    },
+    {
+     "id": "ushh",
+     "value": 120.0
+    },
+    {
+     "id": "ushw",
+     "value": 120.0
+    },
+    {
+     "id": "uori",
+     "value": 1
+    },
+    {
+     "id": "uabi",
+     "value": "Afra,ACct,Atru,Aloc"
+    },
+    {
+     "id": "uclr",
+     "value": 60
+    },
+    {
+     "id": "urb1",
+     "value": 100.0
+    },
+    {
+     "id": "umvs",
+     "value": 522
+    },
+    {
+     "id": "ua1t",
+     "value": "chaos"
+    }
+   ]
+  },
+  "n00R": {
+   "base": "ngme",
+   "mods": [
+    {
+     "id": "usei",
+     "value": "wswd,I022,I023,I021,I024,I020,I025,totw,I028,fgun,I029"
+    },
+    {
+     "id": "unam",
+     "value": "Street Merchant"
+    },
+    {
+     "id": "ides",
+     "value": "Sells sentry wards, although he's a pretty flaky guy.  He's never around when you need him..."
+    },
+    {
+     "id": "unbr",
+     "value": 0
+    },
+    {
+     "id": "unbm",
+     "value": 0
+    },
+    {
+     "id": "uhom",
+     "value": 1
+    },
+    {
+     "id": "ucol",
+     "value": 0.0
+    },
+    {
+     "id": "upat",
+     "value": ""
+    },
+    {
+     "id": "umdl",
+     "value": "units\\critters\\VillagerMan\\VillagerMan.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNVillagerMan.blp"
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "ussc",
+     "value": 1.0
+    }
+   ]
+  },
+  "H00V": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uhab",
+     "value": "A04C,A04X,A04Z"
+    },
+    {
+     "id": "uabi",
+     "value": "A04D,AInv,A01D,A00G"
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "udtm",
+     "value": 3.5
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFlyingMachine.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFlyingMachine.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "Units\\Gnome\\Submarine\\GnomishSub.mdl"
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "udef",
+     "value": 5
+    },
+    {
+     "id": "udty",
+     "value": "fort"
+    },
+    {
+     "id": "umvs",
+     "value": 200
+    },
+    {
+     "id": "umvr",
+     "value": 0.3
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "ucol",
+     "value": 10.0
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "ubba",
+     "value": 449
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ugol",
+     "value": 6000
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    },
+    {
+     "id": "uhpm",
+     "value": 2000
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "upoi",
+     "value": 7000
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "urtm",
+     "value": 75
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 300
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "unam",
+     "value": "Submarine"
+    },
+    {
+     "id": "uhot",
+     "value": "S"
+    },
+    {
+     "id": "upro",
+     "value": "Submarine,Silent But Deadly,The Red October,The U.S.S. SeaWolf,U.S.S. QuantumTheory"
+    },
+    {
+     "id": "upru",
+     "value": 5
+    },
+    {
+     "id": "utip",
+     "value": "Change to |cffffcc00S|rubmarine (|cffffcc006000|r)"
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBSubmarine|r |nSpeed: |cff33BBBB200 (100 if submerged)|r |nAbilities: |cff33BBBBSubmerge, Torpedo ( x2 )|r |nHit Points: |cff33BBBB2000, (1000 if submerged) |r |nArmor: |cff33BBBB5 (0 if submerged) |r |nSize: |cff33BBBBMedium|r |nDescription: |cff33BBBBAmazing ship with the ability to go under the water. (while submerged, Submarine is invisible)|r |cffFF1100***MAY NOT CARRY REPAIR CREWS OR WOOD***|r  *|cffFF6666Unique|r*|r"
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "ussc",
+     "value": 3.0
+    },
+    {
+     "id": "usid",
+     "value": 800
+    }
+   ]
+  },
+  "H00W": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uhab",
+     "value": ""
+    },
+    {
+     "id": "uabi",
+     "value": "AInv,Agho"
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "udtm",
+     "value": 3.5
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFlyingMachine.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNFlyingMachine.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "Units\\Gnome\\Submarine\\GnomishSub.mdl"
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "udef",
+     "value": 0
+    },
+    {
+     "id": "udty",
+     "value": "fort"
+    },
+    {
+     "id": "umvs",
+     "value": 100
+    },
+    {
+     "id": "umvr",
+     "value": 0.3
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "ucol",
+     "value": 10.0
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "ubba",
+     "value": 449
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ugol",
+     "value": 8500
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    },
+    {
+     "id": "uhpm",
+     "value": 1000
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "upoi",
+     "value": 7000
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "urtm",
+     "value": 75
+    },
+    {
+     "id": "usin",
+     "value": 1800
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 600
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "unam",
+     "value": "Submarine"
+    },
+    {
+     "id": "uhot",
+     "value": "S"
+    },
+    {
+     "id": "upro",
+     "value": "Submarine"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utip",
+     "value": "Change to |cffffcc00S|rubmarine (|cffffcc007000|r)"
+    },
+    {
+     "id": "utub",
+     "value": "Amazing ship with the ability to go under water (While under water, the ship is invisible)!  "
+    },
+    {
+     "id": "usca",
+     "value": 0.7
+    },
+    {
+     "id": "ussc",
+     "value": 1.0
+    },
+    {
+     "id": "unsf",
+     "value": "(Submerged)"
+    },
+    {
+     "id": "udaa",
+     "value": "Asb1"
+    }
+   ]
+  },
+  "n00S": {
+   "base": "nfgo",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "A02W"
+    },
+    {
+     "id": "ubba",
+     "value": 0
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 0
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "usle",
+     "value": 0
+    },
+    {
+     "id": "urac",
+     "value": "orc"
+    },
+    {
+     "id": "util",
+     "value": "*"
+    },
+    {
+     "id": "uaen",
+     "value": 0
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "umpm",
+     "value": 0
+    },
+    {
+     "id": "umpr",
+     "value": 999.0
+    },
+    {
+     "id": "uhpm",
+     "value": 6000
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\WaterElementalMissile\\WaterElementalMissile.mdl"
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "umvr",
+     "value": 0.1
+    },
+    {
+     "id": "umas",
+     "value": 140
+    },
+    {
+     "id": "umis",
+     "value": 140
+    },
+    {
+     "id": "umvs",
+     "value": 140
+    },
+    {
+     "id": "umvh",
+     "value": -10.0
+    },
+    {
+     "id": "umvf",
+     "value": -10.0
+    },
+    {
+     "id": "upat",
+     "value": ""
+    },
+    {
+     "id": "ubdi",
+     "value": 0
+    },
+    {
+     "id": "ubsi",
+     "value": 0
+    },
+    {
+     "id": "uubs",
+     "value": ""
+    },
+    {
+     "id": "ua1c",
+     "value": 0.8
+    },
+    {
+     "id": "ua1b",
+     "value": 20
+    },
+    {
+     "id": "unsf",
+     "value": "(Level 6)"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "usca",
+     "value": 0.85
+    },
+    {
+     "id": "ushh",
+     "value": 220.0
+    },
+    {
+     "id": "ushw",
+     "value": 220.0
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "unam",
+     "value": "Seamonster"
+    }
+   ]
+  },
+  "H00X": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Leviathian"
+    },
+    {
+     "id": "upro",
+     "value": "Leviathian"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utip",
+     "value": "Change to |cffffcc00L|reviathian (|cffffcc0013250|r)"
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBUnknown|r |nSpeed: |cff33BBBB100|r |nAbilities: |cff33BBBBNautical Engineer crew, has base regeneration of 15 points|r |nHit Points: |cff33BBBB11000|r |nArmor: |cff33BBBB0|r |nSize: |cff33BBBBGigantic|r |nDescription: |cff33BBBBNobody knows which part of the deep this ancient creature comes from...   *|cffFF6666Unique|r*|r"
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "usrg",
+     "value": 3600
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "usin",
+     "value": 1800
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "upoi",
+     "value": 13250
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "uhpm",
+     "value": 8500
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    },
+    {
+     "id": "ugol",
+     "value": 13250
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 349
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "usnd",
+     "value": "HeroCryptLord"
+    },
+    {
+     "id": "ucol",
+     "value": 15.0
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "umvr",
+     "value": 0.3
+    },
+    {
+     "id": "umvs",
+     "value": 100
+    },
+    {
+     "id": "udty",
+     "value": "fort"
+    },
+    {
+     "id": "udef",
+     "value": 0
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1t",
+     "value": "siege"
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 4.25
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "usca",
+     "value": 1.2
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNForgottenOne.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNForgottenOne.blp"
+    },
+    {
+     "id": "umdl",
+     "value": "Units\\Creeps\\ForgottenOne\\ForgottenOne.mdl"
+    },
+    {
+     "id": "udtm",
+     "value": 3.5
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "uabi",
+     "value": "A04Q,A01D,A04N"
+    },
+    {
+     "id": "uhab",
+     "value": "A04R"
+    }
+   ]
+  },
+  "u003": {
+   "base": "uloc",
+   "mods": [
+    {
+     "id": "unam",
+     "value": "Mad Tentacle"
+    },
+    {
+     "id": "utyp",
+     "value": ""
+    },
+    {
+     "id": "urac",
+     "value": "human"
+    },
+    {
+     "id": "uhrt",
+     "value": "none"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ubba",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "umvr",
+     "value": 0.5
+    },
+    {
+     "id": "umvs",
+     "value": 200
+    },
+    {
+     "id": "umvf",
+     "value": -10.0
+    },
+    {
+     "id": "umvh",
+     "value": -10.0
+    },
+    {
+     "id": "uine",
+     "value": 1
+    },
+    {
+     "id": "ua1w",
+     "value": "normal"
+    },
+    {
+     "id": "ucs1",
+     "value": "WoodMediumBash"
+    },
+    {
+     "id": "ua1g",
+     "value": "air,debris,ground,item"
+    },
+    {
+     "id": "ua1z",
+     "value": 0
+    },
+    {
+     "id": "ua1r",
+     "value": 250
+    },
+    {
+     "id": "ua1m",
+     "value": ".mdl"
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ua1b",
+     "value": 34
+    },
+    {
+     "id": "udp1",
+     "value": 0.6
+    },
+    {
+     "id": "ubs1",
+     "value": 0.2
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "ushw",
+     "value": 70.0
+    },
+    {
+     "id": "ushh",
+     "value": 70.0
+    },
+    {
+     "id": "ushu",
+     "value": "Shadow"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "usca",
+     "value": 0.65
+    },
+    {
+     "id": "umdl",
+     "value": "Units\\Creeps\\ForgottenOne\\ForgottenOneTent.mdl"
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNTentacle.blp"
+    },
+    {
+     "id": "uabi",
+     "value": "Aloc,A02R"
+    }
+   ]
+  },
+  "o000": {
+   "base": "oeye",
+   "mods": [
+    {
+     "id": "uabi",
+     "value": "Avul,Adt1"
+    },
+    {
+     "id": "unsf",
+     "value": "(Non-Invis, 9 mins, 4 for 900)"
+    }
+   ]
+  },
+  "H00Y": {
+   "base": "Hpal",
+   "mods": [
+    {
+     "id": "uagp",
+     "value": 0.0
+    },
+    {
+     "id": "uinp",
+     "value": 0.0
+    },
+    {
+     "id": "uagi",
+     "value": 1
+    },
+    {
+     "id": "uint",
+     "value": 1
+    },
+    {
+     "id": "ustr",
+     "value": 1
+    },
+    {
+     "id": "ustp",
+     "value": 0.0
+    },
+    {
+     "id": "usma",
+     "value": 1
+    },
+    {
+     "id": "usrg",
+     "value": 600
+    },
+    {
+     "id": "usst",
+     "value": 0
+    },
+    {
+     "id": "urq1",
+     "value": ""
+    },
+    {
+     "id": "urq2",
+     "value": ""
+    },
+    {
+     "id": "usnd",
+     "value": "Boat"
+    },
+    {
+     "id": "umdl",
+     "value": "war3mapImported\\battleship.mdl"
+    },
+    {
+     "id": "ussc",
+     "value": 2.8
+    },
+    {
+     "id": "ua1w",
+     "value": "msplash"
+    },
+    {
+     "id": "uma1",
+     "value": 0.25
+    },
+    {
+     "id": "ua1r",
+     "value": 1000
+    },
+    {
+     "id": "ua1z",
+     "value": 600
+    },
+    {
+     "id": "ua1m",
+     "value": "Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl"
+    },
+    {
+     "id": "umvt",
+     "value": "float"
+    },
+    {
+     "id": "usew",
+     "value": 1
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Other\\NeutralBuildingExplosion\\NeutralBuildingExplosion.mdl"
+    },
+    {
+     "id": "upro",
+     "value": "Goblin Junker,The Fixer-er,Floating Junkyard"
+    },
+    {
+     "id": "unam",
+     "value": "Goblin Ship"
+    },
+    {
+     "id": "ubpy",
+     "value": 0
+    },
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNClockWerkGoblin.blp"
+    },
+    {
+     "id": "ussi",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNClockWerkGoblin.blp"
+    },
+    {
+     "id": "uhab",
+     "value": "A055,A053,A00Z,A03W,A009"
+    },
+    {
+     "id": "ucs1",
+     "value": ""
+    },
+    {
+     "id": "ua1t",
+     "value": "unknown"
+    },
+    {
+     "id": "uhpr",
+     "value": 0.0
+    },
+    {
+     "id": "ua1g",
+     "value": "item"
+    },
+    {
+     "id": "ufle",
+     "value": 0
+    },
+    {
+     "id": "umvs",
+     "value": 190
+    },
+    {
+     "id": "utip",
+     "value": "Change to |cffffcc00G|roblin Junker (|cffffcc001250|r)"
+    },
+    {
+     "id": "uhot",
+     "value": "G"
+    },
+    {
+     "id": "upru",
+     "value": 1
+    },
+    {
+     "id": "utub",
+     "value": "|nClass: |cff33BBBBBattle Ship|r |nSpeed: |cff33BBBB190|r |nAbilities: |cff33BBBBGoblin Repair Crew, Goblin Bomber|r |nHit Points: |cff33BBBB600|r |nArmor: |cff33BBBB2|r |nSize: |cff33BBBBMedium|r |nDescription: |cff33BBBBA ship manned by a team of goblin engineers.  Can repair any team structure.  Not that great at fighting, however.|r"
+    },
+    {
+     "id": "ugor",
+     "value": 0
+    },
+    {
+     "id": "ulur",
+     "value": 0
+    },
+    {
+     "id": "ua1d",
+     "value": 1
+    },
+    {
+     "id": "ua1s",
+     "value": 1
+    },
+    {
+     "id": "ubdi",
+     "value": 1
+    },
+    {
+     "id": "ubsi",
+     "value": 1
+    },
+    {
+     "id": "ubba",
+     "value": 124
+    },
+    {
+     "id": "uhpm",
+     "value": 600
+    },
+    {
+     "id": "ulum",
+     "value": 0
+    },
+    {
+     "id": "ugol",
+     "value": 1250
+    },
+    {
+     "id": "ufoo",
+     "value": 0
+    },
+    {
+     "id": "utyp",
+     "value": "mechanical"
+    },
+    {
+     "id": "usid",
+     "value": 1400
+    },
+    {
+     "id": "urtm",
+     "value": 60
+    },
+    {
+     "id": "umpr",
+     "value": 0.0
+    },
+    {
+     "id": "umvr",
+     "value": 0.5
+    },
+    {
+     "id": "ubpx",
+     "value": 0
+    },
+    {
+     "id": "ucol",
+     "value": 10.0
+    },
+    {
+     "id": "uscb",
+     "value": 0
+    },
+    {
+     "id": "uarm",
+     "value": "Wood"
+    },
+    {
+     "id": "udtm",
+     "value": 3.73
+    },
+    {
+     "id": "upoi",
+     "value": 1000
+    },
+    {
+     "id": "usca",
+     "value": 0.6
+    },
+    {
+     "id": "umpi",
+     "value": 0
+    },
+    {
+     "id": "usin",
+     "value": 1400
+    },
+    {
+     "id": "uabi",
+     "value": "A054,A01D"
+    },
+    {
+     "id": "uhhd",
+     "value": 1
+    }
+   ]
+  },
+  "n00L": {
+   "base": "ngol",
+   "mods": [
+    {
+     "id": "uico",
+     "value": "ReplaceableTextures\\CommandButtons\\BTNBeastiary.blp"
+    },
+    {
+     "id": "uubs",
+     "value": "OMED"
+    },
+    {
+     "id": "umdl",
+     "value": "buildings\\orc\\Beastiary\\Beastiary.mdl"
+    },
+    {
+     "id": "ushb",
+     "value": "ShadowBeastiary"
+    },
+    {
+     "id": "uspa",
+     "value": "Objects\\Spawnmodels\\Human\\HCancelDeath\\HCancelDeath.mdl"
+    },
+    {
+     "id": "uabi",
+     "value": "Agld,Aneu,Avul"
+    },
+    {
+     "id": "uabr",
+     "value": 0.0
+    },
+    {
+     "id": "upat",
+     "value": ""
+    },
+    {
+     "id": "usca",
+     "value": 1.25
+    },
+    {
+     "id": "unam",
+     "value": "Refinery"
+    },
+    {
+     "id": "ides",
+     "value": "Strange things happen here..."
+    },
+    {
+     "id": "unbm",
+     "value": 1
+    },
+    {
+     "id": "unbr",
+     "value": 1
+    },
+    {
+     "id": "usin",
+     "value": 800
+    },
+    {
+     "id": "usid",
+     "value": 800
+    }
+   ]
+  }
+ }
+}
