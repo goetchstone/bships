@@ -16,6 +16,7 @@
 
 import { LOBBY_SLOTS, MAX_NAME_LENGTH, MAX_ROOM_NAME_LENGTH } from '@bships/core';
 import type { RoomPlayer, RoomStateMessage, TeamId } from '@bships/core';
+import { openStatsScreen } from '../stats/screen.js';
 
 import {
   createRoom,
@@ -217,6 +218,7 @@ function browserPanel(): HTMLElement {
   header.append(
     el('div', 'bs-grow bs-sub', `${store.lobby.rooms.length} room(s)`),
     button('Refresh', () => listRooms(), 'bs-btn bs-btn-small'),
+    button('Leaderboard', () => openStatsScreen(rootEl!), 'bs-btn bs-btn-small'),
   );
   panel.append(header);
 

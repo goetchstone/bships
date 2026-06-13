@@ -15,6 +15,7 @@ import { initMinimap } from './minimap.js';
 import { initScoreboard } from './scoreboard.js';
 import { initChat } from './chat.js';
 import { initBanner } from './banner.js';
+import { initKillFeed } from './killfeed.js';
 
 const STYLE_ID = 'bh-hud-style';
 
@@ -42,6 +43,7 @@ export function initHud(opts: { root: HTMLElement }): void {
   initScoreboard(ctx);
   initChat(ctx);
   initBanner(ctx);
+  initKillFeed(ctx);
 
   function loop(nowMs: number): void {
     for (const fn of frameFns) {
@@ -232,6 +234,23 @@ const HUD_CSS = `
   background: var(--bg-panel); border: 1px solid var(--accent); color: var(--text);
   outline: none;
 }
+
+/* ---- kill feed ---- */
+.bh-killfeed {
+  position: absolute; top: 48px; right: 12px;
+  display: flex; flex-direction: column; gap: 3px;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.bh-killfeed-line {
+  padding: 3px 8px; border-radius: 4px;
+  background: rgba(7, 17, 28, 0.80);
+  font-size: 13px; white-space: nowrap;
+  transition: opacity ${1200}ms;
+}
+.bh-kf-player { color: var(--gold); font-weight: 600; }
+.bh-kf-dim { color: var(--text-dim); }
+.bh-kf-fade { opacity: 0; }
 
 /* ---- banners ---- */
 .bh-countdown {

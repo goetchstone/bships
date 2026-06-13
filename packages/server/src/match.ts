@@ -51,7 +51,18 @@ export interface MatchRuntimeDeps {
   /** Human seats only (slots 2-6 / 7-11). */
   seats: MatchSeat[];
   sendToSlot(slot: number, msg: ServerMessage): void;
-  onEnded(result: { winnerTeam: TeamId | null; stats: PublicPlayerStat[] }): void;
+  onEnded(result: {
+    winnerTeam: TeamId | null;
+    stats: PublicPlayerStat[];
+    /** Match RNG seed (uint32), for audit/replay correlation. */
+    seed: number;
+    /** Ruleset name for audit/replay. */
+    rulesetId: string;
+    /** Match length in sim ticks. */
+    durationTicks: number;
+    /** Gold earned per seat slot (slot -> gold); 0 when untracked (see finish). */
+    goldEarned: Map<number, number>;
+  }): void;
   /**
    * Wall-clock milliseconds per sim tick. Defaults to realtime
    * (1000 / TICK_RATE). Test mode only: 0 (or negative) = burst mode — run
@@ -314,7 +325,25 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
     const stats = buildStats();
     const msg: MatchEndedMessage = { type: 'matchEnded', winnerTeam, stats };
     for (const seat of seats) sendToSlot(seat.slot, msg);
-    onEnded({ winnerTeam, stats });
+    // goldEarned is reported as 0 (untracked): the sim keeps only a live `gold`
+    // BALANCE (decremented by purchases/upgrades, zeroed by `golddump`), not a
+    // cumulative-earned tally. Reporting the final balance under a
+    // "cumulative earned" label was both wrong (a player who spent everything
+    // reads ~0) and trivially gamed, so we ship an honest 0 rather than a
+    // misleading number. Adding a real tally would require a counter in the
+    // deterministic core (out of scope here); see MatchParticipantIngest.
+    const goldEarned = new Map<number, number>();
+    for (const seat of seats) {
+      goldEarned.set(seat.slot, 0);
+    }
+    onEnded({
+      winnerTeam,
+      stats,
+      seed,
+      rulesetId: ruleset.name,
+      durationTicks: state.tick,
+      goldEarned,
+    });
   }
 
   // --- public surface --------------------------------------------------------

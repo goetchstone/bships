@@ -495,6 +495,34 @@ describe('room manager', () => {
     expect(factory.created).toHaveLength(0);
   });
 
+  it('refuses to start a one-team (opponent-less) match — anti Elo/W-L farm', () => {
+    const { manager, factory } = makeManager();
+    const host = connect(manager);
+    hello(host, TOKEN_A, 'Host');
+    host.send({ type: 'createRoom', roomName: 'Farm' });
+    const roomId = host.socket.lastOfType('roomState').roomId;
+    const guest = connect(manager);
+    hello(guest, TOKEN_B, 'Guest');
+    guest.send({ type: 'joinRoom', roomId });
+
+    // Both seat on SOUTH (slots 2 and 3) — no north opponent.
+    host.send({ type: 'pickSlot', slot: 2 });
+    guest.send({ type: 'pickSlot', slot: 3 });
+    host.send({ type: 'setReady', ready: true });
+    guest.send({ type: 'setReady', ready: true });
+    host.send({ type: 'startMatch' });
+
+    expect(host.socket.lastOfType('error').code).toBe('playersNotReady');
+    expect(factory.created).toHaveLength(0); // no runtime, no ranked match
+
+    // Move the guest to a north slot — now both teams are covered and it starts.
+    guest.send({ type: 'pickSlot', slot: 7 });
+    guest.send({ type: 'setReady', ready: true });
+    host.send({ type: 'startMatch' });
+    vi.advanceTimersByTime(MATCH_COUNTDOWN_SECONDS * 1000);
+    expect(factory.created).toHaveLength(1);
+  });
+
   it('counts down and creates the runtime with sorted seats and the drawn seed', () => {
     const { manager, factory } = makeManager();
     const { host, guest } = setupMatch(manager);
@@ -676,7 +704,7 @@ describe('room manager', () => {
     const entry = factory.created[0];
     if (entry === undefined) throw new Error('runtime not created');
 
-    entry.deps.onEnded({ winnerTeam: 'south', stats: [] });
+    entry.deps.onEnded({ winnerTeam: 'south', stats: [], seed: TEST_SEED, rulesetId: 'classic', durationTicks: 100, goldEarned: new Map() });
     expect(entry.runtime.stop).toHaveBeenCalled();
     const state = host.socket.lastOfType('roomState');
     expect(state.phase).toBe('lobby');

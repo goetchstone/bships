@@ -14,7 +14,9 @@ import { DEFAULT_PORT, PROTOCOL_VERSION } from '@bships/core';
 import { getClassicRuleset } from './data.js';
 import { createMatchRuntime } from './match.js';
 import { createRoomManager, MAX_FRAME_BYTES } from './rooms.js';
-import type { RoomManager } from './rooms.js';
+import type { CreateMatchRuntime, RoomManager } from './rooms.js';
+import { createStatsPosterFromEnv } from './stats/index.js';
+import type { StatsPoster } from './stats/index.js';
 
 export interface ServerOptions {
   /** TCP port; 0 picks an ephemeral port (tests). Default DEFAULT_PORT. */
@@ -25,6 +27,19 @@ export interface ServerOptions {
   countdownSeconds?: number;
   /** Suppress startup logging (tests). */
   quiet?: boolean;
+  /**
+   * Match-runtime factory override (tests only). Defaults to the real
+   * createMatchRuntime; the stats E2E injects a wrapper that forces a fast
+   * HQ-death end so a complete match (and its authoritative ingest) can be
+   * driven over real WebSockets without hours of gameplay. Never set in prod.
+   */
+  createRuntime?: CreateMatchRuntime;
+  /**
+   * Stats ingest poster override (tests only). Defaults to
+   * createStatsPosterFromEnv(process.env). The E2E injects a poster pointed at
+   * a real stats service on an ephemeral port.
+   */
+  statsPoster?: StatsPoster;
 }
 
 export interface RunningServer {
@@ -61,7 +76,8 @@ export async function startServer(options: ServerOptions = {}): Promise<RunningS
   }
 
   const manager = createRoomManager(ruleset, {
-    createRuntime: createMatchRuntime,
+    createRuntime: options.createRuntime ?? createMatchRuntime,
+    statsPoster: options.statsPoster ?? createStatsPosterFromEnv(process.env),
     ...(options.tickIntervalMs !== undefined ? { tickIntervalMs: options.tickIntervalMs } : {}),
     ...(options.countdownSeconds !== undefined
       ? { countdownSeconds: options.countdownSeconds }

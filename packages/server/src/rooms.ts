@@ -38,6 +38,8 @@ import type {
   CommandMessage,
   ErrorCode,
   HelloMessage,
+  MatchParticipantIngest,
+  MatchResultIngest,
   PublicPlayerStat,
   RoomPhase,
   RoomPlayer,
@@ -49,6 +51,8 @@ import type {
 import { createIdentityRegistry } from './identity.js';
 import type { SessionRecord } from './identity.js';
 import { parseClientMessage } from './validate.js';
+import { createNoopStatsPoster, deriveStatsPublicId } from './stats/index.js';
+import type { StatsPoster } from './stats/index.js';
 
 // ---------------------------------------------------------------------------
 // Limits (server policy, not wire protocol — hence defined here, not core)
@@ -62,6 +66,13 @@ export const RATE_REFILL_PER_SEC = 30;
 /** Additional cap for `command` messages: 40/s (burst 40). */
 export const COMMAND_BUCKET_CAPACITY = 40;
 export const COMMAND_REFILL_PER_SEC = 40;
+/**
+ * Additional cap for `chat` messages: a small dedicated bucket so one client
+ * cannot flood the room with a 60-message burst (chat fans out to every member)
+ * even while staying under the general bucket. Burst 5, refill 1/s.
+ */
+export const CHAT_BUCKET_CAPACITY = 5;
+export const CHAT_REFILL_PER_SEC = 1;
 /** Close the connection after this many CONSECUTIVE rate violations. */
 export const MAX_RATE_VIOLATIONS = 5;
 /** Playing rooms with zero attached sockets are deleted after this grace. */
@@ -82,7 +93,14 @@ export interface MatchRuntimeDeps {
   seed: number;
   seats: MatchSeat[];
   sendToSlot(slot: number, msg: ServerMessage): void;
-  onEnded(result: { winnerTeam: TeamId | null; stats: PublicPlayerStat[] }): void;
+  onEnded(result: {
+    winnerTeam: TeamId | null;
+    stats: PublicPlayerStat[];
+    seed: number;
+    rulesetId: string;
+    durationTicks: number;
+    goldEarned: Map<number, number>;
+  }): void;
   /** Test mode only: ms per sim tick (0 = burst). Default realtime. */
   tickIntervalMs?: number;
 }
@@ -133,6 +151,11 @@ export interface RoomManagerOptions {
   tickIntervalMs?: number;
   /** Lobby countdown override (tests); default MATCH_COUNTDOWN_SECONDS. */
   countdownSeconds?: number;
+  /**
+   * Stats ingest poster. Default: no-op (silent when stats service is not
+   * configured). index.ts passes createStatsPosterFromEnv(process.env).
+   */
+  statsPoster?: StatsPoster;
 }
 
 export interface RoomManager {
@@ -178,6 +201,7 @@ interface Conn {
   lastInboundMs: number;
   generalBucket: Bucket;
   commandBucket: Bucket;
+  chatBucket: Bucket;
   violations: number;
   helloTimer: Timer | null;
   pingTimer: Timer | null;
@@ -222,6 +246,7 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
   const now = options.now ?? Date.now;
   const drawSeed = options.drawSeed ?? defaultDrawSeed;
   const countdownSeconds = options.countdownSeconds ?? MATCH_COUNTDOWN_SECONDS;
+  const statsPoster: StatsPoster = options.statsPoster ?? createNoopStatsPoster();
 
   const identity = createIdentityRegistry<Conn>();
   const rooms = new Map<string, Room>();
@@ -638,6 +663,22 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
       name: member.session.name,
     }));
     const seed = drawSeed() >>> 0;
+    const startedAt = now();
+
+    // Capture per-slot identity for the stats ingest (done at match start so
+    // the token + publicId are available even if the member disconnects before
+    // the match ends). AI empire slots (0/1) are never in `seated`.
+    const slotIdentity = new Map<number, { token: string; publicId: string; name: string; team: TeamId | null }>(
+      seated.map((member) => [
+        member.slot,
+        {
+          token: member.token,
+          publicId: deriveStatsPublicId(member.token),
+          name: member.session.name,
+          team: teamOfSlot(member.slot),
+        },
+      ]),
+    );
 
     const runtime = createRuntime({
       ruleset,
@@ -650,8 +691,41 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
         send(member.conn, msg);
       },
       // matchEnded itself is sent by the runtime via sendToSlot; rooms only
-      // needs to know that the match is over.
-      onEnded: () => endMatch(room),
+      // needs to know that the match is over and assembles the stats report.
+      onEnded: (report) => {
+        // Build the authoritative MatchResultIngest from runtime report + identities.
+        // Participants exclude AI slots 0/1 (slotIdentity only contains human seats).
+        const participants = report.stats
+          .map((stat) => {
+            const identity = slotIdentity.get(stat.slot);
+            if (identity === null || identity === undefined || identity.team === null) return null;
+            const result: MatchParticipantIngest = {
+              token: identity.token,
+              publicId: identity.publicId,
+              name: stat.name,
+              slot: stat.slot,
+              team: identity.team,
+              shipTypeId: stat.shipTypeId,
+              kills: stat.kills,
+              deaths: stat.deaths,
+              goldEarned: report.goldEarned.get(stat.slot) ?? 0,
+            };
+            return result;
+          })
+          .filter((p): p is MatchParticipantIngest => p !== null);
+
+        const ingest: MatchResultIngest = {
+          rulesetId: report.rulesetId,
+          seed: report.seed,
+          startedAt,
+          durationTicks: report.durationTicks,
+          winnerTeam: report.winnerTeam,
+          participants,
+        };
+
+        statsPoster.postMatchResult(ingest);
+        endMatch(room);
+      },
     });
     room.runtime = runtime;
     room.phase = 'playing';
@@ -696,6 +770,18 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
     }
     if (seated.some((m) => !m.ready)) {
       sendError(conn, 'playersNotReady', 'every seated player must be ready');
+      return;
+    }
+    // Ranked matches require a real opponent: at least one human seat on EACH
+    // team. Without this a single account (or two cooperating on one team) could
+    // seat opponent-less, let the AI sink the unmanned HQ, and farm Elo/W-L —
+    // the stats ingest treats that as a win against nobody. A one-team lineup is
+    // a PvE/practice setup that must not be startable as a ranked match.
+    const seatedTeams = new Set(
+      seated.map((m) => teamOfSlot(m.slot as number)).filter((t): t is TeamId => t !== null),
+    );
+    if (seatedTeams.size < 2) {
+      sendError(conn, 'playersNotReady', 'both teams need at least one player');
       return;
     }
     room.phase = 'starting';
@@ -834,6 +920,10 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
         handleCommand(conn, session, msg);
         return;
       case 'chat':
+        if (!takeToken(conn.chatBucket, now())) {
+          onRateViolation(conn);
+          return;
+        }
         handleChat(conn, session, msg);
         return;
     }
@@ -884,6 +974,7 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
         lastInboundMs: startMs,
         generalBucket: makeBucket(RATE_BUCKET_CAPACITY, RATE_REFILL_PER_SEC, startMs),
         commandBucket: makeBucket(COMMAND_BUCKET_CAPACITY, COMMAND_REFILL_PER_SEC, startMs),
+        chatBucket: makeBucket(CHAT_BUCKET_CAPACITY, CHAT_REFILL_PER_SEC, startMs),
         violations: 0,
         helloTimer: null,
         pingTimer: null,

@@ -305,12 +305,41 @@ export function nearestShopInRange(
 // ---------------------------------------------------------------------------
 
 /**
- * Kill-feed line for a death event, or null when it is not feed-worthy
- * (only player-ship deaths make the feed). `nameOf` resolves a player slot
- * to a display name.
+ * Classify a death event as a feed-worthy kill kind, or null when it should
+ * be suppressed. Uses `ruleset.ships` to distinguish player ships from creeps
+ * (the same gate match.ts uses for kill/death tallies):
+ *   - 'playerKill'  : victim is a player ship, killed by another player
+ *   - 'playerDeath' : victim is a player ship, unattributed kill
+ *   - 'neutral'     : victim is a non-player unit (creep, structure, summon)
+ *   - null          : not a death event at all
+ *
+ * Lane-creep deaths have a non-null victimPlayer (the AI empire slot 0/1),
+ * but entityTypeId is NOT in ruleset.ships, so they classify as 'neutral'.
  */
-export function killFeedLine(ev: SimEvent, nameOf: (slot: number) => string): string | null {
+export function classifyKillEvent(
+  ev: SimEvent,
+  ruleset: Pick<Ruleset, 'ships'>,
+): 'playerKill' | 'playerDeath' | 'neutral' | null {
+  if (ev.type !== 'death') return null;
+  // Only events where the victim entity is a player ship type make the feed.
+  if (!(ev.entityTypeId in ruleset.ships)) return 'neutral';
+  if (ev.killerPlayer !== null) return 'playerKill';
+  return 'playerDeath';
+}
+
+/**
+ * Kill-feed line for a death event, or null when it is not feed-worthy
+ * (only player-ship deaths make the feed — entity must be in ruleset.ships).
+ * `nameOf` resolves a player slot to a display name.
+ */
+export function killFeedLine(
+  ev: SimEvent,
+  nameOf: (slot: number) => string,
+  ruleset?: Pick<Ruleset, 'ships'>,
+): string | null {
   if (ev.type !== 'death' || ev.victimPlayer === null) return null;
+  // If a ruleset is provided, gate on ship-type to suppress creep deaths.
+  if (ruleset !== undefined && !(ev.entityTypeId in ruleset.ships)) return null;
   const victim = nameOf(ev.victimPlayer);
   if (ev.killerPlayer === null) return `${victim} was sunk`;
   return `${nameOf(ev.killerPlayer)} sunk ${victim}`;

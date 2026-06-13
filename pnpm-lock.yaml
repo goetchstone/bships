@@ -58,12 +58,34 @@ importers:
         specifier: ^8.18.0
         version: 8.21.0
     devDependencies:
+      '@bships/stats':
+        specifier: workspace:*
+        version: link:../stats
       '@types/node':
         specifier: ^22.10.0
         version: 22.19.21
       '@types/ws':
         specifier: ^8.18.0
         version: 8.18.1
+      tsx:
+        specifier: ^4.19.0
+        version: 4.22.4
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.0
+        version: 3.2.6(@types/node@22.19.21)(tsx@4.22.4)
+
+  packages/stats:
+    dependencies:
+      '@bships/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.0
+        version: 22.19.21
       tsx:
         specifier: ^4.19.0
         version: 4.22.4

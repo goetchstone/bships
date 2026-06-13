@@ -409,3 +409,171 @@ export type ServerMessage =
   | ServerChatMessage
   | ErrorMessage
   | ServerPingMessage;
+
+// ===========================================================================
+// Stats board wire DTOs (@bships/stats <-> @bships/server / @bships/client)
+//
+// These live in core/protocol.ts — the single source of shared wire types —
+// because all three packages already depend on @bships/core: the server POSTs
+// MatchResultIngest, the stats service validates it + serves the read DTOs,
+// and the client renders LeaderboardEntry/PlayerProfile/ClaimResponse. The
+// stats HTTP transport is JSON-over-http (NOT the WebSocket protocol above);
+// PROTOCOL_VERSION does not gate it. See packages/stats/docs/ARCH.md.
+// ===========================================================================
+
+/** Standard-Elo seed rating for a player with no recorded matches. */
+export const STARTING_RATING = 1200;
+
+/** Elo K-factor (team-vs-team, mean team rating). */
+export const ELO_K_FACTOR = 32;
+
+/**
+ * Stable, NON-REVERSIBLE public id derived from the secret identity token —
+ * the stats primary key for a player. Distinct from the WebSocket server's
+ * per-process RoomPlayer.publicId (a throwaway 'p'+hex handle): stats must key
+ * the SAME player across server restarts and devices, so it derives the id
+ * deterministically from the token instead (see deriveStatsPublicId in the
+ * server integration — sha256(token) truncated, 's' prefix). 's' + 16 hex.
+ */
+export const STATS_PUBLIC_ID_PATTERN = /^s[0-9a-f]{16}$/;
+
+export const MAX_INGEST_PARTICIPANTS = 10;
+
+/**
+ * One participant line in a finished-match report. `token` is the player's
+ * SECRET identity token — the server includes it ONLY on the authenticated
+ * /ingest/match path so the stats service can resolve/create the player row
+ * and (re)derive `publicId`; the stats service NEVER echoes the token back on
+ * any read endpoint. `publicId` is the derived stable id (deriveStatsPublicId).
+ */
+export interface MatchParticipantIngest {
+  token: string;
+  publicId: string;
+  /** Settled display name at match end. */
+  name: string;
+  /** Sim player slot (2-11; AI empire slots 0/1 are never participants). */
+  slot: number;
+  team: TeamId;
+  shipTypeId: string;
+  kills: number;
+  deaths: number;
+  /**
+   * Cumulative gold earned over the match, if the server tracks it; otherwise
+   * 0 (untracked). The sim keeps only a live gold BALANCE, not an earned tally,
+   * so the current server reports 0 here rather than a misleading balance.
+   */
+  goldEarned: number;
+}
+
+/**
+ * The authoritative finished-match report the GAME SERVER POSTs to
+ * /ingest/match. Clients are never trusted to produce this (the endpoint
+ * requires STATS_INGEST_SECRET). `winnerTeam` null = draw/aborted (no Elo,
+ * no W/L applied). `seed` + `rulesetId` make the result auditable/replayable.
+ */
+export interface MatchResultIngest {
+  rulesetId: string;
+  /** Match RNG seed (uint32), for audit/replay correlation. */
+  seed: number;
+  /** Wall-clock epoch ms when the match went live (server clock). */
+  startedAt: number;
+  /** Match length in sim ticks (durationTicks / TICK_RATE = seconds). */
+  durationTicks: number;
+  winnerTeam: TeamId | null;
+  participants: MatchParticipantIngest[];
+}
+
+/** Stats service reply to a successful ingest (idempotency aid for retries). */
+export interface MatchIngestResponse {
+  /** Stats-service-assigned match row id. */
+  matchId: number;
+  /** True when this exact result had already been recorded (retry no-op). */
+  duplicate: boolean;
+}
+
+/** One row of GET /leaderboard (ordered by rating desc). */
+export interface LeaderboardEntry {
+  publicId: string;
+  name: string;
+  rating: number;
+  wins: number;
+  losses: number;
+  matchesPlayed: number;
+  /** True once the player attached an email+password. */
+  claimed: boolean;
+}
+
+/** GET /leaderboard envelope. */
+export interface LeaderboardResponse {
+  entries: LeaderboardEntry[];
+}
+
+/** Compact recent-match line on a player profile. */
+export interface ProfileMatchSummary {
+  matchId: number;
+  endedAt: number;
+  rulesetId: string;
+  team: TeamId;
+  won: boolean;
+  shipTypeId: string;
+  kills: number;
+  deaths: number;
+  /** Signed Elo delta this match applied to the player. */
+  ratingDelta: number;
+}
+
+/** GET /players/:publicId. Public — never includes token/email/hash. */
+export interface PlayerProfile {
+  publicId: string;
+  name: string;
+  claimed: boolean;
+  rating: number;
+  wins: number;
+  losses: number;
+  matchesPlayed: number;
+  /** Most-played ship typeId, or null when the player has no matches. */
+  favoriteShipTypeId: string | null;
+  /** Newest first, capped by the service. */
+  recentMatches: ProfileMatchSummary[];
+}
+
+/**
+ * POST /claim — attach an email + password to the player keyed by `token`,
+ * locking the display name. `token` proves ownership of the (anonymous)
+ * record; the stats service derives the publicId from it. Rejected when the
+ * email is already claimed by a different player or the name is locked to
+ * another account.
+ */
+export interface ClaimRequest {
+  token: string;
+  email: string;
+  password: string;
+  /** Display name to lock to the account. */
+  name: string;
+}
+
+/**
+ * POST /login — authenticate an already-claimed account by email+password.
+ * Returns the same shape as claim so the client can store one session.
+ */
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+/**
+ * Reply to /claim and /login. `sessionToken` is an opaque bearer the client
+ * stores to prove it controls the claimed account (e.g. portable login on a
+ * new device); it is NOT the identity token and NOT used for ingest auth.
+ */
+export interface ClaimResponse {
+  publicId: string;
+  name: string;
+  email: string;
+  sessionToken: string;
+}
+
+/** Stats error envelope (all non-2xx JSON bodies). */
+export interface StatsErrorResponse {
+  error: string;
+}

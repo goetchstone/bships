@@ -12,7 +12,7 @@ import { onEvent, store } from '../net/store.js';
 import { bindingFor, onAction } from '../input/keymap.js';
 import type { HudContext } from './context.js';
 import { el } from './context.js';
-import { keyLabel, killFeedLine } from './hudmath.js';
+import { keyLabel } from './hudmath.js';
 
 const MAX_LINES = 9;
 const LINE_TTL_MS = 12000;
@@ -57,12 +57,6 @@ export function initChat(ctx: HudContext): void {
     }, LINE_TTL_MS);
   }
 
-  function nameOf(slot: number): string {
-    const stat = store.match.players.find((p) => p.slot === slot);
-    if (stat !== undefined) return stat.name;
-    return slot <= 1 ? 'The Empire' : `Player ${slot}`;
-  }
-
   // -- incoming chat ----------------------------------------------------------
   const seen = new WeakSet<ServerChatMessage>();
   function drainChat(): void {
@@ -80,13 +74,8 @@ export function initChat(ctx: HudContext): void {
   drainChat();
   store.subscribe(drainChat);
 
-  // -- kill feed + own command rejections --------------------------------------
+  // -- own command rejections (kill lines are now in killfeed.ts) -------------
   onEvent((ev) => {
-    const line = killFeedLine(ev, nameOf);
-    if (line !== null) {
-      pushLine(line, 'bh-kill');
-      return;
-    }
     if (ev.type === 'commandRejected' && ev.player === store.match.mySlot) {
       pushLine(`Cannot ${ev.commandType}: ${ev.reason}`, 'bh-system bh-reject');
     }

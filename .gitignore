@@ -11,3 +11,8 @@ coverage/
 .env
 .venv/
 __pycache__/
+
+# Stats service local SQLite database (and any other runtime data files).
+# The .data/ dir itself is kept (its .gitignore is committed); contents are not.
+packages/stats/.data/*
+!packages/stats/.data/.gitignore
