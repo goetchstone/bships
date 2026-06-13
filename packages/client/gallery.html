@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BattleShips Pro — Render Gallery</title>
+    <style>
+      /* Standalone art-QA surface. NO server, NO match — every visual is drawn
+         by the same render-module helpers the in-match renderer uses, so a
+         human reviewer can screenshot and judge ships / structures / effects /
+         water / depth at a glance. */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg-deep: #07111c;
+        --bg-panel: #0d1f30;
+        --border: #2a4a66;
+        --text: #d8e6f2;
+        --text-dim: #7d96ab;
+        --gold: #f2c14e;
+        --team-south: #ff5c5c;
+        --team-north: #5c8aff;
+      }
+      html,
+      body {
+        background: var(--bg-deep);
+        color: var(--text);
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        font-size: 14px;
+      }
+      header {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(180deg, #0d2236, #081320);
+      }
+      header h1 {
+        font-size: 18px;
+        letter-spacing: 0.5px;
+      }
+      header p {
+        color: var(--text-dim);
+        margin-top: 4px;
+        max-width: 1100px;
+        line-height: 1.5;
+      }
+      .legend {
+        display: flex;
+        gap: 18px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        font-size: 13px;
+      }
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .swatch {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        display: inline-block;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+      }
+      #gallery {
+        display: block;
+      }
+      /* The Pixi canvas fills the page; it scrolls with the document. */
+      #gallery canvas {
+        display: block;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>BattleShips Pro — Procedural Render Gallery</h1>
+      <p>
+        Every ship class, structure role, creep/summon/ward, projectile and
+        combat effect, and the water depth ramp — drawn by the live render
+        modules at a fixed camera, no server or match required. Pseudo-3D: one
+        light from the top-left, drop shadows on the water, raised
+        superstructures, y-sorted depth. Team color = SOUTH red / NORTH blue;
+        neutral = parchment.
+      </p>
+      <div class="legend">
+        <span><span class="swatch" style="background: var(--team-south)"></span>South (red)</span>
+        <span><span class="swatch" style="background: var(--team-north)"></span>North (blue)</span>
+        <span><span class="swatch" style="background: #c8bda0"></span>Neutral</span>
+        <span>☀ Light direction: top-left</span>
+      </div>
+    </header>
+    <div id="gallery"></div>
+    <script type="module" src="/src/gallery.ts"></script>
+  </body>
+</html>

@@ -192,14 +192,30 @@ export interface StatusVisual {
   tint: number;
   /** Whole-entity alpha (invisible = 0.5 — own team only by construction). */
   alpha: number;
-  glyphs: GlyphStatus[];
+  glyphs: readonly GlyphStatus[];
 }
 
 /**
+ * Shared no-status result. The common case (statuses === []) hits this every
+ * frame for the large majority of units, so returning a frozen singleton
+ * avoids ~150 throwaway arrays + objects per frame in the hottest loop. Callers
+ * MUST treat the result as read-only (units.ts only reads tint/alpha/glyphs).
+ */
+const EMPTY_STATUS_GLYPHS: readonly GlyphStatus[] = Object.freeze([]);
+const EMPTY_STATUS_VISUAL: StatusVisual = Object.freeze({
+  tint: 0xffffff,
+  alpha: 1,
+  glyphs: EMPTY_STATUS_GLYPHS,
+});
+
+/**
  * Resolve snapshot statuses into a tint/alpha/glyph set. `nowMs` drives the
- * burning flicker so the result animates without any per-entity state.
+ * burning flicker so the result animates without any per-entity state. The
+ * returned object is READ-ONLY; a status-free entity gets a shared singleton
+ * (no allocation) since that is the steady-state case for most units.
  */
 export function statusVisual(statuses: readonly SnapshotStatusKind[], nowMs: number): StatusVisual {
+  if (statuses.length === 0) return EMPTY_STATUS_VISUAL;
   let tint = 0xffffff;
   let alpha = 1;
   const glyphs: GlyphStatus[] = [];

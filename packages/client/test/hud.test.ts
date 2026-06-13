@@ -35,6 +35,8 @@ import {
 } from '../src/hud/hudmath.js';
 import type { SimEvent } from '@bships/core';
 import { getCatalog } from '../src/catalog.js';
+import { HUD_CSS } from '../src/hud/hud.js';
+import { declares, ruleBody, valueOf } from '../src/hud/csslint.js';
 
 function fakeKey(type: 'keydown' | 'keyup', code: string, repeat = false): KeyboardEvent {
   return {
@@ -310,5 +312,100 @@ describe('catalog integration (display data)', () => {
     const t = createMinimapTransform(catalog.map.bounds, 220);
     expect(Math.max(t.width, t.height)).toBe(220);
     expect(Math.min(t.width, t.height)).toBeGreaterThan(0);
+  });
+});
+
+describe('csslint: rule extraction', () => {
+  const css = `
+    /* a comment */
+    .a, .b { color: red; left: 12px; }
+    .c { position: absolute; transform: translateX(-50%); }
+  `;
+
+  it('returns the body of a rule by exact selector in a list', () => {
+    expect(ruleBody(css, '.a')).toBe('color: red; left: 12px;');
+    expect(ruleBody(css, '.b')).toBe('color: red; left: 12px;');
+    expect(ruleBody(css, '.c')).toBe('position: absolute; transform: translateX(-50%);');
+  });
+
+  it('returns null for an absent selector and is not fooled by substrings', () => {
+    expect(ruleBody(css, '.d')).toBeNull();
+    expect(ruleBody(css, '.ab')).toBeNull();
+  });
+
+  it('declares() matches a property/value pair loosely', () => {
+    const body = ruleBody(css, '.c');
+    expect(declares(body, 'position', 'absolute')).toBe(true);
+    expect(declares(body, 'transform', 'translateX')).toBe(true);
+    expect(declares(body, 'left', '0')).toBe(false);
+    expect(declares(null, 'position', 'absolute')).toBe(false);
+  });
+
+  it('valueOf() returns the raw declared value', () => {
+    expect(valueOf(ruleBody(css, '.a'), 'left')).toBe('12px');
+    expect(valueOf(ruleBody(css, '.c'), 'transform')).toBe('translateX(-50%)');
+    expect(valueOf(ruleBody(css, '.a'), 'top')).toBeNull();
+  });
+});
+
+describe('HUD layout contract (regression guards for the reported bugs)', () => {
+  it('chat docks bottom-LEFT and is never centered', () => {
+    const chat = ruleBody(HUD_CSS, '.bh-chat');
+    expect(declares(chat, 'position', 'absolute')).toBe(true);
+    // Anchored to the left edge, NOT left:50% / centered.
+    expect(valueOf(chat, 'left')).toBe('12px');
+    expect(declares(chat, 'transform', 'translateX(-50%)')).toBe(false);
+    expect(valueOf(chat, 'left')).not.toBe('50%');
+    // Bottom-anchored flex column with the input pinned to the bottom.
+    expect(declares(chat, 'flex-direction', 'column')).toBe(true);
+    expect(declares(chat, 'justify-content', 'flex-end')).toBe(true);
+    // Sits above the minimap (a positive bottom offset clearing the panel).
+    const bottom = valueOf(chat, 'bottom');
+    expect(bottom).not.toBeNull();
+    expect(Number.parseInt(bottom ?? '0', 10)).toBeGreaterThan(200);
+  });
+
+  it('chat block is display-only; only the input row captures pointer events', () => {
+    expect(declares(ruleBody(HUD_CSS, '.bh-chat'), 'pointer-events', 'none')).toBe(true);
+    expect(declares(ruleBody(HUD_CSS, '.bh-chat-log'), 'pointer-events', 'none')).toBe(true);
+    expect(declares(ruleBody(HUD_CSS, '.bh-chat-input'), 'pointer-events', 'auto')).toBe(true);
+  });
+
+  it('minimap docks to the bottom-left corner with a framed panel', () => {
+    const mini = ruleBody(HUD_CSS, '.bh-minimap');
+    expect(declares(mini, 'position', 'absolute')).toBe(true);
+    expect(valueOf(mini, 'left')).toBe('12px');
+    expect(valueOf(mini, 'bottom')).toBe('12px');
+    expect(declares(mini, 'border', '1px')).toBe(true);
+  });
+
+  it('only the minimap canvas (not the frame) captures pointer events', () => {
+    // The wrapper frame must NOT swallow clicks across its padded panel; only
+    // the canvas itself is interactive so the corner stays mostly click-through.
+    expect(declares(ruleBody(HUD_CSS, '.bh-minimap'), 'pointer-events', 'auto')).toBe(false);
+    expect(declares(ruleBody(HUD_CSS, '.bh-minimap canvas'), 'pointer-events', 'auto')).toBe(true);
+  });
+
+  it('top bar is display-only (clicks fall through to the canvas)', () => {
+    const bar = ruleBody(HUD_CSS, '.bh-topbar');
+    expect(declares(bar, 'pointer-events', 'none')).toBe(true);
+    // Top-center.
+    expect(valueOf(bar, 'top')).toBe('0');
+    expect(declares(bar, 'transform', 'translateX(-50%)')).toBe(true);
+  });
+
+  it('inventory is interactive, docked bottom-center, hugging the bottom edge', () => {
+    const inv = ruleBody(HUD_CSS, '.bh-inventory');
+    expect(declares(inv, 'pointer-events', 'auto')).toBe(true);
+    expect(declares(inv, 'transform', 'translateX(-50%)')).toBe(true);
+    const bottom = valueOf(inv, 'bottom');
+    // Within a thin strip of the bottom edge, out of the central play rect.
+    expect(Number.parseInt(bottom ?? '999', 10)).toBeLessThanOrEqual(16);
+  });
+
+  it('the attack-move armed state is visually distinct', () => {
+    expect(declares(ruleBody(HUD_CSS, '.bh-order.bh-armed'), 'border-color', 'var(--danger)')).toBe(
+      true,
+    );
   });
 });

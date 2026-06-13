@@ -1,13 +1,15 @@
 /**
- * AUDIT PROBE (throwaway): entity-layer memory across 1000 entity churns,
- * plus projectile tracker cleanup. Feeds synthetic WorldSamples directly.
+ * AUDIT PROBE: unit-layer memory across 1000 entity churns, plus projectile
+ * tracker cleanup, on the NEW render modules (units.ts / fx.ts — the old
+ * entities.ts/projectiles.ts were removed in the graphics-overhaul integration).
+ * Feeds synthetic WorldSamples directly; asserts no Pixi-object leaks.
  */
 
 import { describe, expect, it } from 'vitest';
 import type { SnapshotEntity } from '@bships/core';
 
-import { createEntities } from '../src/render/entities.js';
-import { createProjectiles } from '../src/render/projectiles.js';
+import { createUnits } from '../src/render/units.js';
+import { createFx } from '../src/render/fx.js';
 import { resetCameraForTest } from '../src/render/camera.js';
 import { resetStoreForTest, store } from '../src/net/store.js';
 import type { WorldSample } from '../src/net/interpolation.js';
@@ -28,7 +30,7 @@ function ship(id: number, ownerSlot: number | null): SnapshotEntity {
   };
 }
 
-describe('AUDIT: entity view churn', () => {
+describe('AUDIT: unit view churn', () => {
   it('destroys Pixi objects for dead entities across 1000 churns', () => {
     resetCameraForTest();
     resetStoreForTest();
@@ -45,7 +47,7 @@ describe('AUDIT: entity view churn', () => {
       },
     ];
 
-    const layer = createEntities();
+    const layer = createUnits();
     const destroyed: { destroyed: boolean }[] = [];
 
     let nextId = 1;
@@ -78,7 +80,7 @@ describe('AUDIT: entity view churn', () => {
 
   it('projectile trail tracker does not grow across churns', () => {
     resetCameraForTest();
-    const layer = createProjectiles();
+    const layer = createFx();
     for (let gen = 0; gen < 200; gen++) {
       const projectiles = [];
       for (let k = 0; k < 5; k++) {
@@ -95,6 +97,7 @@ describe('AUDIT: entity view churn', () => {
     }
     // tracked map is module-private; verify indirectly via no throw + clear path
     layer.update(null, 999999);
+    layer.destroy();
     expect(true).toBe(true);
   });
 });

@@ -273,6 +273,20 @@ describe('viz status visuals', () => {
     expect(sv.glyphs).toEqual([]);
   });
 
+  it('returns a shared frozen singleton for the no-status fast path (no per-frame alloc)', () => {
+    const a = statusVisual([], 0);
+    const b = statusVisual([], 999);
+    // Same object reused across calls (the steady-state hot-loop allocation we
+    // eliminated); both share one frozen empty glyph array.
+    expect(a).toBe(b);
+    expect(a.glyphs).toBe(b.glyphs);
+    expect(Object.isFrozen(a)).toBe(true);
+    expect(Object.isFrozen(a.glyphs)).toBe(true);
+    // A non-empty call must NOT return the singleton (it allocates a real set).
+    const c = statusVisual(['stunned'], 0);
+    expect(c).not.toBe(a);
+  });
+
   it('invisible halves alpha (own team only by construction)', () => {
     expect(statusVisual(['invisible'], 0).alpha).toBe(0.5);
   });
