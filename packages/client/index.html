@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BattleShips Pro</title>
+    <style>
+      /* Minimal reset + dark naval theme. Module-specific styles live with
+         their modules; only the root layout contract is defined here. */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg-deep: #07111c;
+        --bg-panel: #0d1f30;
+        --bg-panel-raised: #15314a;
+        --border: #2a4a66;
+        --text: #d8e6f2;
+        --text-dim: #7d96ab;
+        --accent: #36a3ff;
+        --gold: #f2c14e;
+        --lumber: #8fbf6a;
+        --team-south: #ff5c5c;
+        --team-north: #5c8aff;
+        --danger: #ff5c5c;
+      }
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg-deep);
+        color: var(--text);
+        font-family:
+          'Segoe UI',
+          system-ui,
+          -apple-system,
+          sans-serif;
+        font-size: 14px;
+        user-select: none;
+      }
+      #app {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+      /* PixiJS canvas mount — owned by client-render. */
+      #stage {
+        position: absolute;
+        inset: 0;
+      }
+      #stage canvas {
+        display: block;
+      }
+      /* In-match DOM overlay — owned by client-hud. Pointer events off at the
+         root; interactive HUD children opt back in. */
+      #hud {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 10;
+      }
+      /* Fullscreen lobby/menu screens — owned by client-net. */
+      #screens {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+      }
+      #screens[hidden] {
+        display: none;
+      }
+      .panel {
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 20px 24px;
+        min-width: 320px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="stage"></div>
+      <div id="hud" hidden></div>
+      <div id="screens"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

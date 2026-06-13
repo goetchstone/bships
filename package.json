@@ -9,9 +9,11 @@
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "dev": "pnpm --filter @bships/core build && concurrently -k -n server,client -c blue,green \"pnpm --filter @bships/server dev\" \"pnpm --filter @bships/client dev\""
   },
   "devDependencies": {
+    "concurrently": "^9.1.0",
     "eslint": "^9.39.0",
     "typescript": "^5.9.0",
     "typescript-eslint": "^8.46.0"
