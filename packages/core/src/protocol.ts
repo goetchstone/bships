@@ -36,7 +36,14 @@
  * profiling demands it.
  */
 
-import type { Command, PlayerState, SimEvent, StructureEntity, TeamId } from './sim/types.js';
+import type {
+  AiDifficulty,
+  Command,
+  PlayerState,
+  SimEvent,
+  StructureEntity,
+  TeamId,
+} from './sim/types.js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -107,6 +114,15 @@ export interface RoomPlayer {
   ready: boolean;
   connected: boolean;
   isHost: boolean;
+  /**
+   * AI occupancy marker. For a human member this is null. For an AI-filled
+   * slot the server emits a synthetic RoomPlayer with `ai` set to the bot's
+   * difficulty (and a display name like "AI (normal)"); such a member always
+   * reports `ready: true`, `connected: true`, `isHost: false` and counts as
+   * its team's player for the both-teams-need-a-player start gate. The host
+   * adds/removes these via addAi/removeAi.
+   */
+  ai: AiDifficulty | null;
 }
 
 /**
@@ -260,6 +276,30 @@ export interface StartMatchMessage {
 }
 
 /**
+ * Host only, lobby phase only: seat a computer-controlled AI captain in an
+ * OPEN, pickable slot (must be in LOBBY_SLOTS and unoccupied by a human or
+ * another AI). The slot then shows as an AI member in roomState (RoomPlayer
+ * with `ai` = difficulty) and counts toward the team's start-gate player
+ * count. The match seats it as a `control: 'computer'` player with an AI
+ * config; the server runs its brain each cadence and feeds the commands into
+ * the tick (see docs/AI.md lobby flow).
+ */
+export interface AddAiMessage {
+  type: 'addAi';
+  slot: number;
+  difficulty: AiDifficulty;
+}
+
+/**
+ * Host only, lobby phase only: remove the AI seated in `slot`, reopening it.
+ * No-op (error) if the slot is not occupied by an AI.
+ */
+export interface RemoveAiMessage {
+  type: 'removeAi';
+  slot: number;
+}
+
+/**
  * One sim command. `command.player` MUST equal the sender's slot — the
  * server rejects mismatches (error 'invalidCommand'). `tick` is the
  * client's estimated sim tick, for diagnostics only: the server always
@@ -295,6 +335,8 @@ export type ClientMessage =
   | PickSlotMessage
   | SetReadyMessage
   | StartMatchMessage
+  | AddAiMessage
+  | RemoveAiMessage
   | CommandMessage
   | ClientChatMessage
   | LeaveRoomMessage

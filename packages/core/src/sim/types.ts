@@ -698,11 +698,114 @@ export interface SimState {
   /** Per-tick event buffer: cleared and returned by stepTick. Excluded from hashState. */
   events: SimEvent[];
   timers: MatchTimers;
+  /**
+   * Per-slot AI brain memory, keyed by player slot (2-11). Present ONLY for
+   * AI-controlled slots; empty record when the match has no AI players.
+   *
+   * Lives inside SimState (rather than a server-side side table) so it is
+   * covered by hashState and survives serialize/reconnect — the determinism
+   * mandate (docs/AI.md). Because it is brain-derived AND hashed, an AI match
+   * reproduces bit-identically by RE-RUNNING the brain from (seed, AI configs),
+   * not by replaying only the logged command stream (which would leave this
+   * memory frozen at init); see `sim/ai.ts` "REPLAY CONTRACT". The server's
+   * AI runner reads + writes these entries via `sim/ai.ts` only; nothing in
+   * the tick systems (creeps/movement/.../progression) touches them.
+   */
+  aiMemory: Record<number, AiMemory>;
 }
 
 export interface PlayerConfig {
   slot: number;
   control: 'user' | 'computer';
+  /**
+   * When set, this slot is driven by the deterministic AI brain
+   * (`sim/ai.ts`). `control` MUST be 'computer' for an AI slot — an AI is a
+   * server-driven computer player whose emitted Commands flow through the
+   * normal applyCommands path. Omit (or null) for human/idle computer slots.
+   *
+   * NOTE: AI slots are still real player slots (2-11); the AI empire slots
+   * 0/1 are NEVER AI-brain-controlled (they are the creep owners) and
+   * createMatch rejects an aiConfig on slot 0/1.
+   */
+  ai?: AiConfig | null;
+}
+
+// ---------------------------------------------------------------------------
+// AI players (computer-controlled captains) — see docs/AI.md
+// ---------------------------------------------------------------------------
+
+/**
+ * AI skill tier. Tunes think cadence, economy efficiency, retreat threshold,
+ * and micro quality (docs/AI.md difficulty table). 'normal' is the default.
+ */
+export type AiDifficulty = 'easy' | 'normal' | 'hard';
+
+/**
+ * Per-slot AI configuration, fixed at match setup and stored in SimState so
+ * it survives serialize/reconnect and is covered by hashState (determinism).
+ * The brain reads `difficulty` to derive its cadence and behavior knobs; it
+ * holds NO mutable runtime state (that lives in `AiMemory`).
+ */
+export interface AiConfig {
+  difficulty: AiDifficulty;
+}
+
+/**
+ * Per-slot mutable AI brain memory. A plain serializable POJO (no classes,
+ * Maps, or functions) so it lives inside SimState and is therefore covered by
+ * hashState and survives serialize/reconnect/replay bit-identically.
+ *
+ * Determinism contract: the brain draws randomness ONLY from a PRNG seeded
+ * deterministically from (initialSeed, slot, state.tick) — see
+ * `sim/ai.ts` `seedAiRng`. It NEVER touches `state.rngState` (that channel is
+ * reserved for sim mechanics whose draw order is the replay contract), nor
+ * Math.random / Date / Math trig built-ins. `aiRngState` below is the brain's
+ * OWN PRNG stream, advanced only by the brain.
+ *
+ * All tick-valued fields are ABSOLUTE sim ticks (like the rest of SimState).
+ */
+export interface AiMemory {
+  slot: number;
+  difficulty: AiDifficulty;
+  /**
+   * Seed captured at createMatch for this slot's private PRNG stream:
+   * derived from (match seed, slot) so two AIs on the same seed diverge and a
+   * replay reproduces every decision. The brain folds in `state.tick` per
+   * call (see `seedAiRng`) so re-running the same tick is reproducible.
+   */
+  initialSeed: number;
+  /** The brain's private mulberry32 state, advanced ONLY by the brain. */
+  aiRngState: number;
+  /** Next tick the brain is allowed to think on (cadence gate). */
+  nextThinkTick: number;
+  /** Lane this bot committed to ('south-west' etc.), or null until chosen. */
+  laneId: string | null;
+  /**
+   * Current high-level intent, for hysteresis (avoid flip-flopping between
+   * push and retreat every think). Brain-owned enum; see `sim/ai.ts`.
+   */
+  stance: 'push' | 'retreat' | 'regroup';
+  /**
+   * Absolute tick this bot entered the current `retreat` stance (0 while
+   * pushing). The brain force-flips back to `push` after a bounded number of
+   * ticks even if not fully healed, so a bot that cannot reach its repair bay
+   * (e.g. blocked / no heal item) re-engages instead of idling at base
+   * forever. Reset to 0 on every push transition. See `sim/ai.ts`.
+   */
+  retreatSinceTick: number;
+  /** Last waypoint the bot issued a move/attackMove to (stuck detection). */
+  lastOrderX: number | null;
+  lastOrderY: number | null;
+  /** Ship position the last time the brain checked progress (stuck detect). */
+  lastProgressX: number | null;
+  lastProgressY: number | null;
+  /** Tick of the last progress check; paired with lastProgress[XY]. */
+  lastProgressTick: number;
+  /**
+   * Consecutive thinks with no meaningful movement — when this crosses the
+   * brain's threshold the bot re-routes (new waypoint) to break a stuck loop.
+   */
+  stuckCount: number;
 }
 
 /** Canonical system order inside stepTick (documented in sim.ts). */

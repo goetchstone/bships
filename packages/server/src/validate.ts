@@ -173,6 +173,19 @@ export function parseClientMessage(raw: unknown): ClientMessage | null {
     }
     case 'startMatch':
       return { type: 'startMatch' };
+    case 'addAi': {
+      // AI-scoped lobby message (host-only/lobby-only checks live in rooms.ts).
+      // Structural only: a non-negative integer slot and a whitelisted
+      // difficulty. Slot pickability + occupancy are validated by the handler.
+      if (!isIndex(raw['slot'])) return null;
+      const difficulty = raw['difficulty'];
+      if (difficulty !== 'easy' && difficulty !== 'normal' && difficulty !== 'hard') return null;
+      return { type: 'addAi', slot: raw['slot'], difficulty };
+    }
+    case 'removeAi': {
+      if (!isIndex(raw['slot'])) return null;
+      return { type: 'removeAi', slot: raw['slot'] };
+    }
     case 'command': {
       const command = parseCommand(raw['command']);
       if (command === null) return null;

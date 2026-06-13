@@ -46,6 +46,7 @@
  */
 
 import { PI } from '../math.js';
+import { initAiMemory } from './ai.js';
 import { stepCombat, applyCombatCommand } from './combat.js';
 import { stepCreeps } from './creeps.js';
 import { applyEconomyCommand, buildShopStock, recomputeShipStats, stepEconomy } from './economy.js';
@@ -135,6 +136,9 @@ export function createMatch(
     if (config.slot in configBySlot) {
       throw new Error(`createMatch: duplicate player slot ${config.slot}`);
     }
+    if (config.ai != null && config.control !== 'computer') {
+      throw new Error(`createMatch: AI slot ${config.slot} must have control 'computer'`);
+    }
     configBySlot[config.slot] = config;
   }
 
@@ -191,6 +195,7 @@ export function createMatch(
       nextGoldDumpTick: ruleset.income.goldDumpPeriodTicks,
       streetMerchantSpawnTick: null,
     },
+    aiMemory: {},
   };
   for (const wave of map.waves) {
     state.timers.nextWaveTick[wave.name] = wave.preSpawnDelayTicks;
@@ -202,6 +207,16 @@ export function createMatch(
     ruleset.income.empireShareMaxTicks,
   );
   state.timers.nextEmpireShareTick = state.timers.empireSharePeriodTicks;
+
+  // Seed AI brain memory for configured AI slots (ascending slot order).
+  // initAiMemory derives the brain's PRIVATE PRNG stream from (seed, slot)
+  // — it does NOT touch state.rngState, so adding AI players never shifts the
+  // sim-mechanic RNG draw order (the replay contract). See docs/AI.md.
+  for (const slot of sortedNumericKeys(configBySlot)) {
+    const config = configBySlot[slot];
+    if (config?.ai == null) continue;
+    state.aiMemory[slot] = initAiMemory(slot, seed, config.ai);
+  }
 
   // --- preplaced structures (map.structures array order) -------------------
   for (const placement of map.structures) {

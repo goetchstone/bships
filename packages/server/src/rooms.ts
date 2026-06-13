@@ -32,6 +32,8 @@ import {
   PROTOCOL_VERSION,
 } from '@bships/core';
 import type {
+  AiConfig,
+  AiDifficulty,
   ClientChatMessage,
   ClientMessage,
   Command,
@@ -88,10 +90,23 @@ export interface MatchSeat {
   name: string;
 }
 
+/**
+ * Computer-controlled captain seat (mirrors src/match.ts AiSeat). AI seats are
+ * NOT human seats: they get no snapshots, no input, no scoreboard line and are
+ * absent from stats participants — they only spawn an AI-brain-driven
+ * `control: 'computer'` player and are thought for by the server AI runner.
+ */
+export interface AiSeat {
+  slot: number;
+  ai: AiConfig;
+}
+
 export interface MatchRuntimeDeps {
   ruleset: Ruleset;
   seed: number;
   seats: MatchSeat[];
+  /** Computer-controlled captain seats (optional; default none). */
+  aiSeats?: AiSeat[];
   sendToSlot(slot: number, msg: ServerMessage): void;
   onEnded(result: {
     winnerTeam: TeamId | null;
@@ -228,6 +243,13 @@ interface Room {
   countdownTimer: Timer | null;
   abandonTimer: Timer | null;
   joinCounter: number;
+  /**
+   * AI-occupied pickable slots -> difficulty (lobby only). Emitted as synthetic
+   * RoomPlayers in roomState and seated as `control: 'computer'` players when
+   * the match starts. Cleared/ignored outside the lobby phase (slots lock on
+   * start; a returning lobby starts AI-free).
+   */
+  readonly aiSlots: Map<number, AiDifficulty>;
 }
 
 /** Team a sim slot belongs to, or null for non-pickable slots (AI 0/1). */
@@ -289,7 +311,27 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
         ready: member.ready,
         connected: member.conn !== null,
         isHost: member.token === room.hostToken,
+        // Human members carry no AI marker.
+        ai: null,
       }));
+    // AI-filled slots are emitted as synthetic RoomPlayers (ascending slot for a
+    // stable order): always ready + connected, never host, name "AI (<diff>)".
+    // They count as their team's player for the both-teams start gate. publicId
+    // is a stable synthetic handle ("ai" + slot) that cannot collide with a real
+    // session publicId (those are "p" + hex).
+    for (const slot of [...room.aiSlots.keys()].sort((a, b) => a - b)) {
+      const difficulty = room.aiSlots.get(slot);
+      if (difficulty === undefined) continue;
+      players.push({
+        publicId: `ai${slot}`,
+        name: `AI (${difficulty})`,
+        slot,
+        ready: true,
+        connected: true,
+        isHost: false,
+        ai: difficulty,
+      });
+    }
     return { type: 'roomState', roomId: room.id, name: room.name, phase: room.phase, players };
   };
 
@@ -517,6 +559,7 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
       countdownTimer: null,
       abandonTimer: null,
       joinCounter: 0,
+      aiSlots: new Map(),
     };
     rooms.set(room.id, room);
     addMember(room, conn, session);
@@ -628,6 +671,10 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
       sendError(conn, 'invalidSlot', `slot ${slot} is not pickable`);
       return;
     }
+    if (room.aiSlots.has(slot)) {
+      sendError(conn, 'slotTaken', `slot ${slot} is held by an AI`);
+      return;
+    }
     const occupant = memberBySlot(room, slot);
     if (occupant !== null && occupant !== member) {
       sendError(conn, 'slotTaken', `slot ${slot} is taken`);
@@ -649,6 +696,75 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
       return;
     }
     member.ready = ready;
+    broadcastRoomState(room);
+  };
+
+  // ---- AI seats (host-only, lobby-only) -----------------------------------
+
+  /**
+   * Seat an AI captain in an open pickable slot. Host-only, lobby-only. The
+   * slot must be a real pickable slot (LOBBY_SLOTS) and unoccupied by a human
+   * OR another AI. Rejections reuse existing ErrorCode values (no protocol
+   * version bump): notInRoom / matchInProgress / notHost / invalidSlot /
+   * slotTaken.
+   */
+  const handleAddAi = (
+    conn: Conn,
+    session: SessionRecord,
+    slot: number,
+    difficulty: AiDifficulty,
+  ): void => {
+    const room = conn.room;
+    const member = room?.members.get(session.token);
+    if (room === null || member === undefined) {
+      sendError(conn, 'notInRoom', 'not in a room');
+      return;
+    }
+    if (room.phase !== 'lobby') {
+      sendError(conn, 'matchInProgress', 'AI seats are locked outside the lobby phase');
+      return;
+    }
+    if (room.hostToken !== session.token) {
+      sendError(conn, 'notHost', 'only the host can add an AI');
+      return;
+    }
+    if (teamOfSlot(slot) === null) {
+      sendError(conn, 'invalidSlot', `slot ${slot} is not pickable`);
+      return;
+    }
+    if (room.aiSlots.has(slot) || memberBySlot(room, slot) !== null) {
+      sendError(conn, 'slotTaken', `slot ${slot} is taken`);
+      return;
+    }
+    room.aiSlots.set(slot, difficulty);
+    broadcastRoomState(room);
+  };
+
+  /**
+   * Remove the AI seated in `slot`, reopening it. Host-only, lobby-only.
+   * Rejects with `invalidSlot` when the slot is not occupied by an AI (it is
+   * either empty or held by a human, so there is no AI to remove).
+   */
+  const handleRemoveAi = (conn: Conn, session: SessionRecord, slot: number): void => {
+    const room = conn.room;
+    const member = room?.members.get(session.token);
+    if (room === null || member === undefined) {
+      sendError(conn, 'notInRoom', 'not in a room');
+      return;
+    }
+    if (room.phase !== 'lobby') {
+      sendError(conn, 'matchInProgress', 'AI seats are locked outside the lobby phase');
+      return;
+    }
+    if (room.hostToken !== session.token) {
+      sendError(conn, 'notHost', 'only the host can remove an AI');
+      return;
+    }
+    if (!room.aiSlots.has(slot)) {
+      sendError(conn, 'invalidSlot', `slot ${slot} is not occupied by an AI`);
+      return;
+    }
+    room.aiSlots.delete(slot);
     broadcastRoomState(room);
   };
 
@@ -680,10 +796,17 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
       ]),
     );
 
+    // AI seats are NOT human seats: excluded from `seated`/`slotIdentity`/stats
+    // participants above; they only seed `control: 'computer'` AI players.
+    const aiSeats: AiSeat[] = [...room.aiSlots.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([slot, difficulty]) => ({ slot, ai: { difficulty } }));
+
     const runtime = createRuntime({
       ruleset,
       seed,
       seats,
+      ...(aiSeats.length > 0 ? { aiSeats } : {}),
       ...(options.tickIntervalMs !== undefined ? { tickIntervalMs: options.tickIntervalMs } : {}),
       sendToSlot: (slot, msg) => {
         const member = memberBySlot(room, slot);
@@ -772,14 +895,23 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
       sendError(conn, 'playersNotReady', 'every seated player must be ready');
       return;
     }
-    // Ranked matches require a real opponent: at least one human seat on EACH
-    // team. Without this a single account (or two cooperating on one team) could
-    // seat opponent-less, let the AI sink the unmanned HQ, and farm Elo/W-L —
-    // the stats ingest treats that as a win against nobody. A one-team lineup is
-    // a PvE/practice setup that must not be startable as a ranked match.
-    const seatedTeams = new Set(
-      seated.map((m) => teamOfSlot(m.slot as number)).filter((t): t is TeamId => t !== null),
-    );
+    // Both teams need at least one player (human OR AI). Without this a lineup
+    // could start opponent-less, let the AI/idle enemy HQ be sunk against
+    // nobody. AI captains satisfy a team's requirement, so a single human can
+    // play solo vs AI (host fills the enemy team — and optionally their own —
+    // with AI seats). Note: filling the OPPOSING team with AI is what makes the
+    // ranked stats ingest a real opponent matchup; the human-only anti-farm
+    // case is preserved (two humans both on south still fails unless north has
+    // a human or AI).
+    const seatedTeams = new Set<TeamId>();
+    for (const m of seated) {
+      const team = teamOfSlot(m.slot as number);
+      if (team !== null) seatedTeams.add(team);
+    }
+    for (const slot of room.aiSlots.keys()) {
+      const team = teamOfSlot(slot);
+      if (team !== null) seatedTeams.add(team);
+    }
     if (seatedTeams.size < 2) {
       sendError(conn, 'playersNotReady', 'both teams need at least one player');
       return;
@@ -811,6 +943,9 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
     if (!room.members.has(room.hostToken)) promoteOldestHost(room);
     room.phase = 'lobby';
     for (const member of room.members.values()) member.ready = false;
+    // A returning lobby starts AI-free: AI seats were a one-match setup. The
+    // host re-adds them for the next match if desired.
+    room.aiSlots.clear();
     broadcastRoomState(room);
   };
 
@@ -911,6 +1046,12 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
         return;
       case 'startMatch':
         handleStartMatch(conn, session);
+        return;
+      case 'addAi':
+        handleAddAi(conn, session, msg.slot, msg.difficulty);
+        return;
+      case 'removeAi':
+        handleRemoveAi(conn, session, msg.slot);
         return;
       case 'command':
         if (!takeToken(conn.commandBucket, now())) {

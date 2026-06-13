@@ -23,8 +23,10 @@
 
 import { KEYFRAME_INTERVAL_TICKS, TICK_RATE, applyCommands, createMatch, stepTick } from '@bships/core';
 import type {
+  AiConfig,
   Command,
   MatchEndedMessage,
+  PlayerConfig,
   PublicPlayerStat,
   Ruleset,
   ServerMessage,
@@ -35,12 +37,28 @@ import type {
   SnapshotYou,
   TeamId,
 } from '@bships/core';
+import { runAiTick } from './ai-runner.js';
 import { buildTeamPayload, diffTeamPayloads, filterEventsForSeat } from './snapshot.js';
 import type { TeamPayload } from './snapshot.js';
 
 export interface MatchSeat {
   slot: number;
   name: string;
+}
+
+/**
+ * A computer-controlled captain seat. AI seats are NOT human seats: they are
+ * never added to `seatSlots`, receive no snapshots, take no `enqueueCommand`,
+ * and are excluded from the K/D scoreboard. They exist only to (a) be created
+ * as `control: 'computer'` PlayerConfigs with an AI config (so `createMatch`
+ * seeds `state.aiMemory[slot]` via `initAiMemory`) and (b) have the server AI
+ * runner think for them each cadence. `slot` must be a real player slot
+ * (2-11); slots 0/1 are the AI empire (creep) owners and `createMatch` rejects
+ * an AI config on them.
+ */
+export interface AiSeat {
+  slot: number;
+  ai: AiConfig;
 }
 
 export interface MatchRuntimeDeps {
@@ -50,6 +68,14 @@ export interface MatchRuntimeDeps {
   seed: number;
   /** Human seats only (slots 2-6 / 7-11). */
   seats: MatchSeat[];
+  /**
+   * Computer-controlled captain seats (optional). Each is created as a
+   * `control: 'computer'` player with an AI config so the deterministic core
+   * brain drives it; they are not human seats (no snapshots, no input, no
+   * scoreboard line). Slots must be disjoint from `seats` and from the AI
+   * empire slots 0/1 (createMatch enforces the latter).
+   */
+  aiSeats?: AiSeat[];
   sendToSlot(slot: number, msg: ServerMessage): void;
   onEnded(result: {
     winnerTeam: TeamId | null;
@@ -102,11 +128,16 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
   const burst = msPerTick <= 0;
 
   const seats = [...deps.seats].sort((a, b) => a.slot - b.slot);
-  const state = createMatch(
-    ruleset,
-    seed,
-    seats.map((s) => ({ slot: s.slot, control: 'user' as const })),
-  );
+  const aiSeats = [...(deps.aiSeats ?? [])].sort((a, b) => a.slot - b.slot);
+  // Human seats are 'user' players; AI seats are 'computer' players carrying an
+  // AI config so createMatch seeds state.aiMemory[slot] via initAiMemory. Both
+  // sets are sorted ascending and disjoint by construction (rooms picks them
+  // from distinct open slots). createMatch rejects an AI config on slots 0/1.
+  const playerConfigs: PlayerConfig[] = [
+    ...seats.map((s) => ({ slot: s.slot, control: 'user' as const })),
+    ...aiSeats.map((s) => ({ slot: s.slot, control: 'computer' as const, ai: s.ai })),
+  ];
+  const state = createMatch(ruleset, seed, playerConfigs);
 
   const seatSlots = new Set(seats.map((s) => s.slot));
   /** Teams that have at least one seat, in fixed south-then-north order. */
@@ -300,10 +331,23 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
   }
 
   function runOneTick(): void {
+    // AI thinks BEFORE human commands are drained: run the deterministic core
+    // brain for every AI slot whose nextThinkTick is due this tick (the runner
+    // mutates state.aiMemory in place — part of SimState, so the replay hash
+    // stays honest). Its output is exactly what a human client would send and
+    // flows through the SAME applyCommands path below. AI slots are disjoint
+    // from human seats, so merging them into the same batch and stable-sorting
+    // by slot keeps the per-tick order ascending-slot / FIFO-within-slot.
+    const aiCommands = runAiTick(state, ruleset);
+
     // Drain this tick's queue: ascending slot, FIFO within slot (stable
     // sort), matching applyCommands' "sorted by player" contract. The
     // sorted batch is what we log — the log replays verbatim.
-    const batch = pending;
+    const batch: { slot: number; command: Command }[] = aiCommands.map((command) => ({
+      slot: command.player,
+      command,
+    }));
+    for (const entry of pending) batch.push(entry);
     pending = [];
     batch.sort((a, b) => a.slot - b.slot);
     const commands = batch.map((b) => b.command);

@@ -89,10 +89,12 @@ Scaffolded and complete (do not rewrite):
   ```ts
   // src/match.ts
   export interface MatchSeat { slot: number; name: string; }
+  export interface AiSeat { slot: number; ai: AiConfig; } // computer captain
   export interface MatchRuntimeDeps {
     ruleset: Ruleset;                // getClassicRuleset(), shared
     seed: number;                    // rooms draws it at start
     seats: MatchSeat[];              // human slots only (2-6 / 7-11)
+    aiSeats?: AiSeat[];              // computer-captain slots (control:'computer')
     sendToSlot(slot: number, msg: ServerMessage): void;
     onEnded(result: { winnerTeam: TeamId | null; stats: PublicPlayerStat[] }): void;
     tickIntervalMs?: number;         // TEST MODE ONLY: ms/tick, 0 = burst
@@ -117,19 +119,27 @@ Scaffolded and complete (do not rewrite):
   only decides WHEN ticks run, never WHAT they compute.
 
 - **Behavior**:
-  - Setup: `createMatch(ruleset, seed, seats.map(s => ({ slot: s.slot,
-    control: 'user' })))`. AI empire slots 0/1 and unseated human slots need
-    nothing — `createMatch` already creates them as computer players with no
-    ships, and they receive no commands ever.
+  - Setup: `createMatch(ruleset, seed, [...human seats as control:'user',
+    ...aiSeats as control:'computer' + ai:{difficulty}])`. AI empire slots 0/1
+    and unseated human slots need nothing — `createMatch` already creates them
+    as computer players with no ships, and they receive no commands ever.
+    `createMatch` seeds `state.aiMemory[slot]` (via `initAiMemory`) for each AI
+    seat. AI seats are NOT in `seatSlots`: no snapshots, no `enqueueCommand`, no
+    scoreboard line.
   - Tick loop, drift-corrected: a `setTimeout` chain against an anchor
     `startMs`; on fire, step while `state.tick <
     floor((now - startMs) / (1000 / TICK_RATE))`, capped at 5 catch-up
-    steps per fire (log when capped). Each tick: drain the command queue
-    for this tick (sorted slot-asc, FIFO within slot), validate
-    `command.player === slot` (mismatch: drop +
-    `error{invalidCommand}` to sender), `applyCommands`, `stepTick`,
-    tally kills/deaths from death events (ship victims with non-null
-    players), then build + send per-team payloads.
+    steps per fire (log when capped). Each tick: FIRST run the AI runner
+    (`src/ai-runner.ts` `runAiTick` — invokes core `computeAiCommands` for every
+    AI slot whose `nextThinkTick` is due, mutating `state.aiMemory` in place),
+    then drain the human command queue and merge both into ONE batch (sorted
+    slot-asc, FIFO within slot — AI slots are disjoint from human slots so the
+    stable sort keeps the contract); validate `command.player === slot`
+    (mismatch: drop + `error{invalidCommand}` to sender — human path only),
+    `applyCommands`, `stepTick`, tally kills/deaths from death events (ship
+    victims with non-null players), then build + send per-team payloads. The
+    merged batch is what `commandsByTick` logs, so AI-driven matches replay
+    bit-identically.
   - **Vision filter** (`visibility.ts`) — THE security boundary. The sim's
     `entity.vision` flags cover ONLY invisibility-vs-detection
     (`recomputeVisibility` doc: "Fog-of-war is not modeled"). Sight-radius

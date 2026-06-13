@@ -15,15 +15,17 @@
  */
 
 import { LOBBY_SLOTS, MAX_NAME_LENGTH, MAX_ROOM_NAME_LENGTH } from '@bships/core';
-import type { RoomPlayer, RoomStateMessage, TeamId } from '@bships/core';
+import type { AiDifficulty, RoomPlayer, RoomStateMessage, TeamId } from '@bships/core';
 import { openStatsScreen } from '../stats/screen.js';
 
 import {
+  addAi,
   createRoom,
   joinRoom,
   leaveRoom,
   listRooms,
   pickSlot,
+  removeAi,
   sendChat,
   setReady,
   startMatch,
@@ -40,11 +42,96 @@ const ROOM_REFRESH_MS = 5000;
 const TEAM_LABELS: Record<TeamId, string> = { south: 'South Empire', north: 'North Empire' };
 const TEAM_VARS: Record<TeamId, string> = { south: '--team-south', north: '--team-north' };
 
+/** Difficulties offered in the lobby picker; `FILL_DIFFICULTY` is the default. */
+export const AI_DIFFICULTIES: readonly AiDifficulty[] = ['easy', 'normal', 'hard'];
+export const FILL_DIFFICULTY: AiDifficulty = 'normal';
+
+// --- pure lobby/AI logic (DOM-free; unit-tested in lobby-ai.test.ts) ---------
+
+/** What occupies a lobby slot: a human, an AI bot, or nobody. */
+export type SlotKind = 'human' | 'ai' | 'open';
+
+/** Classify a slot from a room's player list (AI members carry `ai !== null`). */
+export function slotKind(room: RoomStateMessage, slot: number): SlotKind {
+  const occupant = room.players.find((p) => p.slot === slot);
+  if (occupant === undefined) return 'open';
+  return occupant.ai !== null ? 'ai' : 'human';
+}
+
+/** True when `publicId` is the room host (drives host-only AI controls). */
+export function isRoomHost(room: RoomStateMessage, publicId: string | null): boolean {
+  if (publicId === null) return false;
+  return room.players.some((p) => p.publicId === publicId && p.isHost);
+}
+
+/**
+ * Open, pickable slots across both teams in canonical order (south then
+ * north, ascending). Used by "Fill with AI" and to decide where Add-AI shows.
+ */
+export function openPickableSlots(room: RoomStateMessage): number[] {
+  const open: number[] = [];
+  for (const team of ['south', 'north'] as TeamId[]) {
+    for (const slot of LOBBY_SLOTS[team]) {
+      if (slotKind(room, slot) === 'open') open.push(slot);
+    }
+  }
+  return open;
+}
+
+/** The team a lobby slot belongs to (null if it is not a pickable slot). */
+export function teamOfSlot(slot: number): TeamId | null {
+  for (const team of ['south', 'north'] as TeamId[]) {
+    if (LOBBY_SLOTS[team].includes(slot)) return team;
+  }
+  return null;
+}
+
+/**
+ * Plan a quick "Play vs AI": the human keeps their current seat (or the first
+ * open slot if unseated) and every open slot on the OPPOSITE team is filled
+ * with `difficulty` AI. Returns the human's seat plus the AI slots to add.
+ * Pure: the actual sends/ready/start are driven by the caller; the server
+ * re-validates each step.
+ */
+export interface PlayVsAiPlan {
+  /** Slot the human should occupy (null when there is nowhere to sit). */
+  humanSlot: number | null;
+  /** Team to fill with AI (the side opposite the human). */
+  enemyTeam: TeamId | null;
+  /** Open enemy-team slots to seat AI in, ascending. */
+  aiSlots: number[];
+  /** Difficulty to seat the AI at (echoed for the caller's addAi calls). */
+  difficulty: AiDifficulty;
+}
+
+export function planPlayVsAi(
+  room: RoomStateMessage,
+  mySlot: number | null,
+  difficulty: AiDifficulty = FILL_DIFFICULTY,
+): PlayVsAiPlan {
+  const open = openPickableSlots(room);
+  const humanSlot = mySlot ?? open[0] ?? null;
+  if (humanSlot === null) return { humanSlot: null, enemyTeam: null, aiSlots: [], difficulty };
+  const myTeam = teamOfSlot(humanSlot);
+  const enemyTeam: TeamId | null = myTeam === 'south' ? 'north' : myTeam === 'north' ? 'south' : null;
+  if (enemyTeam === null) return { humanSlot, enemyTeam: null, aiSlots: [], difficulty };
+  const aiSlots = LOBBY_SLOTS[enemyTeam].filter((s) => slotKind(room, s) === 'open');
+  // The human's chosen seat must not be filled by AI even if it was open.
+  return { humanSlot, enemyTeam, aiSlots: aiSlots.filter((s) => s !== humanSlot), difficulty };
+}
+
+/** Human-readable bot name for an AI-occupied slot (mirrors the server's). */
+export function aiDisplayName(difficulty: AiDifficulty): string {
+  return `AI (${difficulty})`;
+}
+
 // --- local (non-store) UI state ---------------------------------------------
 let rootEl: HTMLElement | null = null;
 let editingName = false;
 let chatScope: 'all' | 'team' = 'all';
 const drafts = new Map<string, string>();
+/** Per-open-slot Add-AI difficulty selection (survives rebuilds). */
+const slotDifficulty = new Map<number, AiDifficulty>();
 let lastSignature = '';
 
 // --- tiny DOM helpers --------------------------------------------------------
@@ -116,7 +203,10 @@ const LOBBY_CSS = `
   padding: 3px 6px; min-height: 30px; border-radius: 3px;
 }
 .bs-slot-me { background: var(--bg-panel-raised); }
+.bs-slot-ai { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.bs-ai-name { color: var(--accent); font-style: italic; }
 .bs-ready { color: #7fdc8a; font-size: 12px; }
+.bs-slot select.bs-input { padding: 1px 4px; }
 .bs-chat-log {
   height: 140px; overflow-y: auto; background: var(--bg-deep);
   border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px;
@@ -240,12 +330,41 @@ function browserPanel(): HTMLElement {
   return panel;
 }
 
-function slotRow(room: RoomStateMessage, slot: number): HTMLElement {
+/**
+ * Per-open-slot difficulty picker. A native <select> bound to `slotDifficulty`
+ * so the host can choose easy/normal/hard before pressing Add AI. Selections
+ * survive rebuilds (kept outside the DOM) like the chat/name drafts.
+ */
+function difficultySelect(slot: number): HTMLSelectElement {
+  const sel = el('select', 'bs-input bs-btn-small');
+  sel.id = `bships-ai-diff-${slot}`;
+  for (const diff of AI_DIFFICULTIES) {
+    const opt = el('option', '', diff);
+    opt.value = diff;
+    sel.append(opt);
+  }
+  sel.value = slotDifficulty.get(slot) ?? FILL_DIFFICULTY;
+  sel.addEventListener('change', () => slotDifficulty.set(slot, sel.value as AiDifficulty));
+  return sel;
+}
+
+function slotRow(room: RoomStateMessage, slot: number, hostView: boolean): HTMLElement {
   const occupant = room.players.find((p) => p.slot === slot);
   const row = el('div', 'bs-slot');
   const isMe = occupant !== undefined && occupant.publicId === store.identity.publicId;
   if (isMe) row.classList.add('bs-slot-me');
-  if (occupant !== undefined) {
+  if (occupant !== undefined && occupant.ai !== null) {
+    // AI-occupied slot: distinct label + a host-only Remove control.
+    row.classList.add('bs-slot-ai');
+    const name = el('span', 'bs-ai-name');
+    name.textContent = aiDisplayName(occupant.ai);
+    row.append(name, el('div', 'bs-grow'));
+    if (hostView && room.phase === 'lobby') {
+      row.append(button('Remove', () => removeAi(slot), 'bs-btn bs-btn-small'));
+    } else {
+      row.append(el('span', 'bs-ready', 'READY'));
+    }
+  } else if (occupant !== undefined) {
     const name = el('span', '');
     name.textContent = `${occupant.isHost ? '★ ' : ''}${occupant.name}`;
     if (!occupant.connected) {
@@ -254,9 +373,20 @@ function slotRow(room: RoomStateMessage, slot: number): HTMLElement {
     }
     row.append(name, el('span', 'bs-ready', occupant.ready ? 'READY' : ''));
   } else {
-    row.append(el('span', 'bs-sub', 'Open'));
+    row.append(el('span', 'bs-sub', 'Open'), el('div', 'bs-grow'));
     if (room.phase === 'lobby') {
       row.append(button('Take', () => pickSlot(slot), 'bs-btn bs-btn-small'));
+      if (hostView) {
+        const sel = difficultySelect(slot);
+        row.append(
+          sel,
+          button(
+            'Add AI',
+            () => addAi(slot, slotDifficulty.get(slot) ?? FILL_DIFFICULTY),
+            'bs-btn bs-btn-small',
+          ),
+        );
+      }
     }
   }
   return row;
@@ -303,6 +433,7 @@ function chatBox(): HTMLElement {
 
 function roomPanel(room: RoomStateMessage): HTMLElement {
   const panel = el('div', 'panel bs-lobby');
+  const hostView = isRoomHost(room, store.identity.publicId);
   const header = el('div', 'bs-row');
   const title = el('div', 'bs-title bs-grow');
   title.textContent = room.name;
@@ -319,7 +450,7 @@ function roomPanel(room: RoomStateMessage): HTMLElement {
     const colTitle = el('div', 'bs-team-title', TEAM_LABELS[team]);
     colTitle.style.color = `var(${TEAM_VARS[team]})`;
     col.append(colTitle);
-    for (const slot of LOBBY_SLOTS[team]) col.append(slotRow(room, slot));
+    for (const slot of LOBBY_SLOTS[team]) col.append(slotRow(room, slot, hostView));
     teams.append(col);
   }
   panel.append(teams);
@@ -340,7 +471,7 @@ function roomPanel(room: RoomStateMessage): HTMLElement {
   }, me?.ready === true ? 'bs-btn' : 'bs-btn bs-btn-primary');
   readyBtn.disabled = me === undefined || me.slot === null || room.phase !== 'lobby';
   actions.append(readyBtn);
-  if (me?.isHost === true) {
+  if (hostView) {
     const seated = room.players.filter((p) => p.slot !== null);
     const startBtn = button('Start match', () => startMatch(), 'bs-btn bs-btn-primary');
     startBtn.disabled =
@@ -348,8 +479,43 @@ function roomPanel(room: RoomStateMessage): HTMLElement {
     actions.append(startBtn);
   }
   actions.append(el('div', 'bs-grow'));
+  if (hostView && room.phase === 'lobby') {
+    const open = openPickableSlots(room);
+    const fillBtn = button('Fill with AI', () => fillWithAi(room), 'bs-btn bs-btn-small');
+    fillBtn.disabled = open.length === 0;
+    const vsBtn = button('Play vs AI', () => playVsAi(room), 'bs-btn bs-btn-small');
+    // Need a seat for the human and at least one enemy slot to fill.
+    const plan = planPlayVsAi(room, me?.slot ?? null);
+    vsBtn.disabled = plan.humanSlot === null || plan.aiSlots.length === 0;
+    actions.append(fillBtn, vsBtn);
+  }
   panel.append(actions, chatBox());
   return panel;
+}
+
+/**
+ * Host action: seat a `FILL_DIFFICULTY` AI in every currently-open pickable
+ * slot. Thin sender — fires one `addAi` per open slot; the server validates
+ * and rebroadcasts roomState. (Bots already in a slot are left untouched.)
+ */
+function fillWithAi(room: RoomStateMessage): void {
+  for (const slot of openPickableSlots(room)) addAi(slot, FILL_DIFFICULTY);
+}
+
+/**
+ * Host action: quick solo-vs-AI. Seats the human (if not already seated),
+ * fills the opposite team's open slots with `FILL_DIFFICULTY` AI, readies up,
+ * and starts. Each step is a thin sender re-validated by the server; this is
+ * fire-and-forget — the server's roomState/countdown drive the UI from here.
+ */
+function playVsAi(room: RoomStateMessage): void {
+  const me = room.players.find((p) => p.publicId === store.identity.publicId);
+  const plan = planPlayVsAi(room, me?.slot ?? null);
+  if (plan.humanSlot === null || plan.aiSlots.length === 0) return;
+  if (me?.slot !== plan.humanSlot) pickSlot(plan.humanSlot);
+  for (const slot of plan.aiSlots) addAi(slot, plan.difficulty);
+  setReady(true);
+  startMatch();
 }
 
 function countdownPanel(): HTMLElement {
@@ -380,6 +546,9 @@ function signature(): string {
     store.identity.name,
     store.identity.publicId,
     store.lobby.rooms,
+    // `store.lobby.room` is the full RoomStateMessage, so every player's `ai`
+    // field rides along — adding/removing an AI (or changing its difficulty)
+    // mutates this and forces a rebuild of the slot rows.
     store.lobby.room,
     store.match.phase,
     store.match.countdown,

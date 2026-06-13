@@ -37,6 +37,25 @@ chosen name, claimable later with email/password.
   fog of war, so zoom never reveals unexplored/unscouted areas).
 - Camera pan: edge scroll + middle-drag + minimap click, WC3 muscle memory.
 
+## Art direction (confirmed 2026-06-13)
+
+Owner deferred to judgment: "more 3D-ish but lets just get the mechanics and
+decent graphics". Decision:
+- **Procedural, no external assets** — everything drawn in PixiJS code.
+  License-clean for the public repo, scales to all 18 ship classes, full
+  control, stays readable for competitive play. (3D models are out of scope:
+  this is a 2D renderer. We fake depth instead.)
+- **Pseudo-3D depth** to satisfy "more 3D-ish": the existing 2.5D tilt plus
+  drop shadows on the water under every unit/structure, beveled/shaded hulls
+  lit from a consistent angle, elevated structures with height, layered/
+  depth-shaded animated water, and correct y-sorted draw order.
+- **Modern-clean tone**: crisp, high-contrast, class/team/HP instantly
+  legible — polished-indie-RTS look over nostalgia.
+- Fix known placeholder problems: ship sprites read as crude "crayons";
+  structure markers (flags) render wildly oversized; flat water; HUD chat box
+  floats mid-screen and the minimap overlaps the play area. All addressed in
+  the graphics-overhaul pass.
+
 ## Controls
 
 - All frequently-used keys must sit in the left-hand home cluster

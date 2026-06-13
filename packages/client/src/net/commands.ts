@@ -8,7 +8,7 @@
  */
 
 import { MAX_CHAT_LENGTH, MAX_ROOM_NAME_LENGTH } from '@bships/core';
-import type { Command } from '@bships/core';
+import type { AiDifficulty, Command } from '@bships/core';
 
 import { serverTickAt } from './interpolation.js';
 import { send } from './socket.js';
@@ -66,6 +66,20 @@ export function setReady(ready: boolean): void {
 
 export function startMatch(): void {
   send({ type: 'startMatch' });
+}
+
+/**
+ * Host-only: seat a computer-controlled AI captain in an OPEN pickable slot.
+ * Thin sender — the server re-validates host/lobby/slot before seating (an
+ * occupied or out-of-range slot is answered with an error message).
+ */
+export function addAi(slot: number, difficulty: AiDifficulty): void {
+  send({ type: 'addAi', slot, difficulty });
+}
+
+/** Host-only: remove the AI seated in `slot`, reopening it. */
+export function removeAi(slot: number): void {
+  send({ type: 'removeAi', slot });
 }
 
 export function sendChat(scope: 'all' | 'team', text: string): void {

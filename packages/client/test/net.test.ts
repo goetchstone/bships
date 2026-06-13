@@ -26,7 +26,9 @@ import type {
 } from '@bships/core';
 
 import {
+  addAi,
   leaveRoom,
+  removeAi,
   returnToLobby,
   sendChat,
   sendCommand,
@@ -276,7 +278,15 @@ describe('store.applyServerMessage', () => {
         name: 'Test Room',
         phase: 'lobby',
         players: [
-          { publicId: 'me', name: 'Bob', slot: 7, ready: false, connected: true, isHost: true },
+          {
+            publicId: 'me',
+            name: 'Bob',
+            slot: 7,
+            ready: false,
+            connected: true,
+            isHost: true,
+            ai: null,
+          },
         ],
       },
       0,
@@ -284,6 +294,47 @@ describe('store.applyServerMessage', () => {
     expect(store.lobby.room?.roomId).toBe('r1');
     expect(store.match.mySlot).toBe(7);
     expect(store.match.myTeam).toBe('north');
+  });
+
+  it('roomState carries AI members verbatim (ai = difficulty)', () => {
+    applyServerMessage(
+      { type: 'welcome', version: 1, publicId: 'me', name: 'Bob', resumed: null },
+      0,
+    );
+    applyServerMessage(
+      {
+        type: 'roomState',
+        roomId: 'r1',
+        name: 'Test Room',
+        phase: 'lobby',
+        players: [
+          {
+            publicId: 'me',
+            name: 'Bob',
+            slot: 2,
+            ready: false,
+            connected: true,
+            isHost: true,
+            ai: null,
+          },
+          {
+            publicId: 'ai-7',
+            name: 'AI (hard)',
+            slot: 7,
+            ready: true,
+            connected: true,
+            isHost: false,
+            ai: 'hard',
+          },
+        ],
+      },
+      0,
+    );
+    const bot = store.lobby.room?.players.find((p) => p.slot === 7);
+    expect(bot?.ai).toBe('hard');
+    expect(bot?.ready).toBe(true);
+    // The AI member must not be mistaken for me: my slot stays the human seat.
+    expect(store.match.mySlot).toBe(2);
   });
 
   it('matchStarting -> starting; first snapshot -> playing with you/players', () => {
@@ -399,6 +450,16 @@ describe('commands', () => {
     expect(sendMock).not.toHaveBeenCalled();
     sendChat('team', '  ahoy  ');
     expect(sendMock).toHaveBeenCalledWith({ type: 'chat', scope: 'team', text: 'ahoy' });
+  });
+
+  it('addAi sends {type:addAi, slot, difficulty}', () => {
+    addAi(7, 'hard');
+    expect(sendMock).toHaveBeenCalledWith({ type: 'addAi', slot: 7, difficulty: 'hard' });
+  });
+
+  it('removeAi sends {type:removeAi, slot}', () => {
+    removeAi(7);
+    expect(sendMock).toHaveBeenCalledWith({ type: 'removeAi', slot: 7 });
   });
 
   it('leaveRoom clears room/match/chat state', () => {

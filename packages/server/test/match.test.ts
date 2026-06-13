@@ -7,16 +7,57 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { applyCommands, createMatch, hashState, stepTick } from '@bships/core';
 import type {
+  AiMemory,
+  Command,
   PublicPlayerStat,
+  Ruleset,
   ServerMessage,
+  SimState,
   SnapshotDeltaMessage,
   SnapshotEntity,
   SnapshotMessage,
   StructureEntity,
 } from '@bships/core';
+
+// The core AI brain (`computeAiCommands`) is owned by the ai-brain module and
+// may be unimplemented while this suite runs, so we replace it with a
+// DETERMINISTIC fixture brain: it threads the real per-slot PRNG state via the
+// real `seedAiRng`/`commitAiRng`, advances its own `nextThinkTick`, and emits
+// real Commands. This stands alone yet still exercises the full match.ts ↔
+// ai-runner wiring and the AI-memory-in-SimState replay-determinism contract
+// (the fixture is a pure function of (state, slot, memory), so two runs from
+// the same seed + AI configs reproduce identical aiMemory mutations AND
+// commands). Every other core export stays real.
+vi.mock('@bships/core', async (importActual) => {
+  const actual = await importActual<typeof import('@bships/core')>();
+  const computeAiCommands = (
+    state: SimState,
+    _ruleset: Ruleset,
+    slot: number,
+    memory: AiMemory,
+  ): Command[] => {
+    // Cadence: advance nextThinkTick exactly as the real brain must.
+    memory.nextThinkTick = state.tick + actual.thinkIntervalTicks(memory.difficulty);
+    const player = state.players[slot];
+    if (player === undefined || player.shipId === null) return [];
+    // Draw a deterministic waypoint offset from the brain-private PRNG so the
+    // memory's aiRngState advances on a real, replayable channel.
+    const rng = actual.seedAiRng(memory);
+    const dx = rng.int(-200, 200);
+    const dy = rng.int(-200, 200);
+    actual.commitAiRng(memory, rng);
+    const start = state.players[slot];
+    const team = start?.team;
+    // Push toward the enemy HQ direction (north HQ +y, south HQ -y) with jitter.
+    const targetY = team === 'south' ? 6000 + dy : -6000 + dy;
+    return [{ type: 'attackMove', player: slot, x: dx, y: targetY }];
+  };
+  return { ...actual, computeAiCommands };
+});
+
 import { getClassicRuleset } from '../src/data.js';
 import { createMatchRuntime } from '../src/match.js';
-import type { MatchRuntime } from '../src/match.js';
+import type { AiSeat, MatchRuntime } from '../src/match.js';
 import { buildTeamPayload } from '../src/snapshot.js';
 
 const ruleset = getClassicRuleset();
@@ -31,13 +72,14 @@ interface Harness {
 
 const liveRuntimes: MatchRuntime[] = [];
 
-function makeHarness(slots: number[] = [2, 7], seed = 0xc0ffee): Harness {
+function makeHarness(slots: number[] = [2, 7], seed = 0xc0ffee, aiSeats: AiSeat[] = []): Harness {
   const sent = new Map<number, ServerMessage[]>();
   const onEnded = vi.fn();
   const runtime = createMatchRuntime({
     ruleset,
     seed,
     seats: slots.map((slot) => ({ slot, name: `P${slot}` })),
+    ...(aiSeats.length > 0 ? { aiSeats } : {}),
     sendToSlot: (slot, msg) => {
       const list = sent.get(slot) ?? [];
       // Clone through JSON like the real wire would — freezes references.
@@ -401,5 +443,120 @@ describe('determinism', () => {
       stepTick(replayed, ruleset);
     }
     expect(hashState(replayed)).toBe(hashState(live));
+  });
+});
+
+describe('AI players', () => {
+  it('seeds aiMemory only for AI seats and runs the brain on its cadence', () => {
+    // One human south (slot 2), one AI north (slot 7, normal => every 10 ticks).
+    const h = makeHarness([2], 0xa1, [{ slot: 7, ai: { difficulty: 'normal' } }]);
+    h.runtime.start();
+
+    const state = h.runtime.getState();
+    // createMatch seeded aiMemory for the AI seat only.
+    expect(Object.keys(state.aiMemory)).toEqual(['7']);
+    expect(state.players[7]?.control).toBe('computer');
+    expect(state.players[2]?.control).toBe('user');
+
+    vi.advanceTimersByTime(1000); // 20 ticks: the normal bot thinks at 0 and 10
+
+    // The AI issued commands that were logged in the replay stream.
+    const aiCommands: Command[] = [];
+    for (const cmds of h.runtime.replay.commandsByTick.values()) {
+      for (const c of cmds) if (c.player === 7) aiCommands.push(c);
+    }
+    expect(aiCommands.length).toBeGreaterThanOrEqual(2);
+    expect(aiCommands.every((c) => c.type === 'attackMove')).toBe(true);
+    // nextThinkTick advanced by the brain (10-tick cadence): due again at 20.
+    expect(h.runtime.getState().aiMemory[7]?.nextThinkTick).toBe(20);
+  });
+
+  it('keeps the AI seat out of seatSlots: no snapshots, no scoreboard line', () => {
+    const h = makeHarness([2], 0xa2, [{ slot: 7, ai: { difficulty: 'normal' } }]);
+    h.runtime.start();
+    vi.advanceTimersByTime(200);
+
+    // The AI slot receives nothing.
+    expect(h.sent.get(7)).toBeUndefined();
+    // The scoreboard only lists the human seat (AI is not a participant).
+    const snap = h.messages(2)[0] as SnapshotMessage;
+    expect(snap.players.map((p) => p.slot)).toEqual([2]);
+  });
+
+  it('merges AI commands into the per-tick batch ascending-slot / FIFO', () => {
+    // AI on both teams (slots 2 and 7) — both think at tick 0.
+    const h = makeHarness([], 0xa3, [
+      { slot: 7, ai: { difficulty: 'normal' } },
+      { slot: 2, ai: { difficulty: 'normal' } },
+    ]);
+    h.runtime.start();
+    vi.advanceTimersByTime(50); // tick 1 — commands queued at tick 0
+
+    const tick0 = h.runtime.replay.commandsByTick.get(0);
+    expect(tick0?.map((c) => c.player)).toEqual([2, 7]); // ascending slot
+  });
+
+  it('ends on enemy HQ death with the AI team as winner', () => {
+    // Human south vs AI north; sink the south HQ so north (AI) wins.
+    const h = makeHarness([2], 0xa4, [{ slot: 7, ai: { difficulty: 'normal' } }]);
+    h.runtime.start();
+    vi.advanceTimersByTime(200);
+
+    const state = h.runtime.getState();
+    const southHq = Object.values(state.entities).find(
+      (e): e is StructureEntity => e.kind === 'structure' && e.role === 'hq' && e.team === 'south',
+    );
+    if (!southHq) throw new Error('south HQ not found');
+    southHq.hp = 0;
+    southHq.dead = true;
+
+    vi.advanceTimersByTime(50);
+    expect(h.runtime.status).toBe('ended');
+    expect(h.onEnded).toHaveBeenCalledTimes(1);
+    expect(h.onEnded.mock.calls[0]?.[0]).toMatchObject({ winnerTeam: 'north' });
+    // Only the human seat got a matchEnded (AI seat is not a recipient).
+    expect((h.messages(2).at(-1) as ServerMessage).type).toBe('matchEnded');
+    expect(h.sent.get(7)).toBeUndefined();
+  });
+
+  it('replays bit-identically with AI on both teams (hashState equality)', () => {
+    // Drive an AI-only match (no human input at all), then re-run a second
+    // runtime from the SAME seed + AI configs. The fixture brain is a pure
+    // function of (state, slot, memory), so the AI command stream AND the
+    // aiMemory mutations reproduce exactly — final hashState must match.
+    const seed = 0xa1de;
+    const aiSeats: AiSeat[] = [
+      { slot: 2, ai: { difficulty: 'hard' } },
+      { slot: 7, ai: { difficulty: 'easy' } },
+    ];
+
+    const run = (): { live: SimState; log: ReadonlyMap<number, readonly Command[]> } => {
+      const h = makeHarness([], seed, aiSeats);
+      h.runtime.start();
+      vi.advanceTimersByTime(2500); // 50 ticks of pure-AI play
+      h.runtime.stop();
+      return { live: h.runtime.getState(), log: h.runtime.replay.commandsByTick };
+    };
+
+    const a = run();
+    const b = run();
+    expect(a.live.tick).toBe(50);
+    expect(b.live.tick).toBe(50);
+    // Identical command streams produced by the deterministic brain.
+    expect([...a.log.entries()]).toEqual([...b.log.entries()]);
+    // Identical final state (includes aiMemory, which hashState digests) — the
+    // bit-identical-replay property the determinism mandate requires for AI.
+    expect(hashState(a.live)).toBe(hashState(b.live));
+  });
+
+  it('a single human can play solo: an AI-only enemy team is a valid match', () => {
+    const h = makeHarness([2], 0x5010, [{ slot: 7, ai: { difficulty: 'normal' } }]);
+    h.runtime.start();
+    vi.advanceTimersByTime(500);
+    // The match is live and ticking with one human + one AI.
+    expect(h.runtime.status).toBe('running');
+    expect(h.runtime.getState().tick).toBe(10);
+    // Human keyframe + deltas were sent.
+    expect(h.snapshots(2).length).toBeGreaterThan(1);
   });
 });

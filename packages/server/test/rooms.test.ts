@@ -62,6 +62,15 @@ describe('parseClientMessage', () => {
       ready: true,
     });
     expect(parseClientMessage({ type: 'startMatch' })).toEqual({ type: 'startMatch' });
+    expect(parseClientMessage({ type: 'addAi', slot: 7, difficulty: 'hard', junk: 1 })).toEqual({
+      type: 'addAi',
+      slot: 7,
+      difficulty: 'hard',
+    });
+    expect(parseClientMessage({ type: 'removeAi', slot: 7, junk: 1 })).toEqual({
+      type: 'removeAi',
+      slot: 7,
+    });
     expect(
       parseClientMessage({ type: 'command', tick: 41, command: { type: 'move', player: 2, x: 1.5, y: -2 } }),
     ).toEqual({ type: 'command', tick: 41, command: { type: 'move', player: 2, x: 1.5, y: -2 } });
@@ -103,6 +112,13 @@ describe('parseClientMessage', () => {
     expect(parseClientMessage({ type: 'pong', t: 'now' })).toBeNull();
     expect(parseClientMessage({ type: 'joinRoom', roomId: '' })).toBeNull();
     expect(parseClientMessage({ type: 'createRoom', roomName: 'x'.repeat(41) })).toBeNull();
+    // addAi/removeAi: slot a non-negative integer, difficulty whitelisted
+    expect(parseClientMessage({ type: 'addAi', slot: 2.5, difficulty: 'easy' })).toBeNull();
+    expect(parseClientMessage({ type: 'addAi', slot: -1, difficulty: 'easy' })).toBeNull();
+    expect(parseClientMessage({ type: 'addAi', slot: 7, difficulty: 'insane' })).toBeNull();
+    expect(parseClientMessage({ type: 'addAi', slot: 7 })).toBeNull(); // missing difficulty
+    expect(parseClientMessage({ type: 'removeAi', slot: 'x' })).toBeNull();
+    expect(parseClientMessage({ type: 'removeAi' })).toBeNull();
     // command: tick must be finite when present, command must validate
     expect(
       parseClientMessage({ type: 'command', tick: Number.NaN, command: { type: 'stop', player: 2 } }),
@@ -790,5 +806,173 @@ describe('room manager', () => {
     hello(late, 'e'.repeat(32), 'Latecomer');
     late.send({ type: 'joinRoom', roomId });
     expect(late.socket.lastOfType('error').code).toBe('roomFull');
+  });
+
+  // -------------------------------------------------------------------------
+  // AI seats (addAi / removeAi)
+  // -------------------------------------------------------------------------
+
+  it('lets the host add and remove an AI in an open slot, shown in roomState', () => {
+    const { manager } = makeManager();
+    const host = connect(manager);
+    hello(host, TOKEN_A, 'Host');
+    host.send({ type: 'createRoom', roomName: 'Room' });
+
+    host.send({ type: 'addAi', slot: 7, difficulty: 'normal' });
+    const withAi = host.socket.lastOfType('roomState');
+    const ai = withAi.players.find((p) => p.slot === 7);
+    expect(ai).toMatchObject({
+      slot: 7,
+      ai: 'normal',
+      ready: true,
+      connected: true,
+      isHost: false,
+      name: 'AI (normal)',
+    });
+    // Human host still reports ai: null.
+    expect(withAi.players.find((p) => p.name === 'Host')?.ai).toBeNull();
+
+    host.send({ type: 'removeAi', slot: 7 });
+    expect(host.socket.lastOfType('roomState').players.some((p) => p.slot === 7)).toBe(false);
+  });
+
+  it('rejects addAi from non-host and outside the lobby phase', () => {
+    const { manager } = makeManager();
+    const host = connect(manager);
+    hello(host, TOKEN_A, 'Host');
+    host.send({ type: 'createRoom', roomName: 'Room' });
+    const roomId = host.socket.lastOfType('roomState').roomId;
+    const guest = connect(manager);
+    hello(guest, TOKEN_B, 'Guest');
+    guest.send({ type: 'joinRoom', roomId });
+
+    guest.send({ type: 'addAi', slot: 7, difficulty: 'normal' });
+    expect(guest.socket.lastOfType('error').code).toBe('notHost');
+
+    // Once playing, AI seats are locked.
+    host.send({ type: 'pickSlot', slot: 2 });
+    host.send({ type: 'addAi', slot: 7, difficulty: 'normal' });
+    host.send({ type: 'setReady', ready: true });
+    host.send({ type: 'startMatch' });
+    vi.advanceTimersByTime(MATCH_COUNTDOWN_SECONDS * 1000);
+    host.send({ type: 'addAi', slot: 8, difficulty: 'easy' });
+    expect(host.socket.lastOfType('error').code).toBe('matchInProgress');
+  });
+
+  it('rejects addAi on non-pickable or already-taken slots, removeAi on non-AI slots', () => {
+    const { manager } = makeManager();
+    const host = connect(manager);
+    hello(host, TOKEN_A, 'Host');
+    host.send({ type: 'createRoom', roomName: 'Room' });
+    const roomId = host.socket.lastOfType('roomState').roomId;
+    const guest = connect(manager);
+    hello(guest, TOKEN_B, 'Guest');
+    guest.send({ type: 'joinRoom', roomId });
+
+    host.send({ type: 'addAi', slot: 0, difficulty: 'easy' }); // AI empire slot
+    expect(host.socket.lastOfType('error').code).toBe('invalidSlot');
+    host.send({ type: 'addAi', slot: 12, difficulty: 'easy' }); // out of range
+    expect(host.socket.lastOfType('error').code).toBe('invalidSlot');
+
+    guest.send({ type: 'pickSlot', slot: 7 }); // human takes slot 7
+    host.send({ type: 'addAi', slot: 7, difficulty: 'easy' });
+    expect(host.socket.lastOfType('error').code).toBe('slotTaken');
+
+    host.send({ type: 'addAi', slot: 8, difficulty: 'easy' });
+    host.send({ type: 'addAi', slot: 8, difficulty: 'hard' }); // already AI
+    expect(host.socket.lastOfType('error').code).toBe('slotTaken');
+
+    host.send({ type: 'removeAi', slot: 9 }); // empty slot
+    expect(host.socket.lastOfType('error').code).toBe('invalidSlot');
+  });
+
+  it('blocks a human from picking an AI-held slot', () => {
+    const { manager } = makeManager();
+    const host = connect(manager);
+    hello(host, TOKEN_A, 'Host');
+    host.send({ type: 'createRoom', roomName: 'Room' });
+    const roomId = host.socket.lastOfType('roomState').roomId;
+    const guest = connect(manager);
+    hello(guest, TOKEN_B, 'Guest');
+    guest.send({ type: 'joinRoom', roomId });
+
+    host.send({ type: 'addAi', slot: 7, difficulty: 'normal' });
+    guest.send({ type: 'pickSlot', slot: 7 });
+    expect(guest.socket.lastOfType('error').code).toBe('slotTaken');
+  });
+
+  it('counts an AI seat for the both-teams start gate: a single human vs AI starts', () => {
+    const { manager, factory } = makeManager();
+    const host = connect(manager);
+    hello(host, TOKEN_A, 'Host');
+    host.send({ type: 'createRoom', roomName: 'Solo vs AI' });
+
+    host.send({ type: 'pickSlot', slot: 2 }); // human south
+    host.send({ type: 'setReady', ready: true });
+    host.send({ type: 'startMatch' });
+    // No north player yet -> rejected.
+    expect(host.socket.lastOfType('error').code).toBe('playersNotReady');
+    expect(factory.created).toHaveLength(0);
+
+    host.send({ type: 'addAi', slot: 7, difficulty: 'hard' }); // AI north
+    host.send({ type: 'startMatch' });
+    vi.advanceTimersByTime(MATCH_COUNTDOWN_SECONDS * 1000);
+
+    expect(factory.created).toHaveLength(1);
+    const entry = factory.created[0];
+    if (entry === undefined) throw new Error('runtime not created');
+    // Human seat passed as a seat; AI seat passed via aiSeats (excluded from seats).
+    expect(entry.deps.seats).toEqual([{ slot: 2, name: 'Host' }]);
+    expect(entry.deps.aiSeats).toEqual([{ slot: 7, ai: { difficulty: 'hard' } }]);
+  });
+
+  it('passes AI seats sorted ascending and excludes them from human seats/stats', () => {
+    const { manager, factory } = makeManager();
+    const host = connect(manager);
+    hello(host, TOKEN_A, 'Host');
+    host.send({ type: 'createRoom', roomName: 'Room' });
+
+    host.send({ type: 'pickSlot', slot: 2 });
+    host.send({ type: 'setReady', ready: true });
+    // Add AI out of slot order; expect them sorted in aiSeats.
+    host.send({ type: 'addAi', slot: 8, difficulty: 'easy' });
+    host.send({ type: 'addAi', slot: 7, difficulty: 'normal' });
+    host.send({ type: 'startMatch' });
+    vi.advanceTimersByTime(MATCH_COUNTDOWN_SECONDS * 1000);
+
+    const entry = factory.created[0];
+    if (entry === undefined) throw new Error('runtime not created');
+    expect(entry.deps.seats).toEqual([{ slot: 2, name: 'Host' }]);
+    expect(entry.deps.aiSeats).toEqual([
+      { slot: 7, ai: { difficulty: 'normal' } },
+      { slot: 8, ai: { difficulty: 'easy' } },
+    ]);
+  });
+
+  it('clears AI seats when a match ends and the room returns to lobby', () => {
+    const { manager, factory } = makeManager();
+    const host = connect(manager);
+    hello(host, TOKEN_A, 'Host');
+    host.send({ type: 'createRoom', roomName: 'Room' });
+
+    host.send({ type: 'pickSlot', slot: 2 });
+    host.send({ type: 'setReady', ready: true });
+    host.send({ type: 'addAi', slot: 7, difficulty: 'normal' });
+    host.send({ type: 'startMatch' });
+    vi.advanceTimersByTime(MATCH_COUNTDOWN_SECONDS * 1000);
+    const entry = factory.created[0];
+    if (entry === undefined) throw new Error('runtime not created');
+
+    entry.deps.onEnded({
+      winnerTeam: 'south',
+      stats: [],
+      seed: TEST_SEED,
+      rulesetId: 'classic',
+      durationTicks: 50,
+      goldEarned: new Map(),
+    });
+    const lobby = host.socket.lastOfType('roomState');
+    expect(lobby.phase).toBe('lobby');
+    expect(lobby.players.some((p) => p.ai !== null)).toBe(false); // AI seats cleared
   });
 });
