@@ -51,14 +51,14 @@ export const GOLD = 0xf2c14e;
  * tuned to sit darker than every unit so hulls pop.
  */
 export const WATER_RAMP: readonly number[] = [
-  0x123a52, // shallow / near coast
-  0x0e2f46, // mid
-  0x0a2438, // deep (matches the old WATER_DEEP baseline)
-  0x07182a, // abyss / map edge
+  0x2f86a8, // shallow / near coast — bright teal
+  0x217498, // mid
+  0x195d82, // deep open sea (where ships sail — a real blue, not a void)
+  0x0e3a55, // abyss / map edge
 ];
 
 /** Foam / wave-crest highlight stroked on the lighter water bands. */
-export const WATER_FOAM = 0xbfe3ff;
+export const WATER_FOAM = 0xd6f0ff;
 
 /** Coastline / shoal tint where land would meet water (procedural islands). */
 export const COAST_SAND = 0x8a7a55;

@@ -86,9 +86,9 @@ const COAST_BAND = 1400;
 
 /** Three drifting foam wave-band layers: spacing, speed, height, alpha. */
 const WAVE_LAYERS: readonly { step: number; speed: number; height: number; alpha: number }[] = [
-  { step: 360, speed: 1 / 5200, height: 5, alpha: 0.05 },
-  { step: 540, speed: 1 / 3400, height: 8, alpha: 0.04 },
-  { step: 880, speed: 1 / 9000, height: 13, alpha: 0.03 },
+  { step: 360, speed: 1 / 5200, height: 6, alpha: 0.1 },
+  { step: 540, speed: 1 / 3400, height: 9, alpha: 0.08 },
+  { step: 880, speed: 1 / 9000, height: 15, alpha: 0.06 },
 ];
 
 // ---------------------------------------------------------------------------
@@ -113,7 +113,10 @@ export function waterDepth01(
   // but never quite abyss inside the playfield so open water reads "deep"
   // rather than "void".
   const t = Math.min(1, dEdge / COAST_BAND);
-  return 0.14 + 0.78 * t;
+  // Open channel tops out at "deep sea" (~0.62), NOT abyss — the player sails
+  // here, so it must read as bright sea-blue, not a black void. Only the very
+  // edge (dEdge <= 0, handled above) hits true abyss.
+  return 0.1 + 0.52 * t;
 }
 
 /** Base water fill color at a given world y (depth-graded). */
