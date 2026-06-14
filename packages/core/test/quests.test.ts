@@ -133,6 +133,16 @@ describe('ruleset: quest systems compile + validate', () => {
     expect(captiveSouth).toMatchObject({ team: 'south', rewardGold: 6750, rewardXp: 850, rewardLumber: 8 });
   });
 
+  it('compiles the two H005-only superbomb mints (I01F->I032, I01G->I02Z)', () => {
+    // Trig_Superbomb_Pick_Up1 (I01F->I032) and Trig_Superbomb_Pick_Up
+    // (I01G->I02Z), war3map.j 13614-13662. Sorted by rawTokenId.
+    const sb = ruleset.questSystems.refinery.superbombSwaps;
+    expect(sb).toEqual([
+      { carrierShipType: 'H005', rawTokenId: 'I01F', swappedTokenId: 'I032' },
+      { carrierShipType: 'H005', rawTokenId: 'I01G', swappedTokenId: 'I02Z' },
+    ]);
+  });
+
   it('treasure contracts carry NO lumber threshold (refund-only group)', () => {
     for (const shop of Object.values(ruleset.shops)) {
       for (const entry of shop.items) {
@@ -238,6 +248,127 @@ describe('refinery chain', () => {
     runEconomy(state);
     expect(has(state, SOUTH, 'I00J')).toBe(true);
     expect(has(state, SOUTH, 'I02V')).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Superbomb refinery mints (the entry point that makes the 6000-HQ-damage
+// superbomb suicide chain reachable — war3map.j 13614-13662). These mint the
+// suicide-run tokens at the Refinery; the arm/detonate steps live in specials.
+// ---------------------------------------------------------------------------
+
+describe('superbomb refinery mints', () => {
+  let state: SimState;
+  beforeEach(() => {
+    state = newMatch();
+    setHull(state, SOUTH, 'H005'); // Trade Ship — the only eligible carrier
+  });
+
+  it('mints I032 from I01F + book at the Refinery (Trig_Superbomb_Pick_Up1) and warns the enemy', () => {
+    give(state, SOUTH, 'I02Q', 0); // Book of Formulas (kept)
+    give(state, SOUTH, 'I01F', 1); // unarmed goblin token
+    moveTo(state, SOUTH, AT.Refinery);
+    const events = runEconomy(state);
+    expect(inv(state, SOUTH)[1]).toBe('I032'); // minted in place
+    expect(inv(state, SOUTH)[0]).toBe('I02Q'); // book kept
+    expect(events.some((e) => e.type === 'questProgress' && e.questId === 'superbomb:I032' && e.stage === 'pickedUp')).toBe(true);
+    expect(events.some((e) => e.type === 'questProgress' && e.questId === 'superbomb:I032' && e.stage === 'enemyWarned')).toBe(true);
+  });
+
+  it('mints I02Z directly from I01G + book at the Refinery (Trig_Superbomb_Pick_Up)', () => {
+    give(state, SOUTH, 'I02Q', 0);
+    give(state, SOUTH, 'I01G', 1); // armed goblin token
+    moveTo(state, SOUTH, AT.Refinery);
+    runEconomy(state);
+    expect(inv(state, SOUTH)[1]).toBe('I02Z');
+    expect(inv(state, SOUTH)[0]).toBe('I02Q');
+  });
+
+  it('does not mint without the Book of Formulas, outside the rect, or on a non-H005 hull', () => {
+    // No book.
+    give(state, SOUTH, 'I01F', 0);
+    moveTo(state, SOUTH, AT.Refinery);
+    runEconomy(state);
+    expect(has(state, SOUTH, 'I032')).toBe(false);
+    expect(has(state, SOUTH, 'I01F')).toBe(true);
+    // Book + token but outside the Refinery.
+    give(state, SOUTH, 'I02Q', 1);
+    moveTo(state, SOUTH, AT.Elsewhere);
+    runEconomy(state);
+    expect(has(state, SOUTH, 'I032')).toBe(false);
+    // H00D Trade Boat is not eligible (the trade-good refines accept H00D, but
+    // the superbomb mints check 'H005' specifically).
+    setHull(state, SOUTH, 'H00D');
+    moveTo(state, SOUTH, AT.Refinery);
+    runEconomy(state);
+    expect(has(state, SOUTH, 'I032')).toBe(false);
+  });
+
+  it('full chain: the minted I032 then arms to I02Z at the OWN reward zone (specials)', () => {
+    // The detonation start item I01E must be carried alongside the token; the
+    // arm swaps I032 -> I02Z at SouthReward (Trig_Suicide_Mission_part2_South).
+    give(state, SOUTH, 'I02Q', 0);
+    give(state, SOUTH, 'I01F', 1);
+    give(state, SOUTH, 'I01E', 2); // the superbomb detonation start item
+    // Mint at the Refinery.
+    moveTo(state, SOUTH, AT.Refinery);
+    runEconomy(state);
+    expect(has(state, SOUTH, 'I032')).toBe(true);
+    // Sail to the own reward zone — specials arms I032 -> I02Z.
+    moveTo(state, SOUTH, AT.SouthReward);
+    state.events = [];
+    stepTick(state, ruleset);
+    expect(has(state, SOUTH, 'I02Z')).toBe(true);
+    expect(has(state, SOUTH, 'I032')).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Trade-route multi-delivery lumber quirk (war3map.j 12090-12152 / 12229-12291):
+// gold + XP accumulate per delivered route, but only the LAST (highest-block-
+// order) delivered route's lumber is credited (the udg_RewardLumber overwrite).
+// ---------------------------------------------------------------------------
+
+describe('trade-route multi-delivery lumber quirk', () => {
+  let state: SimState;
+  beforeEach(() => {
+    state = newMatch();
+    setHull(state, SOUTH, 'H005'); // Trade Ship carries 4 items
+  });
+
+  it('credits gold+XP per route but only the highest-blockOrder route lumber', () => {
+    // Ale: contract I00K + goods I00J, block 0, 200g / +1 lumber.
+    // Box: contract I00Q + goods I00R, block 5, 2000g / +6 lumber (south-only).
+    // Delivering BOTH at SouthReward in one tick: gold 2200, lumber only 6.
+    give(state, SOUTH, 'I00K', 0);
+    give(state, SOUTH, 'I00J', 1);
+    give(state, SOUTH, 'I00Q', 2);
+    give(state, SOUTH, 'I00R', 3);
+    moveTo(state, SOUTH, AT.SouthReward);
+    const goldBefore = state.players[SOUTH]!.gold;
+    const lumberBefore = state.players[SOUTH]!.lumber;
+    const events = runEconomy(state);
+    // Gold sums across both deliveries.
+    expect(state.players[SOUTH]!.gold - goldBefore).toBe(2200);
+    // Lumber is NOT 1 + 6 = 7; only the last (Box, block 5) is credited.
+    expect(state.players[SOUTH]!.lumber - lumberBefore).toBe(6);
+    // XP is granted per route (both events fire).
+    expect(xpGains(events, 'contract:I00J')).toEqual([80]);
+    expect(xpGains(events, 'contract:I00R')).toEqual([450]);
+    // Both goods consumed, both contracts kept.
+    expect(has(state, SOUTH, 'I00J')).toBe(false);
+    expect(has(state, SOUTH, 'I00R')).toBe(false);
+    expect(has(state, SOUTH, 'I00K')).toBe(true);
+    expect(has(state, SOUTH, 'I00Q')).toBe(true);
+  });
+
+  it('a single delivery still credits its own lumber', () => {
+    give(state, SOUTH, 'I00K', 0);
+    give(state, SOUTH, 'I00J', 1);
+    moveTo(state, SOUTH, AT.SouthReward);
+    const lumberBefore = state.players[SOUTH]!.lumber;
+    runEconomy(state);
+    expect(state.players[SOUTH]!.lumber - lumberBefore).toBe(1);
   });
 });
 

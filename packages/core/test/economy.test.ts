@@ -391,12 +391,14 @@ function makeRuleset(): Ruleset {
           rewardGold: 200,
           rewardXp: 80,
           rewardLumber: 1,
+          rewardBlockOrder: 0,
         },
       ],
       captainReward: {
         pieceItemId: 'I01N',
         piecesRequired: 5,
         tokenItemId: 'I01R',
+        shipTypeId: 'H00J',
         rewardGold: 200,
         rewardXp: 80,
         rewardLumber: 1,
@@ -412,6 +414,7 @@ function makeRuleset(): Ruleset {
         rewardRoutes: [
           { contractItemId: 'I00K', refinedGoodId: 'I02V', team: null, rewardGold: 300, rewardXp: 80, rewardLumber: 1 },
         ],
+        superbombSwaps: [],
       },
       repairMission: {
         contractItemId: 'I01I',
@@ -1477,7 +1480,9 @@ describe('contracts', () => {
     expect(state.players[2]!.inventory[0]?.itemId).toBe('I00J');
   });
 
-  it('Captain Reward consumes 5 wood pieces, keeps the token, pays 200g/80xp/1 lumber', () => {
+  it('Captain (H00J) Reward consumes exactly 5 wood pieces, keeps the token, pays 200g/80xp/1 lumber', () => {
+    // Trig_*_Captain_Rewards gate GetUnitTypeId == 'H00J' (The Captain).
+    setShipType(state, 2, 'H00J', 100);
     for (let i = 0; i < 5; i++) give(state, 2, 'I01N', i);
     give(state, 2, 'I01R', 5);
     const ship = shipOf(state, 2);
@@ -1492,8 +1497,25 @@ describe('contracts', () => {
     expect(grantXp).toHaveBeenCalledWith(state, ruleset, 2, 80, 'contract:captainReward');
   });
 
-  it('does nothing without enough pieces', () => {
-    for (let i = 0; i < 4; i++) give(state, 2, 'I01N', i);
+  it('does NOT pay a non-Captain hull holding 5 pieces + the token (H00J ship-type gate)', () => {
+    // A normal trade hull can never satisfy the GetUnitTypeId == 'H00J' gate;
+    // the reward is correctly unreachable without the (out-of-scope) Captain
+    // sell-ship subsystem that mints I01N via Chop Wood.
+    setShipType(state, 2, 'H00D', 100);
+    for (let i = 0; i < 5; i++) give(state, 2, 'I01N', i);
+    give(state, 2, 'I01R', 5);
+    const ship = shipOf(state, 2);
+    ship.x = -2800;
+    ship.y = -2800;
+    state.timers.nextIncomeTick = 99999;
+    stepEconomy(state, ruleset);
+    expect(state.players[2]!.gold).toBe(0);
+    expect(state.players[2]!.inventory.filter((i) => i?.itemId === 'I01N')).toHaveLength(5);
+  });
+
+  it('does nothing with the wrong piece count (exact-5 udg_LumberPieces gate)', () => {
+    setShipType(state, 2, 'H00J', 100);
+    for (let i = 0; i < 4; i++) give(state, 2, 'I01N', i); // 4 < 5
     give(state, 2, 'I01R', 5);
     const ship = shipOf(state, 2);
     ship.x = -2800;

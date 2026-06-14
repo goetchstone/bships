@@ -815,6 +815,15 @@ export interface AiMemory {
    * brain's threshold the bot re-routes (new waypoint) to break a stuck loop.
    */
   stuckCount: number;
+  /**
+   * Consecutive thinks the bot has been wedged on a SHOP-approach move (it
+   * wants an item but cannot reach the selling shop — e.g. blocked by land or
+   * the shop's collision). When this crosses the brain's threshold the bot
+   * abandons the buy for that think and resumes its lane push, so it never
+   * idles forever next to an unreachable shop (the original shop-stuck bug).
+   * Reset to 0 whenever the bot is in interact range or makes real progress.
+   */
+  shopApproachStuck: number;
 }
 
 /** Canonical system order inside stepTick (documented in sim.ts). */
@@ -1165,6 +1174,15 @@ export interface TradeRouteSpec {
   rewardGold: number;
   rewardXp: number;
   rewardLumber: number;
+  /**
+   * Position of this route's reward block in Trig_{South,North}_Rewards_Actions
+   * (the source data-array index). Used ONLY to resolve the multi-delivery
+   * lumber quirk: each block overwrites udg_RewardLumber, and the final block
+   * adds the LAST-set value once — so a same-visit multi-delivery credits gold
+   * + XP per route but lumber for only the highest-blockOrder delivered route
+   * (war3map.j 12090-12152 / 12229-12291).
+   */
+  rewardBlockOrder: number;
 }
 
 /**
@@ -1208,6 +1226,14 @@ export interface RefinerySpec {
   /** rawGoodId -> refinedGoodId swaps at refineRegion (ascending rawGoodId). */
   refineSwaps: { rawGoodId: string; refinedGoodId: string }[];
   rewardRoutes: RefineryRewardRoute[];
+  /**
+   * H005-only superbomb-token mints at refineRegion (ascending rawTokenId):
+   * I01F->I032 (Trig_Superbomb_Pick_Up1) and I01G->I02Z (Trig_Superbomb_Pick_Up).
+   * Both gated on the carrier being `carrierShipType`, carrying the membership
+   * book (I02Q) and the raw token, and warn the enemy team on swap. These are
+   * the only in-game source of the superbomb suicide-run tokens (specials.ts).
+   */
+  superbombSwaps: { carrierShipType: string; rawTokenId: string; swappedTokenId: string }[];
 }
 
 /**
@@ -1313,6 +1339,16 @@ export interface ContractRules {
     pieceItemId: string;
     piecesRequired: number;
     tokenItemId: string;
+    /**
+     * Ship type that may turn in the Captain Reward: 'H00J' The Captain
+     * (Trig_*_Captain_Rewards_Conditions gate GetUnitTypeId == 'H00J',
+     * war3map.j 12303/12358). The Captain is a unit you become by selling
+     * your ship; the wood pieces (I01N) come only from its Chop Wood ability.
+     * Neither the Captain role nor Chop Wood is modeled, and no playable hull
+     * is H00J, so this turn-in is correctly unreachable (faithful: it is
+     * equally unreachable in the original without the Captain subsystem).
+     */
+    shipTypeId: string;
     rewardGold: number;
     rewardXp: number;
     rewardLumber: number;
@@ -1664,7 +1700,47 @@ export interface Ruleset {
   xp: XpRules;
   respawn: RespawnRules;
   income: IncomeRules;
+  /**
+   * Start-of-game vote modes (war3map.j Trig_Mode_Vote_Done_Check_Actions
+   * 2521-2613). Keyed by mode NAME ('NormalPlay', 'NoBP', 'OnlyTraders',
+   * 'OnlySailors'...). createMatch applies the active mode's effects (forced
+   * hull / removed NPC structures) and economy.buyShip rejects a disabled
+   * hull. Classic default for solo-vs-AI is NormalPlay (no restriction).
+   */
+  gameModes: Record<string, GameModeSpec>;
   map: MapSpec;
+}
+
+/**
+ * One game-mode's concrete effects (the SetPlayerUnitAvailableBJ /
+ * ReplaceUnitBJ / RemoveUnit calls in the vote-resolution trigger).
+ *
+ * NAMING NOTE: 'OnlySailors' is the udg_ variable name but the ANNOUNCED mode
+ * is "Tournament Mode" (TRIGSTR_3365); 'OnlyTraders' announces as "Only
+ * Submarines" (TRIGSTR_3361); 'NoBP' is "No Superships" (TRIGSTR_3350). The
+ * `label` carries the announced name; the key is the udg_ name kept for the
+ * existing StackRule.onlyInModes:['OnlySailors'] sniper-cap gate.
+ */
+export interface GameModeSpec {
+  /** udg_ mode name (the key + StackRule.onlyInModes value). */
+  name: string;
+  /** Announced TRIGSTR label (may differ from the name — see note above). */
+  label: string;
+  /**
+   * Ship types made unavailable for purchase under this mode
+   * (SetPlayerUnitAvailableBJ(..., false, ...)). buyShip rejects these.
+   */
+  disabledShipTypes: string[];
+  /**
+   * If set, every player's starting hull is REPLACED with this type at
+   * createMatch (OnlyTraders ReplaceUnitBJ every hero -> 'H00V').
+   */
+  forceShipType: string | null;
+  /**
+   * Structure instanceKeys removed at match start (the trade-master /
+   * supership-seller NPCs: n00E_0021, n00F_0015, n005_0019).
+   */
+  removedStructureKeys: string[];
 }
 
 /** Balanced rulesets = named deep-partial overrides on Classic (DESIGN.md). */
@@ -1782,6 +1858,17 @@ export interface RawQuestSystems {
       rewardGold: number;
       rewardXp: number;
       rewardLumber: number;
+    }[];
+    /**
+     * Optional H005-only superbomb-token swaps at the refine region
+     * (Trig_Superbomb_Pick_Up1 I01F->I032, Trig_Superbomb_Pick_Up I01G->I02Z).
+     * Both require the Book of Formulas carried and warn the enemy team. The
+     * ONLY in-game source of the superbomb tokens (specials.ts suicideQuests).
+     */
+    superbombSteps?: {
+      carrierShipType: string;
+      rawTokenId: string;
+      swappedTokenId: string;
     }[];
   };
   repairMission: {

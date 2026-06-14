@@ -706,6 +706,11 @@
     { "rawGoodId": "I015", "refinedGoodId": "I02U", "refinedName": "Mutated Captive", "trigger": "MutatedCaptive_Pick_Up", "lines": [13487, 13488, 13489] },
     { "rawGoodId": "I014", "refinedGoodId": "I02U", "refinedName": "Mutated Captive", "trigger": "MutatedCaptive_Pick_Up1", "lines": [13516, 13517, 13518] }
    ],
+   "superbombStepsDoc": "Two H005-ONLY swaps at gg_rct_Refinery that mint the superbomb suicide-run tokens; both require the Book of Formulas (I02Q) carried (never consumed) and both ping/warn the enemy team. Trig_Superbomb_Pick_Up1 (war3map.j 13639-13662): I01F (unarmed goblin token) -> I032 (inert superbomb precursor). Trig_Superbomb_Pick_Up (13614-13638): I01G (armed goblin token) -> I02Z (armed superbomb) directly. These are the ONLY in-game source of I032/I02Z, completing the 6000-HQ-damage superbomb suicide chain whose arm (I032->I02Z at the own reward zone) and detonate steps live in specials.ts (suicideQuests 'superbomb').",
+   "superbombSteps": [
+    { "carrierShipType": "H005", "rawTokenId": "I01F", "swappedTokenId": "I032", "trigger": "Superbomb_Pick_Up1", "lines": [13651, 13652, 13653] },
+    { "carrierShipType": "H005", "rawTokenId": "I01G", "swappedTokenId": "I02Z", "trigger": "Superbomb_Pick_Up", "lines": [13626, 13627, 13628] }
+   ],
    "rewardRoutes": [
     { "contractItemId": "I00K", "refinedGoodId": "I02V", "team": null, "rewardGold": 300, "rewardXp": 80, "rewardLumber": 1, "trigger": "South_Rewards_Refinery/North_Rewards_Refinery Func002C", "lines": [13682, 13750, 13836, 13903] },
     { "contractItemId": "I00S", "refinedGoodId": "I02S", "team": null, "rewardGold": 600, "rewardXp": 125, "rewardLumber": 2, "trigger": "South_Rewards_Refinery/North_Rewards_Refinery Func003C", "lines": [13694, 13760, 13848, 13914] },

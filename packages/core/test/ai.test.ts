@@ -88,6 +88,15 @@ function makeAiMatch(seed: number, configs: { slot: number; difficulty: AiDiffic
   return createMatch(ruleset, seed, playerConfigs);
 }
 
+/** Every human-playable slot (excludes the two empire AI lane-owner slots). */
+function allAiConfigs(difficulty: AiDifficulty): { slot: number; difficulty: AiDifficulty }[] {
+  const empireSouth = ruleset.map.lanes.find((l) => l.team === 'south')!.creepOwner;
+  const empireNorth = ruleset.map.lanes.find((l) => l.team === 'north')!.creepOwner;
+  return sortedNumericKeys(ruleset.map.playerStarts)
+    .filter((slot) => slot !== empireSouth && slot !== empireNorth)
+    .map((slot) => ({ slot, difficulty }));
+}
+
 function memoryOf(state: SimState, slot: number): AiMemory {
   const m = state.aiMemory[slot];
   if (!m) throw new Error(`no aiMemory for slot ${slot}`);
@@ -108,6 +117,19 @@ function findStructure(state: SimState, instanceKey: string): StructureEntity {
     if (e && e.kind === 'structure' && e.instanceKey === instanceKey) return e;
   }
   throw new Error(`structure ${instanceKey} not placed`);
+}
+
+/** First living structure of a team + role (towers carry no instanceKey). */
+function findFirstStructure(
+  state: SimState,
+  team: 'south' | 'north',
+  role: StructureEntity['role'],
+): StructureEntity {
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (e && e.kind === 'structure' && !e.dead && e.team === team && e.role === role) return e;
+  }
+  throw new Error(`no ${team} ${role} structure`);
 }
 
 /** Run a single think for a slot at the current tick (server-runner contract). */
@@ -322,6 +344,87 @@ describe('AI economy', () => {
     const hulls = inv.map((i) => i!.itemId).filter((id) => ['I016', 'I00A'].includes(id));
     expect(hulls.length).toBeGreaterThan(0);
   }, 30000);
+
+  it('skips an out-of-stock ladder rung instead of re-issuing a doomed buy', () => {
+    // Regression for the shop-stuck infinite loop: the bot wanted the Gold Hull
+    // (I00A, stockMax 1) at a shop that was out of stock and re-issued the same
+    // rejected buy forever, never upgrading and never pushing. With the stock
+    // skip it must NOT emit a buy for an out-of-stock rung; it falls through to
+    // the next thing (a cheaper rung, or — ladder exhausted — the push).
+    const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
+    const shop = findStructure(state, SOUTH_WEAPON_SHOP_KEY);
+    // Sanity: this shop is the one selling the contested limited-stock items in
+    // a real match; here we force a stock-0 record on whatever it sells with a
+    // stock cap, dock the ship, and give it the lower hull tiers so I00A is next.
+    const ship = shipOf(state, SOUTH_SLOT);
+    const spec = ruleset.shops[shop.typeId]!;
+    ship.x = shop.x;
+    ship.y = shop.y + spec.interactRadius - 10;
+    const player = state.players[SOUTH_SLOT]!;
+    player.gold = 100000;
+    // Own everything up to (but not including) the Gold Hull so I00A is the next
+    // rung; then zero its stock at every shop that sells it.
+    player.inventory = [
+      { itemId: 'I001', charges: null, readyAtTick: 0 },
+      { itemId: 'I016', charges: null, readyAtTick: 0 }, // Bronze Hull (so next is Gold)
+      { itemId: 'I008', charges: null, readyAtTick: 0 },
+      { itemId: 'I00B', charges: null, readyAtTick: 0 },
+      null,
+      null,
+    ];
+    for (const id of sortedNumericKeys(state.entities)) {
+      const e = state.entities[id];
+      if (!e || e.kind !== 'structure' || !e.shopStock) continue;
+      const ss = ruleset.shops[e.typeId];
+      if (ss?.items.some((i) => i.itemId === 'I00A')) {
+        e.shopStock['I00A'] = { stock: 0, nextRestockTick: 1e9 };
+      }
+    }
+    // Force the economy branch (economyEfficiency draw) by maxing it: hard = 1.0.
+    const cmds = think(state, SOUTH_SLOT);
+    // Must NOT try to buy the out-of-stock Gold Hull (and must not drop a hull
+    // for an upgrade it cannot complete).
+    expect(cmds.some((c) => c.type === 'buyItem' && c.itemId === 'I00A')).toBe(false);
+  });
+
+  it('researches a team upgrade once it owns the top hull and banks a surplus', () => {
+    // Empire research: the lowest-slot living team bot, holding the top hull and
+    // plenty of gold, issues a research command for a team upgrade (R000-R005).
+    const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
+    const player = state.players[SOUTH_SLOT]!;
+    player.gold = 50000; // well above the surplus reserve
+    player.inventory = [
+      { itemId: 'I001', charges: null, readyAtTick: 0 },
+      { itemId: 'I00A', charges: null, readyAtTick: 0 }, // top hull owned
+      { itemId: 'I008', charges: null, readyAtTick: 0 },
+      { itemId: 'I00B', charges: null, readyAtTick: 0 },
+      null,
+      null,
+    ];
+    const cmds = think(state, SOUTH_SLOT);
+    const research = cmds.find((c) => c.type === 'research');
+    expect(research).toBeDefined();
+    if (research && research.type === 'research') {
+      const spec = ruleset.upgrades[research.upgradeId];
+      expect(spec?.researchable).toBe(true);
+    }
+  });
+
+  it('does NOT research before owning the top hull (combat power comes first)', () => {
+    const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
+    const player = state.players[SOUTH_SLOT]!;
+    player.gold = 50000;
+    player.inventory = [
+      { itemId: 'I001', charges: null, readyAtTick: 0 },
+      { itemId: 'I016', charges: null, readyAtTick: 0 }, // only Bronze hull
+      null,
+      null,
+      null,
+      null,
+    ];
+    const cmds = think(state, SOUTH_SLOT);
+    expect(cmds.some((c) => c.type === 'research')).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -358,6 +461,53 @@ describe('AI push + targeting', () => {
       expect(am.y).toBeLessThan(ship.y);
       expect(am.y).toBeLessThan(0);
     }
+  });
+
+  it('SIEGE: with no mobile enemy in range, a south bot near a north tower aims AT that tower', () => {
+    // Without a deliberate siege fallback the bot only aims at the distant HQ
+    // point and chips structures incidentally — an all-AI match never resolves.
+    const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
+    const player = state.players[SOUTH_SLOT]!;
+    player.gold = 0; // skip the economy branch -> straight to push/siege
+    // A north (enemy) tower the south bot can siege.
+    const tower = findFirstStructure(state, 'north', 'tower');
+    // Park the south ship just inside siege range of that tower, with no enemy
+    // ships/creeps anywhere (a fresh match at tick 0 has none on the field).
+    const ship = shipOf(state, SOUTH_SLOT);
+    ship.x = tower.x + 300;
+    ship.y = tower.y - 300;
+    const cmds = think(state, SOUTH_SLOT);
+    const am = cmds.find((c) => c.type === 'attackMove');
+    expect(am).toBeDefined();
+    if (am && am.type === 'attackMove') {
+      // The waypoint should be AT the tower (within a tight band), not the
+      // distant HQ — proof the bot is sieging the structure, not ghosting past.
+      expect(Math.hypot(am.x! - tower.x, am.y! - tower.y)).toBeLessThan(50);
+    }
+  });
+
+  it('SIEGE works at EASY difficulty too (every match must be able to end)', () => {
+    const state = makeAiMatch(7, [{ slot: SOUTH_SLOT, difficulty: 'easy' }]);
+    const player = state.players[SOUTH_SLOT]!;
+    player.gold = 0;
+    const tower = findFirstStructure(state, 'north', 'tower');
+    const ship = shipOf(state, SOUTH_SLOT);
+    ship.x = tower.x + 300;
+    ship.y = tower.y - 300;
+    // Easy may take several thinks (low microQuality), but the siege fallback
+    // runs on BOTH the micro and non-micro paths, so the bot eventually aims at
+    // the tower regardless of the draw.
+    let aimedAtTower = false;
+    for (let i = 0; i < 20 && !aimedAtTower; i++) {
+      const cmds = think(state, SOUTH_SLOT);
+      const am = cmds.find((c) => c.type === 'attackMove');
+      if (am && am.type === 'attackMove' && Math.hypot(am.x! - tower.x, am.y! - tower.y) < 50) {
+        aimedAtTower = true;
+      }
+      // Advance enough ticks past the cadence gate for the next think.
+      state.tick = memoryOf(state, SOUTH_SLOT).nextThinkTick;
+    }
+    expect(aimedAtTower).toBe(true);
   });
 });
 
@@ -618,4 +768,33 @@ describe('AI determinism', () => {
     const withoutAi = createMatch(ruleset, 123, [{ slot: SOUTH_SLOT, control: 'user' }]);
     expect(withAi.rngState).toBe(withoutAi.rngState);
   });
+});
+
+// ---------------------------------------------------------------------------
+// Match resolvability (the critical solo-vs-AI fix: the AI must be able to win)
+// ---------------------------------------------------------------------------
+
+describe('AI siege resolves the match', () => {
+  it('a full all-AI match deliberately SIEGES enemy structures (a tower is destroyed or heavily damaged)', () => {
+    // Before the siege fix, an all-AI match only chipped enemy structures
+    // incidentally (Phoenix-Fire auto-fire during a brawl) and never resolved —
+    // both HQs sat at ~99% after 40k ticks. The siege fallback (pickSiegeTarget)
+    // steers a front-line ship onto the frontmost enemy tower/HQ so its carried
+    // weapons fire at the STRUCTURE deliberately. Towers sit at the front and
+    // take this fire first, so deliberate siege shows up as real tower attrition
+    // well before an HQ kill. We assert the most-damaged enemy tower has lost a
+    // large chunk of HP (or died) — the load-bearing, fast, deterministic signal
+    // that the bots siege. (A full HQ kill is slow + seed-variable in symmetric
+    // all-AI play; a real solo match with a human pushing one side resolves.)
+    const configs = allAiConfigs('hard');
+    const { state } = driveAiMatch(12345, configs, 16000);
+    const towers = Object.values(state.entities).filter(
+      (e): e is StructureEntity => e !== undefined && e.kind === 'structure' && e.role === 'tower',
+    );
+    expect(towers.length).toBeGreaterThan(0);
+    const mostDamaged = Math.max(...towers.map((t) => (t.dead ? t.maxHp : t.maxHp - t.hp)));
+    // Deliberate siege removes thousands of tower HP; a comfortable floor that
+    // incidental chip alone would not reach.
+    expect(mostDamaged).toBeGreaterThan(2000);
+  }, 60000);
 });

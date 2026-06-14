@@ -450,6 +450,44 @@ order).
 
 ---
 
+## 11. Game-mode vote (`Mode_Vote_Done_Check`)
+
+The mode is NOT a host chat-command — it is the winner of a start-of-game vote
+dialog (war3map.j `Trig_Mode_Vote_Done_Check_Actions` 2521-2613). Six modes; the
+sim models them as a `Ruleset.gameModes` table keyed by the udg_ NAME, applied
+at `createMatch` via `options.enabledModes` (default: none ⇒ **NormalPlay**).
+
+**NAMING — the udg_ name ≠ the announced label.** This trips people up:
+
+| udg_ name | Announced label (TRIGSTR) | Effect |
+|---|---|---|
+| `NormalPlay` | Normal Play (3380) | no restriction |
+| `NoBP` | **No Superships** (3350) | remove the supership seller (`n005_0019`) |
+| `OnlyTraders` | **Only Submarines** (3361) | disable the surface roster, force every hull to `H00V`, remove the trade masters |
+| `NoTraders` | No Traders (3364) | disable `H00D`/`H005`, remove the trade masters |
+| `NoPearlAndNoTraders` | No Superships & No Traders (5671) | disable `H00D`/`H005`, remove trade masters + supership seller |
+| `OnlySailors` | **Tournament Mode** (3365) | restrict the roster, remove trade masters + supership seller, (original also enables the InstantDeath anti-draw timers) |
+
+So `OnlySailors` means **Tournament Mode**, not "sailors only", and `OnlyTraders`
+means "only **submarines**". The existing sniper item-stack cap
+(`StackRule.onlyInModes:['OnlySailors']`, war3map.j 9181-9205) is the one
+OnlySailors effect already modeled and stays keyed to that name.
+
+**Modeled effects** (createMatch + economy.buyShip):
+- `disabledShipTypes` — `SetPlayerUnitAvailableBJ(..., false, ...)`; `buyShip`
+  rejects these with reason `shipDisabledInMode`.
+- `forceShipType` — `ReplaceUnitBJ(..., 'H00V')`; every starting hull is replaced.
+- `removedStructureKeys` — `RemoveUnit(...)`; the listed NPC structures are not
+  instantiated (trade masters `n00E_0021`/`n00F_0015`, supership seller `n005_0019`).
+
+**NOT modeled (out of scope for solo-vs-AI):** the vote dialog itself; the
+Tournament-mode InstantDeath anti-draw end-systems (`IDCountdown`/`IDWarning` at
+1h15m, `RandomKill` at +15m, war3map.j 2687-2736/2882-2885 — only active inside
+OnlySailors); and the `-instantdeath` / `-spawns on|off` admin chat commands.
+These never fire in default NormalPlay, so the solo-vs-AI match loop is unaffected.
+
+---
+
 ## Open questions (in-engine / extraction follow-ups)
 
 1. **Hero level cap + any gameplay-constant overrides** — recover `war3mapMisc.txt` from

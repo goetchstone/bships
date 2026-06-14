@@ -171,6 +171,7 @@ export function initAiMemory(slot: number, seed: number, config: AiConfig): AiMe
     lastProgressY: null,
     lastProgressTick: 0,
     stuckCount: 0,
+    shopApproachStuck: 0,
   };
 }
 
@@ -265,6 +266,7 @@ export function computeAiCommands(
     // tracking so the bot re-evaluates cleanly when it respawns.
     memory.stance = 'push';
     memory.stuckCount = 0;
+    memory.shopApproachStuck = 0;
     memory.lastProgressX = null;
     memory.lastProgressY = null;
     return finish();
@@ -310,13 +312,14 @@ export function computeAiCommands(
   // while PUSHING we detour to dock; while RETREATING we only opportunistically
   // buy when already in range (the retreat route below owns positioning).
   const spendable = player.gold - tuning.reserveGold;
-  const wantItem = spendable > 0 ? nextDesiredItem(ruleset, player.inventory, spendable) : null;
+  const wantItem = spendable > 0 ? nextDesiredItem(state, ruleset, team, player.inventory, spendable) : null;
   if (wantItem !== null && rng.next() < tuning.economyEfficiency) {
     const shop = nearestSellingShop(state, ruleset, team, wantItem.itemId);
     if (shop) {
       const spec = ruleset.shops[shop.typeId];
       const reach = spec ? spec.interactRadius : 0;
       if (dist(ship.x, ship.y, shop.x, shop.y) <= reach) {
+        memory.shopApproachStuck = 0; // docked: clear the abandon counter
         if (wantItem.dropSlot !== null) {
           // Upgrading within a one-per-ship group (e.g. Stone -> Bronze hull):
           // drop the lower tier first (no sell-back in Classic) so the buy is
@@ -335,16 +338,38 @@ export function computeAiCommands(
         updateProgress(state, memory, ship);
         return finish();
       }
-      // Not docked yet. While pushing, detour to the shop (stopping just inside
-      // interact range so we never shove through its collision circle); while
-      // retreating, fall through to the retreat route — survival comes first.
-      // The approach point is stable across thinks, so the dead-zone keeps us
-      // from re-issuing (and resetting pathing) every think.
+      // Not docked yet. While pushing, detour to the shop; while retreating,
+      // fall through to the retreat route — survival comes first.
       if (memory.stance !== 'retreat') {
-        const approach = pointTowards(shop.x, shop.y, ship.x, ship.y, Math.max(0, reach - 64));
-        issueMove(commands, memory, slot, 'move', approach.x, approach.y);
-        updateProgress(state, memory, ship);
-        return finish();
+        // Run the SAME stuck detector on the shop-approach move (it was missing
+        // here — updateProgress used to zero stuckCount every think, so a ship
+        // wedged on land/collision en route to a shop never tripped it and sat
+        // there forever with gold piling up; the original shop-stuck bug). If
+        // the ship makes no progress toward the shop for too many thinks,
+        // ABANDON the buy this think and let the lane push below take over so
+        // it never idles next to an unreachable shop.
+        const shopEpsilonSq = stuckEpsilonSq(ruleset, ship, tuning.thinkIntervalTicks);
+        const shopStuck = bumpStuck(state, memory, ship, shopEpsilonSq);
+        if (shopStuck) memory.shopApproachStuck += 1;
+        if (memory.shopApproachStuck >= SHOP_APPROACH_ABANDON) {
+          // Give up on this shop for now; reset so the next time the ladder
+          // wants something it gets a fresh budget of approach attempts.
+          memory.shopApproachStuck = 0;
+        } else {
+          // Detour around the obstacle if stuck, else sail to the approach point
+          // (stopping just inside interact range so we never shove through the
+          // shop's collision circle). The approach point is stable, so the
+          // re-issue dead-zone keeps us from resetting pathing every think.
+          if (shopStuck) {
+            const approachTarget = pointTowards(shop.x, shop.y, ship.x, ship.y, Math.max(0, reach - 64));
+            const detour = stuckDetour(ship, approachTarget.x, approachTarget.y, rng);
+            issueMove(commands, memory, slot, 'move', detour.x, detour.y, true);
+          } else {
+            const approach = pointTowards(shop.x, shop.y, ship.x, ship.y, Math.max(0, reach - 64));
+            issueMove(commands, memory, slot, 'move', approach.x, approach.y);
+          }
+          return finish();
+        }
       }
     }
   }
@@ -367,6 +392,19 @@ export function computeAiCommands(
     return finish();
   }
 
+  // --- 4c. Empire research (tech escalation) --------------------------------
+  // In the original a HUMAN spends gold at the n00P Upgrade Center to tech the
+  // empire's towers/creeps (R000-R005); with no human, an all-AI side never
+  // researches and its towers/creeps stay at base stats forever (no escalation
+  // and, combined with the siege, a one-sided grind). So the team's LOWEST-slot
+  // living bot spends surplus gold on the cheapest available upgrade whenever
+  // the team is not already researching. Restricting to one bot/team avoids
+  // wasted simultaneous attempts (the engine serializes via team.research, but
+  // this keeps the command stream clean) and needs NO rng draw, so the existing
+  // brain PRNG order — the replay contract — is untouched. The research command
+  // is ADDITIVE (the bot still pushes this think). Issued only while pushing.
+  maybeResearch(state, ruleset, slot, team, player, commands);
+
   // --- 5. Lane pick / keep (loose teammate anti-stacking) -------------------
   const laneId = chooseLane(state, ruleset, slot, team, memory, rng);
   memory.laneId = laneId;
@@ -388,6 +426,31 @@ export function computeAiCommands(
       const past = pointTowards(enemyHq.x, enemyHq.y, target.x, target.y, ENGAGE_PUSH_THROUGH);
       targetX = past.x;
       targetY = past.y;
+    } else {
+      // No mobile enemy in range: SIEGE. Aim AT the frontmost enemy structure
+      // within siege range so the ship closes to Phoenix-Fire range and parks
+      // to grind it down — the original relied on a human deliberately sieging
+      // towers/HQ; without this an all-AI match never resolves (the HQ only
+      // takes incidental chip and never falls). Targeting the structure
+      // directly (not the distant HQ point) is what makes carried weapons fire
+      // at it. Runs for ALL difficulties so every match can end.
+      const siege = pickSiegeTarget(state, ship, team);
+      if (siege) {
+        targetX = siege.x;
+        targetY = siege.y;
+      }
+    }
+  } else {
+    // Below the micro gate the bot still sieges when no fight is nearby — the
+    // micro gate only governs the finer "aim past the brawl" step, not whether
+    // the bot bothers to attack the structures blocking its push.
+    const near = pickCombatTarget(state, ship, team);
+    if (!near) {
+      const siege = pickSiegeTarget(state, ship, team);
+      if (siege) {
+        targetX = siege.x;
+        targetY = siege.y;
+      }
     }
   }
 
@@ -446,6 +509,12 @@ const STUCK_MOVE_EPSILON_MIN = 16;
 const STUCK_THRESHOLD = 3;
 /** Lateral magnitude (units) of a stuck-breaking detour. */
 const STUCK_DETOUR_UNITS = 600;
+/**
+ * Consecutive STUCK shop-approach detours (each already STUCK_THRESHOLD thinks)
+ * before the bot abandons an unreachable shop buy and resumes its lane push.
+ * Bounds how long a ship will keep trying to dock at a shop it cannot reach.
+ */
+const SHOP_APPROACH_ABANDON = 3;
 
 /**
  * BALANCE-tier opening + upgrade ladder (docs/AI.md §6, docs/BALANCE.md).
@@ -568,7 +637,9 @@ function readyHealSlot(
  * fresh purchase.
  */
 function nextDesiredItem(
+  state: SimState,
   ruleset: Ruleset,
+  team: TeamId,
   inventory: SimState['players'][number]['inventory'],
   budget: number,
 ): { itemId: string; gold: number; dropSlot: number | null } | null {
@@ -623,9 +694,35 @@ function nextDesiredItem(
     const gold = shopGoldOf(ruleset, entry.itemId);
     if (gold === null) continue;
     if (gold > budget) continue;
+    // Skip a rung whose nearest selling shop is CURRENTLY out of stock
+    // (limited-stock hulls I016/I00A with one unit + a long restock): otherwise
+    // the bot wedges forever re-issuing an out-of-stock buy (every think a
+    // rejected 'outOfStock'), never upgrading and — fatally — never pushing,
+    // because the economy block returns before the lane push. Falling through
+    // to the next affordable rung keeps it buying something useful and moving;
+    // it re-evaluates this rung once stock returns.
+    if (!rungInStock(state, ruleset, team, entry.itemId)) continue;
     return { itemId: entry.itemId, gold, dropSlot: lowerTierSlot(entry.itemId) };
   }
   return null;
+}
+
+/**
+ * True when `itemId` is in stock at the nearest team-side shop that sells it
+ * (or that shop has no stock limit). Reads the live `shopStock` the same way
+ * economy.buyItem enforces it, so the bot's view matches the rule. Mirrors
+ * buyItem's lazy-seed semantics: a limited-stock item with no record yet is
+ * treated as full (the first buy seeds the record).
+ */
+function rungInStock(state: SimState, ruleset: Ruleset, team: TeamId, itemId: string): boolean {
+  const shop = nearestSellingShop(state, ruleset, team, itemId);
+  if (!shop) return false; // no seller -> not buyable (caller also skips)
+  const spec = ruleset.shops[shop.typeId];
+  const entry = spec?.items.find((i) => i.itemId === itemId);
+  if (!entry || entry.stockMax === null) return true; // unlimited stock
+  const record = shop.shopStock?.[itemId];
+  if (record === undefined) return true; // not yet seeded -> full (buyItem seeds it)
+  return record.stock > 0;
 }
 
 /** The gold price of an item from any shop that sells it (ascending typeId). */
@@ -760,6 +857,71 @@ function laneCorridorX(ruleset: Ruleset, laneId: string, fallbackX: number): num
 }
 
 /**
+ * Gold the bot keeps on hand before spending on research, so teching is funded
+ * only from genuine surplus and never starves the bot of the gold it needs to
+ * keep its own ship strong. Combined with the "already owns the top hull" gate
+ * below, this keeps research from sapping the push so a solo-vs-AI match still
+ * resolves — escalating defenses must not outpace the siege into a stalemate.
+ */
+const RESEARCH_GOLD_RESERVE = 4000;
+/** The best hull tier — the bot tech-invests only after maxing its own ship. */
+const TOP_HULL_ITEM_ID = 'I00A';
+
+/**
+ * Issue ONE empire research command when (a) the team is not already
+ * researching, (b) this bot is the lowest-slot living human-controlled bot on
+ * its team (one researcher/team — avoids wasted simultaneous attempts), (c) the
+ * bot has finished its own power curve (it already carries the top hull), and
+ * (d) it can afford the cheapest available researchable upgrade above its
+ * surplus reserve. Picks the cheapest next-level upgrade (ascending upgrade id
+ * for a deterministic tie-break). NO rng draw — the decision is a pure function
+ * of state, so the brain PRNG order (the replay contract) is untouched. The
+ * command is additive (the caller still pushes this think); the engine
+ * serializes via team.research and rejects extras harmlessly.
+ */
+function maybeResearch(
+  state: SimState,
+  ruleset: Ruleset,
+  slot: number,
+  team: TeamId,
+  player: SimState['players'][number],
+  commands: Command[],
+): void {
+  if (state.teams[team].research !== null) return; // already teching
+  // Only research from surplus once the bot has maxed its own ship power, so
+  // teching never competes with the weapon/hull buys that let it siege.
+  if (!player.inventory.some((i) => i?.itemId === TOP_HULL_ITEM_ID)) return;
+  // Only the lowest-slot living bot on the team issues research.
+  const empireSlot = state.teams[team].aiPlayerSlot;
+  for (const pid of sortedNumericKeys(state.players)) {
+    if (pid === slot) break; // we are the lowest living team bot reached so far
+    if (pid === empireSlot) continue; // the empire AI slot never captains
+    const p = state.players[pid];
+    if (p && p.team === team && p.shipId !== null) return; // a lower bot exists
+  }
+  const budget = player.gold - RESEARCH_GOLD_RESERVE;
+  if (budget <= 0) return;
+  // Cheapest affordable next-level researchable upgrade (ascending id tiebreak).
+  let bestId: string | null = null;
+  let bestCost = Infinity;
+  for (const upgradeId of Object.keys(ruleset.upgrades).sort()) {
+    const spec = ruleset.upgrades[upgradeId];
+    if (!spec || !spec.researchable) continue;
+    const level = state.teams[team].upgrades[upgradeId] ?? 0;
+    if (level >= spec.maxLevel) continue;
+    const cost = spec.goldCostPerLevel[level];
+    if (cost === undefined || cost > budget) continue;
+    if (cost < bestCost) {
+      bestCost = cost;
+      bestId = upgradeId;
+    }
+  }
+  if (bestId !== null) {
+    commands.push({ type: 'research', player: slot, upgradeId: bestId });
+  }
+}
+
+/**
  * Best combat target for an attack-move (respecting team vision like a human):
  * prefer the nearest visible enemy SHIP within an aggression radius, else the
  * nearest visible enemy CREEP, else null (advance to HQ). Candidate lists are
@@ -797,6 +959,53 @@ function pickCombatTarget(
 
 /** Engagement radius for explicit targeting (≈ start-ship sight). */
 const AGGRO_TARGET_RADIUS = 1100;
+
+/**
+ * Radius within which the bot will deliberately siege an enemy structure when
+ * no enemy ship/creep is in aggro range. Wider than AGGRO_TARGET_RADIUS so the
+ * bot commits to closing on a tower/HQ from a little further out (its carried
+ * Phoenix Fire then auto-fires once in range). Sized to comfortably cover the
+ * lane chokepoint towers ahead of a pushing ship.
+ */
+const SIEGE_TARGET_RADIUS = 2200;
+
+/**
+ * Nearest visible enemy structure (tower preferred over HQ, then nearest)
+ * within SIEGE_TARGET_RADIUS, or null. Used as the push waypoint when no mobile
+ * enemy is in range so the bot grinds the structures blocking its lane instead
+ * of ghosting toward the distant HQ point and only chipping incidentally.
+ * Ascending-id iteration; respects team vision like a human.
+ */
+function pickSiegeTarget(
+  state: SimState,
+  ship: ShipEntity,
+  team: TeamId,
+): StructureEntity | null {
+  let bestTower: StructureEntity | null = null;
+  let bestTowerDist = Infinity;
+  let bestOther: StructureEntity | null = null;
+  let bestOtherDist = Infinity;
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.kind !== 'structure' || e.dead) continue;
+    if (e.team === null || e.team === team) continue; // own/neutral: skip
+    if (e.role !== 'tower' && e.role !== 'hq') continue;
+    if (!visibleToTeam(e, team)) continue;
+    const d = dist(ship.x, ship.y, e.x, e.y);
+    if (d > SIEGE_TARGET_RADIUS) continue;
+    if (e.role === 'tower') {
+      if (d < bestTowerDist) {
+        bestTowerDist = d;
+        bestTower = e;
+      }
+    } else if (d < bestOtherDist) {
+      bestOtherDist = d;
+      bestOther = e;
+    }
+  }
+  // Towers gate the lane; clear them first, then the HQ.
+  return bestTower ?? bestOther;
+}
 
 /**
  * When engaging a target, aim this many units PAST it toward the enemy HQ. Big

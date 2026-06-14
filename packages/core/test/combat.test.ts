@@ -512,6 +512,7 @@ function makeRuleset(): Ruleset {
         pieceItemId: 'I00R',
         piecesRequired: 5,
         tokenItemId: 'I00U',
+        shipTypeId: 'H00J',
         rewardGold: 200,
         rewardXp: 80,
         rewardLumber: 1,

@@ -308,6 +308,8 @@ describe('compileClassicRuleset — script rules', () => {
       pieceItemId: 'I01N',
       piecesRequired: 5,
       tokenItemId: 'I01R',
+      // Trig_*_Captain_Rewards gate GetUnitTypeId == 'H00J' (The Captain).
+      shipTypeId: 'H00J',
       rewardGold: 200,
       rewardXp: 80,
       rewardLumber: 1,
@@ -343,6 +345,41 @@ describe('compileClassicRuleset — script rules', () => {
     expect(byGoods.get('I015')).toMatchObject({ contractItemId: 'I012', pickupRegion: 'South_Main', team: 'north', rewardGold: 4500 });
     // Ammo route (separate Ammo_*_Rewards triggers), 400/125/2.
     expect(byGoods.get('I00V')).toMatchObject({ contractItemId: 'I02K', pickupRegion: 'GoblinBombShop', team: null, rewardGold: 400 });
+  });
+
+  it('compiles the six game-mode vote modes with their concrete effects', () => {
+    const m = rs.gameModes;
+    // NormalPlay (the solo-vs-AI default): no restriction.
+    expect(m['NormalPlay']).toMatchObject({
+      label: 'Normal Play',
+      disabledShipTypes: [],
+      forceShipType: null,
+      removedStructureKeys: [],
+    });
+    // OnlyTraders is announced as "Only Submarines" (TRIGSTR_3361): forces H00V
+    // and removes the trade masters.
+    expect(m['OnlyTraders']).toMatchObject({
+      label: 'Only Submarines',
+      forceShipType: 'H00V',
+      removedStructureKeys: ['n00E_0021', 'n00F_0015'],
+    });
+    expect(m['OnlyTraders']?.disabledShipTypes).toContain('H003');
+    expect(m['OnlyTraders']?.disabledShipTypes).toContain('H00D');
+    // NoBP "No Superships" (TRIGSTR_3350): removes only the supership seller.
+    expect(m['NoBP']).toMatchObject({
+      label: 'No Superships',
+      forceShipType: null,
+      removedStructureKeys: ['n005_0019'],
+    });
+    // OnlySailors is Tournament Mode (TRIGSTR_3365), NOT a sailors-only mode.
+    expect(m['OnlySailors']?.label).toBe('Tournament Mode');
+    expect(m['OnlySailors']?.disabledShipTypes).toContain('H00D');
+    // NoTraders disables the trader hulls and removes the trade masters.
+    expect(m['NoTraders']).toMatchObject({
+      label: 'No Traders',
+      disabledShipTypes: ['H00D', 'H005'],
+      removedStructureKeys: ['n00E_0021', 'n00F_0015'],
+    });
   });
 });
 

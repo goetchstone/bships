@@ -57,6 +57,7 @@ import type {
   EquipmentActive,
   EquipmentPassives,
   EquipmentSpec,
+  GameModeSpec,
   HeroSkillRule,
   IncomeRules,
   LaneSpec,
@@ -1251,9 +1252,11 @@ function compileSuicideQuests(ctx: CompileCtx, scriptRules: { mechanism: string;
       requiredItemIds: ['I01E', 'I02Q', 'I02Z'],
       unarmedTokenId: 'I032',
       armedTokenId: 'I02Z',
-      // I032 itself comes from the Refinery I01F+I02Q swap
-      // (Trig_Superbomb_Pick_Up1) — OPEN, not yet modeled; there is no
-      // simple pickup region for this quest.
+      // I032 / I02Z are minted at the Refinery (questSystems.refinery
+      // superbombSwaps: I01F+I02Q->I032 Trig_Superbomb_Pick_Up1, and
+      // I01G+I02Q->I02Z Trig_Superbomb_Pick_Up), NOT at a suicide-quest pickup
+      // region. So this quest has no pickupRegion of its own — the unarmed
+      // token enters inventory via economy.runRefinery, then arms/detonates here.
       pickupRegion: null,
       pickupMaxCarriedItems: null,
       // Arming additionally requires NOT carrying the goblin armed token
@@ -1271,7 +1274,7 @@ function compileSuicideQuests(ctx: CompileCtx, scriptRules: { mechanism: string;
   ];
 }
 
-function compileTradeRoute(row: RawTradeRouteRow): TradeRouteSpec {
+function compileTradeRoute(row: RawTradeRouteRow, blockOrder: number): TradeRouteSpec {
   const teamOf = (v: string | null): TeamId | null => {
     if (v === null) return null;
     if (v === 'south' || v === 'north') return v;
@@ -1290,6 +1293,9 @@ function compileTradeRoute(row: RawTradeRouteRow): TradeRouteSpec {
     rewardGold: mustNum(row.rewardGold, `route ${row.goodsItemId} gold`),
     rewardXp: mustNum(row.rewardXp, `route ${row.goodsItemId} xp`),
     rewardLumber: mustNum(row.rewardLumber, `route ${row.goodsItemId} lumber`),
+    // The source-array index IS the JASS Trig_*_Rewards block order (the data
+    // is authored in that order); preserved across the goodsItemId sort below.
+    rewardBlockOrder: blockOrder,
   };
 }
 
@@ -1324,12 +1330,14 @@ function compileContracts(scriptRules: {
     // Buildings Mission and the Treasure Hunts remain OPEN (script-rules
     // tradeRoutesProvenance).
     tradeRoutes: scriptRules.tradeRoutes
-      .map(compileTradeRoute)
+      .map((row, i) => compileTradeRoute(row, i))
       .sort((a, b) => (a.goodsItemId < b.goodsItemId ? -1 : a.goodsItemId > b.goodsItemId ? 1 : 0)),
     captainReward: {
       pieceItemId: 'I01N',
       piecesRequired: Number(cap[1]),
       tokenItemId: mustStr(cap[2], 'captain reward token'),
+      // Trig_*_Captain_Rewards gate GetUnitTypeId == 'H00J' (The Captain).
+      shipTypeId: 'H00J',
       rewardGold: Number(cap[3]),
       rewardXp: Number(cap[4]),
       rewardLumber: Number(cap[5]),
@@ -1373,6 +1381,16 @@ function compileQuestSystems(raw: RawQuestSystems, tickRate: number): QuestSyste
       rewardLumber: mustNum(route.rewardLumber, `refinery route ${route.contractItemId} lumber`),
     }))
     .sort((a, b) => (a.contractItemId < b.contractItemId ? -1 : a.contractItemId > b.contractItemId ? 1 : 0));
+  // Superbomb token mints (H005-only; Trig_Superbomb_Pick_Up1 I01F->I032 and
+  // Trig_Superbomb_Pick_Up I01G->I02Z). Sorted by rawTokenId for a stable,
+  // deterministic swap order.
+  const superbombSwaps = (r.superbombSteps ?? [])
+    .map((step) => ({
+      carrierShipType: mustStr(step.carrierShipType, 'superbomb carrier ship'),
+      rawTokenId: mustStr(step.rawTokenId, 'superbomb raw token'),
+      swappedTokenId: mustStr(step.swappedTokenId, 'superbomb swapped token'),
+    }))
+    .sort((a, b) => (a.rawTokenId < b.rawTokenId ? -1 : a.rawTokenId > b.rawTokenId ? 1 : 0));
   const refinery: RefinerySpec = {
     membershipItemId: mustStr(r.membershipItemId, 'refinery membership item'),
     refineRegion: mustStr(r.refineRegion, 'refinery refine region'),
@@ -1383,6 +1401,7 @@ function compileQuestSystems(raw: RawQuestSystems, tickRate: number): QuestSyste
     carrierMaxItems,
     refineSwaps,
     rewardRoutes,
+    superbombSwaps,
   };
 
   // --- repair mission ------------------------------------------------------
@@ -1952,6 +1971,90 @@ const RUNTIME_UNIT_TYPES = [
 ];
 
 /**
+ * Compile the start-of-game vote modes (war3map.j
+ * Trig_Mode_Vote_Done_Check_Actions 2521-2613). These effects are concrete
+ * trigger logic (SetPlayerUnitAvailableBJ / ReplaceUnitBJ / RemoveUnit), not
+ * data-file values, so the lists are transcribed verbatim from the script with
+ * line citations. Keys are the udg_ mode names; labels are the announced
+ * TRIGSTR text (which differs — see GameModeSpec note).
+ *
+ * The trade-master NPCs are n00E_0021 (Will, south) / n00F_0015 (Bill, north);
+ * the supership seller is n005_0019 (Pirate Boat Merchant).
+ */
+function compileGameModes(): Record<string, GameModeSpec> {
+  const TRADE_MASTERS = ['n00E_0021', 'n00F_0015'];
+  const SUPERSHIP_SELLER = ['n005_0019'];
+  const modes: GameModeSpec[] = [
+    {
+      // TRIGSTR_3380 — no restriction (the solo-vs-AI default).
+      name: 'NormalPlay',
+      label: 'Normal Play',
+      disabledShipTypes: [],
+      forceShipType: null,
+      removedStructureKeys: [],
+    },
+    {
+      // TRIGSTR_5671 — disables both Traders (H00D/H005) and removes the trade
+      // masters + supership seller (war3map.j 2530-2535, 2313-2316).
+      name: 'NoPearlAndNoTraders',
+      label: 'No Superships & No Traders',
+      disabledShipTypes: ['H00D', 'H005'],
+      forceShipType: null,
+      removedStructureKeys: [...TRADE_MASTERS, ...SUPERSHIP_SELLER],
+    },
+    {
+      // TRIGSTR_3350 "No Superships" — removes only the supership seller
+      // (war3map.j 2538-2542).
+      name: 'NoBP',
+      label: 'No Superships',
+      disabledShipTypes: [],
+      forceShipType: null,
+      removedStructureKeys: [...SUPERSHIP_SELLER],
+    },
+    {
+      // TRIGSTR_3361 "Only Submarines" — disables the whole surface roster and
+      // forces every hull to H00V; removes the trade masters (war3map.j
+      // 2354-2375, 2544-2552).
+      name: 'OnlyTraders',
+      label: 'Only Submarines',
+      disabledShipTypes: [
+        'H003', 'H004', 'H006', 'H009', 'H008', 'H007',
+        'H00D', 'H005', 'H00L', 'H00K', 'H00C', 'H00A', 'H00Y',
+      ],
+      forceShipType: 'H00V',
+      removedStructureKeys: [...TRADE_MASTERS],
+    },
+    {
+      // TRIGSTR_3364 "No Traders" — disables H00D/H005 and removes the trade
+      // masters (war3map.j 2395-2396, 2559-2560).
+      name: 'NoTraders',
+      label: 'No Traders',
+      disabledShipTypes: ['H00D', 'H005'],
+      forceShipType: null,
+      removedStructureKeys: [...TRADE_MASTERS],
+    },
+    {
+      // TRIGSTR_3365 "Tournament Mode" (udg_ModeOnlySailors). Restricts the
+      // roster, removes the supership seller + trade masters, and (in the
+      // original) enables the InstantDeath end-systems (war3map.j 2417-2426,
+      // 2566-2573) — those anti-draw timers are out of scope for solo-vs-AI.
+      // The sniper item-stack cap (StackRule.onlyInModes:['OnlySailors']) is
+      // the one OnlySailors effect already modeled and stays keyed to this name.
+      name: 'OnlySailors',
+      label: 'Tournament Mode',
+      disabledShipTypes: [
+        'H00D', 'H005', 'H001', 'H003', 'H004', 'H006', 'H009', 'H008', 'H007', 'H00Y',
+      ],
+      forceShipType: null,
+      removedStructureKeys: [...TRADE_MASTERS, ...SUPERSHIP_SELLER],
+    },
+  ];
+  const out: Record<string, GameModeSpec> = {};
+  for (const m of modes) out[m.name] = m;
+  return out;
+}
+
+/**
  * Compile the Classic (v1.187-verbatim) ruleset. Pure and deterministic:
  * same raw inputs -> structurally identical Ruleset (no Date, no Math
  * randomness, record keys inserted in ascending rawcode order).
@@ -2167,6 +2270,7 @@ export function compileClassicRuleset(raw: RawDataFiles): Ruleset {
     xp: compileXpRules(),
     respawn: compileRespawnRules(raw.mapLayout, tickRate),
     income: compileIncomeRules(raw.mapLayout, tickRate),
+    gameModes: compileGameModes(),
     map,
   };
 }

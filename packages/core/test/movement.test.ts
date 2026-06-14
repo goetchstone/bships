@@ -275,6 +275,7 @@ function fixtureRuleset(): Ruleset {
         pieceItemId: '',
         piecesRequired: 0,
         tokenItemId: '',
+        shipTypeId: 'H00J',
         rewardGold: 0,
         rewardXp: 0,
         rewardLumber: 0,

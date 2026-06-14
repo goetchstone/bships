@@ -175,6 +175,22 @@ at the far +y end (`map-layout.json`). Per think, in order:
    `interactRadius` of the ship, so move into range first if needed. Weapon shops
    sit by each team's HQ (south: `n001`/`n007`/`n002` near y≈-6500..-7040; north:
    the y≈+5800..+6272 mirror).
+   - **Out-of-stock skip** (`rungInStock`): a ladder rung whose nearest selling
+     shop is currently out of stock (the limited-stock hulls `I016`/`I00A`) is
+     SKIPPED so the bot falls through to the next affordable rung instead of
+     wedging forever re-issuing a rejected `outOfStock` buy (and never pushing).
+   - **Shop-approach stuck-break** (`shopApproachStuck`): the same stuck detector
+     runs on the move TOWARD a shop. If the ship can't reach the shop (land /
+     collision) for several thinks it detours, and after `SHOP_APPROACH_ABANDON`
+     stuck cycles it abandons the buy for that think and resumes its lane push —
+     so it never idles next to an unreachable shop with gold piling up.
+2b. **Empire research** (`maybeResearch`, no rng draw): once the bot owns the top
+   hull (`I00A`) it spends genuine surplus gold (above `RESEARCH_GOLD_RESERVE`) on
+   the cheapest available `R000`–`R005` upgrade, so the team's towers/creeps tech
+   up over the match like a human's would. Only the lowest-slot living team bot
+   issues it (one researcher/team); the engine serializes via `team.research`.
+   The reserve + top-hull gate keep teching from starving the push into a
+   stalemate (escalating defenses must not outpace the siege — a match must end).
 3. **Survival**: if `hp/maxHp < retreatHpFraction`, set `stance: 'retreat'`,
    move toward own base / repair bay, and `useItem` a carried repair wood /
    active heal if available. Hysteresis: only return to `'push'` after healing
@@ -185,15 +201,33 @@ at the far +y end (`map-layout.json`). Per think, in order:
    carried Phoenix-Fire weapons auto-fire at creeps/ships en route; push to the
    HQ.
 5. **Targeting** (gated by `microQuality`): prefer an enemy **ship** in weapon
-   range → else enemy **creeps** → else keep advancing toward the enemy HQ.
-   Respect team vision. High micro = explicit `attackTarget`; low micro = coarse
-   `attackMove` only.
+   range → else enemy **creeps** → else **SIEGE** the frontmost enemy structure
+   within `SIEGE_TARGET_RADIUS` (towers first, then HQ; `pickSiegeTarget`) → else
+   keep advancing toward the enemy HQ. The siege fallback runs at ALL
+   difficulties (not just high micro): without a deliberate siege the carried
+   Phoenix Fire only chips structures incidentally and an all-AI match never
+   resolves. Respect team vision.
 6. **Stuck breaking**: compare current ship pos vs `lastProgress[XY]`; if it
    hasn't moved meaningfully since `lastProgressTick`, bump `stuckCount` and
    re-issue a fresh waypoint (re-route) once it crosses a small threshold.
 
 Teammate bots use the same brain; loose coordination comes from reading allied
 ship positions/lanes, not from shared mutable state.
+
+### Trader quests are HUMAN-DRIVEN (deliberate scope decision)
+
+The brain has **no trader role**: it never buys a Trade Boat/Ship hull or a
+contract and never routes to a pickup region. The trader quest SYSTEMS (trade
+routes, refinery incl. the superbomb mints, repair mission, treasure hunt,
+suicide bombs) live in `economy.ts`/`specials.ts`, are faithful to `war3map.j`,
+and are exercised + asserted end-to-end through the HUMAN command path
+(`test/quests.test.ts`, `test/specials.test.ts`, `test/integration.test.ts`) —
+i.e. the real solo-vs-AI player can do every quest. Driving them from an AI bot
+would add a large pathing/state machine that risks the bit-identical replay
+contract for a feature already reachable and verified via the player. So in an
+ALL-AI (no-human) match the quest chains intentionally do not fire; this is a
+recorded decision, not an unaudited gap. (If an AI trader is ever added, gate it
+to one slot/team and add its own determinism test, like the combat brain has.)
 
 ---
 

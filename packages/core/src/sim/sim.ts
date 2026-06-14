@@ -125,6 +125,27 @@ export function createMatch(
     north: aiSlotOf(ruleset, 'north'),
   };
 
+  // --- active game mode (start-of-game vote winner) ------------------------
+  // Solo-vs-AI passes one mode (or none -> NormalPlay). We resolve the first
+  // enabled mode that exists in the ruleset's mode table; an unknown mode is a
+  // setup error (fail loud). The active mode's forced hull / removed NPC
+  // structures are applied below; economy.buyShip rejects its disabled hulls.
+  const enabledModes = [...(options?.enabledModes ?? [])].sort();
+  let activeMode = ruleset.gameModes['NormalPlay'] ?? null;
+  for (const name of enabledModes) {
+    const mode = ruleset.gameModes[name];
+    if (!mode) continue;
+    // The sniper-cap pseudo-mode 'OnlySailors' doubles as Tournament Mode here;
+    // any listed real mode overrides NormalPlay. First match (ascending) wins.
+    if (mode.name !== 'NormalPlay') {
+      activeMode = mode;
+      break;
+    }
+  }
+  const forcedHull = activeMode?.forceShipType ?? null;
+  const removedStructureKeys = new Set(activeMode?.removedStructureKeys ?? []);
+  const startingShipTypeId = forcedHull ?? map.startingShipTypeId;
+
   const configBySlot: Record<number, PlayerConfig> = {};
   for (const config of playerConfigs) {
     if (!(config.slot in map.playerStarts)) {
@@ -224,6 +245,9 @@ export function createMatch(
 
   // --- preplaced structures (map.structures array order) -------------------
   for (const placement of map.structures) {
+    // Mode-removed NPC structures (trade masters / supership seller) are never
+    // instantiated (war3map.j RemoveUnit in the vote-resolution trigger).
+    if (removedStructureKeys.has(placement.instanceKey)) continue;
     const unitType = ruleset.unitTypes[placement.typeId];
     if (!unitType) {
       throw new Error(`createMatch: structure type ${placement.typeId} missing from unitTypes`);
@@ -258,13 +282,16 @@ export function createMatch(
     const player = players[slot];
     const start = map.playerStarts[slot];
     if (!player || !start) continue;
-    const shipSpec = ruleset.ships[map.startingShipTypeId];
-    if (!shipSpec) throw new Error(`createMatch: starting ship ${map.startingShipTypeId} missing`);
+    // OnlyTraders ("Only Submarines") replaces every starting hull with H00V
+    // (war3map.j ReplaceUnitBJ ... 'H00V'); otherwise the map's default hull.
+    const shipSpec = ruleset.ships[startingShipTypeId];
+    if (!shipSpec) throw new Error(`createMatch: starting ship ${startingShipTypeId} missing`);
+    player.shipTypeId = startingShipTypeId;
     const id = allocEntityId(state);
     const ship: ShipEntity = {
       id,
       kind: 'ship',
-      typeId: map.startingShipTypeId,
+      typeId: startingShipTypeId,
       owner: slot,
       team: player.team,
       x: start.x,

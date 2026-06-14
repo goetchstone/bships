@@ -346,6 +346,21 @@ function ruleActive(state: SimState, rule: StackRule): boolean {
 }
 
 /**
+ * True when `shipTypeId` is unavailable for purchase under any active game mode
+ * (the SetPlayerUnitAvailableBJ(..., false, ...) lists in the vote-resolution
+ * trigger). NormalPlay / no mode disables nothing. Matches createMatch's
+ * first-enabled-real-mode resolution by checking every enabled mode's
+ * disabledShipTypes — a hull disabled by ANY active mode is rejected.
+ */
+function shipTypeDisabledByMode(state: SimState, ruleset: Ruleset, shipTypeId: string): boolean {
+  for (const name of state.enabledModes) {
+    const mode = ruleset.gameModes[name];
+    if (mode && mode.disabledShipTypes.includes(shipTypeId)) return true;
+  }
+  return false;
+}
+
+/**
  * Enforce stack caps / class restrictions / sub blacklist on one player's
  * inventory, refunding violations at FULL gold price (ihtp == igol) with a
  * 'refund' event. Items in slots at or beyond the current hull's
@@ -535,6 +550,13 @@ function buyShip(state: SimState, ruleset: Ruleset, cmd: BuyShipCommand): void {
   }
   if (!ruleset.ships[cmd.shipTypeId]) {
     reject(state, cmd, 'unknownShipType');
+    return;
+  }
+  // Game-mode hull availability (SetPlayerUnitAvailableBJ(..., false, ...) in
+  // the vote-resolution trigger): a hull disabled by the active mode cannot be
+  // purchased. NormalPlay (the solo-vs-AI default) disables nothing.
+  if (shipTypeDisabledByMode(state, ruleset, cmd.shipTypeId)) {
+    reject(state, cmd, 'shipDisabledInMode');
     return;
   }
   const lumberNeeded = Math.max(
@@ -1178,6 +1200,36 @@ function runRefinery(state: SimState, ruleset: Ruleset, slot: number, player: Pl
         enforceItemRules(state, ruleset, slot, at);
       }
     }
+    // Superbomb token mints (Trig_Superbomb_Pick_Up1 I01F->I032,
+    // Trig_Superbomb_Pick_Up I01G->I02Z): H005-only, gated on the book (I02Q)
+    // + the raw token; the raw token is replaced in place and the enemy team
+    // is warned. These are the ONLY in-game source of the superbomb tokens
+    // I032/I02Z, completing the suicideQuests 'superbomb' arm/detonate chain.
+    for (const sb of refinery.superbombSwaps) {
+      if (ship.typeId !== sb.carrierShipType) continue;
+      if (countItems(player, sb.rawTokenId) > 0 && countItems(player, sb.swappedTokenId) === 0) {
+        const at = swapItemInPlace(player, sb.rawTokenId, sb.swappedTokenId);
+        if (at >= 0) {
+          state.events.push({
+            type: 'questProgress',
+            tick: state.tick,
+            player: slot,
+            questId: `superbomb:${sb.swappedTokenId}`,
+            stage: 'pickedUp',
+          });
+          // The enemy minimap ping/warning (Trig_Superbomb_Pick_Up* both
+          // PingMinimapLocForForceEx the enemy team) — modeled as the warn stage.
+          state.events.push({
+            type: 'questProgress',
+            tick: state.tick,
+            player: slot,
+            questId: `superbomb:${sb.swappedTokenId}`,
+            stage: 'enemyWarned',
+          });
+          enforceItemRules(state, ruleset, slot, at);
+        }
+      }
+    }
     // Treasure refine (I02G -> I030, the Golden Statue), same rect + book gate
     // (Trig_Golden_Treasure_Pick_Up). H005-only (the trade-good refines accept
     // H00D too, but the Golden-Treasure trigger checks 'H005'). Cashes out via
@@ -1364,6 +1416,13 @@ function stepContracts(state: SimState, ruleset: Ruleset): void {
     const ship = livingShip(state, player);
     if (!ship) continue;
     const ownDeliverRegions: string[] = [];
+    // Multi-delivery lumber quirk (war3map.j 12090-12152 / 12229-12291): each
+    // matching reward block OVERWRITES udg_RewardLumber and the final block
+    // credits the LAST-set value once. So gold+XP accumulate per delivered
+    // route this visit, but lumber is credited for only the highest-blockOrder
+    // delivered route. We defer the lumber credit and apply it after the loop.
+    let lumberCreditBlockOrder = -1;
+    let lumberCredit = 0;
 
     for (const route of ruleset.contracts.tradeRoutes) {
       const deliverName = route.deliverRegionByTeam[player.team];
@@ -1395,7 +1454,13 @@ function stepContracts(state: SimState, ruleset: Ruleset): void {
         if (deliver && pointInRegion(deliver, ship.x, ship.y)) {
           removeOneItem(player, route.goodsItemId);
           player.gold += route.rewardGold;
-          player.lumber += route.rewardLumber;
+          // Lumber is NOT summed per route: only the last (highest-blockOrder)
+          // delivered route's lumber is credited (the udg_RewardLumber
+          // overwrite quirk). Defer; apply once after the route loop.
+          if (route.rewardBlockOrder >= lumberCreditBlockOrder) {
+            lumberCreditBlockOrder = route.rewardBlockOrder;
+            lumberCredit = route.rewardLumber;
+          }
           grantXp(state, ruleset, slot, route.rewardXp, `contract:${route.goodsItemId}`);
           state.events.push({
             type: 'questProgress',
@@ -1408,14 +1473,22 @@ function stepContracts(state: SimState, ruleset: Ruleset): void {
         }
       }
     }
+    // Apply the single deferred lumber credit (the last delivered block's value).
+    if (lumberCreditBlockOrder >= 0) player.lumber += lumberCredit;
 
-    // Captain Reward: piecesRequired wood pieces + the contract token turned
-    // in at the OWN team's reward zone (South/North_Captain_Rewards). The
-    // token is kept, verbatim.
+    // Captain Reward: EXACTLY piecesRequired wood pieces (udg_LumberPieces == 5,
+    // strict equality, war3map.j 12312) + the contract token (I01R), turned in
+    // by The Captain (H00J) at the OWN team's reward zone
+    // (South/North_Captain_Rewards). The contract token is kept, verbatim.
+    // Gated on the H00J ship type (Trig_*_Captain_Rewards_Conditions): since no
+    // playable hull is H00J and the Chop-Wood subsystem that mints I01N is not
+    // modeled, this turn-in is correctly unreachable — exactly as in the
+    // original without the (out-of-scope) sell-ship-to-Captain subsystem.
     const captain = ruleset.contracts.captainReward;
     if (
+      ship.typeId === captain.shipTypeId &&
       countItems(player, captain.tokenItemId) > 0 &&
-      countItems(player, captain.pieceItemId) >= captain.piecesRequired
+      countItems(player, captain.pieceItemId) === captain.piecesRequired
     ) {
       let inRewardZone = false;
       for (const regionName of ownDeliverRegions) {

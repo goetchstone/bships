@@ -200,8 +200,9 @@ describe('integration — superbomb quest on the COMPILED ruleset', () => {
     if (!player || player.shipId === null) throw new Error('no south player ship');
     const ship = state.entities[player.shipId];
     if (!ship || ship.kind !== 'ship') throw new Error('not a ship');
-    // Trade Ship carrying the full superbomb loadout (I032 normally comes
-    // from the Refinery I01F+I02Q swap — OPEN, injected here).
+    // Trade Ship carrying the full superbomb loadout. I032 is minted by the
+    // Refinery I01F+I02Q swap (economy.runRefinery superbombSwaps, tested in
+    // quests.test.ts); injected directly here to isolate the arm/detonate.
     player.shipTypeId = 'H005';
     ship.typeId = 'H005';
     player.inventory = [
@@ -243,5 +244,77 @@ describe('integration — superbomb quest on the COMPILED ruleset', () => {
     expect(player.xp).toBe(1200);
     expect(player.shipId).toBeNull(); // carrier exploded, respawn scheduled
     expect(player.respawnAtTick).not.toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Game-mode vote effects (war3map.j Trig_Mode_Vote_Done_Check_Actions).
+// ---------------------------------------------------------------------------
+
+function structureExists(state: SimState, instanceKey: string): boolean {
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (e && e.kind === 'structure' && e.instanceKey === instanceKey) return true;
+  }
+  return false;
+}
+
+describe('integration — game-mode vote effects on the COMPILED ruleset', () => {
+  const TRADE_MASTERS = ['n00E_0021', 'n00F_0015'];
+  const SUPERSHIP_SELLER = 'n005_0019';
+
+  it('NormalPlay (default) keeps all NPC shops and the map default hull', () => {
+    const state = createMatch(ruleset, 7, [{ slot: SOUTH_PLAYER, control: 'user' }]);
+    expect(structureExists(state, SUPERSHIP_SELLER)).toBe(true);
+    for (const k of TRADE_MASTERS) expect(structureExists(state, k)).toBe(true);
+    expect(state.players[SOUTH_PLAYER]!.shipTypeId).toBe(ruleset.map.startingShipTypeId);
+  });
+
+  it('OnlyTraders ("Only Submarines") forces every hull to H00V and removes the trade masters', () => {
+    const state = createMatch(ruleset, 7, [{ slot: SOUTH_PLAYER, control: 'user' }], {
+      enabledModes: ['OnlyTraders'],
+    });
+    const player = state.players[SOUTH_PLAYER]!;
+    expect(player.shipTypeId).toBe('H00V');
+    const ship = state.entities[player.shipId!];
+    expect(ship && ship.kind === 'ship' && ship.typeId).toBe('H00V');
+    for (const k of TRADE_MASTERS) expect(structureExists(state, k)).toBe(false);
+  });
+
+  it('NoBP ("No Superships") removes only the supership seller', () => {
+    const state = createMatch(ruleset, 7, [{ slot: SOUTH_PLAYER, control: 'user' }], {
+      enabledModes: ['NoBP'],
+    });
+    expect(structureExists(state, SUPERSHIP_SELLER)).toBe(false);
+    for (const k of TRADE_MASTERS) expect(structureExists(state, k)).toBe(true);
+    // No forced hull under NoBP.
+    expect(state.players[SOUTH_PLAYER]!.shipTypeId).toBe(ruleset.map.startingShipTypeId);
+  });
+
+  it('NoTraders disables the Trade Boat/Ship hulls for purchase', () => {
+    const state = createMatch(ruleset, 7, [{ slot: SOUTH_PLAYER, control: 'user' }], {
+      enabledModes: ['NoTraders'],
+    });
+    const player = state.players[SOUTH_PLAYER]!;
+    const ship = state.entities[player.shipId!];
+    if (!ship || ship.kind !== 'ship') throw new Error('no ship');
+    // Park on the south HQ (n000_0020 sells hulls) with plenty of gold.
+    const shipyard = findStructure(state, 'n000_0020');
+    ship.x = shipyard.x;
+    ship.y = shipyard.y;
+    player.gold = 100000;
+    applyCommands(state, ruleset, [
+      { type: 'buyShip', player: SOUTH_PLAYER, shopId: shipyard.id, shipTypeId: 'H00D' },
+    ]);
+    expect(state.events.some((e) => e.type === 'commandRejected' && e.reason === 'shipDisabledInMode')).toBe(true);
+    expect(player.shipTypeId).not.toBe('H00D');
+  });
+
+  it('an unknown enabled mode falls back to NormalPlay (no effect)', () => {
+    const state = createMatch(ruleset, 7, [{ slot: SOUTH_PLAYER, control: 'user' }], {
+      enabledModes: ['NotARealMode'],
+    });
+    expect(structureExists(state, SUPERSHIP_SELLER)).toBe(true);
+    expect(state.players[SOUTH_PLAYER]!.shipTypeId).toBe(ruleset.map.startingShipTypeId);
   });
 });
