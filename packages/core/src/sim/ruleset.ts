@@ -62,15 +62,20 @@ import type {
   LaneSpec,
   MapSpec,
   MissileRules,
+  QuestSystems,
   RawDataFiles,
   RawEquipmentRow,
   RawMapLayoutFile,
+  RawQuestSystems,
   RawScriptedItemRow,
   RawShipRow,
   RawTradeRouteRow,
   RawUpgradeRow,
   RawWeaponRow,
+  RefinerySpec,
+  RefineryRewardRoute,
   RegionRect,
+  RepairMissionSpec,
   RespawnRules,
   Ruleset,
   RulesetConstants,
@@ -86,6 +91,7 @@ import type {
   TargetFilter,
   TeamId,
   TradeRouteSpec,
+  TreasureHuntSpec,
   UnitAttackSpec,
   UnitTypeSpec,
   UpgradeSpec,
@@ -612,7 +618,10 @@ function synthesizeQuestGood(ctx: CompileCtx, itemId: string): EquipmentSpec {
     passives: null,
     active: null,
     charges: null,
-    perishable: fieldNum(ctx.items, itemId, 'iper') === 1,
+    // Treasure / Golden Statue are destroyed on drop by Trig_Destroy_Treasure
+    // even though their iper flag is 0 — override to perishable so economy's
+    // drop path destroys them (see PERISHABLE_QUEST_ITEM_IDS doc).
+    perishable: fieldNum(ctx.items, itemId, 'iper') === 1 || PERISHABLE_QUEST_ITEM_IDS.has(itemId),
     cooldownGroup: null,
   };
 }
@@ -984,6 +993,7 @@ function compileShop(
   ctx: CompileCtx,
   structureTypeId: string,
   lumberCosts: Record<string, number>,
+  lumberRefunds: Record<string, number>,
   shipGold: Record<string, number>,
   auditedItemGold: Record<string, number>,
 ): ShopSpec | null {
@@ -1011,11 +1021,18 @@ function compileShop(
         fieldNum(ctx.items, itemId, 'igol') ?? auditedItemGold[itemId],
         `shop ${structureTypeId} item ${itemId} gold`,
       ),
-      // udg_PlayerLumber THRESHOLD (never consumed): the engine's ilum
-      // charge is refunded by Lumber_Back_From_Contracts and Lumber_Fix
-      // re-syncs engine lumber to udg_PlayerLumber, so ilum acts as a pure
-      // gate; the scripted >=4/10/10/18/25 gates coincide with their ilum.
-      lumberCost: Math.max(fieldNum(ctx.items, itemId, 'ilum') ?? 0, lumberCosts[itemId] ?? 0),
+      // udg_PlayerLumber THRESHOLD (never consumed). The engine's ilum charge
+      // is refunded by Lumber_Back_From_Contracts and Lumber_Fix re-syncs
+      // engine lumber to udg_PlayerLumber, so for the NEED group ilum acts as
+      // a pure gate (>=4/10/10/18/25, coinciding with their ilum). REFUND-
+      // group items (I00U/I013/I012/I01E/I02I/I02H) merely get the ilum charge
+      // back and impose NO threshold — so their (large) ilum must NOT be read
+      // as a gate. The treasure contracts I02H/I02I (ilum 80, refund 80) are
+      // the case this guards: contractLumberThreshold = 0.
+      lumberCost:
+        itemId in lumberRefunds
+          ? (lumberCosts[itemId] ?? 0)
+          : Math.max(fieldNum(ctx.items, itemId, 'ilum') ?? 0, lumberCosts[itemId] ?? 0),
       stockMax: stocked ? (fieldNum(ctx.items, itemId, 'isto') ?? 1) : null,
       restockTicks: stocked ? secondsToTicks(isst, ctx.tickRate) : null,
     };
@@ -1316,6 +1333,135 @@ function compileContracts(scriptRules: {
     },
   };
 }
+
+// ---------------------------------------------------------------------------
+// Quest systems (questSystems block): refinery, repair mission, treasure hunt
+// ---------------------------------------------------------------------------
+
+function teamIdOf(v: string | null, what: string): TeamId | null {
+  if (v === null) return null;
+  if (v === 'south' || v === 'north') return v;
+  fail(`${what}: unknown team '${v}'`);
+}
+
+/**
+ * Compile the three secondary quest chains (script-rules.json questSystems)
+ * into typed Ruleset specs. All numbers are authoritative extractor values —
+ * no synthesis here. The treasure seed seconds compile to ticks.
+ */
+function compileQuestSystems(raw: RawQuestSystems, tickRate: number): QuestSystems {
+  // --- refinery ------------------------------------------------------------
+  const r = raw.refinery;
+  const refineSwaps = r.refineSteps
+    .map((step) => ({
+      rawGoodId: mustStr(step.rawGoodId, 'refine raw good'),
+      refinedGoodId: mustStr(step.refinedGoodId, 'refine refined good'),
+    }))
+    .sort((a, b) => (a.rawGoodId < b.rawGoodId ? -1 : a.rawGoodId > b.rawGoodId ? 1 : 0));
+  const carrierMaxItems: Record<string, number> = {};
+  for (const hull of r.carrierShipTypes) carrierMaxItems[hull] = hull === 'H00D' ? 3 : 4;
+  const rewardRoutes: RefineryRewardRoute[] = r.rewardRoutes
+    .map((route) => ({
+      contractItemId: mustStr(route.contractItemId, 'refinery reward contract'),
+      refinedGoodId: mustStr(route.refinedGoodId, 'refinery reward refined good'),
+      team: teamIdOf(route.team, `refinery route ${route.contractItemId}`),
+      rewardGold: mustNum(route.rewardGold, `refinery route ${route.contractItemId} gold`),
+      rewardXp: mustNum(route.rewardXp, `refinery route ${route.contractItemId} xp`),
+      rewardLumber: mustNum(route.rewardLumber, `refinery route ${route.contractItemId} lumber`),
+    }))
+    .sort((a, b) => (a.contractItemId < b.contractItemId ? -1 : a.contractItemId > b.contractItemId ? 1 : 0));
+  const refinery: RefinerySpec = {
+    membershipItemId: mustStr(r.membershipItemId, 'refinery membership item'),
+    refineRegion: mustStr(r.refineRegion, 'refinery refine region'),
+    rewardRegionByTeam: {
+      south: mustStr(r.rewardRegionByTeam['south'], 'refinery south reward region'),
+      north: mustStr(r.rewardRegionByTeam['north'], 'refinery north reward region'),
+    },
+    carrierMaxItems,
+    refineSwaps,
+    rewardRoutes,
+  };
+
+  // --- repair mission ------------------------------------------------------
+  const rm = raw.repairMission;
+  const repairMission: RepairMissionSpec = {
+    contractItemId: mustStr(rm.contractItemId, 'repair mission contract'),
+    lumberThreshold: mustNum(rm.lumberThreshold, 'repair mission lumber threshold'),
+    tokenRegion: mustStr(rm.tokenRegion, 'repair mission token region'),
+    tokenItemId: mustStr(rm.tokenItemId, 'repair mission token'),
+    carrierMaxItems: { ...rm.carrierMaxItems },
+    reward: {
+      rewardGold: mustNum(rm.reward.rewardGold, 'repair mission gold'),
+      rewardXp: mustNum(rm.reward.rewardXp, 'repair mission xp'),
+      rewardLumber: mustNum(rm.reward.rewardLumber, 'repair mission lumber'),
+    },
+    refinedVariant: {
+      membershipItemId: mustStr(rm.refinedVariant.membershipItemId, 'repair mission refined membership'),
+      refineRegion: mustStr(rm.refinedVariant.refineRegion, 'repair mission refine region'),
+      refinedTokenId: mustStr(rm.refinedVariant.refinedTokenId, 'repair mission refined token'),
+      reward: {
+        rewardGold: mustNum(rm.refinedVariant.reward.rewardGold, 'repair mission refined gold'),
+        rewardXp: mustNum(rm.refinedVariant.reward.rewardXp, 'repair mission refined xp'),
+        rewardLumber: mustNum(rm.refinedVariant.reward.rewardLumber, 'repair mission refined lumber'),
+      },
+    },
+  };
+
+  // --- treasure hunts ------------------------------------------------------
+  const th = raw.treasureHunts;
+  const locByNumber = (team: TeamId): Record<string, string> => {
+    const src = th.treasureLocationRegionsByNumber[team];
+    if (src === undefined) fail(`treasure hunt: missing ${team} location regions`);
+    const out: Record<string, string> = {};
+    for (const key of Object.keys(src).sort((a, b) => Number(a) - Number(b))) {
+      out[key] = mustStr(src[key], `treasure ${team} location ${key}`);
+    }
+    return out;
+  };
+  const treasureHunts: TreasureHuntSpec = {
+    contractByTeam: {
+      south: mustStr(th.contractByTeam['south'], 'treasure south contract'),
+      north: mustStr(th.contractByTeam['north'], 'treasure north contract'),
+    },
+    treasureItemId: mustStr(th.treasureItemId, 'treasure item'),
+    carrierShipType: mustStr(th.carrierShipType, 'treasure carrier ship'),
+    pickupMaxCarriedItems: mustNum(th.pickupMaxCarriedItems, 'treasure pickup max items'),
+    locationCount: mustNum(th.treasureLocationCount, 'treasure location count'),
+    seedTick: secondsToTicks(mustNum(th.treasureSeededAtSeconds, 'treasure seed seconds'), tickRate),
+    locationRegionsByNumber: { south: locByNumber('south'), north: locByNumber('north') },
+    rewardRegionByTeam: {
+      south: mustStr(th.rewardRegionByTeam['south'], 'treasure south reward region'),
+      north: mustStr(th.rewardRegionByTeam['north'], 'treasure north reward region'),
+    },
+    reward: {
+      rewardGold: mustNum(th.reward.rewardGold, 'treasure reward gold'),
+      rewardXp: mustNum(th.reward.rewardXp, 'treasure reward xp'),
+      rewardLumber: mustNum(th.reward.rewardLumber, 'treasure reward lumber'),
+    },
+    refinedVariant: {
+      membershipItemId: mustStr(th.refinedVariant.membershipItemId, 'treasure refined membership'),
+      refineRegion: mustStr(th.refinedVariant.refineRegion, 'treasure refine region'),
+      refinedTreasureId: mustStr(th.refinedVariant.refinedTreasureId, 'treasure refined item'),
+      reward: {
+        rewardGold: mustNum(th.refinedVariant.reward.rewardGold, 'treasure refined gold'),
+        rewardXp: mustNum(th.refinedVariant.reward.rewardXp, 'treasure refined xp'),
+        rewardLumber: mustNum(th.refinedVariant.reward.rewardLumber, 'treasure refined lumber'),
+      },
+    },
+  };
+
+  return { refinery, repairMission, treasureHunts };
+}
+
+/**
+ * Items that synthesizeQuestGood must mark perishable=true regardless of
+ * their items.json iper flag: the Treasure (I02G) and Golden Statue (I030)
+ * are destroyed shortly after being dropped unless re-acquired by the boat
+ * (Trig_Destroy_Treasure war3map.j 11190-11220). The SIM DECISION (extractor
+ * open question) is to model the net behavior as perishable-on-drop, matching
+ * the trade-good drop semantics economy already keys on `perishable`.
+ */
+const PERISHABLE_QUEST_ITEM_IDS = new Set<string>(['I02G', 'I030']);
 
 // ---------------------------------------------------------------------------
 // XP / respawn / income
@@ -1741,6 +1887,7 @@ export function compileClassicRuleset(raw: RawDataFiles): Ruleset {
   const subRules = compileSubRules(ctx, raw.scriptRules);
   const missiles = compileMissileRules(ctx, raw.scriptRules);
   const suicideQuests = compileSuicideQuests(ctx, raw.scriptRules);
+  const questSystems = compileQuestSystems(raw.scriptRules.questSystems, tickRate);
 
   // --- equipment (+ synthesized quest/contract goods) -----------------------
   const equipmentEntries: [string, EquipmentSpec][] = raw.equipment.items.map((row) => [
@@ -1762,6 +1909,29 @@ export function compileClassicRuleset(raw: RawDataFiles): Ruleset {
     questItemIds.add(route.contractItemId);
     questItemIds.add(route.goodsItemId);
   }
+  // Quest-system items (refinery membership/refined goods, repair-mission
+  // tokens, treasure contracts + treasure item) so synthesizeQuestGood
+  // resolves them and they pass validateRuleset / shop resolution.
+  questItemIds.add(questSystems.refinery.membershipItemId);
+  for (const swap of questSystems.refinery.refineSwaps) {
+    questItemIds.add(swap.rawGoodId);
+    questItemIds.add(swap.refinedGoodId);
+  }
+  for (const route of questSystems.refinery.rewardRoutes) {
+    questItemIds.add(route.contractItemId);
+    questItemIds.add(route.refinedGoodId);
+  }
+  questItemIds.add(questSystems.repairMission.contractItemId);
+  questItemIds.add(questSystems.repairMission.tokenItemId);
+  questItemIds.add(questSystems.repairMission.refinedVariant.membershipItemId);
+  questItemIds.add(questSystems.repairMission.refinedVariant.refinedTokenId);
+  for (const id of Object.values(questSystems.treasureHunts.contractByTeam)) questItemIds.add(id);
+  questItemIds.add(questSystems.treasureHunts.treasureItemId);
+  // Refined-treasure branch: the Book of Formulas gate and the Golden Statue
+  // (I030) must resolve so synthesizeQuestGood registers I030 as a perishable
+  // quest good (PERISHABLE_QUEST_ITEM_IDS) — otherwise it would leak on drop.
+  questItemIds.add(questSystems.treasureHunts.refinedVariant.membershipItemId);
+  questItemIds.add(questSystems.treasureHunts.refinedVariant.refinedTreasureId);
 
   // --- shops ----------------------------------------------------------------
   const auditedItemGold: Record<string, number> = {};
@@ -1774,7 +1944,14 @@ export function compileClassicRuleset(raw: RawDataFiles): Ruleset {
   }
   const shopEntries: [string, ShopSpec][] = [];
   for (const typeId of Object.keys(unitTypes)) {
-    const shop = compileShop(ctx, typeId, contracts.lumberCosts, shipGold, auditedItemGold);
+    const shop = compileShop(
+      ctx,
+      typeId,
+      contracts.lumberCosts,
+      contracts.lumberRefunds,
+      shipGold,
+      auditedItemGold,
+    );
     if (shop !== null) {
       shopEntries.push([typeId, shop]);
       for (const entry of shop.items) questItemIds.add(entry.itemId);
@@ -1806,6 +1983,7 @@ export function compileClassicRuleset(raw: RawDataFiles): Ruleset {
     missiles,
     suicideQuests,
     contracts,
+    questSystems,
     xp: compileXpRules(),
     respawn: compileRespawnRules(raw.mapLayout, tickRate),
     income: compileIncomeRules(raw.mapLayout, tickRate),
@@ -1974,6 +2152,67 @@ export function validateRuleset(ruleset: Ruleset): string[] {
       if (!(shipId in ruleset.ships)) note(`route ${route.goodsItemId}: carrier ${shipId} unresolved`);
     }
   }
+
+  // --- quest systems --------------------------------------------------------
+  const qs = ruleset.questSystems;
+  const ref = qs.refinery;
+  if (!hasItem(ref.membershipItemId)) note(`refinery: membership item ${ref.membershipItemId} unresolved`);
+  if (!hasRegion(ref.refineRegion)) note(`refinery: refine region ${ref.refineRegion} unresolved`);
+  for (const name of Object.values(ref.rewardRegionByTeam)) {
+    if (!hasRegion(name)) note(`refinery: reward region ${name} unresolved`);
+  }
+  for (const hull of Object.keys(ref.carrierMaxItems)) {
+    if (!(hull in ruleset.ships)) note(`refinery: carrier ${hull} unresolved`);
+  }
+  for (const swap of ref.refineSwaps) {
+    if (!hasItem(swap.rawGoodId)) note(`refinery: raw good ${swap.rawGoodId} unresolved`);
+    if (!hasItem(swap.refinedGoodId)) note(`refinery: refined good ${swap.refinedGoodId} unresolved`);
+  }
+  for (const route of ref.rewardRoutes) {
+    if (!hasItem(route.contractItemId)) note(`refinery: route contract ${route.contractItemId} unresolved`);
+    if (!hasItem(route.refinedGoodId)) note(`refinery: route good ${route.refinedGoodId} unresolved`);
+  }
+  const rm = qs.repairMission;
+  if (!hasItem(rm.contractItemId)) note(`repair mission: contract ${rm.contractItemId} unresolved`);
+  if (!hasItem(rm.tokenItemId)) note(`repair mission: token ${rm.tokenItemId} unresolved`);
+  if (!hasRegion(rm.tokenRegion)) note(`repair mission: token region ${rm.tokenRegion} unresolved`);
+  for (const hull of Object.keys(rm.carrierMaxItems)) {
+    if (!(hull in ruleset.ships)) note(`repair mission: carrier ${hull} unresolved`);
+  }
+  if (!hasItem(rm.refinedVariant.membershipItemId)) {
+    note(`repair mission: refined membership ${rm.refinedVariant.membershipItemId} unresolved`);
+  }
+  if (!hasItem(rm.refinedVariant.refinedTokenId)) {
+    note(`repair mission: refined token ${rm.refinedVariant.refinedTokenId} unresolved`);
+  }
+  if (!hasRegion(rm.refinedVariant.refineRegion)) {
+    note(`repair mission: refine region ${rm.refinedVariant.refineRegion} unresolved`);
+  }
+  const th = qs.treasureHunts;
+  for (const id of Object.values(th.contractByTeam)) {
+    if (!hasItem(id)) note(`treasure hunt: contract ${id} unresolved`);
+  }
+  if (!hasItem(th.treasureItemId)) note(`treasure hunt: treasure item ${th.treasureItemId} unresolved`);
+  if (!(th.carrierShipType in ruleset.ships)) note(`treasure hunt: carrier ${th.carrierShipType} unresolved`);
+  for (const name of Object.values(th.rewardRegionByTeam)) {
+    if (!hasRegion(name)) note(`treasure hunt: reward region ${name} unresolved`);
+  }
+  for (const team of ['south', 'north'] as TeamId[]) {
+    const byNumber = th.locationRegionsByNumber[team];
+    const count = Object.keys(byNumber).length;
+    if (count !== th.locationCount) {
+      note(`treasure hunt: ${team} has ${count} locations, expected ${th.locationCount}`);
+    }
+    for (let n = 1; n <= th.locationCount; n++) {
+      const name = byNumber[String(n)];
+      if (name === undefined) note(`treasure hunt: ${team} missing location ${n}`);
+      else if (!hasRegion(name)) note(`treasure hunt: ${team} location ${n} region ${name} unresolved`);
+    }
+  }
+  const trv = th.refinedVariant;
+  if (!hasItem(trv.membershipItemId)) note(`treasure hunt: refined membership ${trv.membershipItemId} unresolved`);
+  if (!hasItem(trv.refinedTreasureId)) note(`treasure hunt: refined treasure ${trv.refinedTreasureId} unresolved`);
+  if (!hasRegion(trv.refineRegion)) note(`treasure hunt: refine region ${trv.refineRegion} unresolved`);
 
   const structureKeys = new Set(ruleset.map.structures.map((s) => s.instanceKey));
   for (const s of ruleset.map.structures) {

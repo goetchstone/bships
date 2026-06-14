@@ -662,6 +662,29 @@ function useItem(state: SimState, ruleset: Ruleset, cmd: UseItemCommand): void {
     return;
   }
 
+  // Repair-Buildings-Mission reward (questSystems.repairMission): USING the
+  // Goblin Mechanic token (or its refined Goblin Engineer while carrying the
+  // book) pays out and consumes the token. War3map.j fires this on
+  // EVENT_PLAYER_UNIT_USE_ITEM after a 1 s settle; the sim applies it on the
+  // use command (the +1-tick settle is cosmetic for an instant gold/xp grant).
+  const rm = ruleset.questSystems.repairMission;
+  if (item.itemId === rm.tokenItemId || item.itemId === rm.refinedVariant.refinedTokenId) {
+    const refined = item.itemId === rm.refinedVariant.refinedTokenId;
+    // The refined reward requires the membership book still carried; the base
+    // token has no extra requirement (war3map.j Trig_Repair_Mission_part2_*).
+    if (refined && countItems(player, rm.refinedVariant.membershipItemId) === 0) {
+      reject(state, cmd, 'missingBook');
+      return;
+    }
+    player.inventory[cmd.slot] = null; // consume the token
+    const reward = refined ? rm.refinedVariant.reward : rm.reward;
+    payQuestReward(state, ruleset, cmd.player, player, reward, 'repairMission', 'repairMission');
+    state.events.push({ type: 'itemUsed', tick: state.tick, player: cmd.player, itemId: item.itemId });
+    breakInvisibilityOnAction(state, ship.id);
+    enforceItemRules(state, ruleset, cmd.player);
+    return;
+  }
+
   let cooldownTicks: number;
   const weapon = ruleset.weapons[item.itemId];
   const equipment = ruleset.equipment[item.itemId];
@@ -1031,6 +1054,309 @@ function carriedItemCount(player: PlayerState): number {
   return n;
 }
 
+/** First slot holding `itemId`, or -1. */
+function itemSlot(player: PlayerState, itemId: string): number {
+  for (let i = 0; i < player.inventory.length; i++) {
+    const item = player.inventory[i];
+    if (item != null && item.itemId === itemId) return i;
+  }
+  return -1;
+}
+
+/**
+ * Swap one carried `fromItemId` for `toItemId` in place (UnitAddItemBy-
+ * IdSwapped semantics — the new good lands in the freed slot). Returns the
+ * slot, or -1 if `fromItemId` is not carried.
+ */
+function swapItemInPlace(player: PlayerState, fromItemId: string, toItemId: string): number {
+  const slot = itemSlot(player, fromItemId);
+  if (slot < 0) return -1;
+  player.inventory[slot] = { itemId: toItemId, charges: null, readyAtTick: 0 };
+  return slot;
+}
+
+function pointInNamedRegion(ruleset: Ruleset, name: string, x: number, y: number): boolean {
+  const region = ruleset.map.regions[name];
+  return region !== undefined && pointInRegion(region, x, y);
+}
+
+/**
+ * Pay a quest reward to one pilot: gold + lumber on the player, XP via
+ * progression.grantXp (same share semantics as trade routes), and a
+ * 'questProgress' event. Gold/lumber credit the PILOT only (the script's
+ * AdjustPlayerStateBJ on GetOwningPlayer(GetTriggerUnit())), not the team.
+ */
+function payQuestReward(
+  state: SimState,
+  ruleset: Ruleset,
+  playerSlot: number,
+  player: PlayerState,
+  reward: { rewardGold: number; rewardXp: number; rewardLumber: number },
+  questId: string,
+  reason: string,
+): void {
+  player.gold += reward.rewardGold;
+  player.lumber += reward.rewardLumber;
+  grantXp(state, ruleset, playerSlot, reward.rewardXp, reason);
+  state.events.push({
+    type: 'questProgress',
+    tick: state.tick,
+    player: playerSlot,
+    questId,
+    stage: 'delivered',
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Quest systems: refinery, repair mission, treasure hunt (questSystems)
+// ---------------------------------------------------------------------------
+
+/**
+ * REFINERY CHAIN (questSystems.refinery). Two presence-based stages, run for
+ * one carrier (mirrors the trade-route scan; idempotence comes from the
+ * carried-item gates):
+ * - Refine swap at refineRegion: a carrier (H00D/H005) holding the membership
+ *   book + a RAW good swaps the raw good for its REFINED good in place. Also
+ *   refines the Repair-Mission token (I01J->I031) and the Treasure
+ *   (I02G->I030, the Golden Statue — Trig_Golden_Treasure_Pick_Up) here.
+ * - Cash-in at the OWN reward zone: contract + refined good + book carried ->
+ *   refined good removed (contract + book kept), reward paid (1.5x raw gold).
+ *   The refined-treasure cash-in lives in runTreasureHunt (it also consumes
+ *   the contract).
+ * No randomness — pure region + carried-item checks.
+ *
+ * Idempotence divergence (intentional, low impact): each swap also gates on
+ * `countItems(refinedGoodId) === 0`. The script's Trig_*_Pick_Up conditions
+ * (e.g. Trig_Beer_Pick_Up_Conditions, war3map.j 13591-13606) check ONLY the
+ * raw good + the book — a ship carrying both a raw I00J and an already-refined
+ * I02V would, in the enter-rect script, refine the raw into a SECOND I02V.
+ * The sim is a per-tick presence scan, not an enter event, so this guard is
+ * required to stop a ship parked in the Refinery from re-firing every tick;
+ * it only diverges in the rare case of carrying both a raw and a refined copy
+ * of the same good, and never double-pays a reward.
+ */
+function runRefinery(state: SimState, ruleset: Ruleset, slot: number, player: PlayerState, ship: ShipEntity): void {
+  const refinery = ruleset.questSystems.refinery;
+  const maxItems = refinery.carrierMaxItems[ship.typeId];
+  if (maxItems === undefined) return; // not a refinery-eligible hull
+  const hasBook = countItems(player, refinery.membershipItemId) > 0;
+
+  // --- Step 1: refine swap at the central Refinery rect --------------------
+  if (hasBook && pointInNamedRegion(ruleset, refinery.refineRegion, ship.x, ship.y)) {
+    for (const swap of refinery.refineSwaps) {
+      // One swap per matching raw good carried; the refined good replaces it
+      // in place (no inventory-count gate — the slot count is unchanged).
+      if (countItems(player, swap.rawGoodId) > 0 && countItems(player, swap.refinedGoodId) === 0) {
+        const at = swapItemInPlace(player, swap.rawGoodId, swap.refinedGoodId);
+        if (at >= 0) {
+          state.events.push({
+            type: 'questProgress',
+            tick: state.tick,
+            player: slot,
+            questId: `refine:${swap.refinedGoodId}`,
+            stage: 'refined',
+          });
+          enforceItemRules(state, ruleset, slot, at);
+        }
+      }
+    }
+    // Repair-Mission token refine (I01J -> I031), same rect + book gate.
+    const rm = ruleset.questSystems.repairMission;
+    if (
+      countItems(player, rm.tokenItemId) > 0 &&
+      countItems(player, rm.refinedVariant.refinedTokenId) === 0
+    ) {
+      const at = swapItemInPlace(player, rm.tokenItemId, rm.refinedVariant.refinedTokenId);
+      if (at >= 0) {
+        state.events.push({
+          type: 'questProgress',
+          tick: state.tick,
+          player: slot,
+          questId: 'repairMission',
+          stage: 'refined',
+        });
+        enforceItemRules(state, ruleset, slot, at);
+      }
+    }
+    // Treasure refine (I02G -> I030, the Golden Statue), same rect + book gate
+    // (Trig_Golden_Treasure_Pick_Up). H005-only (the trade-good refines accept
+    // H00D too, but the Golden-Treasure trigger checks 'H005'). Cashes out via
+    // runTreasureHunt for the larger refined reward.
+    const th = ruleset.questSystems.treasureHunts;
+    const trv = th.refinedVariant;
+    if (
+      ship.typeId === th.carrierShipType &&
+      countItems(player, th.treasureItemId) > 0 &&
+      countItems(player, trv.refinedTreasureId) === 0
+    ) {
+      const at = swapItemInPlace(player, th.treasureItemId, trv.refinedTreasureId);
+      if (at >= 0) {
+        state.events.push({
+          type: 'questProgress',
+          tick: state.tick,
+          player: slot,
+          questId: 'treasureHunt',
+          stage: 'refined',
+        });
+        enforceItemRules(state, ruleset, slot, at);
+      }
+    }
+  }
+
+  // --- Step 2: cash-in at the OWN team's reward zone -----------------------
+  if (!hasBook) return;
+  if (!pointInNamedRegion(ruleset, refinery.rewardRegionByTeam[player.team], ship.x, ship.y)) return;
+  for (const route of refinery.rewardRoutes) {
+    if (route.team !== null && route.team !== player.team) continue;
+    if (
+      countItems(player, route.contractItemId) > 0 &&
+      countItems(player, route.refinedGoodId) > 0
+    ) {
+      // Remove the refined good only (contract + book kept), pay the reward.
+      removeOneItem(player, route.refinedGoodId);
+      payQuestReward(
+        state,
+        ruleset,
+        slot,
+        player,
+        { rewardGold: route.rewardGold, rewardXp: route.rewardXp, rewardLumber: route.rewardLumber },
+        `refinery:${route.refinedGoodId}`,
+        `refinery:${route.refinedGoodId}`,
+      );
+      enforceItemRules(state, ruleset, slot);
+    }
+  }
+}
+
+/**
+ * REPAIR BUILDINGS MISSION token grant (questSystems.repairMission). At the
+ * tokenRegion (gg_rct_GoblinBombShop), a carrier holding the contract and NOT
+ * the token, with a free slot (UnitInventoryCount < hull max), gains the
+ * token; the contract is kept. The USE-ITEM reward is handled in useItem.
+ */
+function runRepairMissionToken(
+  state: SimState,
+  ruleset: Ruleset,
+  slot: number,
+  player: PlayerState,
+  ship: ShipEntity,
+): void {
+  const rm = ruleset.questSystems.repairMission;
+  const maxItems = rm.carrierMaxItems[ship.typeId];
+  if (maxItems === undefined) return;
+  if (!pointInNamedRegion(ruleset, rm.tokenRegion, ship.x, ship.y)) return;
+  if (countItems(player, rm.contractItemId) === 0) return;
+  if (countItems(player, rm.tokenItemId) > 0) return;
+  if (carriedItemCount(player) >= maxItems) return;
+  addQuestItem(state, ruleset, slot, rm.tokenItemId, 'repairMission', 'token');
+}
+
+/**
+ * TREASURE HUNT find/return (questSystems.treasureHunts). Treasure RNG:
+ * - Seed both teams (south then north) ONCE at seedTick from the match Rng.
+ * - On find, reroll that team's number inline (in the ascending-slot scan
+ *   order) from the match Rng — so the GetRandomInt draw sequence is the
+ *   canonical replay contract.
+ * Find: a registered H005 ally carrying the team contract, NOT the treasure,
+ *   with a free slot, entering the rect matching its team's current number ->
+ *   treasure added + reroll. Return: at the OWN reward zone with contract +
+ *   treasure -> BOTH removed (the contract IS consumed here), reward paid.
+ * Refined return: at the OWN reward zone with contract + Golden Statue (I030,
+ *   refined from the Treasure at the Refinery in runRefinery) + the Book of
+ *   Formulas -> the statue + contract removed (book kept), the 1.5x reward
+ *   paid (Trig_{South,North}TreasureReward_Copy). The base and refined paths
+ *   are mutually exclusive: a returning carrier holds either the Treasure or
+ *   the Statue, never both (the refine is a swap-in-place).
+ */
+function runTreasureHunt(
+  state: SimState,
+  ruleset: Ruleset,
+  slot: number,
+  player: PlayerState,
+  ship: ShipEntity,
+): void {
+  const th = ruleset.questSystems.treasureHunts;
+  if (ship.typeId !== th.carrierShipType) return;
+  const contractId = th.contractByTeam[player.team];
+  const hasContract = countItems(player, contractId) > 0;
+  const hasTreasure = countItems(player, th.treasureItemId) > 0;
+
+  // --- Find ----------------------------------------------------------------
+  const current = state.treasureByTeam[player.team];
+  if (
+    current !== null &&
+    hasContract &&
+    !hasTreasure &&
+    carriedItemCount(player) < th.pickupMaxCarriedItems
+  ) {
+    const regionName = th.locationRegionsByNumber[player.team][String(current)];
+    if (regionName !== undefined && pointInNamedRegion(ruleset, regionName, ship.x, ship.y)) {
+      addQuestItem(state, ruleset, slot, th.treasureItemId, 'treasureHunt', 'found');
+      // Reroll this team's number from the match Rng (inline draw order).
+      state.treasureByTeam[player.team] = rollInt(state, 1, th.locationCount);
+    }
+  }
+
+  // --- Return --------------------------------------------------------------
+  if (!hasContract) return;
+  if (!pointInNamedRegion(ruleset, th.rewardRegionByTeam[player.team], ship.x, ship.y)) return;
+  // Base path: raw Treasure -> 14000g. Contract consumed.
+  if (countItems(player, th.treasureItemId) > 0) {
+    removeOneItem(player, th.treasureItemId);
+    removeOneItem(player, contractId); // the contract IS consumed on return
+    payQuestReward(state, ruleset, slot, player, th.reward, 'treasureHunt', 'treasureHunt');
+    enforceItemRules(state, ruleset, slot);
+    return;
+  }
+  // Refined path: Golden Statue + Book of Formulas -> 21000g. The statue +
+  // contract are removed; the book is kept (Trig_*TreasureReward_Copy).
+  const trv = th.refinedVariant;
+  if (
+    countItems(player, trv.refinedTreasureId) > 0 &&
+    countItems(player, trv.membershipItemId) > 0
+  ) {
+    removeOneItem(player, trv.refinedTreasureId);
+    removeOneItem(player, contractId);
+    payQuestReward(state, ruleset, slot, player, trv.reward, 'treasureHunt', 'treasureHunt:refined');
+    enforceItemRules(state, ruleset, slot);
+  }
+}
+
+/**
+ * Seed the per-team treasure numbers once at TreasureHuntSpec.seedTick, in a
+ * fixed draw order (south then north) so the match replays bit-identically.
+ * Idempotent: the null sentinel guards re-seeding.
+ */
+function seedTreasure(state: SimState, ruleset: Ruleset): void {
+  const th = ruleset.questSystems.treasureHunts;
+  if (state.tick !== th.seedTick) return;
+  if (state.treasureByTeam.south === null) {
+    state.treasureByTeam.south = rollInt(state, 1, th.locationCount);
+  }
+  if (state.treasureByTeam.north === null) {
+    state.treasureByTeam.north = rollInt(state, 1, th.locationCount);
+  }
+}
+
+/**
+ * Run the three secondary quest chains for every living-ship player, in
+ * ascending slot order (the canonical iteration). The treasure RNG draw
+ * order — seed (south then north) at seedTick, then rerolls inline in this
+ * scan — is the replay contract.
+ */
+function stepQuestSystems(state: SimState, ruleset: Ruleset): void {
+  seedTreasure(state, ruleset);
+  for (const slot of sortedNumericKeys(state.players)) {
+    const player = state.players[slot];
+    if (!player) continue;
+    const ship = livingShip(state, player);
+    if (!ship) continue;
+    runRefinery(state, ruleset, slot, player, ship);
+    runRepairMissionToken(state, ruleset, slot, player, ship);
+    runTreasureHunt(state, ruleset, slot, player, ship);
+  }
+}
+
 function stepContracts(state: SimState, ruleset: Ruleset): void {
   for (const slot of sortedNumericKeys(state.players)) {
     const player = state.players[slot];
@@ -1119,7 +1445,13 @@ function stepContracts(state: SimState, ruleset: Ruleset): void {
   }
 }
 
-/** One economy tick: income, empire share, gold dump, merchant, restocks, contracts. */
+/**
+ * One economy tick: income, empire share, gold dump, merchant, restocks,
+ * contracts, quest systems. stepQuestSystems runs AFTER stepContracts so the
+ * raw trade routes resolve before the refinery (which reads the same carried
+ * contract/goods state) — and the treasure-RNG draw order is anchored to this
+ * fixed position in the tick.
+ */
 export function stepEconomy(state: SimState, ruleset: Ruleset): void {
   stepIncome(state, ruleset);
   stepEmpireShare(state);
@@ -1127,4 +1459,5 @@ export function stepEconomy(state: SimState, ruleset: Ruleset): void {
   stepStreetMerchant(state, ruleset);
   stepRestocks(state, ruleset);
   stepContracts(state, ruleset);
+  stepQuestSystems(state, ruleset);
 }

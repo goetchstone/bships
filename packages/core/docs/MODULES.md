@@ -124,6 +124,16 @@ applyCommands (server-ordered array, routed per command type)
   combat.castStormBolt, utility -> specials helpers, heal ->
   combat.applyHeal, tomes -> progression.grantXp); income/empire share/gold
   dump/street merchant; contracts + trade routes + Captain Reward.
+  Quest systems (`questSystems`): the Refinery value-upgrade chain (refine
+  swap + 1.5x cash-in), the Repair Buildings Mission (token grant in
+  `stepQuestSystems` + USE-ITEM reward in `useItem`), and the Treasure Hunt
+  (per-team active-location index in `SimState.treasureByTeam`, seeded +
+  rerolled from the match Rng — the treasure draw order is the replay
+  contract: seed south-then-north at the seed tick, reroll inline in the
+  ascending-slot scan, `stepQuestSystems` runs right after `stepContracts`).
+  The Treasure also has a refined branch: refine the Treasure into the Golden
+  Statue (`I02G`->`I030`) at the Refinery with the Book of Formulas, then cash
+  it for the 1.5x reward (21000g vs 14000g) at the own reward rect.
   Owns ship maxHp/regen recompute on equipment change.
 
 ## Module: creeps

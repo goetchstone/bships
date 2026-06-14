@@ -185,6 +185,10 @@ export function createMatch(
     projectiles: {},
     groundItems: {},
     detectionZones: [],
+    // Treasure-hunt active locations: seeded by economy at the seed tick
+    // (TreasureHuntSpec.seedTick) so the GetRandomInt draw order is part of
+    // the replay contract, not createMatch's single empire-share draw.
+    treasureByTeam: { south: null, north: null },
     pendingDeaths: [],
     events: [],
     timers: {

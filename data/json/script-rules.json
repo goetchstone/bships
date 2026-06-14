@@ -683,5 +683,96 @@
    "dps": null,
    "dpsPer100g": null
   }
- ]
+ ],
+ "questSystems": {
+  "provenance": "Three secondary quest chains extracted faithfully from war3map.j (BattleShips Pro v1.187), all distinct from the headline I01E goblin-bomb and I032->I02Z superbomb suicide runs (already in specials.ts). All region triggers are enter-rect events (TriggerRegisterEnterRectSimple) except the two USE_ITEM reward triggers noted below. All gold via AdjustPlayerStateBJ(PLAYER_STATE_RESOURCE_GOLD), XP via AddHeroXPSwapped(..., true), and udg_PlayerLumber += rewardLumber after a 1-tick or 1s settle. Carrier hulls H00D (Trade Boat) / H005 (Trade Ship); both refinery hulls accepted unless noted. Region coords are gg_rct_* world rects (see map-layout.json).",
+  "refinery": {
+   "doc": "REFINERY CHAIN. A two-step value-upgrade of trade goods. Step 1 (refine swap): a Trade Boat/Ship carrying a RAW good AND the membership item I02Q 'Book of Formulas' enters the central gg_rct_Refinery rect; the raw good is RemoveItem'd and the matching REFINED good is added (UnitAddItemByIdSwapped). No team gate, no contract required for the swap, no inventory-count gate; both H00D and H005 accepted. Step 2 (cash-in): the ship sails to its OWN team's reward rect (gg_rct_SouthReward for Player(0) allies, gg_rct_NorthReward for Player(1) allies) carrying the ORIGINAL CONTRACT item + the REFINED good + I02Q; the refined good is RemoveItem'd (contract + I02Q kept) and gold/XP/lumber paid. Refined cash-in pays MORE than the same route's raw delivery (the existing trade-route South/North_Rewards). I02Q (Book of Formulas, igol 0, no lumber gate) is sold by BOTH Trade Masters (n00E Will south, n00F Bill north) and is never consumed. The Goblin Engineer (I01J->I031) and Golden Statue (I02G->I030) refine swaps exist but cash out via the Repair-Mission USE_ITEM reward and the Treasure reward respectively, not via the *_Rewards_Refinery triggers; they are listed separately. Refinery reward triggers gate on GetTriggerUnit()==udg_PlayerBoat (the player's registered boat) AND IsPlayerAlly(Player(0|1)). The udg_RewardRecieved flag chains the per-good if-blocks then prints one combined Reward line.",
+   "membershipItemId": "I02Q",
+   "membershipItemName": "Book of Formulas",
+   "refineRegion": "Refinery",
+   "refineRegionLines": [13349, 13378, 13407, 13436, 13465, 13494, 13523, 13552, 13581, 13610],
+   "rewardRegionByTeam": { "south": "SouthReward", "north": "NorthReward" },
+   "carrierShipTypes": ["H00D", "H005"],
+   "rewardBoatMustBeRegistered": true,
+   "refineSteps": [
+    { "rawGoodId": "I00J", "refinedGoodId": "I02V", "refinedName": "Beer", "trigger": "Beer_Pick_Up", "lines": [13603, 13604, 13605] },
+    { "rawGoodId": "I003", "refinedGoodId": "I02S", "refinedName": "Carpenter's Wood", "trigger": "RefinedWood_Pick_Up", "lines": [13545, 13546, 13547] },
+    { "rawGoodId": "I00V", "refinedGoodId": "I02W", "refinedName": "Custom Ammo", "trigger": "Ammo_Pick_Up", "lines": [13574, 13575, 13576] },
+    { "rawGoodId": "I02J", "refinedGoodId": "I02R", "refinedName": "Mutated Pig", "trigger": "MutatedPig_Pick_Up", "lines": [13371, 13372, 13373] },
+    { "rawGoodId": "I00N", "refinedGoodId": "I02T", "refinedName": "Strange Potion", "trigger": "Potion_Pick_Up", "lines": [13400, 13401, 13402] },
+    { "rawGoodId": "I00R", "refinedGoodId": "I02Y", "refinedName": "Pirates Treasure", "trigger": "Boxes_Pick_Up", "lines": [13429, 13430, 13431] },
+    { "rawGoodId": "I02L", "refinedGoodId": "I02X", "refinedName": "World Compendium", "trigger": "Compendium_Pick_Up", "lines": [13458, 13459, 13460] },
+    { "rawGoodId": "I015", "refinedGoodId": "I02U", "refinedName": "Mutated Captive", "trigger": "MutatedCaptive_Pick_Up", "lines": [13487, 13488, 13489] },
+    { "rawGoodId": "I014", "refinedGoodId": "I02U", "refinedName": "Mutated Captive", "trigger": "MutatedCaptive_Pick_Up1", "lines": [13516, 13517, 13518] }
+   ],
+   "rewardRoutes": [
+    { "contractItemId": "I00K", "refinedGoodId": "I02V", "team": null, "rewardGold": 300, "rewardXp": 80, "rewardLumber": 1, "trigger": "South_Rewards_Refinery/North_Rewards_Refinery Func002C", "lines": [13682, 13750, 13836, 13903] },
+    { "contractItemId": "I00S", "refinedGoodId": "I02S", "team": null, "rewardGold": 600, "rewardXp": 125, "rewardLumber": 2, "trigger": "South_Rewards_Refinery/North_Rewards_Refinery Func003C", "lines": [13694, 13760, 13848, 13914] },
+    { "contractItemId": "I02K", "refinedGoodId": "I02W", "team": null, "rewardGold": 600, "rewardXp": 125, "rewardLumber": 2, "trigger": "Ammo_South_Rewards_Refinery/Ammo_North_Rewards_Refinery (separate twin triggers; Ammo uses I02K contract)", "lines": [13990, 14003, 14039, 14052] },
+    { "contractItemId": "I00W", "refinedGoodId": "I02R", "team": "south", "rewardGold": 1800, "rewardXp": 300, "rewardLumber": 5, "trigger": "South_Rewards_Refinery Func004C (pigs, south only)", "lines": [13706, 13771] },
+    { "contractItemId": "I00M", "refinedGoodId": "I02T", "team": "north", "rewardGold": 1800, "rewardXp": 300, "rewardLumber": 5, "trigger": "North_Rewards_Refinery Func004C (potions, north only)", "lines": [13860, 13925] },
+    { "contractItemId": "I00Q", "refinedGoodId": "I02Y", "team": "south", "rewardGold": 3000, "rewardXp": 450, "rewardLumber": 6, "trigger": "South_Rewards_Refinery Func005C (boxes, south only)", "lines": [13718, 13782] },
+    { "contractItemId": "I00U", "refinedGoodId": "I02X", "team": "north", "rewardGold": 3000, "rewardXp": 450, "rewardLumber": 6, "trigger": "North_Rewards_Refinery Func005C (books, north only)", "lines": [13872, 13936] },
+    { "contractItemId": "I013", "refinedGoodId": "I02U", "team": "south", "rewardGold": 6750, "rewardXp": 850, "rewardLumber": 8, "trigger": "South_Rewards_Refinery Func006C (north-captives contract, south only)", "lines": [13730, 13793] },
+    { "contractItemId": "I012", "refinedGoodId": "I02U", "team": "north", "rewardGold": 6750, "rewardXp": 850, "rewardLumber": 8, "trigger": "North_Rewards_Refinery Func006C (south-captives contract, north only)", "lines": [13884, 13947] }
+   ],
+   "rewardRoutesNote": "Each refined cash-in pays exactly 1.5x the corresponding raw trade-route gold (e.g. Ale 200->refined 300, Pigs 1200->1800, Captives 4500->6750) for the same contract + same +1 lumber over the raw route's lumber; XP equals the raw route XP except captives unchanged at 850. Team gating mirrors the raw routes: ale/wood/ammo are open to both teams; pigs/boxes/north-captives are south-only; potions/books/south-captives are north-only. The captive refine (I014 OR I015 -> I02U) is consumed by whichever team's contract is carried (I013 south, I012 north)."
+  },
+  "repairMission": {
+   "doc": "REPAIR BUILDINGS MISSION (I01I). Step 0 (buy): I01I 'Repair Buildings Mission' (igol 0) bought from a Trade Master (n00E Will / n00F Bill); gated on udg_PlayerLumber >= 18 (Lumber_Back_From_Contracts Func006, war3map.j 8267-8277, 8355-8363) — a pure threshold, never consumed (the 18 engine-lumber ilum is refunded). Step 1 (token): a carrier holding I01I and NOT holding I01J enters gg_rct_GoblinBombShop with a free inventory slot (H00D UnitInventoryCount < 3 via Trig_Repair_Mission, H005 < 4 via Trig_Repair_Mission_Copy) -> I01J 'Goblin Mechanic' is added (UnitAddItemByIdSwapped). I01I is NOT consumed by this step. Step 2 (reward): the player USES item I01J (EVENT_PLAYER_UNIT_USE_ITEM, NOT a region trigger), on an H00D/H005 -> after a 1s sleep: +700 gold, +300 XP, +3 lumber (Trig_Repair_Mission_part2_Reward, 11652-11683). REFINERY VARIANT: if the carrier instead refines the Goblin Mechanic at the Refinery (I01J + I02Q -> I031 'Goblin Engineer', Trig_Goblin_Engineer_Pick_Up, 13342-13345) and then USES I031 while carrying I02Q, the reward is upgraded: +1050 gold, +300 XP, +3 lumber (Trig_Repair_Mission_part2_Reward_Refinery, 14095-14124; 1050 = 1.5x 700). Both reward triggers are use-item; there is no 'repair a building' action in script — the name is flavor, the deliverable is the consumable Goblin Mechanic/Engineer token whose USE pays out.",
+   "contractItemId": "I01I",
+   "contractItemName": "Repair Buildings Mission",
+   "lumberThreshold": 18,
+   "soldBy": ["n00E", "n00F"],
+   "tokenRegion": "GoblinBombShop",
+   "tokenItemId": "I01J",
+   "tokenItemName": "Goblin Mechanic",
+   "carrierMaxItems": { "H00D": 3, "H005": 4 },
+   "rewardTrigger": "useItem",
+   "reward": { "rewardGold": 700, "rewardXp": 300, "rewardLumber": 3 },
+   "refinedVariant": {
+    "membershipItemId": "I02Q",
+    "refineRegion": "Refinery",
+    "refinedTokenId": "I031",
+    "refinedTokenName": "Goblin Engineer",
+    "reward": { "rewardGold": 1050, "rewardXp": 300, "rewardLumber": 3 }
+   },
+   "lines": [8267, 8355, 11602, 11617, 11627, 11642, 11658, 11667, 13342, 14101, 14113]
+  },
+  "treasureHunts": {
+   "doc": "TREASURE HUNT (I02H south / I02I north). Step 0 (buy): I02H 'Finding Treasure Contract (South)' from n00E Will (south side), or I02I 'Finding Treasure Contract (North)' from n00F Bill (north side); each igol 1000, and on purchase refunds 80 engine lumber (Lumber_Back_From_Contracts Func012/Func013, 8385-8395) — NO udg_PlayerLumber threshold (these are in the 'refund' group, not the 'need' group). Step 1 (find): exactly ONE active treasure location at a time per team, tracked by udg_SouthTreasure1 / udg_NorthTreasure1 (each a 1..8 int, both seeded to GetRandomInt(1,8) by Trig_SetTreasure at t=5s, 12501-12509). A registered H005 Trade Ship that is an ally of its team, carries the matching contract (I02H south / I02I north), does NOT carry I02G, and has UnitInventoryCount < 4, must enter the rect whose index matches its team's current treasure number -> I02G 'Treasure' is added, BOTH teams get a minimap ping + warning at that location, and the team's treasure number is REROLLED GetRandomInt(1,8). The 8 location rects (same list for both teams, indexed by number): 1=AleFactory, 2=SwedeLumberMill, 3=GoblinBombShop, 4=Pigfarm, 5=GoblinPotionShop, 6=GhostShip, 7=ElvenLibrary, 8=enemy main base (South team's #8 = North_Main, North team's #8 = South_Main). Step 2 (return): the ship sails to its OWN reward rect (gg_rct_SouthReward for I02H, gg_rct_NorthReward for I02I) carrying contract + I02G -> RemoveItem both the I02G and the CONTRACT (the contract IS consumed here, unlike trade routes), pay 14000 gold + 2500 XP + 0 lumber (Trig_SouthTreasureReward 12738-12778 / Trig_NorthTreasureReward 12696-12736). DROP HANDLING: dropping I02G (ITEM_TYPE_MISCELLANEOUS) destroys it after 0.05s if it is not back in the boat/handyman (Trig_Destroy_Treasure 11190-11220). Treasure RNG MUST draw from the match Rng for determinism. NOTE: the reward triggers gate on GetTriggerUnit()==udg_PlayerBoat (registered boat).",
+   "contractByTeam": { "south": "I02H", "north": "I02I" },
+   "contractNameByTeam": { "south": "Finding Treasure Contract (South)", "north": "Finding Treasure Contract (North)" },
+   "treasureItemId": "I02G",
+   "treasureItemName": "Treasure",
+   "contractGold": 1000,
+   "contractLumberRefund": 80,
+   "contractLumberThreshold": 0,
+   "soldBy": { "south": "n00E", "north": "n00F" },
+   "carrierShipType": "H005",
+   "pickupMaxCarriedItems": 4,
+   "treasureLocationCount": 8,
+   "treasureSeededAtSeconds": 5,
+   "treasureLocationRegionsByNumber": {
+    "south": { "1": "AleFactory", "2": "SwedeLumberMill", "3": "GoblinBombShop", "4": "Pigfarm", "5": "GoblinPotionShop", "6": "GhostShip", "7": "ElvenLibrary", "8": "North_Main" },
+    "north": { "1": "AleFactory", "2": "SwedeLumberMill", "3": "GoblinBombShop", "4": "Pigfarm", "5": "GoblinPotionShop", "6": "GhostShip", "7": "ElvenLibrary", "8": "South_Main" }
+   },
+   "rewardRegionByTeam": { "south": "SouthReward", "north": "NorthReward" },
+   "rewardBoatMustBeRegistered": true,
+   "consumesContractOnReward": true,
+   "reward": { "rewardGold": 14000, "rewardXp": 2500, "rewardLumber": 0 },
+   "refinedVariant": {
+    "doc": "REFINED TREASURE BRANCH. A H005 carrying the Treasure (I02G) AND the Book of Formulas (I02Q) entering gg_rct_Refinery has the Treasure RemoveItem'd and the Golden Statue (I030) added via UnitAddItemByIdSwapped (Trig_Golden_Treasure_Pick_Up, 14070-14093) — the same 1.5x refinery upgrade pattern applied to treasure; no team gate, no contract required for the swap. Cash-in: a registered H005 ally entering its OWN reward rect (gg_rct_SouthReward for I02H/Player(0) allies, gg_rct_NorthReward for I02I/Player(1) allies) carrying the CONTRACT + Golden Statue (I030) + Book (I02Q) has BOTH the I030 and the CONTRACT RemoveItem'd (book kept) and is paid 21000 gold + 2500 XP + 0 lumber (Trig_SouthTreasureReward_Copy 14344-14388 / Trig_NorthTreasureReward_Copy 14296-14342; 14000*1.5 = 21000, the single largest payout in the game).",
+    "membershipItemId": "I02Q",
+    "membershipItemName": "Book of Formulas",
+    "refineRegion": "Refinery",
+    "refinedTreasureId": "I030",
+    "refinedTreasureName": "Golden Statue",
+    "reward": { "rewardGold": 21000, "rewardXp": 2500, "rewardLumber": 0 },
+    "lines": [14070, 14082, 14299, 14323, 14344, 14368]
+   },
+   "lines": [8385, 8393, 12501, 12696, 12738, 12780, 12848, 12932, 13000, 13068, 13136, 13204, 13256, 13290]
+  }
+ }
 }

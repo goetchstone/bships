@@ -523,10 +523,27 @@ describe('compileClassicRuleset — shops', () => {
     expect(bill?.items.find((i) => i.itemId === 'I00M')?.lumberCost).toBe(10);
   });
 
-  it('compiles items.json ilum as the lumber threshold on every shop entry', () => {
-    // The engine charges ilum at purchase and the script refunds it while
-    // Lumber_Fix syncs lumber to udg_PlayerLumber — i.e. a pure threshold.
-    const thresholds: Record<string, number> = { I01E: 80, I00U: 25, I012: 50, I013: 50, I02H: 80, I02I: 80, I02K: 4 };
+  it('compiles the lumber threshold per the need/refund groups, not raw ilum', () => {
+    // The NEED group (I00S/I00W/I00M/I01I/I00Q) gates on udg_PlayerLumber at
+    // its ilum value (a pure, never-consumed threshold). The REFUND group
+    // (I00U/I013/I012/I01E/I02I/I02H) merely gets its engine ilum charge back
+    // and imposes NO threshold — so although their ilum is large (e.g. 80),
+    // the compiled lumberCost is 0. This is the contractLumberThreshold=0
+    // semantics the treasure-hunt extraction confirmed (script-rules.json
+    // mechanism: "I00U/I013/I012/I01E/I02I/I02H refund 25/50/50/80/80/80").
+    const thresholds: Record<string, number> = {
+      // refund group -> no threshold
+      I01E: 0,
+      I00U: 0,
+      I012: 0,
+      I013: 0,
+      I02H: 0,
+      I02I: 0,
+      // need group -> ilum gate
+      I02K: 4,
+      I01I: 18,
+      I00Q: 25,
+    };
     for (const [itemId, lumber] of Object.entries(thresholds)) {
       const entries = Object.values(rs.shops)
         .flatMap((shop) => shop.items)

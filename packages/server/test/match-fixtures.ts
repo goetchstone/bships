@@ -49,6 +49,7 @@ export function makeState(tick = 100): SimState {
     projectiles: {},
     groundItems: {},
     detectionZones: [],
+    treasureByTeam: { south: null, north: null },
     pendingDeaths: [],
     events: [],
     timers: {

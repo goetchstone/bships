@@ -693,6 +693,15 @@ export interface SimState {
   projectiles: Record<number, Projectile>;
   groundItems: Record<number, GroundItem>;
   detectionZones: DetectionZone[];
+  /**
+   * Treasure-hunt active location index per team (1..locationCount), or null
+   * before the seed tick. Seeded once at TreasureHuntSpec.seedTick and
+   * rerolled on every pickup — BOTH draws come from the match Rng
+   * (state.rngState) in a fixed order (south then north at the seed tick;
+   * reroll inline in the ascending-slot contract scan) so the match replays
+   * bit-identically. A serializable POJO field per the determinism mandate.
+   */
+  treasureByTeam: Record<TeamId, number | null>;
   /** Written by combat/specials, consumed by progression, cleared in finalize. */
   pendingDeaths: PendingDeath[];
   /** Per-tick event buffer: cleared and returned by stepTick. Excluded from hashState. */
@@ -1158,6 +1167,138 @@ export interface TradeRouteSpec {
   rewardLumber: number;
 }
 
+/**
+ * One refinery cash-in route (gg_rct_{South,North}Reward
+ * Trig_*_Rewards_Refinery). Mirrors TradeRouteSpec's reward shape: the
+ * carrier delivers the ORIGINAL contract + the REFINED good + the
+ * membership book to its OWN reward zone; the refined good is removed
+ * (contract + book kept) and gold/XP/lumber paid. Pays 1.5x the raw route's
+ * gold (war3map.j 13664-14068).
+ */
+export interface RefineryRewardRoute {
+  /** The trade-route contract carried (kept on cash-in). */
+  contractItemId: string;
+  /** The refined good consumed on cash-in. */
+  refinedGoodId: string;
+  /** Restricts the route to this team; null = both teams (mirrors raw routes). */
+  team: TeamId | null;
+  rewardGold: number;
+  rewardXp: number;
+  rewardLumber: number;
+}
+
+/**
+ * REFINERY CHAIN (questSystems.refinery): a two-step value-upgrade of trade
+ * goods, gated on the never-consumed membership item I02Q Book of Formulas.
+ * - Step 1 (refine swap at refineRegion): a carrier holding a RAW good + the
+ *   book swaps the raw good for its REFINED good in place. No team gate, no
+ *   contract, no inventory-count gate.
+ * - Step 2 (cash-in at the OWN reward zone): contract + refined good + book
+ *   carried -> refined good removed, gold/XP/lumber paid.
+ */
+export interface RefinerySpec {
+  /** I02Q — required to enter both steps; never consumed. */
+  membershipItemId: string;
+  /** Central swap rect (gg_rct_Refinery). */
+  refineRegion: string;
+  /** Per-team cash-in rect (gg_rct_{South,North}Reward). */
+  rewardRegionByTeam: Record<TeamId, string>;
+  /** Eligible carrier hulls (H00D/H005 -> JASS UnitInventoryCount gate < N). */
+  carrierMaxItems: Record<string, number>;
+  /** rawGoodId -> refinedGoodId swaps at refineRegion (ascending rawGoodId). */
+  refineSwaps: { rawGoodId: string; refinedGoodId: string }[];
+  rewardRoutes: RefineryRewardRoute[];
+}
+
+/**
+ * REPAIR BUILDINGS MISSION (questSystems.repairMission, item I01I). Despite
+ * the name there is no "repair a building" action — the deliverable is a
+ * consumable token whose USE pays out.
+ * - Buy I01I (igol 0, threshold lumberThreshold, never consumed) from a
+ *   Trade Master.
+ * - Token step (at tokenRegion): a carrier holding the contract and NOT the
+ *   token, with a free slot, gains the token (contract kept).
+ * - Reward step (USE-ITEM, mirrors economy.useItem): using the token (or its
+ *   refined variant while carrying the book) pays gold/XP/lumber.
+ */
+export interface RepairMissionSpec {
+  /** I01I — the purchased mission contract (kept; pure threshold). */
+  contractItemId: string;
+  /** udg_PlayerLumber threshold to buy (18); never consumed. */
+  lumberThreshold: number;
+  /** Region where the carrier is granted the token (gg_rct_GoblinBombShop). */
+  tokenRegion: string;
+  /** I01J Goblin Mechanic — the consumable reward token. */
+  tokenItemId: string;
+  /** Eligible carrier hulls -> JASS UnitInventoryCount gate (< N). */
+  carrierMaxItems: Record<string, number>;
+  reward: { rewardGold: number; rewardXp: number; rewardLumber: number };
+  /** Refinery upgrade: I01J + book -> refinedTokenId at the refine region. */
+  refinedVariant: {
+    membershipItemId: string;
+    refineRegion: string;
+    refinedTokenId: string;
+    reward: { rewardGold: number; rewardXp: number; rewardLumber: number };
+  };
+}
+
+/**
+ * TREASURE HUNT (questSystems.treasureHunts, I02H south / I02I north).
+ * - Buy the team's contract (igol 1000, refunds engine lumber, NO threshold).
+ * - Find: exactly ONE active treasure location per team (a 1..N index in
+ *   SimState.treasureByTeam), seeded at the seed tick and rerolled on pickup.
+ *   A registered H005 carrying the contract, not the treasure, with a free
+ *   slot, that enters the rect matching its team's current number gains the
+ *   treasure; the team number is rerolled from the match Rng.
+ * - Return: at the OWN reward zone the registered boat with contract +
+ *   treasure pays out; BOTH the treasure AND the contract are consumed.
+ * - Refined branch (refinedVariant): the Treasure can instead be REFINED into
+ *   the Golden Statue (I02G -> I030) at the Refinery while carrying the book
+ *   (Trig_Golden_Treasure_Pick_Up), then cashed at the OWN reward zone with
+ *   contract + Golden Statue + book for the 1.5x reward (21000g vs 14000g;
+ *   Trig_{South,North}TreasureReward_Copy). The contract + statue are removed;
+ *   the book is kept.
+ */
+export interface TreasureHuntSpec {
+  /** Team -> the contract item that team buys (I02H south / I02I north). */
+  contractByTeam: Record<TeamId, string>;
+  /** I02G Treasure — granted on find, consumed on return. */
+  treasureItemId: string;
+  /** Only this hull can find/return treasure (H005). */
+  carrierShipType: string;
+  /** JASS UnitInventoryCount gate at find (< N). */
+  pickupMaxCarriedItems: number;
+  /** Number of treasure locations (8); treasure index is 1..N. */
+  locationCount: number;
+  /** Tick the per-team treasure numbers are first seeded (GetRandomInt 1..N). */
+  seedTick: number;
+  /** Team -> (treasure number string -> region name). */
+  locationRegionsByNumber: Record<TeamId, Record<string, string>>;
+  /** Per-team return rect (gg_rct_{South,North}Reward). */
+  rewardRegionByTeam: Record<TeamId, string>;
+  reward: { rewardGold: number; rewardXp: number; rewardLumber: number };
+  /**
+   * The refined Golden-Statue branch: refine the Treasure at the Refinery
+   * (gated on the Book of Formulas), then cash it for the larger reward.
+   */
+  refinedVariant: {
+    /** I02Q Book of Formulas — gates both the refine and the cash-in; kept. */
+    membershipItemId: string;
+    /** Central swap rect (gg_rct_Refinery) — same rect as the trade-good refines. */
+    refineRegion: string;
+    /** I030 Golden Statue — the refined Treasure (granted by the swap, consumed on cash-in). */
+    refinedTreasureId: string;
+    reward: { rewardGold: number; rewardXp: number; rewardLumber: number };
+  };
+}
+
+/** The three secondary quest chains (questSystems in script-rules.json). */
+export interface QuestSystems {
+  refinery: RefinerySpec;
+  repairMission: RepairMissionSpec;
+  treasureHunts: TreasureHuntSpec;
+}
+
 export interface ContractRules {
   /** itemId -> udg_PlayerLumber threshold at purchase (I00S 4 ... I00Q 25). */
   lumberCosts: Record<string, number>;
@@ -1331,6 +1472,7 @@ export interface Ruleset {
   missiles: MissileRules;
   suicideQuests: SuicideQuestSpec[];
   contracts: ContractRules;
+  questSystems: QuestSystems;
   xp: XpRules;
   respawn: RespawnRules;
   income: IncomeRules;
@@ -1437,6 +1579,59 @@ export interface RawTradeRouteRow {
   lines?: number[];
 }
 
+/** questSystems block of script-rules.json (the three secondary chains). */
+export interface RawQuestSystems {
+  refinery: {
+    membershipItemId: string;
+    refineRegion: string;
+    rewardRegionByTeam: Record<string, string>;
+    carrierShipTypes: string[];
+    refineSteps: { rawGoodId: string; refinedGoodId: string }[];
+    rewardRoutes: {
+      contractItemId: string;
+      refinedGoodId: string;
+      team: string | null;
+      rewardGold: number;
+      rewardXp: number;
+      rewardLumber: number;
+    }[];
+  };
+  repairMission: {
+    contractItemId: string;
+    lumberThreshold: number;
+    tokenRegion: string;
+    tokenItemId: string;
+    carrierMaxItems: Record<string, number>;
+    reward: { rewardGold: number; rewardXp: number; rewardLumber: number };
+    refinedVariant: {
+      membershipItemId: string;
+      refineRegion: string;
+      refinedTokenId: string;
+      reward: { rewardGold: number; rewardXp: number; rewardLumber: number };
+    };
+  };
+  treasureHunts: {
+    contractByTeam: Record<string, string>;
+    treasureItemId: string;
+    contractGold: number;
+    contractLumberRefund: number;
+    contractLumberThreshold: number;
+    carrierShipType: string;
+    pickupMaxCarriedItems: number;
+    treasureLocationCount: number;
+    treasureSeededAtSeconds: number;
+    treasureLocationRegionsByNumber: Record<string, Record<string, string>>;
+    rewardRegionByTeam: Record<string, string>;
+    reward: { rewardGold: number; rewardXp: number; rewardLumber: number };
+    refinedVariant: {
+      membershipItemId: string;
+      refineRegion: string;
+      refinedTreasureId: string;
+      reward: { rewardGold: number; rewardXp: number; rewardLumber: number };
+    };
+  };
+}
+
 export interface RawMapLayoutFile {
   mapBounds: {
     playableArea: { minX: number; minY: number; maxX: number; maxY: number };
@@ -1540,6 +1735,7 @@ export interface RawDataFiles {
     mechanism: string;
     scriptedItems: RawScriptedItemRow[];
     tradeRoutes: RawTradeRouteRow[];
+    questSystems: RawQuestSystems;
   };
   mapLayout: RawMapLayoutFile;
   units: unknown;

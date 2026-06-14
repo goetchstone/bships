@@ -402,6 +402,46 @@ function makeRuleset(): Ruleset {
         rewardLumber: 1,
       },
     },
+    questSystems: {
+      refinery: {
+        membershipItemId: 'I02Q',
+        refineRegion: 'Refinery',
+        rewardRegionByTeam: { south: 'SouthReward', north: 'NorthReward' },
+        carrierMaxItems: { H00D: 3, H005: 4 },
+        refineSwaps: [{ rawGoodId: 'I00J', refinedGoodId: 'I02V' }],
+        rewardRoutes: [
+          { contractItemId: 'I00K', refinedGoodId: 'I02V', team: null, rewardGold: 300, rewardXp: 80, rewardLumber: 1 },
+        ],
+      },
+      repairMission: {
+        contractItemId: 'I01I',
+        lumberThreshold: 18,
+        tokenRegion: 'GoblinBombShop',
+        tokenItemId: 'I01J',
+        carrierMaxItems: { H00D: 3, H005: 4 },
+        reward: { rewardGold: 700, rewardXp: 300, rewardLumber: 3 },
+        refinedVariant: {
+          membershipItemId: 'I02Q',
+          refineRegion: 'Refinery',
+          refinedTokenId: 'I031',
+          reward: { rewardGold: 1050, rewardXp: 300, rewardLumber: 3 },
+        },
+      },
+      treasureHunts: {
+        contractByTeam: { south: 'I02H', north: 'I02I' },
+        treasureItemId: 'I02G',
+        carrierShipType: 'H005',
+        pickupMaxCarriedItems: 4,
+        locationCount: 8,
+        seedTick: 7,
+        locationRegionsByNumber: {
+          south: { '1': 'AleFactory', '2': 'AleFactory', '3': 'AleFactory', '4': 'AleFactory', '5': 'AleFactory', '6': 'AleFactory', '7': 'AleFactory', '8': 'AleFactory' },
+          north: { '1': 'AleFactory', '2': 'AleFactory', '3': 'AleFactory', '4': 'AleFactory', '5': 'AleFactory', '6': 'AleFactory', '7': 'AleFactory', '8': 'AleFactory' },
+        },
+        rewardRegionByTeam: { south: 'SouthReward', north: 'NorthReward' },
+        reward: { rewardGold: 14000, rewardXp: 2500, rewardLumber: 0 },
+      },
+    },
     xp: {
       xpToLevel: [0, 0, 200, 500, 900, 1400, 2000, 2700, 3500, 4400, 5400],
       killXpByVictimLevel: [0, 25, 40, 60, 85, 115, 150],
@@ -598,6 +638,7 @@ function makeState(): SimState {
     projectiles: {},
     groundItems: {},
     detectionZones: [],
+    treasureByTeam: { south: null, north: null },
     pendingDeaths: [],
     events: [],
     timers: {
