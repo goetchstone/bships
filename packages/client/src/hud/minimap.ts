@@ -7,6 +7,7 @@
  */
 
 import type { SnapshotEntity } from '@bships/core';
+import { isWater } from '@bships/core';
 import { getCamera } from '../render/camera.js';
 import { store } from '../net/store.js';
 import type { HudContext } from './context.js';
@@ -31,6 +32,9 @@ export function initMinimap(ctx: HudContext): void {
 
   const colors = {
     water: cssVar('--bg-deep', '#07111c'),
+    land: '#55623a',
+    landLit: '#6c7a48',
+    seaTile: '#16486a',
     border: cssVar('--border', '#2a4a66'),
     south: cssVar('--team-south', '#ff5c5c'),
     north: cssVar('--team-north', '#5c8aff'),
@@ -45,6 +49,33 @@ export function initMinimap(ctx: HudContext): void {
     if (team === 'north') return colors.north;
     return colors.neutral;
   }
+
+  // Static terrain backdrop: sample the water mask once per minimap pixel so
+  // the land/water shape (the lanes-through-land map) is ALWAYS visible, even
+  // before the first snapshot. Built once (the mask is immutable) and blitted
+  // each frame — far cheaper than re-sampling per draw.
+  const terrainBg: HTMLCanvasElement = document.createElement('canvas');
+  terrainBg.width = transform.width;
+  terrainBg.height = transform.height;
+  function buildTerrainBg(): void {
+    const tg = terrainBg.getContext('2d');
+    const mask = ctx.catalog.map.waterMask;
+    if (tg === null) return;
+    tg.fillStyle = colors.seaTile;
+    tg.fillRect(0, 0, terrainBg.width, terrainBg.height);
+    if (mask.cells.length === 0) return; // open-sea stub: all water
+    for (let py = 0; py < terrainBg.height; py++) {
+      for (let px = 0; px < terrainBg.width; px++) {
+        const w = transform.toWorld(px + 0.5, py + 0.5);
+        if (!isWater(mask, w.x, w.y)) {
+          // North-lit land: a touch brighter on the upper rows reads as relief.
+          tg.fillStyle = py < terrainBg.height * 0.5 ? colors.landLit : colors.land;
+          tg.fillRect(px, py, 1, 1);
+        }
+      }
+    }
+  }
+  buildTerrainBg();
 
   function drawStructure(en: SnapshotEntity): void {
     if (g === null) return;
@@ -122,8 +153,8 @@ export function initMinimap(ctx: HudContext): void {
   function draw(nowMs: number): void {
     if (g === null) return;
     g.clearRect(0, 0, canvas.width, canvas.height);
-    g.fillStyle = colors.water;
-    g.fillRect(0, 0, canvas.width, canvas.height);
+    // Static land/water terrain backdrop (shows the lanes-through-land shape).
+    g.drawImage(terrainBg, 0, 0);
 
     const sample = hudSample(nowMs);
     if (sample !== null) {

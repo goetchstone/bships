@@ -34,7 +34,7 @@ import {
   DEFAULT_ZOOM,
   setFollowTarget,
   setViewport,
-  snapCamera,
+  startIntro,
   updateCamera,
 } from './camera.js';
 import { createFog } from './fog.js';
@@ -46,17 +46,21 @@ import { createWorld } from './world.js';
 
 let initialized = false;
 
-/** Center the camera on this client's spawn (fallback: map center). */
+/** Establishing shot of the player's base + lanes/land ahead, then ease into
+ *  the follow zoom — so the player sees the battlefield (and that there IS
+ *  land) at match start instead of spawning blind in their home water pocket. */
 function placeInitialCamera(): void {
   const map = getCatalog().map;
   const slot = store.match.mySlot;
   const start = slot === null ? undefined : map.playerStarts[slot];
-  if (start !== undefined) {
-    snapCamera(start.x, start.y, DEFAULT_ZOOM);
-  } else {
-    const b = map.bounds;
-    snapCamera((b.minX + b.maxX) / 2, (b.minY + b.maxY) / 2, DEFAULT_ZOOM);
-  }
+  const b = map.bounds;
+  const cx = start !== undefined ? start.x : (b.minX + b.maxX) / 2;
+  const cy = start !== undefined ? start.y : (b.minY + b.maxY) / 2;
+  // Pull the framing toward the map centre so the lanes + central land are in
+  // shot alongside the base.
+  const mapCenterY = (b.minY + b.maxY) / 2;
+  const towardCentreY = cy + Math.sign(mapCenterY - cy) * 1800;
+  startIntro(cx, towardCentreY, 0.42, DEFAULT_ZOOM, 2600);
 }
 
 export async function initRenderer(opts: { mount: HTMLElement }): Promise<void> {

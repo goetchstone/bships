@@ -22,7 +22,7 @@ import { FORESHORTEN } from './viz.js';
 
 export { FORESHORTEN };
 
-export const MIN_ZOOM = 0.5;
+export const MIN_ZOOM = 0.32;
 export const MAX_ZOOM = 3.0;
 
 /** Default zoom when a match starts (close enough that your ship reads big). */
@@ -82,6 +82,10 @@ interface CameraState {
   following: boolean;
   /** ms since the last manual camera input, for follow-resume. */
   idleMs: number;
+  /** ms left in the opening establishing shot (0 = not playing an intro). */
+  introMsLeft: number;
+  /** zoom to ease into when the intro ends. */
+  introFinalZoom: number;
 }
 
 const state: CameraState = {
@@ -100,12 +104,15 @@ const state: CameraState = {
   followY: null,
   following: true,
   idleMs: 0,
+  introMsLeft: 0,
+  introFinalZoom: 1,
 };
 
 /** Mark that the player just took manual camera control (pauses follow). */
 function manualControl(): void {
   state.following = false;
   state.idleMs = 0;
+  state.introMsLeft = 0; // any manual input cancels the establishing shot
 }
 
 function clamp(v: number, lo: number, hi: number): number {
@@ -212,6 +219,25 @@ export function recenterOnPlayer(): void {
 }
 
 /**
+ * Play an opening "establishing shot": snap to (cx, cy) at the wide
+ * `introZoom` so the player sees the battlefield (land, lanes, their base),
+ * hold for `holdMs`, then ease into `finalZoom` following their ship. Any
+ * manual camera input cancels it. Match-start only.
+ */
+export function startIntro(
+  cx: number,
+  cy: number,
+  introZoom: number,
+  finalZoom: number,
+  holdMs: number,
+): void {
+  snapCamera(cx, cy, introZoom);
+  state.following = false; // hold the wide frame; don't chase the ship yet
+  state.introMsLeft = holdMs;
+  state.introFinalZoom = finalZoom;
+}
+
+/**
  * Zoom by `factor` keeping the world point under (sx, sy) fixed. Operates on
  * TARGET values; current values converge there, so the anchor point holds
  * once the smoothing settles (and visibly tracks during it).
@@ -245,6 +271,22 @@ export function dragBy(dxPx: number, dyPx: number): void {
 /** Per-frame camera step: edge scroll + exponential convergence. */
 export function updateCamera(dtMs: number): void {
   const dt = Math.min(100, Math.max(0, dtMs)) / 1000;
+
+  // Opening establishing shot: hold the wide frame, then hand off to follow.
+  if (state.introMsLeft > 0) {
+    state.introMsLeft -= dtMs;
+    if (state.introMsLeft > 0) {
+      const ki = 1 - Math.exp(-SMOOTH_PER_S * dt);
+      state.x += (state.targetX - state.x) * ki;
+      state.y += (state.targetY - state.y) * ki;
+      state.zoom += (state.targetZoom - state.zoom) * ki;
+      return;
+    }
+    // Intro over: ease into the follow zoom and re-engage follow.
+    state.targetZoom = state.introFinalZoom;
+    state.following = true;
+    state.idleMs = 0;
+  }
 
   if (state.pointer !== null && !state.dragging) {
     const { x: px, y: py } = state.pointer;
@@ -359,4 +401,6 @@ export function resetCameraForTest(viewportW = 1600, viewportH = 900): void {
   state.followY = null;
   state.following = true;
   state.idleMs = 0;
+  state.introMsLeft = 0;
+  state.introFinalZoom = 1;
 }

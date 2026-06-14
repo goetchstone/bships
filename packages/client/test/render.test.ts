@@ -22,6 +22,7 @@ import {
   resetCameraForTest,
   setFollowTarget,
   snapCamera,
+  startIntro,
   updateCamera,
   zoomAt,
 } from '../src/render/camera.js';
@@ -207,6 +208,22 @@ describe('camera follow (center + follow the player)', () => {
     }
     expect(getCamera().x).toBeCloseTo(3000, -1);
     expect(getCamera().y).toBeCloseTo(3000, -1);
+  });
+
+  it('startIntro holds a wide establishing frame, then eases into follow', () => {
+    startIntro(1000, 2000, 0.42, DEFAULT_ZOOM, 2600);
+    // During the hold the camera sits at the wide intro frame, NOT on the ship.
+    setFollowTarget(8000, 8000);
+    for (let i = 0; i < 60; i++) updateCamera(16); // ~1s in
+    expect(getCamera().zoom).toBeCloseTo(0.42, 2);
+    expect(getCamera().x).toBeCloseTo(1000, 0);
+    // After the hold elapses it eases to the follow zoom and chases the ship.
+    for (let i = 0; i < 300; i++) {
+      setFollowTarget(8000, 8000);
+      updateCamera(16);
+    }
+    expect(getCamera().zoom).toBeCloseTo(DEFAULT_ZOOM, 1);
+    expect(getCamera().x).toBeGreaterThan(5000);
   });
 
   it('recenterOnPlayer re-engages follow immediately', () => {
@@ -424,11 +441,11 @@ describe('viz hit-testing', () => {
   });
 
   it('scales hit areas with zoom', () => {
-    snapCamera(0, 0, MIN_ZOOM);
+    snapCamera(0, 0, 0.5);
     const cam = getCamera();
     const e = makeEntity(7, 0, 0);
     const sp = cam.worldToScreen(0, 0);
-    // r*zoom = 16 px + 8 slack: 22 px right still hits at min zoom.
+    // r*zoom = 16 px + 8 slack: 22 px right still hits at 0.5 zoom.
     expect(hitTestEntities([e], sp.x + 22, sp.y, cam, vizCatalog)?.id).toBe(7);
     expect(hitTestEntities([e], sp.x + 60, sp.y, cam, vizCatalog)).toBeNull();
   });
