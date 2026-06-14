@@ -84,6 +84,19 @@ const BORDER = 0x33597a;
  */
 const COAST_BAND = 1400;
 
+/** World-units cell size for scattered ambient whitecaps (one maybe-cap each). */
+const WHITECAP_STEP = 300;
+
+/** Deterministic [0,1) hash of an integer grid cell — stable in world space so
+ * ambient detail is anchored to the sea, not the screen (no crawl on pan). */
+function cellHash(ix: number, iy: number): number {
+  let h = (Math.imul(ix | 0, 0x27d4eb2d) ^ Math.imul(iy | 0, 0x165667b1)) >>> 0;
+  h ^= h >>> 15;
+  h = Math.imul(h, 0x2c1b3c6d) >>> 0;
+  h ^= h >>> 13;
+  return (h >>> 0) / 4294967296;
+}
+
 /** Three drifting foam wave-band layers: spacing, speed, height, alpha. */
 const WAVE_LAYERS: readonly { step: number; speed: number; height: number; alpha: number }[] = [
   { step: 360, speed: 1 / 5200, height: 6, alpha: 0.1 },
@@ -268,6 +281,31 @@ export function createWorld(renderer?: Renderer): WorldLayer {
         seaStatic.moveTo(left, sy).lineTo(br.x, sy);
       }
       seaStatic.stroke({ width: 1, color: WATER_GRID, alpha: 0.045 });
+
+      // Scattered whitecaps: one candidate per world cell, hashed so they are
+      // anchored in the sea (no crawl on pan) and sparse (~22% of cells). Each
+      // is a tiny foreshortened foam dash — open water only (skip the shores so
+      // they never sit "on land"). Cheap: lives in the cached static layer.
+      const cx0 = Math.floor(minX / WHITECAP_STEP);
+      const cx1 = Math.ceil(maxX / WHITECAP_STEP);
+      const cy0 = Math.floor(minY / WHITECAP_STEP);
+      const cy1 = Math.ceil(maxY / WHITECAP_STEP);
+      for (let ix = cx0; ix <= cx1; ix++) {
+        for (let iy = cy0; iy <= cy1; iy++) {
+          const h = cellHash(ix, iy);
+          if (h > 0.26) continue; // density
+          const wx = (ix + cellHash(ix + 7, iy)) * WHITECAP_STEP;
+          const wy = (iy + cellHash(ix, iy + 7)) * WHITECAP_STEP;
+          if (wx < minX || wx > maxX || wy < minY || wy > maxY) continue;
+          if (waterDepth01(wy, bounds) < 0.22) continue; // keep off the shoals
+          const p = cam.worldToScreen(wx, wy);
+          const w = (6 + h * 22) * cam.zoom;
+          const hgt = Math.max(1, w * 0.28 * FORESHORTEN);
+          seaStatic
+            .ellipse(p.x, p.y, w, hgt)
+            .fill({ color: WATER_FOAM, alpha: 0.09 + h * 0.3 });
+        }
+      }
 
       // Procedural coastal shoal: a soft sand/rock band hugging the inside of
       // the N and S map edges, so the open sea meets "land" rather than a hard
