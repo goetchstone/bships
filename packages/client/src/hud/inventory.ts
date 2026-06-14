@@ -5,7 +5,7 @@
  * clock's current tick (readyAtTick fields are absolute sim ticks).
  */
 
-import { sendCommand } from '../net/commands.js';
+import { dropItem, sendCommand } from '../net/commands.js';
 import { store } from '../net/store.js';
 import { bindingFor, onAction } from '../input/keymap.js';
 import type { HudAction } from '../input/keymap.js';
@@ -19,6 +19,7 @@ import {
   itemCooldownTicks,
   itemDisplay,
   keyLabel,
+  ownShipPosition,
   shipActiveAbilityId,
 } from './hudmath.js';
 
@@ -54,6 +55,12 @@ export function initInventory(ctx: HudContext): void {
   for (let i = 0; i < 6; i++) {
     const dom = buildSlot(slotsBox, keyLabel(bindingFor(SLOT_ACTIONS[i] ?? 'slot0')));
     dom.button.addEventListener('click', () => useSlot(i));
+    // RIGHT-CLICK drops the item (BSP has no sell-back; you DROP gear). Suppress
+    // the browser context menu so the drop is the only effect.
+    dom.button.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      dropSlot(i);
+    });
     slots.push(dom);
   }
 
@@ -79,6 +86,16 @@ export function initInventory(ctx: HudContext): void {
   const amBtn = orderButton('⚔', keyLabel(bindingFor('attackMove')), 'Attack-move (then click the map)');
   amBtn.addEventListener('click', armAttackMove);
 
+  // --- "no sell-back" hint --------------------------------------------------
+  // BSP has no sell-back: you DROP gear (right-click a slot). Buying a strictly
+  // better hull/sail "burns" the old one — full gold refunded (Only_One_*). A
+  // teammate can pick up what you drop.
+  const hint = el('div', 'bh-invhint', wrap);
+  hint.textContent = 'No selling — right-click to drop. Upgrading a hull/sail refunds the old one.';
+  hint.title =
+    'BSP has no sell-back. Right-click an item to drop it (a teammate can pick it up). ' +
+    'Buying a strictly better hull or sail "burns" the old one and refunds its full gold.';
+
   // --- actions ---------------------------------------------------------------
   function useSlot(slot: number): void {
     const item = store.match.you?.inventory[slot];
@@ -86,6 +103,22 @@ export function initInventory(ctx: HudContext): void {
     // v1: untargeted use; the server rejects target-requiring items with a
     // commandRejected event surfaced in the chat log.
     sendCommand({ type: 'useItem', slot });
+  }
+
+  /**
+   * Drop the item in `slot` onto the water at the ship's current position — the
+   * only way to discard gear in BSP (no sell-back). Needs the live ship
+   * position from the latest world sample; the sim drops AT the ship and
+   * re-validates reach, so a missing sample just no-ops here.
+   */
+  function dropSlot(slot: number): void {
+    const item = store.match.you?.inventory[slot];
+    if (item === null || item === undefined) return;
+    const sample = hudSample(performance.now());
+    if (sample === null) return;
+    const pos = ownShipPosition(sample.entities, store.match.mySlot);
+    if (pos === null) return;
+    dropItem(slot, pos.x, pos.y);
   }
 
   function castShipAbility(): void {
@@ -131,7 +164,8 @@ export function initInventory(ctx: HudContext): void {
         const disp = itemDisplay(ctx.catalog, item.itemId);
         dom.icon.textContent = disp.emoji;
         dom.charges.textContent = item.charges === null ? '' : String(item.charges);
-        dom.button.title = disp.name;
+        // Hint the drop affordance (BSP has no sell-back — you DROP gear).
+        dom.button.title = `${disp.name}\nRight-click to drop (no sell-back in BSP)`;
       }
     }
     ability.key.textContent = keyLabel(bindingFor('shipAbility'));

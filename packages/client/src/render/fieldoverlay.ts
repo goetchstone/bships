@@ -39,7 +39,8 @@
  */
 
 import { Container, Graphics } from 'pixi.js';
-import type { LaneSpec, RegionRect, TradeRouteSpec, TeamId } from '@bships/core';
+import type { LaneSpec, MapSpec, NavField, RegionRect, TradeRouteSpec, TeamId, WaterMask } from '@bships/core';
+import { isWater, navStepToward } from '@bships/core';
 
 import { getCatalog } from '../catalog.js';
 import { store } from '../net/store.js';
@@ -59,12 +60,96 @@ export interface Pt {
 }
 
 /**
- * The world-space polyline a lane follows: the lane spawn followed by each
- * waypoint, in order. This is the centreline the legibility layer strokes as a
- * faint team-colored ribbon so the player can read where each lane goes.
+ * The lane's RAW vertex polyline: spawn followed by each waypoint, in order.
+ * This is the order-issue skeleton, NOT the sailed route — its waypoints are
+ * just `[enemyHarborCenter, enemyHQ]`, so a straight stroke of it cuts across
+ * the central LAND. Kept for tests / fallbacks; the legibility layer strokes
+ * `traceLaneWaterPath` instead (see below). Pure.
  */
 export function lanePolyline(lane: LaneSpec): Pt[] {
   return [{ x: lane.spawnX, y: lane.spawnY }, ...lane.waypoints.map((wp) => ({ x: wp.x, y: wp.y }))];
+}
+
+/**
+ * The world-space polyline the creeps actually SAIL: the winding navigable-
+ * water channel from the lane spawn, around the central landmass, to the enemy
+ * base. The straight `lanePolyline` cuts across land; this traces the REAL
+ * route by repeatedly stepping DOWN the compiled nav gradient (`navStepToward`,
+ * the same field movement.ts uses to steer creeps through the chokepoints), so
+ * the ribbon hugs the water.
+ *
+ * Deterministic + cheap: a fixed-step walk of the static field (no RNG/time/
+ * trig), keeping every `sampleEvery`-th cell (default 1 — adjacent water cells,
+ * so the chord between consecutive points can never skip a land sliver at a
+ * channel bend) and hard-capped at `maxPoints`/`maxSteps`, then the lane's
+ * final raw waypoints (enemy harbour + HQ) are appended so the ribbon connects
+ * to the goal even when the gradient bottoms out in the base basin
+ * (navStepToward returns null within its local-goal radius). Falls back to the
+ * raw `lanePolyline` when there is no real field (stub mask). Pure — the caller
+ * caches it (compute once per catalog).
+ *
+ * `field` must be the lane TEAM's enemy-base field (catalog.map.navByTeam[team]).
+ */
+export function traceLaneWaterPath(
+  lane: LaneSpec,
+  field: NavField,
+  options: { sampleEvery?: number; maxPoints?: number; maxSteps?: number } = {},
+): Pt[] {
+  const sampleEvery = options.sampleEvery ?? 1;
+  const maxPoints = options.maxPoints ?? 1200;
+  const maxSteps = options.maxSteps ?? 6000;
+
+  // No compiled field (open-sea stub) -> nothing to trace; raw skeleton.
+  if (field.dist.length === 0) return lanePolyline(lane);
+
+  const pts: Pt[] = [{ x: lane.spawnX, y: lane.spawnY }];
+  let x = lane.spawnX;
+  let y = lane.spawnY;
+  // Use a small local-goal radius so the gradient walk runs almost all the way
+  // into the base basin before falling through to the appended waypoints.
+  for (let step = 0; step < maxSteps && pts.length < maxPoints; step++) {
+    const next = navStepToward(field, x, y, 2);
+    if (next === null) break; // reached the goal basin / a local minimum
+    x = next.x;
+    y = next.y;
+    if (step % sampleEvery === 0) pts.push({ x, y });
+  }
+
+  // Append the lane's raw waypoints (enemy harbour centre, enemy HQ) so the
+  // ribbon always terminates AT the objective — the gradient stops a few cells
+  // short inside the base, and the last leg into the exact HQ is open water.
+  for (const wp of lane.waypoints) pts.push({ x: wp.x, y: wp.y });
+  return pts;
+}
+
+/** Is every vertex of `pts` on navigable water? (test/debug helper). Pure. */
+export function polylineStaysOnWater(pts: readonly Pt[], mask: WaterMask): boolean {
+  for (const p of pts) {
+    if (!isWater(mask, p.x, p.y)) return false;
+  }
+  return true;
+}
+
+/**
+ * Cached water-following lane polylines, keyed by lane id. The trace is static
+ * map data (depends only on the immutable nav field), so it is computed ONCE
+ * and shared by the field overlay and the minimap ribbons — both call this.
+ */
+const laneWaterPathCache = new Map<string, Pt[]>();
+
+/**
+ * The cached sailed-route polyline for a lane against the given map (uses
+ * `map.navByTeam[lane.team]`). Falls back to the raw `lanePolyline` when the
+ * map ships no compiled nav field (open-sea stub). The same `map` is used for
+ * the whole client session, so caching purely by lane id is safe.
+ */
+export function laneWaterPath(lane: LaneSpec, map: MapSpec): Pt[] {
+  const cached = laneWaterPathCache.get(lane.id);
+  if (cached !== undefined) return cached;
+  const field = map.navByTeam[lane.team];
+  const path = field === undefined ? lanePolyline(lane) : traceLaneWaterPath(lane, field);
+  laneWaterPathCache.set(lane.id, path);
+  return path;
 }
 
 /**
@@ -302,13 +387,15 @@ export function createFieldOverlay(): FieldOverlayLayer {
       centre.rect(x, y, w, h).stroke({ width: 1.5, color: GOLD, alpha: CENTRE_BORDER_ALPHA });
     }
 
-    // --- lane ribbons: each lane centreline, own team brighter --------------
+    // --- lane ribbons: each lane's SAILED water route, own team brighter -----
+    // laneWaterPath traces the winding navigable channel (around the central
+    // land, through the tower chokepoints) instead of the straight skeleton.
     const widthPx = Math.max(2, LANE_WIDTH_UNITS * zoom);
     for (const lane of map.lanes) {
       const own = myTeam !== null && lane.team === myTeam;
       strokePolyline(
         lanes,
-        lanePolyline(lane),
+        laneWaterPath(lane, map),
         cam,
         widthPx,
         TEAM_COLOR[lane.team],

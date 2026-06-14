@@ -513,6 +513,9 @@ function applyCastAbility(state: SimState, ruleset: Ruleset, cmd: CastAbilityCom
     case 'ensnare':
       castNet(state, cmd, player, ship, spec, abilityRank(ruleset, player, ship, spec));
       return;
+    case 'shoreLeave':
+      castShoreLeave(state, ruleset, cmd, player, ship, spec);
+      return;
     default:
       // Passive mechanics (hullHp/sailSpeed/mechanicsRegen/trueSightPassive)
       // and misrouted weapon casts cannot be activated.
@@ -745,6 +748,60 @@ function castNet(
     player: cmd.player,
     abilityId: spec.abilityId,
     targetEntityId: target.id,
+  });
+}
+
+/** Own-team Main Harbour interior region (gg_rct_South_Main / North_Main). */
+const SHORE_LEAVE_MAIN_REGION: Record<TeamId, string> = {
+  south: 'South_Main',
+  north: 'North_Main',
+};
+
+/**
+ * Shore Leave (A01D, base Afzy) — the Battle Ship / Submarine innate that
+ * surfaces on F. In war3map.j (Trig_Shore_Leave_Begin) the captain may only
+ * cast it while standing inside the OWN team's Main Harbour rect
+ * (gg_rct_South_Main / gg_rct_North_Main; tooltip aub1 "Only usable close to
+ * the Main Harbour"), whereupon the boat goes ashore as a Handy Man (H00J) to
+ * be repaired. The Handy-Man transform is its own (unmodeled) subsystem; we
+ * model the player-visible payoff — the hull is repaired to full at the base —
+ * gated on that same region so the ability stays faithful and deterministic.
+ *
+ * No RNG/time/trig: a region containment test + a heal of the exact missing
+ * HP, so a match still replays bit-identically.
+ */
+function castShoreLeave(
+  state: SimState,
+  ruleset: Ruleset,
+  cmd: CastAbilityCommand,
+  player: PlayerState,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+): void {
+  if (abilityRank(ruleset, player, ship, spec) === 0) {
+    reject(state, cmd.player, cmd.type, 'notOnShip');
+    return;
+  }
+  if ((player.cooldownGroups[spec.abilityId] ?? 0) > state.tick) {
+    reject(state, cmd.player, cmd.type, 'onCooldown');
+    return;
+  }
+  const region = ruleset.map.regions[SHORE_LEAVE_MAIN_REGION[ship.team]];
+  if (!region || !pointInRegion(region, ship.x, ship.y)) {
+    // Faithful to the tooltip: "Only usable close to the Main Harbour."
+    reject(state, cmd.player, cmd.type, 'notAtMainHarbour');
+    return;
+  }
+
+  breakInvisibilityOnAction(state, ship.id);
+  if (ship.hp < ship.maxHp) applyHeal(state, ship.id, ship.maxHp - ship.hp);
+  player.cooldownGroups[spec.abilityId] = state.tick + (spec.cooldownTicks ?? 0);
+  state.events.push({
+    type: 'abilityCast',
+    tick: state.tick,
+    player: cmd.player,
+    abilityId: spec.abilityId,
+    targetEntityId: ship.id,
   });
 }
 

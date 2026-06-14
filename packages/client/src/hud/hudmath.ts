@@ -301,6 +301,35 @@ export function nearestShopInRange(
 }
 
 // ---------------------------------------------------------------------------
+// Own-ship lookup (drop / order targeting)
+// ---------------------------------------------------------------------------
+
+/** Minimal snapshot-entity shape needed to find the player's own ship. */
+export interface OwnShipCandidate {
+  kind: string;
+  ownerSlot: number | null;
+  x: number;
+  y: number;
+}
+
+/**
+ * The viewer's own living ship position from a world sample, or null when the
+ * ship is not in the sample (dead / not yet spawned / no slot). Pure — used by
+ * the inventory drop affordance to fill the dropItem command's drop point (the
+ * sim drops AT the ship and re-validates reach).
+ */
+export function ownShipPosition(
+  entities: Iterable<OwnShipCandidate>,
+  mySlot: number | null,
+): { x: number; y: number } | null {
+  if (mySlot === null) return null;
+  for (const en of entities) {
+    if (en.kind === 'ship' && en.ownerSlot === mySlot) return { x: en.x, y: en.y };
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Kill feed
 // ---------------------------------------------------------------------------
 

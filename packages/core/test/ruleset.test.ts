@@ -141,6 +141,9 @@ describe('compileClassicRuleset — ships', () => {
     expect(h000?.bounty).toEqual({ base: 79, dice: 1, sides: 1 });
     expect(h000?.abilityIds).toContain('A01Y');
     expect(h000?.abilityIds).toContain('A007');
+    // Shore Leave (A01D) must survive the uabi grant so the F-key ship ability
+    // surfaces — it is the only innate non-passive active on the starter hull.
+    expect(h000?.abilityIds).toContain('A01D');
     expect(h000?.abilityIds).not.toContain('AInv');
     expect(h000?.isSub).toBe(false);
   });
@@ -779,6 +782,17 @@ describe('compileClassicRuleset — abilities', () => {
     expect(net?.rangeUnits).toBe(800); // aran
     expect(net?.durationTicksPerRank).toEqual([160]); // ahdu 8 s @ 20 tps
     expect(net?.cooldownTicks).toBe(700); // acdn 35 s @ 20 tps
+  });
+
+  it('compiles Shore Leave (A01D) as an innate shoreLeave active, not a stub', () => {
+    const sl = rs.abilities['A01D'];
+    // A01D shares the generic Afzy base with A032/A03V — must be keyed by id,
+    // and must NOT fall through to the unimplemented 'special' stub.
+    expect(sl?.name).toBe('Shore Leave');
+    expect(sl?.kind).toBe('innate'); // not a hero skill -> always present on hull
+    expect(sl?.mechanic).toBe('shoreLeave');
+    // acdn 0 -> no cooldown; the gate is the Main-Harbour region (specials.ts).
+    expect(sl?.cooldownTicks).toBeNull();
   });
 });
 

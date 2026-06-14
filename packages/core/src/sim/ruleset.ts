@@ -694,6 +694,11 @@ function compileShipRow(ctx: CompileCtx, row: RawShipRow): ShipSpec {
 }
 
 function abilityMechanic(ctx: CompileCtx, abilityId: string, base: string): AbilitySpec['mechanic'] {
+  // A01D Shore Leave shares the generic Afzy base with A032 Fire Missile and
+  // A03V Get Onboard, so it must be keyed by abilityId, not base. It is the
+  // ships' innate "go ashore at the Main Harbour to repair" active that
+  // surfaces on F (specials.ts castShoreLeave).
+  if (abilityId === 'A01D') return 'shoreLeave';
   switch (base) {
     case 'AHtb':
       return 'stormBoltWeapon';

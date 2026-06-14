@@ -15,10 +15,14 @@ import { describe, expect, it } from 'vitest';
 import {
   contestedBandFromLanes,
   contestedRect,
+  laneWaterPath,
   lanePolyline,
+  polylineStaysOnWater,
+  traceLaneWaterPath,
   traderRoutePath,
 } from '../src/render/fieldoverlay.js';
 import { getCatalog } from '../src/catalog.js';
+import { isWater } from '@bships/core';
 import type { LaneSpec, RegionRect, TradeRouteSpec } from '@bships/core';
 
 const region = (
@@ -199,5 +203,55 @@ describe('fieldoverlay: against the real compiled Classic catalog', () => {
         expect(path.length).toBe(2);
       }
     }
+  });
+
+  it('traces each lane along the navigable WATER channel (not a straight line over land)', () => {
+    const map = catalog.map;
+    const mask = map.waterMask;
+    expect(mask.cells.length).toBeGreaterThan(0); // real terrain compiled
+
+    for (const lane of map.lanes) {
+      const path = laneWaterPath(lane, map);
+
+      // Many more points than the raw 3-vertex skeleton: it follows the bends.
+      expect(path.length).toBeGreaterThan(lanePolyline(lane).length);
+      // Starts at the spawn.
+      expect(path[0]).toEqual({ x: lane.spawnX, y: lane.spawnY });
+
+      // EVERY vertex AND every interior point of every segment is on water —
+      // the ribbon never cuts across the central land. Dense-sample each chord
+      // (cell ~28 units) so a corner-clipping bend would be caught.
+      expect(polylineStaysOnWater(path, mask)).toBe(true);
+      for (let i = 1; i < path.length; i++) {
+        const a = path[i - 1]!;
+        const b = path[i]!;
+        const len = Math.hypot(b.x - a.x, b.y - a.y);
+        const steps = Math.max(1, Math.ceil(len / 14));
+        for (let s = 0; s <= steps; s++) {
+          const t = s / steps;
+          expect(isWater(mask, a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t)).toBe(true);
+        }
+      }
+
+      // Ends AT the enemy HQ — the lane's final waypoint and the nav goal.
+      const last = path[path.length - 1]!;
+      const field = map.navByTeam[lane.team];
+      expect(Math.hypot(last.x - field.goalX, last.y - field.goalY)).toBeLessThan(50);
+    }
+  });
+
+  it('falls back to the raw skeleton when the map ships no nav field (open-sea stub)', () => {
+    const stubLane: LaneSpec = lane('s', 'south', [0, 0], [[100, 100], [200, 200]]);
+    const stubField = {
+      cols: 0,
+      rows: 0,
+      cellSizeX: 1,
+      cellSizeY: 1,
+      bounds: { minX: 0, minY: 0, maxX: 1, maxY: 1 },
+      goalX: 200,
+      goalY: 200,
+      dist: new Int32Array(0),
+    };
+    expect(traceLaneWaterPath(stubLane, stubField)).toEqual(lanePolyline(stubLane));
   });
 });

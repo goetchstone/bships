@@ -29,6 +29,7 @@ import {
   keyLabel,
   killFeedLine,
   nearestShopInRange,
+  ownShipPosition,
   shipActiveAbilityId,
   sweepFraction,
   xpProgress,
@@ -251,6 +252,29 @@ describe('hudmath: shop proximity', () => {
   });
 });
 
+describe('hudmath: ownShipPosition (drop targeting)', () => {
+  const entities = [
+    { kind: 'structure', ownerSlot: null, x: 1, y: 1 },
+    { kind: 'ship', ownerSlot: 7, x: 10, y: 20 }, // teammate / enemy
+    { kind: 'ship', ownerSlot: 2, x: 30, y: -40 }, // mine
+  ];
+
+  it('finds the viewer own ship by slot', () => {
+    expect(ownShipPosition(entities, 2)).toEqual({ x: 30, y: -40 });
+  });
+
+  it('returns null when there is no slot or no matching ship', () => {
+    expect(ownShipPosition(entities, null)).toBeNull();
+    expect(ownShipPosition(entities, 5)).toBeNull(); // slot present, no ship
+    expect(ownShipPosition([], 2)).toBeNull(); // dead / not spawned
+  });
+
+  it('ignores non-ship entities even when the owner matches', () => {
+    const onlyStruct = [{ kind: 'structure', ownerSlot: 2, x: 9, y: 9 }];
+    expect(ownShipPosition(onlyStruct, 2)).toBeNull();
+  });
+});
+
 describe('hudmath: kill feed', () => {
   const nameOf = (slot: number): string => (slot === 3 ? 'Alice' : slot === 8 ? 'Bob' : `P${slot}`);
   const death = (victim: number | null, killer: number | null): SimEvent => ({
@@ -304,6 +328,15 @@ describe('catalog integration (display data)', () => {
       }
     }
     expect(actives).toBeGreaterThan(0); // at least the subs' Dive
+  });
+
+  it('surfaces Shore Leave on F for the starter Battle Ship (H000)', () => {
+    // The reported "I don't see any ship abilities" bug: the starter hull's F
+    // slot must resolve to its innate active (Shore Leave A01D), not null.
+    const abilityId = shipActiveAbilityId(catalog, 'H000');
+    expect(abilityId).toBe('A01D');
+    expect(catalog.abilities[abilityId!]?.name).toBe('Shore Leave');
+    expect(catalog.abilities[abilityId!]?.mechanic).toBe('shoreLeave');
   });
 
   it('finds item cooldowns for weapon items', () => {

@@ -968,9 +968,13 @@ export interface AbilitySpec {
    * 'hullHp'/'sailSpeed'/'mechanicsRegen' are passive per-rank stats;
    * 'dive'/'invisibility'/'flareDetection'/'trueSightPassive'/'ensnare' route
    * to specials; 'ensnare' is the Fishing Net (ANen) hold that pins a target
-   * enemy ship's movement for durationTicksPerRank; 'special' = exotic kit
-   * (Capsize, EMP, Eat Hero...) interpreted by specials via specialKey — may
-   * be stubbed pre-parity.
+   * enemy ship's movement for durationTicksPerRank; 'shoreLeave' is the
+   * Battle/Sub innate Shore Leave (A01D): "go ashore" at the OWN Main Harbour
+   * to repair the hull to full (the Handy-Man repair the JASS models as a unit
+   * transform; we model only the player-visible repair, gated on the base
+   * region per the "Only usable close to the Main Harbour" tooltip); 'special'
+   * = remaining exotic kit (Capsize, EMP, Eat Hero...) interpreted by specials
+   * via specialKey — may be stubbed pre-parity.
    */
   mechanic:
     | 'stormBoltWeapon'
@@ -983,6 +987,7 @@ export interface AbilitySpec {
     | 'flareDetection'
     | 'trueSightPassive'
     | 'ensnare'
+    | 'shoreLeave'
     | 'special';
   specialKey: string | null;
   skill: HeroSkillRule | null;

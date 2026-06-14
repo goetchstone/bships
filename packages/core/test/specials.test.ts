@@ -326,10 +326,25 @@ function makeRuleset(): Ruleset {
         rangeUnits: null,
         weaponId: null,
       },
+      // A01D Shore Leave — innate, base Afzy, acdn 0 (no cooldown), usable only
+      // inside the OWN Main Harbour region (specials.castShoreLeave).
+      A01D: {
+        abilityId: 'A01D',
+        name: 'Shore Leave',
+        kind: 'innate',
+        mechanic: 'shoreLeave',
+        specialKey: null,
+        skill: null,
+        magnitudePerRank: [],
+        durationTicksPerRank: null,
+        cooldownTicks: null,
+        rangeUnits: null,
+        weaponId: null,
+      },
     },
     ships: {
       // Effective hero HP = raw + 25 (ships.json + compile convention).
-      H000: shipSpec('H000', { maxHp: 225, moveSpeed: 170 }),
+      H000: shipSpec('H000', { maxHp: 225, moveSpeed: 170, abilityIds: ['A01D'] }),
       H001: shipSpec('H001', {
         maxHp: 775,
         moveSpeed: 250,
@@ -1424,6 +1439,67 @@ describe('castAbility net (A00Y)', () => {
     applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A00Y', targetId: 11 });
     applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A00Y', targetId: 11 });
     expect(rejections(state)).toEqual(['onCooldown']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// castAbility: Shore Leave (A01D — the F-key ship ability for H000/subs)
+// ---------------------------------------------------------------------------
+
+describe('castAbility shore leave (A01D)', () => {
+  // South_Main region in the fixture: 800..1000 x, -1000..-800 y.
+  const insideSouthMain = { x: 900, y: -900 };
+
+  it('repairs the hull to full when cast inside the OWN Main Harbour', () => {
+    const rs = makeRuleset();
+    const ship = makeShip(rs, 10, 2, 'south', 'H000', insideSouthMain.x, insideSouthMain.y);
+    ship.hp = 40; // damaged (maxHp 225)
+    const player = makePlayer(2, 'south', { shipId: 10 });
+    const state = makeState([player], [ship]);
+
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A01D' });
+
+    expect(ship.hp).toBe(ship.maxHp);
+    expect(rejections(state)).toEqual([]);
+    const cast = state.events.find((e) => e.type === 'abilityCast');
+    expect(cast).toMatchObject({ type: 'abilityCast', player: 2, abilityId: 'A01D', targetEntityId: 10 });
+  });
+
+  it('is rejected when NOT close to the Main Harbour (faithful to the tooltip gate)', () => {
+    const rs = makeRuleset();
+    const ship = makeShip(rs, 10, 2, 'south', 'H000', 0, 0); // open water, not South_Main
+    ship.hp = 40;
+    const state = makeState([makePlayer(2, 'south', { shipId: 10 })], [ship]);
+
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A01D' });
+
+    expect(ship.hp).toBe(40); // no heal
+    expect(rejections(state)).toEqual(['notAtMainHarbour']);
+  });
+
+  it('uses the OWN team region: a north ship is not repaired in the south base', () => {
+    const rs = makeRuleset();
+    // Standing inside South_Main, but the ship is NORTH — its gate is North_Main.
+    const ship = makeShip(rs, 10, 7, 'north', 'H000', insideSouthMain.x, insideSouthMain.y);
+    ship.hp = 40;
+    const state = makeState([makePlayer(7, 'north', { shipId: 10 })], [ship]);
+
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 7, abilityId: 'A01D' });
+
+    expect(ship.hp).toBe(40);
+    expect(rejections(state)).toEqual(['notAtMainHarbour']);
+  });
+
+  it('is rejected when the ability is not on the current hull', () => {
+    const rs = makeRuleset();
+    // H005 carries no A01D in this fixture.
+    const ship = makeShip(rs, 10, 2, 'south', 'H005', insideSouthMain.x, insideSouthMain.y);
+    ship.hp = 40;
+    const state = makeState([makePlayer(2, 'south', { shipId: 10, shipTypeId: 'H005' })], [ship]);
+
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A01D' });
+
+    expect(rejections(state)).toEqual(['notOnShip']);
   });
 });
 

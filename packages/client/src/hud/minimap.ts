@@ -12,7 +12,7 @@ import { getCamera } from '../render/camera.js';
 import {
   contestedBandFromLanes,
   contestedRect,
-  lanePolyline,
+  laneWaterPath,
   traderRoutePath,
 } from '../render/fieldoverlay.js';
 import { store } from '../net/store.js';
@@ -90,11 +90,13 @@ export function initMinimap(ctx: HudContext): void {
     }
 
     // Lane ribbons: own team a touch brighter so the player reads their lanes.
+    // laneWaterPath traces the real winding water channel (around the central
+    // land), so the minimap ribbons match what the creeps actually sail.
     tg.lineCap = 'round';
     tg.lineJoin = 'round';
     for (const lane of map.lanes) {
       const own = myTeam !== null && lane.team === myTeam;
-      const poly = lanePolyline(lane);
+      const poly = laneWaterPath(lane, map);
       if (poly.length < 2) continue;
       tg.strokeStyle = teamColor(lane.team);
       tg.globalAlpha = own ? 0.5 : 0.28;

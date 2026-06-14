@@ -151,7 +151,7 @@ export const HUD_CSS = `
 /* ---- inventory (bottom-center, hugs the bottom edge) ---- */
 .bh-inventory {
   position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
-  display: flex; align-items: flex-end; gap: 12px;
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 12px;
   padding: 8px 11px;
   background: linear-gradient(180deg, var(--bg-panel), var(--bg-panel-raised));
   border: 1px solid var(--border); border-radius: 12px;
@@ -224,6 +224,13 @@ export const HUD_CSS = `
   font-size: 9px; color: var(--text-dim); text-shadow: none;
 }
 .bh-order.bh-armed .bh-slot-key { color: var(--bg-deep); }
+/* "No sell-back — drop instead" caption under the inventory bar. */
+.bh-invhint {
+  flex-basis: 100%; order: 99;
+  margin-top: 2px; text-align: center;
+  font-size: 10px; color: var(--text-dim); letter-spacing: 0.2px;
+  cursor: help; pointer-events: auto;
+}
 
 /* ---- shop ---- */
 .bh-shop-pill {

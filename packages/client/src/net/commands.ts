@@ -82,6 +82,18 @@ export function removeAi(slot: number): void {
   send({ type: 'removeAi', slot });
 }
 
+/**
+ * Drop the item in `slot` onto the water at (x, y) — the only way to get rid of
+ * gear in BSP (there is NO sell-back in Classic). `x`/`y` should be the ship's
+ * current position; the server (economy.dropItem) re-validates that the drop
+ * point is within the ship's reach and rejects otherwise. Dropped gear can be
+ * picked up by a teammate; buying a strictly better hull/sail "burns" (refunds)
+ * the old one at full gold via the Only_One_* group.
+ */
+export function dropItem(slot: number, x: number, y: number): void {
+  sendCommand({ type: 'dropItem', slot, x, y });
+}
+
 export function sendChat(scope: 'all' | 'team', text: string): void {
   const trimmed = text.trim().slice(0, MAX_CHAT_LENGTH);
   if (trimmed === '') return;

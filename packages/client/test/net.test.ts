@@ -27,6 +27,7 @@ import type {
 
 import {
   addAi,
+  dropItem,
   leaveRoom,
   removeAi,
   returnToLobby,
@@ -464,6 +465,24 @@ describe('commands', () => {
       type: 'command',
       command: { type: 'move', player: 2, x: 100, y: -50 },
     });
+  });
+
+  it('dropItem sends a dropItem command with the slot and drop point (player filled)', () => {
+    applyServerMessage(keyframe(10, []), 10 * MS); // phase playing, mySlot 2
+    dropItem(3, 123, -456);
+    expect(sendMock).toHaveBeenCalledTimes(1);
+    const msg = sendMock.mock.calls[0]?.[0];
+    expect(msg).toMatchObject({
+      type: 'command',
+      command: { type: 'dropItem', player: 2, slot: 3, x: 123, y: -456 },
+    });
+  });
+
+  it('dropItem is dropped (not sent) outside a playing match', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    dropItem(0, 0, 0);
+    expect(sendMock).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   it('sendChat trims and drops empty messages', () => {
