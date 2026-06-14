@@ -360,7 +360,7 @@ export interface ShipShape {
  */
 const SHIP_SHAPES: Record<string, ShipShape> = {
   // --- starter / battle line ----------------------------------------------
-  H000: { family: 'skiff', beam: 0.5, masts: 1, deckHeight: 0.22, accent: null, mark: '' },
+  H000: { family: 'skiff', beam: 0.4, masts: 1, deckHeight: 0.22, accent: null, mark: '' },
   H003: { family: 'frigate', beam: 0.44, masts: 1, deckHeight: 0.26, accent: null, mark: '' },
   H001: { family: 'frigate', beam: 0.44, masts: 1, deckHeight: 0.28, accent: null, mark: 'spotter' },
   H004: { family: 'frigate', beam: 0.46, masts: 2, deckHeight: 0.28, accent: null, mark: '' },

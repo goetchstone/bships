@@ -135,11 +135,25 @@ function bevelHull(
   }
 }
 
-/** The bright bow wedge — the single unambiguous "this way is forward" cue. */
-function bowWedge(g: Graphics, len: number, beam: number, frac = 0.5): void {
-  g.poly([len * 1.04, 0, len * frac, beam * 0.42, len * frac, -beam * 0.42]).fill({
-    color: 0xffffff,
-    alpha: 0.9,
+/**
+ * The bow prow — the unambiguous "this way is forward" cue. A lit wedge of the
+ * hull colour (not a stark white cap, which reads as a crayon tip) with a crisp
+ * bright leading edge and a small foam spray right at the cutwater.
+ */
+function bowWedge(g: Graphics, len: number, beam: number, frac = 0.5, color = 0x9fb4c8): void {
+  const s = shade(color);
+  // Raised fore-deck: brighter hull colour, pointed.
+  g.poly([len * 1.05, 0, len * frac, beam * 0.4, len * frac, -beam * 0.4]).fill({
+    color: shadeFace(color, 0, -1),
+    alpha: 0.96,
+  });
+  // Crisp lit gunwale edges catching the light, meeting at the prow.
+  g.poly([len * 1.05, 0, len * frac, -beam * 0.4, len * (frac + 0.06), -beam * 0.34, len * 0.98, 0])
+    .fill({ color: s.lit, alpha: 0.95 });
+  // A sliver of bow foam at the cutwater — the only near-white, and tiny.
+  g.poly([len * 1.06, 0, len * 0.9, beam * 0.16, len * 0.9, -beam * 0.16]).fill({
+    color: 0xeef4fb,
+    alpha: 0.85,
   });
 }
 
@@ -175,18 +189,20 @@ function bridgeBox(
 // ===========================================================================
 
 function hullSkiff(g: Graphics, d: ShipDrawData): void {
-  bevelHull(g, d.len, d.beam, d.color, { nose: 1.0, tail: 0.78 });
-  bowWedge(g, d.len, d.beam, 0.46);
+  // Sharp-bowed little gunboat (longer nose, narrower stern) so it reads as a
+  // boat, not a gem, even foreshortened.
+  bevelHull(g, d.len, d.beam, d.color, { nose: 1.18, tail: 0.7 });
+  bowWedge(g, d.len, d.beam, 0.44, d.color);
 }
 
 function hullTrader(g: Graphics, d: ShipDrawData): void {
   bevelHull(g, d.len, d.beam, d.color, { round: true });
-  bowWedge(g, d.len, d.beam, 0.5);
+  bowWedge(g, d.len, d.beam, 0.5, d.color);
 }
 
 function hullFrigate(g: Graphics, d: ShipDrawData): void {
   bevelHull(g, d.len, d.beam, d.color, { nose: 1.1, tail: 0.84 });
-  bowWedge(g, d.len, d.beam, 0.52);
+  bowWedge(g, d.len, d.beam, 0.52, d.color);
 }
 
 function hullGoblin(g: Graphics, d: ShipDrawData): void {
@@ -207,13 +223,13 @@ function hullGoblin(g: Graphics, d: ShipDrawData): void {
       alpha: 0.8,
     });
   }
-  bowWedge(g, d.len, d.beam, 0.5);
+  bowWedge(g, d.len, d.beam, 0.5, d.color);
 }
 
 function hullCruiser(g: Graphics, d: ShipDrawData): void {
   // Long sleek warship: a slimmer, longer-nosed hull.
   bevelHull(g, d.len, d.beam, d.color, { nose: 1.16, tail: 0.9 });
-  bowWedge(g, d.len, d.beam, 0.56);
+  bowWedge(g, d.len, d.beam, 0.56, d.color);
 }
 
 function hullSubmarine(g: Graphics, d: ShipDrawData): void {
@@ -226,7 +242,7 @@ function hullSubmarine(g: Graphics, d: ShipDrawData): void {
   if (!d.submerged) {
     g.ellipse(-l * 0.1, -w * 0.25, l * 0.6, w * 0.45).fill({ color: s.lit, alpha: 0.7 });
   }
-  bowWedge(g, d.len, d.beam, 0.62);
+  bowWedge(g, d.len, d.beam, 0.62, d.color);
 }
 
 function hullFlagship(g: Graphics, d: ShipDrawData): void {
@@ -239,7 +255,7 @@ function hullFlagship(g: Graphics, d: ShipDrawData): void {
       alpha: 0.85,
     });
   }
-  bowWedge(g, d.len, d.beam, 0.52);
+  bowWedge(g, d.len, d.beam, 0.52, d.color);
 }
 
 function hullLeviathan(g: Graphics, d: ShipDrawData): void {
@@ -252,7 +268,7 @@ function hullLeviathan(g: Graphics, d: ShipDrawData): void {
     .stroke({ width: 3, color: s.outline });
   g.poly([l * 1.18, 0, l * 0.5, -w * 0.9, -l * 0.3, -w, -l * 0.95, -w * 0.5, -l * 1.05, 0])
     .fill({ color: shadeFace(d.color, 0, -1), alpha: 0.92 });
-  bowWedge(g, d.len, d.beam, 0.5);
+  bowWedge(g, d.len, d.beam, 0.5, d.color);
 }
 
 function hullRoyal(g: Graphics, d: ShipDrawData): void {
@@ -264,7 +280,7 @@ function hullRoyal(g: Graphics, d: ShipDrawData): void {
     width: 2,
     color: d.shape.accent ?? s.outline,
   });
-  bowWedge(g, d.len, d.beam, 0.5);
+  bowWedge(g, d.len, d.beam, 0.5, d.color);
 }
 
 const HULL_ROUTINES: Record<ShipFamily, (g: Graphics, d: ShipDrawData) => void> = {
@@ -363,7 +379,10 @@ function superMasts(g: Graphics, d: ShipDrawData, positions: number[]): void {
 }
 
 function superSkiff(g: Graphics, d: ShipDrawData): void {
-  superMasts(g, d, [-0.05]);
+  // A small aft deckhouse + a forward gun mast: enough structure that the
+  // starter boat reads as a vessel rather than a bare hull.
+  bridgeBox(g, -d.len * 0.22, d.len * 0.22, d.beam * 0.62, scale(d.color, 0.92));
+  superMasts(g, d, [0.28]);
   drawMark(g, d);
 }
 
