@@ -1,10 +1,11 @@
 /**
  * Claimed-account session persistence (owned by client-stats). After a
  * successful /claim or /login the client stores the returned ClaimResponse
- * (publicId, name, email, opaque sessionToken) in localStorage so the account
- * is remembered across reloads. This is SEPARATE from the identity token in
- * net/identity.ts: that token is the anonymous play identity (sent only in the
- * ws hello); this session is the optional claimed-login bearer.
+ * (publicId, name, email) in localStorage so the account is remembered across
+ * reloads. This is SEPARATE from the identity token in net/identity.ts: that
+ * token is the anonymous play identity (sent only in the ws hello). There is no
+ * session bearer — the server validates every privileged action with the
+ * email + password on /login, so the stored fields are just a display marker.
  *
  * Mirrors net/identity.ts' resilient storage pattern (privacy modes can throw).
  */
@@ -17,7 +18,6 @@ export interface StatsSession {
   publicId: string;
   name: string;
   email: string;
-  sessionToken: string;
 }
 
 function storage(): Storage | null {
@@ -41,8 +41,7 @@ export function loadSession(): StatsSession | null {
       parsed !== null &&
       typeof (parsed as Record<string, unknown>)['publicId'] === 'string' &&
       typeof (parsed as Record<string, unknown>)['name'] === 'string' &&
-      typeof (parsed as Record<string, unknown>)['email'] === 'string' &&
-      typeof (parsed as Record<string, unknown>)['sessionToken'] === 'string'
+      typeof (parsed as Record<string, unknown>)['email'] === 'string'
     ) {
       return parsed as StatsSession;
     }
@@ -58,7 +57,6 @@ export function saveSession(res: ClaimResponse): void {
     publicId: res.publicId,
     name: res.name,
     email: res.email,
-    sessionToken: res.sessionToken,
   };
   const store = storage();
   if (store === null) return;

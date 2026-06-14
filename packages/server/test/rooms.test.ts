@@ -25,6 +25,7 @@ import {
   COMMAND_BUCKET_CAPACITY,
   createRoomManager,
   MAX_FRAME_BYTES,
+  MAX_SEND_BUFFER_BYTES,
   RATE_BUCKET_CAPACITY,
 } from '../src/rooms.js';
 import type {
@@ -262,6 +263,24 @@ describe('identity registry', () => {
     expect(identity.releaseSocket(TOKEN_A, second)).toBe(true);
     expect(identity.getSocket(TOKEN_A)).toBeNull();
   });
+
+  it('dropSession reclaims a record only when no socket is bound', () => {
+    const identity = createIdentityRegistry<{ id: number }>();
+    identity.ensureSession(TOKEN_A, 'Bob');
+    expect(identity.sessionCount()).toBe(1);
+    const sock = { id: 1 };
+    identity.bindSocket(TOKEN_A, sock);
+    // A still-bound session must NOT be dropped (resume would re-mint publicId).
+    expect(identity.dropSession(TOKEN_A)).toBe(false);
+    expect(identity.sessionCount()).toBe(1);
+    // Once released, it can be reclaimed.
+    identity.releaseSocket(TOKEN_A, sock);
+    expect(identity.dropSession(TOKEN_A)).toBe(true);
+    expect(identity.sessionCount()).toBe(0);
+    expect(identity.getSession(TOKEN_A)).toBeUndefined();
+    // Dropping an unknown token is a harmless false.
+    expect(identity.dropSession(TOKEN_B)).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -271,6 +290,8 @@ describe('identity registry', () => {
 class FakeSocket {
   readonly sent: ServerMessage[] = [];
   closed: { code: number | undefined; reason: string | undefined } | null = null;
+  /** Simulated server-side queued-but-unsent bytes (backpressure tests). */
+  buffered = 0;
 
   send(text: string): void {
     this.sent.push(JSON.parse(text) as ServerMessage);
@@ -278,6 +299,10 @@ class FakeSocket {
 
   close(code?: number, reason?: string): void {
     if (this.closed === null) this.closed = { code, reason };
+  }
+
+  bufferedAmount(): number {
+    return this.buffered;
   }
 
   ofType<T extends ServerMessage['type']>(type: T): Extract<ServerMessage, { type: T }>[] {
@@ -418,6 +443,37 @@ describe('room manager', () => {
     const bin = connect(manager);
     bin.conn.onMessage('{}', { binary: true });
     expect(bin.socket.closed?.code).toBe(1003);
+  });
+
+  it('drops a stalled client whose send buffer exceeds the backpressure cap', () => {
+    // Security finding: a client that stops reading lets the server-side send
+    // buffer grow without bound (memory-exhaustion DoS). Once bufferedAmount
+    // exceeds MAX_SEND_BUFFER_BYTES the manager must close it (1011) instead of
+    // queuing more.
+    const { manager } = makeManager();
+    const client = connect(manager);
+    hello(client, TOKEN_A, 'Bob');
+    expect(client.socket.closed).toBeNull();
+
+    // Simulate a stalled consumer: the server-side buffer is over the cap.
+    client.socket.buffered = MAX_SEND_BUFFER_BYTES + 1;
+    const sentBefore = client.socket.sent.length;
+
+    // Any server-initiated send now drops the connection rather than buffering.
+    client.send({ type: 'listRooms' });
+    expect(client.socket.closed?.code).toBe(1011);
+    // No further frame was queued onto the overflowing buffer.
+    expect(client.socket.sent.length).toBe(sentBefore);
+  });
+
+  it('keeps a client open while its send buffer is within the cap', () => {
+    const { manager } = makeManager();
+    const client = connect(manager);
+    hello(client, TOKEN_A, 'Bob');
+    client.socket.buffered = MAX_SEND_BUFFER_BYTES; // at the cap, not over
+    client.send({ type: 'listRooms' });
+    expect(client.socket.closed).toBeNull();
+    expect(client.socket.lastOfType('roomList')).toBeDefined();
   });
 
   it('answers malformed frames with badMessage and keeps authed connections open', () => {

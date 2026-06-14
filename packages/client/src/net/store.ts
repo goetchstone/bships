@@ -170,6 +170,7 @@ export function applyServerMessage(msg: ServerMessage, arrivalMs: number): void 
       break;
     }
     case 'roomState': {
+      if (!Array.isArray(msg.players)) break; // malformed: ignore
       store.lobby.room = msg;
       // Pre-match slot/team hint; the first snapshot's `you` is authoritative.
       if (store.match.phase !== 'playing' && store.identity.publicId !== null) {
@@ -186,6 +187,19 @@ export function applyServerMessage(msg: ServerMessage, arrivalMs: number): void 
       break;
     }
     case 'snapshot': {
+      // Trust-boundary shape guards: a hostile/buggy server frame must not
+      // throw out of the dispatch (e.g. null `you`, non-array entities/events).
+      if (
+        msg.you === null ||
+        typeof msg.you !== 'object' ||
+        !Array.isArray(msg.entities) ||
+        !Array.isArray(msg.projectiles) ||
+        !Array.isArray(msg.events) ||
+        !Array.isArray(msg.players)
+      ) {
+        console.warn('[net] dropped malformed snapshot frame');
+        break;
+      }
       if (store.match.phase !== 'playing') {
         // First keyframe of a (new or resumed) match.
         store.match.phase = 'playing';
@@ -201,6 +215,18 @@ export function applyServerMessage(msg: ServerMessage, arrivalMs: number): void 
       break;
     }
     case 'snapshotDelta': {
+      // Trust-boundary shape guards (see snapshot case).
+      if (
+        !Array.isArray(msg.upserts) ||
+        !Array.isArray(msg.removed) ||
+        !Array.isArray(msg.projectiles) ||
+        !Array.isArray(msg.events) ||
+        (msg.you !== undefined && (msg.you === null || typeof msg.you !== 'object')) ||
+        (msg.players !== undefined && !Array.isArray(msg.players))
+      ) {
+        console.warn('[net] dropped malformed snapshotDelta frame');
+        break;
+      }
       const applied = ingestDelta(msg, arrivalMs);
       if (!applied) break; // gap: stall until the next keyframe
       store.match.latestTick = msg.tick;
@@ -213,7 +239,7 @@ export function applyServerMessage(msg: ServerMessage, arrivalMs: number): void 
     case 'matchEnded': {
       store.match.phase = 'ended';
       store.match.winnerTeam = msg.winnerTeam;
-      store.match.players = msg.stats;
+      if (Array.isArray(msg.stats)) store.match.players = msg.stats;
       break;
     }
     case 'chat': {

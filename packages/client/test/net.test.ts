@@ -419,6 +419,27 @@ describe('store.applyServerMessage', () => {
     applyServerMessage({ type: 'roomList', rooms: [] }, 0);
     expect(fn).toHaveBeenCalledTimes(1);
   });
+
+  it('drops malformed snapshot/delta/roomState frames without throwing (trust boundary)', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    // Each of these would previously throw an uncaught TypeError (null deref /
+    // not-iterable) when applied — reachable from a hostile server via a
+    // crafted ?server= link. They must now be dropped silently.
+    const hostile: unknown[] = [
+      { type: 'snapshot', tick: 1, you: null, entities: [], projectiles: [], events: [], players: [] },
+      { type: 'snapshot', tick: 1, you: {}, entities: null, projectiles: [], events: [], players: [] },
+      { type: 'snapshot', tick: 1, you: {}, entities: [], projectiles: [], events: null, players: [] },
+      { type: 'snapshotDelta', tick: 2, baseTick: 1, upserts: null, removed: [], projectiles: [], events: [] },
+      { type: 'snapshotDelta', tick: 2, baseTick: 1, upserts: [], removed: null, projectiles: [], events: [] },
+      { type: 'roomState', roomId: 'r', name: 'n', phase: 'lobby', players: null },
+    ];
+    for (const frame of hostile) {
+      expect(() => applyServerMessage(frame as never, 0)).not.toThrow();
+    }
+    // The store never entered a playing match from a malformed snapshot.
+    expect(store.match.phase).not.toBe('playing');
+    warn.mockRestore();
+  });
 });
 
 // ---------------------------------------------------------------------------

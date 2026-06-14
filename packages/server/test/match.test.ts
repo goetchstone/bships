@@ -409,6 +409,93 @@ describe('match end', () => {
   });
 });
 
+describe('per-room fault isolation', () => {
+  it('a throw inside the tick loop ends ONLY that match — it does not escape the timer', () => {
+    // Reproduces the security finding: a send (or any runOneTick step) that
+    // throws must end this match cleanly, never propagate out of onTimerFire's
+    // setTimeout callback (which would crash the whole process / all rooms).
+    const onEnded = vi.fn();
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    let throwOnNextSend = false;
+    const runtime = createMatchRuntime({
+      ruleset,
+      seed: 0xc0ffee,
+      seats: [
+        { slot: 2, name: 'P2' },
+        { slot: 7, name: 'P7' },
+      ],
+      sendToSlot: (_slot, msg) => {
+        if (throwOnNextSend && msg.type === 'snapshotDelta') {
+          throw new Error('simulated tick-loop fault');
+        }
+      },
+      onEnded,
+    });
+    liveRuntimes.push(runtime);
+
+    runtime.start();
+    vi.advanceTimersByTime(100); // a few healthy ticks
+    expect(runtime.status).toBe('running');
+
+    // Arm the fault and let the next timer fire. advanceTimersByTime must NOT
+    // throw — the runtime swallows the fault internally.
+    throwOnNextSend = true;
+    expect(() => vi.advanceTimersByTime(50)).not.toThrow();
+
+    // The match ended cleanly (onEnded fired, status flipped) and the loop is
+    // stopped: no further timers run.
+    expect(runtime.status).toBe('ended');
+    expect(onEnded).toHaveBeenCalledTimes(1);
+    expect(errSpy).toHaveBeenCalled();
+    vi.advanceTimersByTime(500);
+    expect(runtime.status).toBe('ended');
+  });
+
+  it('one room throwing does not stop a concurrent healthy room from advancing', () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    let breakRoomA = false;
+    const roomA = createMatchRuntime({
+      ruleset,
+      seed: 0xa,
+      seats: [
+        { slot: 2, name: 'A2' },
+        { slot: 7, name: 'A7' },
+      ],
+      sendToSlot: (_slot, msg) => {
+        if (breakRoomA && msg.type === 'snapshotDelta') throw new Error('room A fault');
+      },
+      onEnded: vi.fn(),
+    });
+    let roomBTicks = 0;
+    const roomB = createMatchRuntime({
+      ruleset,
+      seed: 0xb,
+      seats: [
+        { slot: 2, name: 'B2' },
+        { slot: 7, name: 'B7' },
+      ],
+      sendToSlot: (slot, msg) => {
+        if (slot === 2 && msg.type === 'snapshotDelta') roomBTicks += 1;
+      },
+      onEnded: vi.fn(),
+    });
+    liveRuntimes.push(roomA, roomB);
+
+    roomA.start();
+    roomB.start();
+    vi.advanceTimersByTime(100);
+    const bBefore = roomBTicks;
+
+    breakRoomA = true;
+    expect(() => vi.advanceTimersByTime(200)).not.toThrow();
+
+    expect(roomA.status).toBe('ended'); // A died
+    expect(roomB.status).toBe('running'); // B is unaffected
+    expect(roomBTicks).toBeGreaterThan(bBefore); // B kept advancing
+    expect(errSpy).toHaveBeenCalled();
+  });
+});
+
 describe('determinism', () => {
   it('replaying (seed, tick->commands) into a fresh createMatch matches hashState', () => {
     const seed = 0xdecade;

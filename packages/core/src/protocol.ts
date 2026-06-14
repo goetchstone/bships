@@ -216,6 +216,7 @@ export type ErrorCode =
   | 'notAuthed'
   | 'roomNotFound'
   | 'roomFull'
+  | 'serverFull'
   | 'alreadyInRoom'
   | 'notInRoom'
   | 'invalidSlot'
@@ -604,15 +605,18 @@ export interface LoginRequest {
 }
 
 /**
- * Reply to /claim and /login. `sessionToken` is an opaque bearer the client
- * stores to prove it controls the claimed account (e.g. portable login on a
- * new device); it is NOT the identity token and NOT used for ingest auth.
+ * Reply to /claim and /login. The claimed account is identified to the client
+ * by (publicId, name, email); there is intentionally NO session token here.
+ * A token was previously minted but never persisted or verified by any
+ * endpoint — a no-op field that conveyed a false sense of authentication, so
+ * it was removed. Re-authentication (email + password on /login) is required
+ * for every privileged action; if real session auth is added later it must be
+ * a server-side store (token hash + expiry) verified on each request.
  */
 export interface ClaimResponse {
   publicId: string;
   name: string;
   email: string;
-  sessionToken: string;
 }
 
 /** Stats error envelope (all non-2xx JSON bodies). */

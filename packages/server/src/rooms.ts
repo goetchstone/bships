@@ -79,6 +79,24 @@ export const CHAT_REFILL_PER_SEC = 1;
 export const MAX_RATE_VIOLATIONS = 5;
 /** Playing rooms with zero attached sockets are deleted after this grace. */
 export const ABANDONED_ROOM_GRACE_MS = 5 * 60_000;
+/**
+ * Outbound backpressure ceiling. Snapshots are queued every tick; a client that
+ * stops reading (slow or malicious) would otherwise let the server-side send
+ * buffer grow without bound (~100 KB/s/client at 20 Hz) until OOM. When a
+ * socket's queued-but-unsent bytes exceed this, the connection is dropped
+ * (1011) instead of buffering further — snapshots are idempotent keyframes, so
+ * a reconnect re-syncs cleanly. ~1 MB tolerates a brief stall / one keyframe
+ * burst (MAX_FRAME_BYTES = 16 KB) without nuking a momentarily slow client.
+ */
+export const MAX_SEND_BUFFER_BYTES = 1024 * 1024;
+/**
+ * Global ceilings (process-wide resource-exhaustion backstop). New connections
+ * past MAX_CONNECTIONS are closed (1013, "try again later"); createRoom past
+ * MAX_ROOMS is rejected. Generous for a single box — they exist to bound a
+ * token-churning attacker, not to limit normal play.
+ */
+export const MAX_CONNECTIONS = 5000;
+export const MAX_ROOMS = 1000;
 
 // ---------------------------------------------------------------------------
 // MatchRuntime seam — mirrors the FROZEN contract in docs/ARCH.md
@@ -138,6 +156,12 @@ export type CreateMatchRuntime = (deps: MatchRuntimeDeps) => MatchRuntime;
 export interface ClientSocket {
   send(text: string): void;
   close(code?: number, reason?: string): void;
+  /**
+   * Bytes queued for send but not yet flushed to the OS (ws.bufferedAmount).
+   * Optional so non-ws transports/test fakes can omit it; when present, the
+   * manager enforces MAX_SEND_BUFFER_BYTES to bound a stalled client.
+   */
+  bufferedAmount?(): number;
 }
 
 export interface FrameInfo {
@@ -274,10 +298,21 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
   const rooms = new Map<string, Room>();
   /** token -> room the token is a member of (resume routing). */
   const membershipByToken = new Map<string, Room>();
+  /** Live (not-yet-torn-down) connections — global cap backstop. */
+  let connectionCount = 0;
 
   // ---- send helpers -------------------------------------------------------
 
   const sendText = (conn: Conn, text: string): void => {
+    if (conn.tornDown) return;
+    // Backpressure guard: a client that stopped reading would otherwise let the
+    // server-side send buffer grow without bound. Drop it (1011) before queuing
+    // more; snapshots are idempotent keyframes so a reconnect re-syncs cleanly.
+    const buffered = conn.socket.bufferedAmount?.();
+    if (buffered !== undefined && buffered > MAX_SEND_BUFFER_BYTES) {
+      closeConn(conn, 1011, 'send buffer overflow');
+      return;
+    }
     try {
       conn.socket.send(text);
     } catch {
@@ -448,12 +483,18 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
   const teardown = (conn: Conn): void => {
     if (conn.tornDown) return;
     conn.tornDown = true;
+    connectionCount -= 1;
     if (conn.helloTimer !== null) clearTimeout(conn.helloTimer);
     if (conn.pingTimer !== null) clearInterval(conn.pingTimer);
     conn.helloTimer = null;
     conn.pingTimer = null;
-    if (conn.session !== null) identity.releaseSocket(conn.session.token, conn);
+    const token = conn.session?.token ?? null;
+    if (token !== null) identity.releaseSocket(token, conn);
     detachFromRoom(conn);
+    // Reclaim the session record once the token has no live socket and no room
+    // membership (resume routing). Without this, every distinct token minted a
+    // permanent SessionRecord — an unbounded memory leak under token churn.
+    if (token !== null && !membershipByToken.has(token)) identity.dropSession(token);
   };
 
   const closeConn = (conn: Conn, code: number, reason: string): void => {
@@ -546,6 +587,10 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
   const handleCreateRoom = (conn: Conn, session: SessionRecord, roomName: string): void => {
     if (membershipByToken.has(session.token)) {
       sendError(conn, 'alreadyInRoom', 'leave your current room first');
+      return;
+    }
+    if (rooms.size >= MAX_ROOMS) {
+      sendError(conn, 'serverFull', 'server is at room capacity; try again later');
       return;
     }
     const trimmed = roomName.trim().slice(0, MAX_ROOM_NAME_LENGTH);
@@ -1107,6 +1152,20 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
 
   return {
     handleConnection(socket) {
+      // Global connection cap: a resource-exhaustion backstop against many
+      // concurrent sockets (token churn). Reject without ever creating a Conn
+      // or counting it — close immediately with 1013 (try again later).
+      if (connectionCount >= MAX_CONNECTIONS) {
+        try {
+          socket.close(1013, 'server at capacity');
+        } catch {
+          // already closing — nothing to do
+        }
+        // A no-op managed connection: it was never counted, so onClose must not
+        // decrement. Drop any further frames silently.
+        return { onMessage: () => {}, onClose: () => {} };
+      }
+      connectionCount += 1;
       const startMs = now();
       const conn: Conn = {
         socket,

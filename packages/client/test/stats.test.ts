@@ -214,7 +214,6 @@ describe('api: claim', () => {
       publicId: 'sa',
       name: 'Alice',
       email: 'alice@example.com',
-      sessionToken: 'tok123',
     };
     const mockFetch = makeOkFetch(claimRes);
     const api = createStatsApi({ baseUrl: 'http://test', fetchImpl: mockFetch });
@@ -247,7 +246,6 @@ describe('api: login', () => {
       publicId: 'sb',
       name: 'Bob',
       email: 'bob@example.com',
-      sessionToken: 'tok456',
     };
     const mockFetch = makeOkFetch(loginRes);
     const api = createStatsApi({ baseUrl: 'http://test', fetchImpl: mockFetch });
@@ -297,7 +295,6 @@ describe('session: round-trip', () => {
       publicId: 'sa',
       name: 'Alice',
       email: 'alice@example.com',
-      sessionToken: 'tok999',
     };
     saveSession(res);
     const loaded = loadSession();
@@ -305,7 +302,6 @@ describe('session: round-trip', () => {
       publicId: 'sa',
       name: 'Alice',
       email: 'alice@example.com',
-      sessionToken: 'tok999',
     });
   });
 
@@ -314,7 +310,6 @@ describe('session: round-trip', () => {
       publicId: 'sa',
       name: 'Alice',
       email: 'a@b.com',
-      sessionToken: 'x',
     };
     saveSession(res);
     expect(STATS_SESSION_KEY in store).toBe(true);
@@ -325,7 +320,6 @@ describe('session: round-trip', () => {
       publicId: 'sa',
       name: 'Alice',
       email: 'a@b.com',
-      sessionToken: 'x',
     };
     saveSession(res);
     clearSession();

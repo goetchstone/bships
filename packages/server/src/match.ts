@@ -40,6 +40,7 @@ import type {
 import { runAiTick } from './ai-runner.js';
 import { buildTeamPayload, diffTeamPayloads, filterEventsForSeat } from './snapshot.js';
 import type { TeamPayload } from './snapshot.js';
+import { computeTeamVision } from './visibility.js';
 
 export interface MatchSeat {
   slot: number;
@@ -258,11 +259,16 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
       const visibleIds = new Set<number>(payload.entities.keys());
       if (prev) for (const id of prev.entities.keys()) visibleIds.add(id);
 
+      // This team's sight sources — the death-coordinate leak gate in
+      // filterEventsForSeat needs them to drop out-of-sight enemy deaths
+      // credited to this team (DoT/slow-projectile kills after a target fled).
+      const vision = computeTeamVision(state, ruleset, team);
+
       const diff = prev ? diffTeamPayloads(prev, payload) : null;
 
       for (const seat of seatsOfTeam(team)) {
         if (connected.get(seat.slot) !== true) continue;
-        const seatEvents = filterEventsForSeat(state, events, team, seat.slot, visibleIds);
+        const seatEvents = filterEventsForSeat(state, events, team, seat.slot, visibleIds, vision);
         if (isKeyframe || diff === null) {
           sendToSlot(seat.slot, keyframeFor(seat.slot, payload, seatEvents, stats));
           continue;
@@ -324,7 +330,17 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
         }
         break;
       }
-      runOneTick();
+      // Per-room fault isolation: a throw in runAiTick/applyCommands/stepTick/
+      // broadcastTick (a core edge case, an oversized-JSON RangeError, a snapshot
+      // bug) must end ONLY this match — never escape the setTimeout callback and
+      // crash the whole process, which would take down every other live room.
+      try {
+        runOneTick();
+      } catch (err) {
+        console.error(`[match] tick ${state.tick} threw — ending this match only:`, err);
+        finish(null);
+        return; // status is now 'ended'; scheduleNext would be a no-op anyway
+      }
       steps += 1;
     }
     scheduleNext();
@@ -368,7 +384,15 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
     clearTimer();
     const stats = buildStats();
     const msg: MatchEndedMessage = { type: 'matchEnded', winnerTeam, stats };
-    for (const seat of seats) sendToSlot(seat.slot, msg);
+    // Guarded: a throwing send (the very fault we may be recovering from) must
+    // not stop the other seats' matchEnded nor abort onEnded teardown below.
+    for (const seat of seats) {
+      try {
+        sendToSlot(seat.slot, msg);
+      } catch (err) {
+        console.error(`[match] matchEnded send to slot ${seat.slot} threw:`, err);
+      }
+    }
     // goldEarned is reported as 0 (untracked): the sim keeps only a live `gold`
     // BALANCE (decremented by purchases/upgrades, zeroed by `golddump`), not a
     // cumulative-earned tally. Reporting the final balance under a

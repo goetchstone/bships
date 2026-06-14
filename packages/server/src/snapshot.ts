@@ -24,7 +24,8 @@ import type {
   Status,
   TeamId,
 } from '@bships/core';
-import { computeTeamVision, collectVisibleEntities, isProjectileVisible } from './visibility.js';
+import { computeTeamVision, collectVisibleEntities, coveredBy, isProjectileVisible } from './visibility.js';
+import type { TeamVision } from './visibility.js';
 
 /** Round to 0.1 (display precision; shrinks payloads). */
 export function round1(value: number): number {
@@ -213,6 +214,15 @@ export function diffTeamPayloads(
  *   the entity before the post-step set is built) or a T player is involved
  *   (victim/killer; hit attacker; missile owner). AI empire slots count as
  *   team players — their kills happen inside their own creeps' sight anyway.
+ *
+ * Vision-leak gate (death): a 'death' event carries the victim's exact death
+ * coordinates (combat.ts flagDeath), and the client renders an explosion there
+ * (render/fx.ts). A kill credited to T (killerPlayer on T) can land on an
+ * ENEMY ship that already broke line of sight — e.g. a damage-over-time burn
+ * or a slow projectile fired with the original shooter as sourcePlayer. The
+ * killer-team branch must therefore NOT leak the coordinates of an enemy death
+ * that lies outside T's sight: such an event is dropped (the victim's OWN team
+ * still gets it, and K/D is tallied server-side independent of filtering).
  */
 export function filterEventsForSeat(
   state: SimState,
@@ -220,6 +230,7 @@ export function filterEventsForSeat(
   team: TeamId,
   slot: number,
   visibleIds: ReadonlySet<number>,
+  vision: TeamVision,
 ): SimEvent[] {
   const playerTeam = (player: number | null): TeamId | null =>
     player === null ? null : (state.players[player]?.team ?? null);
@@ -252,13 +263,20 @@ export function filterEventsForSeat(
         out.push(ev);
         break;
       case 'death':
+        // Own-team death OR a death whose location is in T's sight (entity was
+        // visible this/last tick, or the spot is covered now) forwards verbatim.
         if (
           playerTeam(ev.victimPlayer) === team ||
-          playerTeam(ev.killerPlayer) === team ||
-          visibleIds.has(ev.entityId)
+          visibleIds.has(ev.entityId) ||
+          coveredBy(vision.sight, ev.x, ev.y)
         ) {
           out.push(ev);
+          break;
         }
+        // Otherwise the only reason T would learn of this death is that the
+        // KILLER is on T (e.g. a DoT/slow projectile finished the kill after the
+        // enemy fled T's vision). Dropping it closes the coordinate leak; kill
+        // credit is tallied server-side and is unaffected.
         break;
       case 'hit':
         if (playerTeam(ev.attackerPlayer) === team || visibleIds.has(ev.targetEntityId)) {

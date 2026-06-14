@@ -93,6 +93,14 @@ export async function startServer(options: ServerOptions = {}): Promise<RunningS
     wss.once('error', (err) => reject(err));
   });
 
+  // The startup 'error' listener above is one-shot (consumed at 'listening').
+  // A server-level error emitted AFTER startup (e.g. the underlying http server
+  // faulting) would otherwise hit an EventEmitter with no 'error' listener and
+  // throw, crashing the process. Keep a persistent listener that just logs.
+  wss.on('error', (err) => {
+    if (!quiet) console.error(`[bships] ws server error: ${err.message}`);
+  });
+
   const address = wss.address();
   const boundPort = typeof address === 'object' && address !== null ? address.port : port;
 
@@ -106,6 +114,7 @@ export async function startServer(options: ServerOptions = {}): Promise<RunningS
         if (socket.readyState === WebSocket.OPEN) socket.send(text);
       },
       close: (code, reason) => socket.close(code, reason),
+      bufferedAmount: () => socket.bufferedAmount,
     });
     socket.on('message', (data: RawData, isBinary: boolean) => {
       conn.onMessage(rawDataToString(data), {

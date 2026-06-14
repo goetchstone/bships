@@ -45,6 +45,15 @@ export interface IdentityRegistry<H> {
   /** Unbind only if `handle` is still current. Returns true if released. */
   releaseSocket(token: string, handle: H): boolean;
   getSocket(token: string): H | null;
+  /**
+   * Forget the session record entirely (reclaims memory). The caller must only
+   * drop a session that has no live socket AND no room membership — otherwise a
+   * resume would mint a brand-new publicId for a token that other clients still
+   * reference. Returns true if a record was removed.
+   */
+  dropSession(token: string): boolean;
+  /** Number of live session records (diagnostics / cap enforcement). */
+  sessionCount(): number;
 }
 
 function sanitizeName(requested: string): string {
@@ -133,6 +142,16 @@ export function createIdentityRegistry<H>(): IdentityRegistry<H> {
 
     getSocket(token) {
       return sockets.get(token) ?? null;
+    },
+
+    dropSession(token) {
+      // Never strand a session that still has a bound socket.
+      if (sockets.has(token)) return false;
+      return sessions.delete(token);
+    },
+
+    sessionCount() {
+      return sessions.size;
     },
   };
 }

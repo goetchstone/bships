@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import type { SimEvent, SimState } from '@bships/core';
+import type { SimEvent, SimState, TeamId } from '@bships/core';
 import {
   buildTeamPayload,
   diffTeamPayloads,
@@ -12,6 +12,7 @@ import {
   mapStatuses,
   round1,
 } from '../src/snapshot.js';
+import type { TeamVision } from '../src/visibility.js';
 import {
   addShip,
   addStructure,
@@ -207,6 +208,14 @@ describe('filterEventsForSeat', () => {
   }
 
   const none: ReadonlySet<number> = new Set();
+  /** A team with no sight sources at all (everything off-screen). */
+  const blind = (team: TeamId): TeamVision => ({ team, sight: [], detectors: [] });
+  /** A team that can see the world origin (covers death events at 0,0). */
+  const seesOrigin = (team: TeamId): TeamVision => ({
+    team,
+    sight: [{ x: 0, y: 0, radius: 100 }],
+    detectors: [],
+  });
 
   it('routes private events only to the owning seat', () => {
     const state = eventState();
@@ -221,10 +230,12 @@ describe('filterEventsForSeat', () => {
       { type: 'commandRejected', tick: 5, player: 2, commandType: 'move', reason: 'dead' },
       { type: 'proximityWarning', tick: 5, ownerPlayer: 2, wardEntityId: 1, intruderEntityId: 2 },
     ];
-    expect(filterEventsForSeat(state, events, 'south', 2, none)).toHaveLength(events.length);
+    expect(filterEventsForSeat(state, events, 'south', 2, none, blind('south'))).toHaveLength(
+      events.length,
+    );
     // Same-team seat 3 sees none of them.
-    expect(filterEventsForSeat(state, events, 'south', 3, none)).toHaveLength(0);
-    expect(filterEventsForSeat(state, events, 'north', 7, none)).toHaveLength(0);
+    expect(filterEventsForSeat(state, events, 'south', 3, none, blind('south'))).toHaveLength(0);
+    expect(filterEventsForSeat(state, events, 'north', 7, none, blind('north'))).toHaveLength(0);
   });
 
   it('scopes research and respawn to the team, waves and match end globally', () => {
@@ -236,14 +247,14 @@ describe('filterEventsForSeat', () => {
       { type: 'waveSpawned', tick: 5, laneId: 'L', waveName: 'W', count: 3 },
       { type: 'matchEnded', tick: 5, winner: 'south' },
     ];
-    const south = filterEventsForSeat(state, events, 'south', 3, none);
+    const south = filterEventsForSeat(state, events, 'south', 3, none, blind('south'));
     expect(south.map((e) => e.type)).toEqual([
       'researchStarted',
       'respawn',
       'waveSpawned',
       'matchEnded',
     ]);
-    const north = filterEventsForSeat(state, events, 'north', 7, none);
+    const north = filterEventsForSeat(state, events, 'north', 7, none, blind('north'));
     expect(north.map((e) => e.type)).toEqual(['researchComplete', 'waveSpawned', 'matchEnded']);
   });
 
@@ -269,25 +280,24 @@ describe('filterEventsForSeat', () => {
     };
 
     // Unseen all-north death: south gets nothing; north (own AI player) does.
-    expect(filterEventsForSeat(state, [unseenDeath], 'south', 2, none)).toEqual([]);
-    expect(filterEventsForSeat(state, [unseenDeath], 'north', 7, none)).toEqual([unseenDeath]);
+    expect(filterEventsForSeat(state, [unseenDeath], 'south', 2, none, blind('south'))).toEqual([]);
+    expect(filterEventsForSeat(state, [unseenDeath], 'north', 7, none, blind('north'))).toEqual([
+      unseenDeath,
+    ]);
 
     // Visible-set gate.
     const visible: ReadonlySet<number> = new Set([60, 61]);
-    expect(filterEventsForSeat(state, [unseenDeath, seenHit], 'south', 2, visible)).toEqual([
-      unseenDeath,
-      seenHit,
-    ]);
-    expect(filterEventsForSeat(state, [seenHit], 'south', 2, none)).toEqual([]);
-
-    // Involved team player: south killer makes the death visible to south.
-    const killedBySouth: SimEvent = { ...unseenDeath, killerPlayer: 2 };
-    expect(filterEventsForSeat(state, [killedBySouth], 'south', 3, none)).toEqual([killedBySouth]);
+    expect(
+      filterEventsForSeat(state, [unseenDeath, seenHit], 'south', 2, visible, blind('south')),
+    ).toEqual([unseenDeath, seenHit]);
+    expect(filterEventsForSeat(state, [seenHit], 'south', 2, none, blind('south'))).toEqual([]);
 
     // hit by a south player is reported to south.
     const southHit: SimEvent = { ...seenHit, type: 'hit', attackerPlayer: 2, targetEntityId: 62 };
-    expect(filterEventsForSeat(state, [southHit], 'south', 3, none)).toEqual([southHit]);
-    expect(filterEventsForSeat(state, [southHit], 'north', 7, none)).toEqual([]);
+    expect(filterEventsForSeat(state, [southHit], 'south', 3, none, blind('south'))).toEqual([
+      southHit,
+    ]);
+    expect(filterEventsForSeat(state, [southHit], 'north', 7, none, blind('north'))).toEqual([]);
 
     // missileLaunched: owning team always, other team only if target visible.
     const missile: SimEvent = {
@@ -297,8 +307,52 @@ describe('filterEventsForSeat', () => {
       warheadItemId: 'I00H',
       targetEntityId: 63,
     };
-    expect(filterEventsForSeat(state, [missile], 'north', 7, none)).toEqual([missile]);
-    expect(filterEventsForSeat(state, [missile], 'south', 2, none)).toEqual([]);
-    expect(filterEventsForSeat(state, [missile], 'south', 2, new Set([63]))).toEqual([missile]);
+    expect(filterEventsForSeat(state, [missile], 'north', 7, none, blind('north'))).toEqual([
+      missile,
+    ]);
+    expect(filterEventsForSeat(state, [missile], 'south', 2, none, blind('south'))).toEqual([]);
+    expect(
+      filterEventsForSeat(state, [missile], 'south', 2, new Set([63]), blind('south')),
+    ).toEqual([missile]);
+  });
+
+  it('does NOT leak enemy death coordinates to the killer team when the spot is out of sight', () => {
+    // Finding (cheat-vision): a DoT/slow-projectile kill credited to a south
+    // player can land on a north ship that already fled south's vision. The
+    // death event carries the victim's exact coordinates and the client renders
+    // an explosion there, so forwarding it on the killer-team branch alone is a
+    // fog-of-war leak. The fix drops such an event unless the spot is in sight.
+    const state = eventState();
+    const enemyDeathBySouth: SimEvent = {
+      type: 'death',
+      tick: 5,
+      entityId: 80,
+      entityTypeId: 'H000',
+      victimPlayer: 7, // north ship
+      killerPlayer: 2, // south killer (the DoT source)
+      x: -1159.8, // far outside any south sight source
+      y: 5953.5,
+    };
+
+    // South killed it but cannot see the spot and the entity is not in the
+    // visible set: the death (and its coordinates) must NOT reach south.
+    expect(filterEventsForSeat(state, [enemyDeathBySouth], 'south', 2, none, blind('south'))).toEqual(
+      [],
+    );
+    // The victim's OWN team (north) still gets it (own death is never gated).
+    expect(filterEventsForSeat(state, [enemyDeathBySouth], 'north', 7, none, blind('north'))).toEqual(
+      [enemyDeathBySouth],
+    );
+
+    // If the kill DOES happen inside south's sight, south gets it verbatim
+    // (covered-by-sight branch), so seen kills still feed the explosion/feed.
+    const seenEnemyDeath: SimEvent = { ...enemyDeathBySouth, x: 0, y: 0 };
+    expect(
+      filterEventsForSeat(state, [seenEnemyDeath], 'south', 2, none, seesOrigin('south')),
+    ).toEqual([seenEnemyDeath]);
+    // Or when the dying entity was in this/last tick's visible set.
+    expect(
+      filterEventsForSeat(state, [enemyDeathBySouth], 'south', 2, new Set([80]), blind('south')),
+    ).toEqual([enemyDeathBySouth]);
   });
 });

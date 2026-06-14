@@ -29,10 +29,45 @@ let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 /** Set on versionMismatch: reconnecting cannot help until a reload. */
 let reconnectDisabled = false;
 
-/** `?server=ws://host:port` override, else localhost:DEFAULT_PORT. */
+/** Hosts the `?server=` override may target: same-origin or loopback (dev). */
+function isAllowedOverrideHost(hostname: string): boolean {
+  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]') return true;
+  try {
+    return hostname.toLowerCase() === window.location.hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Resolve the server URL. A `?server=` query param may override the default
+ * (for local testing), but ONLY when it is a ws:// or wss:// URL whose host is
+ * same-origin or loopback. Without this allowlist a crafted link
+ * (`?server=ws://attacker.tld`) would point the socket at an attacker host,
+ * and the hello frame would leak the persistent identity token (the resume
+ * secret) to them — letting the attacker authenticate to the real server as
+ * the victim. A rejected/absent override falls back to localhost:DEFAULT_PORT.
+ */
 export function defaultServerUrl(): string {
+  const fallback = `ws://localhost:${DEFAULT_PORT}`;
   const override = new URLSearchParams(window.location.search).get('server');
-  return override !== null && override !== '' ? override : `ws://localhost:${DEFAULT_PORT}`;
+  if (override === null || override === '') return fallback;
+  let parsed: URL;
+  try {
+    parsed = new URL(override);
+  } catch {
+    console.warn('[net] ignoring malformed ?server= override');
+    return fallback;
+  }
+  if (parsed.protocol !== 'ws:' && parsed.protocol !== 'wss:') {
+    console.warn(`[net] ignoring ?server= override with disallowed scheme ${parsed.protocol}`);
+    return fallback;
+  }
+  if (!isAllowedOverrideHost(parsed.hostname)) {
+    console.warn('[net] ignoring ?server= override pointing at a non-allowlisted host');
+    return fallback;
+  }
+  return override;
 }
 
 function setStatus(status: typeof store.connection.status): void {
@@ -98,7 +133,16 @@ function handleRaw(socket: WebSocket, raw: string): void {
     reconnectDisabled = true;
     console.warn('[net] protocol version mismatch — reload the page to update');
   }
-  applyServerMessage(msg, performance.now());
+  // Defense-in-depth at the trust boundary: a malformed frame (e.g. a snapshot
+  // with a null `you` or non-array entities/events from a hostile server
+  // reachable via a crafted ?server= link) must not throw an uncaught
+  // TypeError out of onmessage and break the game loop. Drop the frame instead.
+  try {
+    applyServerMessage(msg, performance.now());
+  } catch (err) {
+    console.warn('[net] dropped server frame that failed to apply:', err);
+    return;
+  }
   if (msg.type === 'welcome' && msg.resumed === null) {
     // Fresh session: populate the room browser right away.
     sendOn(socket, { type: 'listRooms' });

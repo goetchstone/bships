@@ -23,7 +23,7 @@
  */
 
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import type { StatsConfig } from './types.js';
 import type { StatsRepository } from './db.js';
 import {
@@ -235,6 +235,9 @@ function validateMatchResultIngest(body: unknown): body is MatchResultIngest {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** Upper bounds so a directly-reachable /claim cannot store amplified data. */
+const MAX_EMAIL_LENGTH = 254; // RFC 5321 max addr length
+const MAX_PASSWORD_LENGTH = 256;
 
 function validateClaimRequest(body: unknown): body is ClaimRequest {
   if (body === null || typeof body !== 'object') return false;
@@ -243,11 +246,16 @@ function validateClaimRequest(body: unknown): body is ClaimRequest {
     isString(obj['token']) &&
     TOKEN_PATTERN.test(obj['token'] as string) &&
     isString(obj['email']) &&
+    (obj['email'] as string).length <= MAX_EMAIL_LENGTH &&
     EMAIL_RE.test(obj['email'] as string) &&
     isString(obj['password']) &&
     (obj['password'] as string).length >= 1 &&
+    (obj['password'] as string).length <= MAX_PASSWORD_LENGTH &&
     isString(obj['name']) &&
-    (obj['name'] as string).length >= 1
+    (obj['name'] as string).length >= 1 &&
+    // Mirror the ingest validator: an unbounded name is stored verbatim and
+    // reflected to every public leaderboard/profile reader (stored DoS).
+    (obj['name'] as string).length <= MAX_NAME_LENGTH
   );
 }
 
@@ -256,9 +264,11 @@ function validateLoginRequest(body: unknown): body is LoginRequest {
   const obj = body as Record<string, unknown>;
   return (
     isString(obj['email']) &&
+    (obj['email'] as string).length <= MAX_EMAIL_LENGTH &&
     EMAIL_RE.test(obj['email'] as string) &&
     isString(obj['password']) &&
-    (obj['password'] as string).length >= 1
+    (obj['password'] as string).length >= 1 &&
+    (obj['password'] as string).length <= MAX_PASSWORD_LENGTH
   );
 }
 
@@ -485,13 +495,13 @@ export function createStatsServer(deps: StatsServerDeps): StatsServer {
         return;
       }
 
-      // Generate a session token
-      const sessionToken = randomBytes(32).toString('hex');
+      // No session token: the claimed account is identified to the client by
+      // (publicId, name, email). A token here would never be verified by any
+      // endpoint, so emitting one is a false sense of authentication.
       sendJson(res, 200, {
         publicId: outcome.row.publicId,
         name: outcome.row.name,
         email: body.email,
-        sessionToken,
       });
       return;
     }
@@ -533,12 +543,10 @@ export function createStatsServer(deps: StatsServerDeps): StatsServer {
         return;
       }
 
-      const sessionToken = randomBytes(32).toString('hex');
       sendJson(res, 200, {
         publicId: outcome.row.publicId,
         name: outcome.row.name,
         email: body.email,
-        sessionToken,
       });
       return;
     }

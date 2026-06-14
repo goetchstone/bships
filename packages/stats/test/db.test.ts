@@ -682,4 +682,29 @@ describe('verifyLogin', () => {
     expect(() => repo.verifyLogin('alice@example.com', 'x'.repeat(1000))).not.toThrow();
     repo.close();
   });
+
+  it('does not leak account existence via timing (runs scrypt on the not-found path)', () => {
+    // Security finding: the not-found branch used to return in microseconds
+    // while a wrong-password attempt cost a full scrypt (~35 ms) — a remote
+    // timing oracle for email enumeration. Both paths must now run scrypt, so
+    // the ratio collapses from ~5e4x to ~1x. Measure best-of-N (min) to shrug
+    // off scheduler noise; assert a generous bound that the old code could not
+    // possibly satisfy (microseconds vs tens of milliseconds).
+    const minMs = (fn: () => void, n = 12): number => {
+      let best = Infinity;
+      for (let i = 0; i < n; i += 1) {
+        const start = process.hrtime.bigint();
+        fn();
+        const ms = Number(process.hrtime.bigint() - start) / 1e6;
+        if (ms < best) best = ms;
+      }
+      return best;
+    };
+    const existing = minMs(() => repo.verifyLogin('alice@example.com', 'wrongpass'));
+    const missing = minMs(() => repo.verifyLogin('nobody@example.com', 'wrongpass'));
+    // Old code: missing ~0.001 ms => ratio ~50000. Fixed: both run scrypt, so
+    // missing is within a small factor of existing (allow 5x for jitter).
+    expect(missing).toBeGreaterThan(existing / 5);
+    repo.close();
+  });
 });

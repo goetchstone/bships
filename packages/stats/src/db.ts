@@ -526,11 +526,16 @@ export function openDatabase(path: string): StatsRepository {
     const normalizedEmail = email.toLowerCase();
     const row = stmtGetPlayerByEmail.get(normalizedEmail) as unknown as PlayerDbRow | undefined;
 
-    if (row === undefined) {
-      return { ok: false, reason: 'notFound' };
-    }
-    if (row.password_hash === null || !verifyPassword(password, row.password_hash)) {
-      return { ok: false, reason: 'badCredentials' };
+    // Constant-time w.r.t. account existence: a missing row (or a row with no
+    // password set) still runs one scrypt verification against a fixed dummy
+    // hash, so the no-account and wrong-password paths take the same wall time.
+    // Without this, "not found" returns in microseconds while "wrong password"
+    // costs a full scrypt (~35 ms) — a remote timing oracle for account/email
+    // enumeration. The dummy verification can never succeed (password != dummy).
+    const hash = row?.password_hash ?? null;
+    const ok = verifyPassword(password, hash ?? DUMMY_PASSWORD_HASH);
+    if (row === undefined || hash === null || !ok) {
+      return { ok: false, reason: row === undefined ? 'notFound' : 'badCredentials' };
     }
     return { ok: true, row: rowToPlayerRow(row) };
   }
@@ -599,3 +604,12 @@ export function verifyPassword(password: string, encoded: string): boolean {
     return false;
   }
 }
+
+/**
+ * A fixed, well-formed scrypt hash of a random secret, computed once at module
+ * load. verifyLogin runs a verification against this on the account-not-found
+ * (and no-password) paths so they cost the same scrypt work as a wrong-password
+ * attempt — closing the login timing oracle. No real password can equal the
+ * random secret, so this verification never spuriously succeeds.
+ */
+const DUMMY_PASSWORD_HASH = hashPassword(randomBytes(32).toString('hex'));

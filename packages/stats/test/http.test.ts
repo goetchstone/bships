@@ -656,8 +656,8 @@ describe('POST /claim', () => {
     expect(body.publicId).toBe(derivePublicId(token));
     expect(body.name).toBe('Alice');
     expect(body.email).toBe('alice@example.com');
-    expect(typeof body.sessionToken).toBe('string');
-    expect(body.sessionToken.length).toBeGreaterThan(0);
+    // No session token is emitted (it was a never-verified, misleading field).
+    expect('sessionToken' in (body as Record<string, unknown>)).toBe(false);
   });
 
   it('returns 409 when email is already taken', async () => {
@@ -777,7 +777,7 @@ describe('POST /login', () => {
     expect(body.publicId).toBe(id);
     expect(body.name).toBe('Bob');
     expect(body.email).toBe('bob@example.com');
-    expect(typeof body.sessionToken).toBe('string');
+    expect('sessionToken' in (body as Record<string, unknown>)).toBe(false);
   });
 
   it('returns 401 for wrong password', async () => {
