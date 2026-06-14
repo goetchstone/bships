@@ -190,6 +190,13 @@ export interface WorldLayer {
   view: Container;
   update(sample: WorldSample | null, nowMs: number): void;
   resize(w: number, h: number): void;
+  /**
+   * Insert a node (the render/land.ts layer) directly ABOVE the sea (base +
+   * foam) and BELOW the structures, so land masses paint over the water but the
+   * coastal towers/HQ/shops stay visible on top of the land. The integrator
+   * calls this once in renderer.ts; world.ts keeps owning the sea + structures.
+   */
+  addLandLayer(node: Container): void;
 }
 
 export function createWorld(renderer?: Renderer): WorldLayer {
@@ -527,7 +534,13 @@ export function createWorld(renderer?: Renderer): WorldLayer {
     seaStaticSig = '';
   }
 
-  return { view, update, resize };
+  function addLandLayer(node: Container): void {
+    // Place just above the sea (seaStatic + seaFoam, indices 0-1) and below the
+    // structureLayer, so land covers the water but not the coastal buildings.
+    view.addChildAt(node, 2);
+  }
+
+  return { view, update, resize, addLandLayer };
 }
 
 // ---------------------------------------------------------------------------

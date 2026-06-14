@@ -86,6 +86,11 @@ applyCommands (server-ordered array, routed per command type)
   area 600, AHtb speed 1000, Asdg DataE=1, AId3 +3, Arel 2 HP/s, Endurance
   10%) and the TFT attack-vs-defense table. Provisional values (lane/tower
   attack types, heroLevelCap 12) must be marked, not guessed silently.
+- Compiles the static land/water mask: `compileWaterMask` decodes
+  `data/json/terrain.json` (optional `RawDataFiles.terrain`) into
+  `Ruleset.map.waterMask`. Query with `isWater(mask, x, y)`. See
+  `docs/TERRAIN.md` — the contract for the pathing/creep-ai/land-render/
+  shop-access map-fidelity work.
 
 ## Module: movement
 
@@ -94,7 +99,9 @@ applyCommands (server-ordered array, routed per command type)
 - Owns `entity.order`, `x/y/facingRad`. Kinematics per SEMANTICS §3: turn
   cap `constants.turnRateCapRadPerTick`, move along current facing when
   heading error <= 90°, speed = base × (1 + Σ sail/aura/status pcts) clamped
-  to [min,max]; circle pushout ascending-id; bounds clamp (water mask OPEN).
+  to [min,max]; circle pushout ascending-id; bounds clamp + land collision via
+  `isWater(ruleset.map.waterMask, x, y)` (block/slide along the coast so lanes
+  funnel through tower gaps) — see docs/TERRAIN.md (pathing).
 - Skips dead/paused/stunned/casting units. Never touches hp/gold/statuses.
 
 ## Module: combat
@@ -144,6 +151,9 @@ applyCommands (server-ordered array, routed per command type)
   gated on own harbor alive, bounty-vs-zero-bounty type by enemy harbor
   liveness, verbatim re-order quirk (all units in spawn rect), waypoint AI
   with region-triggered HQ re-order. Applies R003/R004 to spawned stats.
+- Lane creeps hold at the frontmost LIVING enemy structure (tower, then HQ) in
+  their lane and resume to the next once it dies — see docs/TERRAIN.md
+  (creep-ai). Players unaffected; no new RNG draws.
 
 ## Module: specials
 

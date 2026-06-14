@@ -304,13 +304,17 @@ describe('AI economy', () => {
   it('economy climbs the BALANCE ladder past the opening: inventory grows beyond 2 items', () => {
     // Regression for the economy lockout / ladder wedge: over a bot-vs-bot match
     // the south bot must accumulate MORE than its opening cannon + first hull
-    // (the old bots froze at exactly 2 items and banked all their gold). At
-    // seed 0x1234 hard-vs-hard it reaches 3 items by ~tick 1315 and a
-    // Bronze/Gold hull by ~tick 2350; 4000 ticks clears both with margin.
+    // (the old bots froze at exactly 2 items and banked all their gold).
+    // PREMISE SHIFT (creep hold-at-tower fix): creeps now hold + grind at the
+    // frontmost enemy tower instead of ghosting to the HQ, so the battlefield —
+    // and the bot's bounty/survival economy that rides on it — plays out on a
+    // later clock. At seed 0x1234 hard-vs-hard it now reaches 3 items by ~tick
+    // 1610 and a Bronze/Gold hull by ~tick 4185 (was ~1315 / ~2350); 6000 ticks
+    // clears both with margin. The milestones themselves are unchanged.
     const { state } = driveAiMatch(0x1234, [
       { slot: SOUTH_SLOT, difficulty: 'hard' },
       { slot: NORTH_SLOT, difficulty: 'hard' },
-    ], 4000);
+    ], 6000);
     const inv = state.players[SOUTH_SLOT]!.inventory.filter((i) => i !== null);
     expect(inv.length).toBeGreaterThan(2);
     // And it climbed a hull beyond the cheapest Stone Hull (drop-then-upgrade

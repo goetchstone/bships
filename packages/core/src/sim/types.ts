@@ -1428,8 +1428,196 @@ export interface WaveSpec {
   zeroBountyTypeId: string;
 }
 
+/**
+ * Compiled, STATIC land/water mask (extracted from war3map.wpm into
+ * data/json/terrain.json; see docs/TERRAIN.md). `water=true` marks a
+ * ship-navigable cell; `false` is land that blocks ship movement.
+ *
+ * Determinism: this is pure static data — no RNG, no time, no trig. Movement
+ * queries it with plain arithmetic, so a match still replays bit-identically.
+ * It lives on the (deeply immutable) Ruleset, NOT in SimState, so it is never
+ * serialized per-match nor covered by hashState — hence the packed Uint8Array
+ * payload is allowed here (it is not a SimState POJO field).
+ *
+ * Coordinate transform (yOrientation 'top-down', proven in the extractor —
+ * NO flip): row 0 = max-Y (north), col 0 = min-X (west).
+ *   col = floor((x - bounds.minX) / cellSizeX)   // 0 .. cols-1
+ *   row = floor((bounds.maxY - y) / cellSizeY)    // 0 .. rows-1
+ *   cell index = row * cols + col
+ * Out-of-bounds (x/y outside `bounds`) reads as LAND (false) — ships are
+ * already clamped to bounds by movement, and treating the off-map gutter as
+ * land keeps the coastline closed.
+ */
+export interface WaterMask {
+  /** Playable-area extent the mask spans (matches MapSpec.bounds). */
+  bounds: { minX: number; minY: number; maxX: number; maxY: number };
+  /** Native pathing resolution (384 x 512). */
+  cols: number;
+  rows: number;
+  /** World units per cell along each axis (~28.25 x ~29.0). */
+  cellSizeX: number;
+  cellSizeY: number;
+  /**
+   * Row-major decoded mask, one byte per cell (1 = water, 0 = land), length
+   * cols*rows. Decoded once at compile time from the RLE in terrain.json.
+   * Uint8Array (not number[]) for a compact, cache-friendly query; the mask
+   * is on the immutable Ruleset, never in serialized state.
+   */
+  cells: Uint8Array;
+}
+
+/**
+ * Fast deterministic point query: is world point (x, y) ship-navigable water?
+ * Pure arithmetic against the static mask (no RNG/time/trig) — safe to call
+ * from the deterministic sim AND from the client land renderer. Returns false
+ * for points outside `mask.bounds` (off-map gutter reads as land).
+ *
+ * STUB: returns true everywhere (open sea) until the compiler decodes the
+ * real mask — the `pathing` implementer (movement.ts) and `land-render`
+ * implementer (client) both consume this signature; do not change it without
+ * architect sign-off.
+ */
+export function isWater(mask: WaterMask, x: number, y: number): boolean {
+  // --- TODO(architect-stubbed): real implementation, kept here so the query
+  // lives in exactly one place. Once compileWaterMask fills `mask.cells`, this
+  // body becomes the live lookup; while cells is empty it falls back to open
+  // sea so existing behavior is unchanged.
+  const { bounds, cols, rows, cellSizeX, cellSizeY, cells } = mask;
+  if (cells.length === 0) return true; // un-compiled stub -> open sea
+  if (x < bounds.minX || x >= bounds.maxX || y <= bounds.minY || y > bounds.maxY) {
+    return false; // off-map gutter is land
+  }
+  const col = Math.floor((x - bounds.minX) / cellSizeX);
+  const row = Math.floor((bounds.maxY - y) / cellSizeY);
+  if (col < 0 || col >= cols || row < 0 || row >= rows) return false;
+  return cells[row * cols + col] === 1;
+}
+
+/**
+ * Static lane-navigation field for ONE goal (a team's enemy base): a precomputed
+ * BFS hop-distance over the water cells of the `WaterMask`, measured from the
+ * goal cell outward (8-connected). It lets a unit follow the winding water lanes
+ * AROUND the central landmass toward the enemy base WITHOUT per-tick pathfinding
+ * — `navStepToward` reads the descending gradient in O(1).
+ *
+ * Why this exists (docs/TERRAIN.md §3 reconciliation): the real BSP lanes are
+ * tortuous water channels (a straight line from a south lane spawn to the north
+ * base is ~90% land). SEMANTICS §3's "straight-line + coast-slide, no A*" was
+ * written for open water and CANNOT traverse these lanes — a greedy ship gets
+ * trapped in the first concave bay. The field is the deterministic, static fix:
+ * it is built ONCE per Ruleset from the static mask (no RNG/time/trig), lives on
+ * the immutable Ruleset (never in SimState, never hashed/serialized — same
+ * rationale as WaterMask, hence the packed Int32Array is allowed), and is
+ * queried with plain integer arithmetic, so a match still replays bit-identically.
+ * It is NOT per-unit A*: there is no per-tick graph search and no per-unit path
+ * state; every unit reads the same shared field.
+ *
+ * `dist[row*cols + col]` = hop count from that water cell to the goal cell, or
+ * `UNREACHABLE` for land / water with no water path to the goal. Same grid /
+ * transform as the WaterMask it is built from.
+ */
+export interface NavField {
+  cols: number;
+  rows: number;
+  cellSizeX: number;
+  cellSizeY: number;
+  bounds: { minX: number; minY: number; maxX: number; maxY: number };
+  /** Goal world point this field flows toward (for short-range fall-through). */
+  goalX: number;
+  goalY: number;
+  /** Row-major hop distance to the goal; UNREACHABLE where there is no path. */
+  dist: Int32Array;
+}
+
+/** Sentinel hop-distance for land / unreachable water cells in a NavField. */
+export const NAV_UNREACHABLE = -1;
+
+/**
+ * Next world point a unit at (x, y) should steer toward to follow the lane
+ * field toward its goal, or `null` to fall through to plain straight-line
+ * movement (no field, the unit's own cell is unreachable/land, or it is already
+ * in the goal's local basin so the straight line is fine).
+ *
+ * Deterministic: a fixed 8-neighbour scan of a static array (ascending neighbour
+ * order, ties broken by that order) + the shared cell transform. No RNG, no
+ * trig, no time. Returns the CENTER of the lowest-distance navigable neighbour
+ * cell so the caller's kinematics steer one cell "downhill" along the lane.
+ *
+ * `localGoalDistCells`: when the unit's cell is within this many hops of the
+ * goal, return null so the final approach uses the true straight line to the
+ * exact goal (the field's cell granularity would otherwise jitter the last leg).
+ */
+export function navStepToward(
+  field: NavField,
+  x: number,
+  y: number,
+  localGoalDistCells = 6,
+): { x: number; y: number } | null {
+  const { bounds, cols, rows, cellSizeX, cellSizeY, dist } = field;
+  if (dist.length === 0) return null; // stub field (no real mask) -> straight line
+  if (x < bounds.minX || x >= bounds.maxX || y <= bounds.minY || y > bounds.maxY) return null;
+  const col = Math.floor((x - bounds.minX) / cellSizeX);
+  const row = Math.floor((bounds.maxY - y) / cellSizeY);
+  if (col < 0 || col >= cols || row < 0 || row >= rows) return null;
+  const here = dist[row * cols + col] ?? NAV_UNREACHABLE;
+  if (here === NAV_UNREACHABLE) return null; // on land / unreachable -> let slide handle it
+  if (here <= localGoalDistCells) return null; // near the goal -> straight line in
+
+  // Lowest-distance navigable 8-neighbour (deterministic neighbour order).
+  const NEIGHBOURS: readonly [number, number][] = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+    [1, 1],
+    [1, -1],
+    [-1, 1],
+    [-1, -1],
+  ];
+  let bestCol = col;
+  let bestRow = row;
+  let bestDist = here;
+  for (const [dc, dr] of NEIGHBOURS) {
+    const nc = col + dc;
+    const nr = row + dr;
+    if (nc < 0 || nc >= cols || nr < 0 || nr >= rows) continue;
+    const d = dist[nr * cols + nc] ?? NAV_UNREACHABLE;
+    if (d === NAV_UNREACHABLE) continue;
+    if (d < bestDist) {
+      bestDist = d;
+      bestCol = nc;
+      bestRow = nr;
+    }
+  }
+  if (bestCol === col && bestRow === row) return null; // local minimum -> straight line
+  return {
+    x: bounds.minX + (bestCol + 0.5) * cellSizeX,
+    y: bounds.maxY - (bestRow + 0.5) * cellSizeY,
+  };
+}
+
 export interface MapSpec {
   bounds: { minX: number; minY: number; maxX: number; maxY: number };
+  /**
+   * Static land/water mask for ship pathing + the client land renderer
+   * (docs/TERRAIN.md). Compiled from data/json/terrain.json; query via
+   * `isWater(mask, x, y)`.
+   */
+  waterMask: WaterMask;
+  /**
+   * Per-team static lane-navigation fields — see `NavField`. Two goals per team
+   * cover every long-haul order the lanes wind around:
+   *   `navByTeam[team]`     flows toward the ENEMY base (the push goal): south
+   *                         → north base, north → south base.
+   *   `navHomeByTeam[team]` flows toward the OWN base (retreats, shop detours —
+   *                         the shops cluster at each base).
+   * Built once from `waterMask` by the ruleset compiler; a stub mask yields
+   * empty (no-op) fields. Movement picks whichever field's goal is nearer the
+   * order point so creeps and player/AI ships follow the winding water lanes
+   * instead of beelining into the central land.
+   */
+  navByTeam: Record<TeamId, NavField>;
+  navHomeByTeam: Record<TeamId, NavField>;
   regions: Record<string, RegionRect>;
   structures: StructurePlacement[];
   /** Keyed by player slot. */
@@ -1726,6 +1914,25 @@ export interface RawMapLayoutFile {
  * raw object-data dumps — the ruleset compiler owns narrow extractors for
  * the handful of fields it needs (unit stats, ability curves, stock fields).
  */
+/**
+ * Parsed data/json/terrain.json — the static land/water mask emitted by
+ * tools/extractor/terrain.py from war3map.wpm. `compileWaterMask` decodes the
+ * per-row RLE into the runtime WaterMask. See docs/TERRAIN.md.
+ *
+ * rleFormat: water[r] = [leadingValue, run0, run1, ...]; runs alternate from
+ * leadingValue (0=land, 1=water) and sum to `cols`.
+ */
+export interface RawTerrainFile {
+  bounds: { minX: number; minY: number; maxX: number; maxY: number };
+  cols: number;
+  rows: number;
+  cellSizeX: number;
+  cellSizeY: number;
+  yOrientation: 'top-down';
+  /** Per-row run-length encoding; one entry per row (length === rows). */
+  water: number[][];
+}
+
 export interface RawDataFiles {
   weapons: { weapons: RawWeaponRow[] };
   equipment: { items: RawEquipmentRow[] };
@@ -1738,6 +1945,13 @@ export interface RawDataFiles {
     questSystems: RawQuestSystems;
   };
   mapLayout: RawMapLayoutFile;
+  /**
+   * Static land/water mask (data/json/terrain.json). OPTIONAL: when absent the
+   * compiler builds an all-water stub mask (isWater true everywhere), so the
+   * many existing test harnesses that assemble RawDataFiles without terrain
+   * keep their open-sea behavior. Server + client load it; see TERRAIN.md.
+   */
+  terrain?: RawTerrainFile;
   units: unknown;
   abilities: unknown;
   items: unknown;

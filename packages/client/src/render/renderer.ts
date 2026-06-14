@@ -39,6 +39,7 @@ import {
 } from './camera.js';
 import { createFog } from './fog.js';
 import { createFx } from './fx.js';
+import { createLand } from './land.js';
 import { attachPointer } from './pointer.js';
 import { createUnits } from './units.js';
 import { createWorld } from './world.js';
@@ -78,14 +79,19 @@ export async function initRenderer(opts: { mount: HTMLElement }): Promise<void> 
   // ships/creeps/summons/wards; fx the projectiles + combat effects; fog the
   // cosmetic vision dim on top.
   const world = createWorld(app.renderer);
+  const land = createLand();
   const units = createUnits();
   const fx = createFx();
   const fog = createFog(app.renderer);
+  // Land sits inside world.view, above the sea + foam and below the structures
+  // (so coastal towers/HQ/shops stay visible on top of the land masses).
+  world.addLandLayer(land.view);
   app.stage.addChild(world.view, units.view, fx.view, fog.view);
 
   app.renderer.on('resize', (w: number, h: number) => {
     setViewport(w, h);
     world.resize(w, h);
+    land.resize(w, h);
     fog.resize(w, h);
   });
 
@@ -108,6 +114,7 @@ export async function initRenderer(opts: { mount: HTMLElement }): Promise<void> 
     }
     updateCamera(ticker.deltaMS);
     world.update(sample, nowMs);
+    land.update(sample, nowMs);
     units.update(sample, nowMs);
     fx.update(sample, nowMs);
     fog.update(sample);

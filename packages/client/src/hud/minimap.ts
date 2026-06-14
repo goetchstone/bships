@@ -13,9 +13,14 @@ import type { HudContext } from './context.js';
 import { cssVar, el } from './context.js';
 import { hudSample } from './sample.js';
 import { createMinimapTransform } from './hudmath.js';
+import { ownSideShops } from './shopcue.js';
 
 export function initMinimap(ctx: HudContext): void {
   const transform = createMinimapTransform(ctx.catalog.map.bounds, 220);
+  // Own-side base shops are static catalog data; recompute only when the
+  // player's team settles (slot assignment can land after init).
+  let ownShopTeam: string | null | undefined;
+  let ownShopMini: { x: number; y: number }[] = [];
 
   const wrap = el('div', 'bh-minimap', ctx.root);
   const canvas = el('canvas', undefined, wrap);
@@ -32,6 +37,7 @@ export function initMinimap(ctx: HudContext): void {
     neutral: cssVar('--text-dim', '#7d96ab'),
     self: cssVar('--text', '#d8e6f2'),
     view: cssVar('--accent', '#36a3ff'),
+    shop: cssVar('--gold', '#f2c14e'),
   };
 
   function teamColor(team: string | null): string {
@@ -66,12 +72,18 @@ export function initMinimap(ctx: HudContext): void {
         break;
       }
       case 'shop': {
+        // Prominent gold marker (bag/market) so the 16 shops stand out from
+        // team structures and read at a glance over the dark water.
+        g.fillStyle = colors.shop;
         g.beginPath();
-        g.arc(x, y, 3, 0, Math.PI * 2);
+        g.arc(x, y, 4, 0, Math.PI * 2);
         g.fill();
-        g.strokeStyle = colors.self;
-        g.lineWidth = 1;
+        g.strokeStyle = colors.water;
+        g.lineWidth = 1.5;
         g.stroke();
+        // A tiny dark "$" tick to read as a shop, not just a dot.
+        g.fillStyle = colors.water;
+        g.fillRect(x - 0.6, y - 2.5, 1.2, 5);
         break;
       }
       case 'repair': {
@@ -92,6 +104,19 @@ export function initMinimap(ctx: HudContext): void {
         break;
       }
     }
+  }
+
+  /** Recompute own-side base-shop minimap positions when the team settles. */
+  function ownShopMarkers(): { x: number; y: number }[] {
+    const team = store.match.myTeam;
+    if (team !== ownShopTeam) {
+      ownShopTeam = team;
+      ownShopMini = ownSideShops(
+        ctx.catalog.map.structures as unknown as Parameters<typeof ownSideShops>[0],
+        team,
+      ).map((s) => transform.toMini(s.x, s.y));
+    }
+    return ownShopMini;
   }
 
   function draw(nowMs: number): void {
@@ -122,6 +147,32 @@ export function initMinimap(ctx: HudContext): void {
           g.stroke();
         }
       }
+    }
+
+    // Always-on "SHOPS" cue at the player's own-side base: a gold halo ring +
+    // label around the base-shop cluster so the player always knows where to
+    // resupply, even before the first snapshot reveals the structures.
+    const ownShops = ownShopMarkers();
+    if (ownShops.length > 0) {
+      let cx = 0;
+      let cy = 0;
+      for (const m of ownShops) {
+        cx += m.x;
+        cy += m.y;
+      }
+      cx /= ownShops.length;
+      cy /= ownShops.length;
+      g.strokeStyle = colors.shop;
+      g.lineWidth = 1.5;
+      g.beginPath();
+      g.arc(cx, cy, 9, 0, Math.PI * 2);
+      g.stroke();
+      g.fillStyle = colors.shop;
+      g.font = 'bold 8px sans-serif';
+      g.textAlign = 'center';
+      g.textBaseline = cy < canvas.height / 2 ? 'top' : 'bottom';
+      const ty = cy < canvas.height / 2 ? cy + 11 : cy - 11;
+      g.fillText('SHOPS', cx, ty);
     }
 
     // Camera viewport rectangle.

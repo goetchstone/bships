@@ -11,6 +11,7 @@ import type { HudContext } from './context.js';
 import { initTopbar } from './topbar.js';
 import { initInventory } from './inventory.js';
 import { initShop } from './shop.js';
+import { initShopCue } from './shopcue.js';
 import { initMinimap } from './minimap.js';
 import { initScoreboard } from './scoreboard.js';
 import { initChat } from './chat.js';
@@ -39,6 +40,7 @@ export function initHud(opts: { root: HTMLElement }): void {
   initTopbar(ctx);
   initInventory(ctx);
   initShop(ctx);
+  initShopCue(ctx);
   initMinimap(ctx);
   initScoreboard(ctx);
   initChat(ctx);
@@ -214,6 +216,23 @@ export const HUD_CSS = `
   pointer-events: none;
 }
 .bh-shop-pill .bh-slot-key { position: static; font-size: 13px; }
+
+/* ---- shop proximity cue (off-screen base shop, click to frame) ---- */
+.bh-shopcue {
+  position: absolute; bottom: 84px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 14px; border-radius: 14px;
+  background: var(--bg-panel-raised); border: 1px solid var(--gold);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  color: var(--gold); font: inherit; font-weight: 700; cursor: pointer;
+  pointer-events: auto;
+}
+.bh-shopcue:hover { box-shadow: 0 0 10px rgba(242, 193, 78, 0.6); }
+.bh-shopcue-arrow {
+  display: inline-block; font-size: 16px; line-height: 1;
+  transform-origin: 50% 50%;
+}
+.bh-shopcue-label { font-variant-numeric: tabular-nums; }
 .bh-shop {
   position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
   width: 320px; max-height: 72vh; overflow-y: auto;

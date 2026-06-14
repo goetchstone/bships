@@ -62,6 +62,7 @@ import type {
   LaneSpec,
   MapSpec,
   MissileRules,
+  NavField,
   QuestSystems,
   RawDataFiles,
   RawEquipmentRow,
@@ -69,6 +70,7 @@ import type {
   RawQuestSystems,
   RawScriptedItemRow,
   RawShipRow,
+  RawTerrainFile,
   RawTradeRouteRow,
   RawUpgradeRow,
   RawWeaponRow,
@@ -95,11 +97,12 @@ import type {
   UnitAttackSpec,
   UnitTypeSpec,
   UpgradeSpec,
+  WaterMask,
   WaveSpec,
   WeaponSpec,
   XpRules,
 } from './types.js';
-import { pointInRegion, secondsToTicks } from './types.js';
+import { NAV_UNREACHABLE, pointInRegion, secondsToTicks } from './types.js';
 
 // ---------------------------------------------------------------------------
 // Provisional / WC3-base-default constants (every one is documented in the
@@ -1576,7 +1579,156 @@ const EXTRA_STRUCTURE_ROLES: Record<string, StructureEntity['role']> = {
   n00L: 'other',
 };
 
-function compileMap(mapLayout: RawMapLayoutFile, tickRate: number): MapSpec {
+/**
+ * Decode the static land/water mask from data/json/terrain.json (per-row RLE)
+ * into the runtime WaterMask, or build an all-WATER stub when terrain is
+ * absent (preserves the legacy open-sea behavior for harnesses that omit it).
+ *
+ * Pure + deterministic: a fixed decode of static data, no RNG/time/trig. The
+ * resulting mask lives on the immutable Ruleset (not SimState), so the packed
+ * Uint8Array is allowed and never round-trips through hashState. See
+ * docs/TERRAIN.md.
+ *
+ * Throws on a malformed/contradictory terrain file rather than silently
+ * mis-decoding (matches the compiler's fail-loud convention) — an RLE row
+ * whose runs do not sum to `cols`, a wrong row count, or a bad orientation
+ * are all hard errors.
+ */
+export function compileWaterMask(bounds: MapSpec['bounds'], terrain?: RawTerrainFile): WaterMask {
+  // Stub: empty cells => isWater() returns open-sea true everywhere (legacy).
+  if (terrain === undefined) {
+    return {
+      bounds,
+      cols: 0,
+      rows: 0,
+      cellSizeX: 1,
+      cellSizeY: 1,
+      cells: new Uint8Array(0),
+    };
+  }
+
+  const cols = mustNum(terrain.cols, 'terrain cols');
+  const rows = mustNum(terrain.rows, 'terrain rows');
+  if (terrain.yOrientation !== 'top-down') {
+    fail(`terrain: unexpected yOrientation '${String(terrain.yOrientation)}' (expected 'top-down')`);
+  }
+  if (!Array.isArray(terrain.water) || terrain.water.length !== rows) {
+    fail(`terrain: expected ${rows} RLE rows, got ${Array.isArray(terrain.water) ? terrain.water.length : 'non-array'}`);
+  }
+  const cells = new Uint8Array(cols * rows);
+  for (let r = 0; r < rows; r++) {
+    const rle = terrain.water[r];
+    if (!Array.isArray(rle) || rle.length < 1) fail(`terrain: row ${r} RLE is empty`);
+    let value = rle[0] === 1 ? 1 : 0; // leadingValue: 0=land, 1=water
+    let col = 0;
+    for (let k = 1; k < rle.length; k++) {
+      const run = rle[k] ?? 0;
+      if (value === 1) {
+        for (let c = 0; c < run; c++) cells[r * cols + col + c] = 1;
+      }
+      col += run;
+      value = value === 1 ? 0 : 1; // runs alternate
+    }
+    if (col !== cols) fail(`terrain: row ${r} runs sum to ${col}, expected ${cols}`);
+  }
+  return {
+    bounds: {
+      minX: mustNum(terrain.bounds.minX, 'terrain minX'),
+      minY: mustNum(terrain.bounds.minY, 'terrain minY'),
+      maxX: mustNum(terrain.bounds.maxX, 'terrain maxX'),
+      maxY: mustNum(terrain.bounds.maxY, 'terrain maxY'),
+    },
+    cols,
+    rows,
+    cellSizeX: mustNum(terrain.cellSizeX, 'terrain cellSizeX'),
+    cellSizeY: mustNum(terrain.cellSizeY, 'terrain cellSizeY'),
+    cells,
+  };
+}
+
+/**
+ * Build the static lane-navigation field (see types.ts `NavField`) flowing
+ * toward `(goalX, goalY)` over the water cells of `mask`: a BFS hop-distance
+ * from the goal cell outward, 8-connected, computed ONCE here. Deterministic
+ * static derivation of static data — no RNG/time/trig. A stub mask (no cells)
+ * yields an empty field so `navStepToward` returns null (legacy straight-line).
+ *
+ * Why a field and not per-tick steering: the real BSP lanes wind so sharply
+ * (a straight south-spawn→north-base line is ~90% land) that greedy goal-biased
+ * coast-following traps a unit in the first concave bay. The precomputed
+ * gradient routes around the landmass without any per-tick search. See
+ * docs/TERRAIN.md §3 (integrator reconciliation of SEMANTICS §3's "no A*").
+ */
+export function compileNavField(mask: WaterMask, goalX: number, goalY: number): NavField {
+  const { cols, rows, cellSizeX, cellSizeY, bounds, cells } = mask;
+  const base: NavField = { cols, rows, cellSizeX, cellSizeY, bounds, goalX, goalY, dist: new Int32Array(0) };
+  if (cells.length === 0) return base; // stub mask -> empty field (no-op nav)
+
+  const dist = new Int32Array(cols * rows).fill(NAV_UNREACHABLE);
+  const isWaterCell = (c: number, r: number): boolean =>
+    c >= 0 && c < cols && r >= 0 && r < rows && cells[r * cols + c] === 1;
+
+  // Goal cell via the shared transform; clamp into range so a goal placed in an
+  // off-by-one shore cell still seeds the flood from the nearest valid cell.
+  const gc = Math.max(0, Math.min(cols - 1, Math.floor((goalX - bounds.minX) / cellSizeX)));
+  const gr = Math.max(0, Math.min(rows - 1, Math.floor((bounds.maxY - goalY) / cellSizeY)));
+  // If the exact goal cell is land (HQ footprints read as walkable dock = water,
+  // but be defensive), seed from the nearest water cell in a small spiral so the
+  // field is still anchored at the base.
+  let seedC = gc;
+  let seedR = gr;
+  if (!isWaterCell(seedC, seedR)) {
+    let found = false;
+    for (let radius = 1; radius <= 8 && !found; radius++) {
+      for (let dr = -radius; dr <= radius && !found; dr++) {
+        for (let dc = -radius; dc <= radius && !found; dc++) {
+          if (isWaterCell(gc + dc, gr + dr)) {
+            seedC = gc + dc;
+            seedR = gr + dr;
+            found = true;
+          }
+        }
+      }
+    }
+    if (!found) return base; // goal not near any water -> no usable field
+  }
+
+  // 8-connected BFS flood from the seed cell. A plain queue with a head index
+  // (no shift) keeps it O(cells); neighbour order is fixed for determinism.
+  const NEIGHBOURS: readonly [number, number][] = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+    [1, 1],
+    [1, -1],
+    [-1, 1],
+    [-1, -1],
+  ];
+  const queue = new Int32Array(cols * rows);
+  let tail = 0;
+  let head = 0;
+  dist[seedR * cols + seedC] = 0;
+  queue[tail++] = seedR * cols + seedC;
+  while (head < tail) {
+    const idx = queue[head++] ?? 0;
+    const c = idx % cols;
+    const r = (idx - c) / cols;
+    const d = dist[idx] ?? NAV_UNREACHABLE;
+    for (const [dc, dr] of NEIGHBOURS) {
+      const nc = c + dc;
+      const nr = r + dr;
+      if (!isWaterCell(nc, nr)) continue;
+      const nIdx = nr * cols + nc;
+      if (dist[nIdx] !== NAV_UNREACHABLE) continue;
+      dist[nIdx] = d + 1;
+      queue[tail++] = nIdx;
+    }
+  }
+  return { cols, rows, cellSizeX, cellSizeY, bounds, goalX, goalY, dist };
+}
+
+function compileMap(mapLayout: RawMapLayoutFile, tickRate: number, terrain?: RawTerrainFile): MapSpec {
   void tickRate;
   const regions = sortedRecord<RegionRect>(
     mapLayout.regions.map((r) => [
@@ -1691,13 +1843,41 @@ function compileMap(mapLayout: RawMapLayoutFile, tickRate: number): MapSpec {
     regionOrFail(name);
   }
 
+  const bounds = {
+    minX: mapLayout.mapBounds.playableArea.minX,
+    minY: mapLayout.mapBounds.playableArea.minY,
+    maxX: mapLayout.mapBounds.playableArea.maxX,
+    maxY: mapLayout.mapBounds.playableArea.maxY,
+  };
+  const waterMask = compileWaterMask(bounds, terrain);
+
+  // Per-team push goal = the ENEMY HQ (south pushes north, north pushes south).
+  // Fall back to the enemy harbor region center if an HQ is somehow absent. The
+  // nav field flows toward this goal so creeps/ships follow the winding lanes.
+  // HQ team is read from world-Y sign: the south Main Harbor sits at negative y,
+  // the north HQ at positive y (map geometry, GEOMETRY note in the task).
+  const hqOf = (team: TeamId): StructurePlacement | undefined =>
+    structures.find((s) => s.role === 'hq' && (s.y < 0 ? 'south' : 'north') === team);
+  const goalFor = (foe: TeamId, fallback: RegionRect): { x: number; y: number } => {
+    const hq = hqOf(foe);
+    return hq ? { x: hq.x, y: hq.y } : { x: fallback.centerX, y: fallback.centerY };
+  };
+  const northBase = goalFor('north', northHarbour); // the north base point
+  const southBase = goalFor('south', southHarbour); // the south base point
+  const navByTeam: Record<TeamId, NavField> = {
+    south: compileNavField(waterMask, northBase.x, northBase.y), // south pushes north
+    north: compileNavField(waterMask, southBase.x, southBase.y), // north pushes south
+  };
+  const navHomeByTeam: Record<TeamId, NavField> = {
+    south: compileNavField(waterMask, southBase.x, southBase.y), // south retreats home
+    north: compileNavField(waterMask, northBase.x, northBase.y), // north retreats home
+  };
+
   return {
-    bounds: {
-      minX: mapLayout.mapBounds.playableArea.minX,
-      minY: mapLayout.mapBounds.playableArea.minY,
-      maxX: mapLayout.mapBounds.playableArea.maxX,
-      maxY: mapLayout.mapBounds.playableArea.maxY,
-    },
+    bounds,
+    waterMask,
+    navByTeam,
+    navHomeByTeam,
     regions,
     structures,
     playerStarts,
@@ -1852,7 +2032,7 @@ export function compileClassicRuleset(raw: RawDataFiles): Ruleset {
   }
 
   // --- map (needed to know which structures exist) --------------------------
-  const map = compileMap(raw.mapLayout, tickRate);
+  const map = compileMap(raw.mapLayout, tickRate, raw.terrain);
 
   // --- unit types (lane creeps + placed/runtime structures + wards) --------
   const structureTypeIds = new Set<string>();
@@ -2001,6 +2181,19 @@ function isPlainObject(v: unknown): v is Record<string, unknown> {
 
 /** Deep clone for plain JSON-style data (all a Ruleset ever contains). */
 function deepClone<T>(value: T): T {
+  // The water mask's packed bytes (WaterMask.cells) are the one non-JSON node
+  // in a Ruleset; clone them as a typed array so the cloned ruleset's mask
+  // stays queryable (a plain-object clone would lose .length and break
+  // isWater). A Balanced patch never overrides the mask, so this is a copy.
+  if (value instanceof Uint8Array) {
+    return value.slice() as unknown as T;
+  }
+  // The per-team lane-navigation fields (map.navByTeam/navHomeByTeam) carry a
+  // packed Int32Array `dist` derived from the mask — same rationale as the mask
+  // bytes; clone as a typed array so the cloned ruleset's nav stays queryable.
+  if (value instanceof Int32Array) {
+    return value.slice() as unknown as T;
+  }
   if (Array.isArray(value)) {
     return value.map((v) => deepClone(v)) as unknown as T;
   }

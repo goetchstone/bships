@@ -68,12 +68,17 @@ const SHOP_APPROACH = (() => {
 })();
 
 /**
- * East-edge rendezvous, far from every tower (range 1000, all at x <= 832)
- * and from the creep lanes (x in [-2320, 272]). The two points sit 500
- * apart: inside I001 range (700) and ship sight (1100).
+ * Rendezvous = the ENEMY base point for each side. MAP-FIDELITY CHANGE
+ * (docs/TERRAIN.md): the map is now water lanes carved through land, so the old
+ * open-sea east-edge rendezvous (4736, ±) is unreachable in a straight line.
+ * Ordering each ship toward the enemy base makes both follow the SAME western
+ * water lane (the static nav field, sim/types.ts NavField) and CROSS mid-lane
+ * around (-4985, ~2150) — within ship sight (1100) and I001 range (700) — so
+ * the vision + auto-fire tests below still have the two ships meet, now at the
+ * faithful lane crossing instead of in open sea.
  */
-const RENDEZVOUS_SOUTH = { x: 4736, y: -500 };
-const RENDEZVOUS_NORTH = { x: 4736, y: 0 };
+const RENDEZVOUS_SOUTH = { x: -1152, y: 6400 }; // south sails toward the north base
+const RENDEZVOUS_NORTH = { x: -896, y: -6912 }; // north sails toward the south base
 
 function randomToken(): string {
   return randomBytes(16).toString('hex');

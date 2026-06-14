@@ -18,6 +18,7 @@ import ships from '../../../data/json/ships.json';
 import upgradeCurves from '../../../data/json/upgrade-curves.json';
 import scriptRules from '../../../data/json/script-rules.json';
 import mapLayout from '../../../data/json/map-layout.json';
+import terrain from '../../../data/json/terrain.json';
 import units from '../../../data/json/units.json';
 import abilities from '../../../data/json/abilities.json';
 import items from '../../../data/json/items.json';
@@ -36,6 +37,7 @@ export function getCatalog(): Ruleset {
       upgradeCurves,
       scriptRules,
       mapLayout,
+      terrain,
       units,
       abilities,
       items,

@@ -35,6 +35,20 @@
  *   enemy-HQ re-order on entering either enemy harbor zone). Inside-region
  *   checks emulate WC3 enter-region events; the waypointIndex gate
  *   prevents per-tick re-issue.
+ * - Hold-at-tower AI (docs/TERRAIN.md §4 creep-ai): after the waypoint pass,
+ *   each living creep targets the FRONTMOST living enemy structure in its lane
+ *   (enemy towers first, then the enemy HQ) — it attack-moves onto it so
+ *   combat's auto-acquire fires and the land funnel + collision physically
+ *   stall it at the chokepoint, rather than ghosting past to the HQ. When that
+ *   structure dies the creep retargets the next one forward, and once every
+ *   enemy structure in the corridor is dead the creep falls back to its plain
+ *   waypoint order (open run to the HQ point). "In its lane" = within
+ *   LANE_CORRIDOR_HALF_WIDTH of the lane axis (spawn -> final waypoint) and
+ *   ahead of the creep along that axis; "frontmost" = smallest forward
+ *   projection among those. This is pure static-geometry arithmetic + the
+ *   existing structureAlive liveness scan: no RNG draws, no trig built-ins,
+ *   deterministic, so replay stays bit-identical. Players are never touched —
+ *   this writes creep `order` only.
  *
  * Reads: ruleset.map.lanes/waves/regions, ruleset.unitTypes/upgrades,
  * teams.upgrades, structure liveness via instanceKey.
@@ -46,17 +60,35 @@
  * Tick order: runs 1st (orders written before movement executes them).
  */
 
-import { PI } from '../math.js';
+import { dSqrt, PI } from '../math.js';
 import type {
   CreepEntity,
   LaneSpec,
   Ruleset,
   SimState,
   Status,
+  StructureEntity,
   TeamId,
   WaveSpec,
 } from './types.js';
-import { allocEntityId, isUnitEntity, pointInRegion, sortedNumericKeys } from './types.js';
+import {
+  allocEntityId,
+  enemyTeam,
+  isUnitEntity,
+  pointInRegion,
+  sortedNumericKeys,
+} from './types.js';
+
+/**
+ * Lateral half-width (world units) of a lane "corridor" for the hold-at-tower
+ * AI. An enemy structure counts as being "in the lane" only when its
+ * perpendicular distance from the lane axis (spawn -> final waypoint) is within
+ * this band. Sized from the real map: the towers guarding each lane sit ≤ ~945u
+ * off the axis, while the nearest tower belonging to an ADJACENT lane is
+ * ≥ ~1210u off — so 1100 cleanly assigns every chokepoint tower + the HQ to one
+ * lane without a creep ever fixating on a tower it can never reach.
+ */
+const LANE_CORRIDOR_HALF_WIDTH = 1100;
 
 /** True while a structure with this instanceKey exists and is alive. */
 function structureAlive(state: SimState, instanceKey: string): boolean {
@@ -74,6 +106,75 @@ function structureAlive(state: SimState, instanceKey: string): boolean {
     }
   }
   return false;
+}
+
+/**
+ * Unit-vector lane axis = direction from the spawn point toward the FINAL
+ * waypoint (the enemy HQ). Used to project structures/creeps onto the
+ * direction of travel for the hold-at-tower AI. Degenerate lanes (no
+ * waypoints, or a final waypoint coincident with the spawn) return null and
+ * disable the hold gate for that lane. Pure arithmetic — no trig.
+ */
+function laneAxis(lane: LaneSpec): { ux: number; uy: number } | null {
+  const final = lane.waypoints[lane.waypoints.length - 1];
+  if (final === undefined) return null;
+  const dx = final.x - lane.spawnX;
+  const dy = final.y - lane.spawnY;
+  const len = dSqrt(dx * dx + dy * dy);
+  if (len === 0) return null;
+  return { ux: dx / len, uy: dy / len };
+}
+
+/**
+ * Frontmost LIVING enemy structure ahead of a creep along its lane axis, or
+ * null when none remains (towers + HQ all dead, or the creep is already past
+ * the last structure). "Ahead" = strictly larger forward projection than the
+ * creep; "in the lane" = perpendicular offset within LANE_CORRIDOR_HALF_WIDTH;
+ * "frontmost" = smallest forward projection among those (nearest to the creep
+ * toward the enemy HQ). Towers and the HQ are treated uniformly — both are
+ * enemy structures on the axis — so the natural ordering yields towers first
+ * (smaller projection) then the HQ (largest), matching the contract.
+ *
+ * Determinism: iterates state.entities in ascending-id order (ties broken by
+ * id) and mirrors structureAlive's liveness predicate. No RNG, no trig.
+ */
+function frontmostEnemyStructure(
+  state: SimState,
+  creep: CreepEntity,
+  axis: { ux: number; uy: number },
+  spawnX: number,
+  spawnY: number,
+): StructureEntity | null {
+  const foeTeam = enemyTeam(creep.team);
+  // Forward projection of the creep onto the lane axis (origin = spawn point).
+  const creepFwd = (creep.x - spawnX) * axis.ux + (creep.y - spawnY) * axis.uy;
+  let best: StructureEntity | null = null;
+  let bestFwd = Infinity;
+  for (const id of sortedNumericKeys(state.entities)) {
+    const entity = state.entities[id];
+    if (
+      entity === undefined ||
+      entity.kind !== 'structure' ||
+      entity.dead ||
+      entity.hp <= 0 ||
+      entity.team !== foeTeam ||
+      (entity.role !== 'tower' && entity.role !== 'hq')
+    ) {
+      continue;
+    }
+    const rx = entity.x - spawnX;
+    const ry = entity.y - spawnY;
+    const fwd = rx * axis.ux + ry * axis.uy;
+    if (fwd <= creepFwd) continue; // behind or level with the creep
+    // Perpendicular (lateral) offset from the lane axis.
+    const lat = Math.abs(rx * axis.uy - ry * axis.ux);
+    if (lat > LANE_CORRIDOR_HALF_WIDTH) continue; // belongs to another lane
+    if (fwd < bestFwd) {
+      best = entity;
+      bestFwd = fwd;
+    }
+  }
+  return best;
 }
 
 interface SpawnUpgradeMods {
@@ -167,6 +268,28 @@ export function stepCreeps(state: SimState, ruleset: Ruleset): void {
         entity.waypointIndex = i;
       }
     }
+  }
+
+  // --- Hold-at-tower AI (docs/TERRAIN.md §4) -----------------------------
+  // After the waypoint pass has set each creep's base order, gate it to the
+  // frontmost living enemy structure in the lane: the creep attack-moves onto
+  // that structure (combat auto-acquires + fires; movement + the land funnel
+  // stall it at the chokepoint) instead of ghosting toward the HQ waypoint.
+  // When no enemy structure remains ahead, the creep keeps its waypoint order
+  // (open run to the HQ point). Players are never touched.
+  for (const id of sortedNumericKeys(state.entities)) {
+    const entity = state.entities[id];
+    if (entity === undefined || entity.kind !== 'creep' || entity.dead) continue;
+    const lane = lanesById[entity.laneId];
+    if (lane === undefined) continue;
+    const axis = laneAxis(lane);
+    if (axis === null) continue;
+    const target = frontmostEnemyStructure(state, entity, axis, lane.spawnX, lane.spawnY);
+    if (target === null) continue; // nothing ahead -> keep the waypoint order
+    // Hold gate: target the structure rather than advance past it. attackMove
+    // (not attackTarget) so combat picks the nearest in-range foe each tick
+    // and movement keeps closing on the chokepoint — see module doc.
+    entity.order = { type: 'attackMove', x: target.x, y: target.y };
   }
 }
 

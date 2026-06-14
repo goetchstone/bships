@@ -28,6 +28,7 @@ export function loadRawDataFiles(): RawDataFiles {
     upgradeCurves: loadJson('upgrade-curves.json'),
     scriptRules: loadJson('script-rules.json'),
     mapLayout: loadJson('map-layout.json'),
+    terrain: loadJson('terrain.json'),
     units: loadJson('units.json'),
     abilities: loadJson('abilities.json'),
     items: loadJson('items.json'),

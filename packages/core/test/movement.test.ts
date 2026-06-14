@@ -5,6 +5,7 @@ import {
   effectiveMoveSpeed,
   stepMovement,
 } from '../src/sim/movement.js';
+import { isWater } from '../src/sim/types.js';
 import type {
   AttackType,
   CreepEntity,
@@ -21,6 +22,7 @@ import type {
   TeamId,
   UnitTypeSpec,
   WardEntity,
+  WaterMask,
 } from '../src/sim/types.js';
 
 // ---------------------------------------------------------------------------
@@ -147,6 +149,51 @@ function makeEquipment(id: string, category: EquipmentSpec['category'], gold: nu
   };
 }
 
+/**
+ * All-water STUB mask: `cells` is empty so `isWater` returns true everywhere
+ * (open sea). Matches the stub `compileWaterMask` returns when terrain.json is
+ * absent — the regression guard that keeps legacy free movement.
+ */
+function stubWaterMask(): WaterMask {
+  return {
+    bounds: { minX: -5536, minY: -8192, maxX: 5312, maxY: 6656 },
+    cols: 384,
+    rows: 512,
+    cellSizeX: 28.25,
+    cellSizeY: 29.0,
+    cells: new Uint8Array(0),
+  };
+}
+
+/**
+ * Build a small REAL (non-stub) mask from an ASCII row map for the
+ * land-collision tests. `rows[0]` is the NORTH (max-Y) edge, col 0 is the WEST
+ * (min-X) edge — the §2 transform with NO flip. '#' = land (0), anything else
+ * = water (1). Bounds are derived so each cell is `cell` units square; the
+ * grid is centered on the origin to make test coordinates easy to reason about.
+ */
+function asciiMask(rows: string[], cell = 100): WaterMask {
+  const nRows = rows.length;
+  const nCols = rows[0]?.length ?? 0;
+  const cells = new Uint8Array(nCols * nRows);
+  for (let r = 0; r < nRows; r++) {
+    const line = rows[r] ?? '';
+    for (let c = 0; c < nCols; c++) {
+      cells[r * nCols + c] = line[c] === '#' ? 0 : 1;
+    }
+  }
+  const minX = -(nCols * cell) / 2;
+  const maxY = (nRows * cell) / 2;
+  return {
+    bounds: { minX, minY: maxY - nRows * cell, maxX: minX + nCols * cell, maxY },
+    cols: nCols,
+    rows: nRows,
+    cellSizeX: cell,
+    cellSizeY: cell,
+    cells,
+  };
+}
+
 function fixtureRuleset(): Ruleset {
   return {
     name: 'movement-test',
@@ -263,6 +310,11 @@ function fixtureRuleset(): Ruleset {
     map: {
       // Real playable area from map-layout.json.
       bounds: { minX: -5536, minY: -8192, maxX: 5312, maxY: 6656 },
+      // All-water STUB mask (cells.length === 0 -> isWater true everywhere):
+      // reproduces today's free, open-sea movement so the legacy kinematics /
+      // collision / bounds tests below are unaffected by the land resolver.
+      // Land-collision tests build their own real mask via maskRuleset().
+      waterMask: stubWaterMask(),
       regions: {},
       structures: [],
       playerStarts: {},
@@ -924,6 +976,167 @@ describe('collision and bounds', () => {
     stepMovement(state, ruleset);
     expect(a.x).toBe(5304.5);
     expect(b.x).toBe(5312); // 5314.5 clamped back to maxX
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Land / water-mask collision (docs/TERRAIN.md §4 "pathing")
+// ---------------------------------------------------------------------------
+
+describe('land collision', () => {
+  /** Ruleset whose map carries a REAL (non-stub) mask; bounds match the mask. */
+  function maskRuleset(mask: WaterMask): Ruleset {
+    const ruleset = fixtureRuleset();
+    return { ...ruleset, map: { ...ruleset.map, waterMask: mask, bounds: mask.bounds } };
+  }
+
+  it('regression: an all-water stub mask reproduces free open-sea movement', () => {
+    // Same as the kinematics test, but explicitly through the land resolver:
+    // a stub mask (cells empty) must never alter a water move.
+    const ruleset = maskRuleset(stubWaterMask());
+    const ship = makeShip(10, 2, 'south', 'H000', 0, 0);
+    ship.order = { type: 'move', x: 1000, y: 0 };
+    const state = makeState([ship], [makePlayer(2, 'south', 10)]);
+    stepMovement(state, ruleset);
+    expect(ship.x).toBeCloseTo(170 / TICK_RATE, 3);
+    expect(ship.y).toBe(0);
+  });
+
+  it('a unit cannot cross a known land cell — it stalls at the coast', () => {
+    // 3x5 grid, cell 100: center column (col 2, x in [-50,50)) is a land wall
+    // spanning all three rows. minX=-250, maxX=250, maxY=150, minY=-150.
+    const mask = asciiMask([
+      '..#..',
+      '..#..',
+      '..#..',
+    ]);
+    const ruleset = maskRuleset(mask);
+    // Start in water west of the wall (col 1, x in [-150,-50)); order east into
+    // the wall. The ship advances toward the coast but never enters col 2.
+    const ship = makeShip(10, 2, 'south', 'H000', -100, 0);
+    ship.order = { type: 'move', x: 200, y: 0 };
+    const state = makeState([ship], [makePlayer(2, 'south', 10)]);
+
+    stepN(state, ruleset, 30);
+    expect(isWater(mask, ship.x, ship.y)).toBe(true);
+    expect(ship.x).toBeLessThan(-50); // never crossed into the land column
+    expect(ship.y).toBeCloseTo(0, 6);
+  });
+
+  it('slides along a vertical coast: blocked X is reverted, open Y advances', () => {
+    // Land wall in col 2; ship sits just west of it ordering NORTH-EAST. The
+    // eastward component is blocked by the wall, the northward slide advances.
+    const mask = asciiMask([
+      '..#..',
+      '..#..',
+      '..#..',
+    ]);
+    const ruleset = maskRuleset(mask);
+    const ship = makeShip(10, 2, 'south', 'H000', -60, -40);
+    ship.order = { type: 'move', x: 200, y: 140 }; // up-and-into the wall
+    const state = makeState([ship], [makePlayer(2, 'south', 10)]);
+
+    const startY = ship.y;
+    stepN(state, ruleset, 40);
+    expect(isWater(mask, ship.x, ship.y)).toBe(true);
+    expect(ship.x).toBeLessThan(-50); // stayed west of the land column
+    expect(ship.y).toBeGreaterThan(startY); // advanced north along the coast
+  });
+
+  it('slides along a horizontal coast: blocked Y is reverted, open X advances', () => {
+    // Land band across the NORTH row (row 0, y in [50,150)); ship below it
+    // ordering NORTH-EAST. The northward component is blocked, the eastward
+    // slide advances along the open axis.
+    const mask = asciiMask([
+      '#####',
+      '.....',
+      '.....',
+    ]);
+    const ruleset = maskRuleset(mask);
+    const ship = makeShip(10, 2, 'south', 'H000', -200, 20);
+    ship.order = { type: 'move', x: 200, y: 140 }; // into the northern land band
+    const state = makeState([ship], [makePlayer(2, 'south', 10)]);
+
+    const startX = ship.x;
+    stepN(state, ruleset, 40);
+    expect(isWater(mask, ship.x, ship.y)).toBe(true);
+    expect(ship.y).toBeLessThan(50); // never entered the land row
+    expect(ship.x).toBeGreaterThan(startX); // advanced east along the coast
+  });
+
+  it('creeps obey the mask identically to ships (lane funnel)', () => {
+    const mask = asciiMask([
+      '..#..',
+      '..#..',
+      '..#..',
+    ]);
+    const ruleset = maskRuleset(mask);
+    const creep = makeCreep(10, 0, 'south', 'h00B', -100, 0);
+    creep.order = { type: 'move', x: 200, y: 0 };
+    const state = makeState([creep]);
+
+    stepN(state, ruleset, 30);
+    expect(isWater(mask, creep.x, creep.y)).toBe(true);
+    expect(creep.x).toBeLessThan(-50);
+  });
+
+  it('does not displace a unit already sitting in water (no spurious snap-back)', () => {
+    const mask = asciiMask([
+      '..#..',
+      '..#..',
+      '..#..',
+    ]);
+    const ruleset = maskRuleset(mask);
+    const ship = makeShip(10, 2, 'south', 'H000', -100, 0); // idle, in water
+    const state = makeState([ship], [makePlayer(2, 'south', 10)]);
+    stepN(state, ruleset, 5);
+    expect([ship.x, ship.y]).toEqual([-100, 0]);
+  });
+
+  it('a pushout that lands a unit on land is reverted (collision cannot phase into land)', () => {
+    // Two ships hugging the west coast of the central land wall; pushout would
+    // shove the higher-id ship east into col 2. The land resolver reverts it.
+    const mask = asciiMask([
+      '..#..',
+      '..#..',
+      '..#..',
+    ]);
+    const ruleset = maskRuleset(mask);
+    // Both near the coast (x just west of -50). a lower id at -54, b at -52:
+    // pushout sends b toward +x (into the wall at x>=-50).
+    const a = makeShip(10, 2, 'south', 'H000', -54, 0);
+    const b = makeShip(11, 3, 'south', 'H000', -52, 0);
+    const state = makeState([a, b], [makePlayer(2, 'south', 10), makePlayer(3, 'south', 11)]);
+
+    stepMovement(state, ruleset);
+    expect(isWater(mask, a.x, a.y)).toBe(true);
+    expect(isWater(mask, b.x, b.y)).toBe(true);
+  });
+
+  it('replays bit-identically against a real mask (determinism)', () => {
+    const mask = asciiMask([
+      '..#..',
+      '..#..',
+      '..#..',
+    ]);
+    const ruleset = maskRuleset(mask);
+    function scene(): SimState {
+      const ship = makeShip(10, 2, 'south', 'H000', -120, -30);
+      ship.order = { type: 'move', x: 200, y: 120 };
+      const creep = makeCreep(11, 0, 'south', 'h00B', -110, 40);
+      creep.order = { type: 'move', x: 200, y: -120 };
+      return makeState([ship, creep], [makePlayer(2, 'south', 10)]);
+    }
+    const s1 = scene();
+    const s2 = scene();
+    const rngBefore = s1.rngState;
+    for (let i = 0; i < 40; i++) {
+      stepMovement(s1, ruleset);
+      stepMovement(s2, ruleset);
+    }
+    expect(JSON.stringify(s1.entities)).toBe(JSON.stringify(s2.entities));
+    expect(s1.rngState).toBe(rngBefore); // no RNG draw added by the resolver
+    expect(s1.events).toEqual([]);
   });
 });
 

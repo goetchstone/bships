@@ -746,8 +746,44 @@ describe('ruleset integrity and determinism', () => {
     expect(JSON.stringify(again)).toBe(JSON.stringify(rs));
   });
 
-  it('the compiled ruleset is plain serializable data', () => {
-    expect(JSON.parse(JSON.stringify(rs))).toEqual(rs);
+  it('the compiled ruleset is plain serializable data (except the static water mask + nav fields)', () => {
+    // ARCHITECT DECISION (docs/TERRAIN.md): the land/water mask lives on the
+    // immutable Ruleset — NOT in SimState — so it is never serialized per-match
+    // nor covered by hashState. Its `cells` payload is therefore a packed
+    // Uint8Array (fast static query) rather than a JSON array, the one
+    // intentional non-JSON node in a Ruleset. The per-team lane-navigation
+    // fields (map.navByTeam / map.navHomeByTeam) are derived from that same
+    // static mask and share the rationale: each is a packed Int32Array on the
+    // immutable Ruleset, never serialized per-match nor hashed (see types.ts
+    // NavField). Assert serializability of everything ELSE, and pin the
+    // typed-array representation of the mask + every nav field.
+    expect(rs.map.waterMask.cells).toBeInstanceOf(Uint8Array);
+    for (const team of ['south', 'north'] as const) {
+      expect(rs.map.navByTeam[team].dist).toBeInstanceOf(Int32Array);
+      expect(rs.map.navHomeByTeam[team].dist).toBeInstanceOf(Int32Array);
+    }
+    const { waterMask, navByTeam, navHomeByTeam, ...mapRest } = rs.map;
+    const { cells, ...maskRest } = waterMask;
+    void cells;
+    // Strip the typed `dist` from each nav field; keep the JSON-able metadata.
+    const stripNav = (nav: (typeof navByTeam)['south']): object => {
+      const { dist, ...rest } = nav;
+      void dist;
+      return rest;
+    };
+    const jsonable = {
+      ...rs,
+      map: {
+        ...mapRest,
+        waterMask: maskRest,
+        navByTeam: { south: stripNav(navByTeam.south), north: stripNav(navByTeam.north) },
+        navHomeByTeam: {
+          south: stripNav(navHomeByTeam.south),
+          north: stripNav(navHomeByTeam.north),
+        },
+      },
+    };
+    expect(JSON.parse(JSON.stringify(jsonable))).toEqual(jsonable);
   });
 
   it('throws on missing critical fields instead of defaulting', () => {
