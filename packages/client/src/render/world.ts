@@ -319,7 +319,13 @@ export function createWorld(renderer?: Renderer): WorldLayer {
         if (yy < minY || yy > maxY) continue;
         const shimmer = layer.alpha * (0.6 + 0.4 * Math.sin(nowMs * layer.speed * 6 + yy * 0.004));
         const sy = cam.worldToScreen(0, yy).y;
+        // Soft swell body...
         seaFoam.rect(left, sy, width, bandH).fill({ color: WATER_FOAM, alpha: shimmer });
+        // ...with a brighter crest line on its lit (upper) edge so it reads as
+        // a moving wave rather than a flat stripe.
+        seaFoam
+          .rect(left, sy, width, Math.max(1, bandH * 0.34))
+          .fill({ color: WATER_FOAM, alpha: Math.min(0.5, shimmer * 2.2) });
       }
     }
   }
