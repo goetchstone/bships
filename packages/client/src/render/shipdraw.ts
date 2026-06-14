@@ -28,7 +28,7 @@
 import { Graphics } from 'pixi.js';
 import type { TeamId } from '@bships/core';
 
-import { GOLD, METAL, METAL_DARK, mix, scale, shade, shadeFace, shipShape } from './theme.js';
+import { GOLD, METAL, METAL_DARK, mix, scale, seaContour, shade, shadeFace, shipShape } from './theme.js';
 import type { ShipFamily, ShipShape } from './theme.js';
 import { getCatalog } from '../catalog.js';
 import { NEUTRAL_HEX, TEAM_HEX, hullSize } from './viz.js';
@@ -104,10 +104,12 @@ function bevelHull(
   const nose = o.nose ?? 1.08;
   const tail = o.tail ?? 0.82;
   const s = shade(color);
+  // Dark counter-edge that lifts the whole silhouette off the desaturated sea.
+  const contour = seaContour(color);
 
   if (o.round === true) {
     // Tubby cargo hull: an ellipse reads as a fat merchant boat.
-    g.ellipse(0, 0, l, w * 1.05).fill(s.shade).stroke({ width: 3, color: s.outline });
+    g.ellipse(0, 0, l, w * 1.05).fill(s.shade).stroke({ width: 3.5, color: contour });
     g.ellipse(-l * 0.12, -w * 0.12, l * 0.62, w * 0.62).fill({ color: s.lit, alpha: 0.92 });
   } else {
     // Pointed warship hull. The TOP edge (toward the light, -y) is the lit
@@ -120,7 +122,7 @@ function bevelHull(
       -l * tail, -w * 0.82,
       l * 0.34, -w,
     ];
-    g.poly(hullPts).fill(s.shade).stroke({ width: 3, color: s.outline });
+    g.poly(hullPts).fill(s.shade).stroke({ width: 3.5, color: contour });
     // Lit upper strake (the -y / top-left-facing side).
     g.poly([l * nose, 0, l * 0.34, -w, -l * tail, -w * 0.82, -l * nose * 0.9, 0])
       .fill({ color: shadeFace(color, 0, -1), alpha: 0.95 });
@@ -212,7 +214,7 @@ function hullGoblin(g: Graphics, d: ShipDrawData): void {
   const s = shade(d.color);
   g.poly([l * 1.0, 0, l * 0.4, w, -l * 0.5, w, -l * 0.85, w * 0.4, -l * 0.85, -w * 0.4, -l * 0.5, -w, l * 0.4, -w])
     .fill(s.shade)
-    .stroke({ width: 3, color: s.outline });
+    .stroke({ width: 3.5, color: seaContour(d.color) });
   g.poly([l * 1.0, 0, l * 0.4, -w, -l * 0.5, -w, -l * 0.85, -w * 0.4])
     .fill({ color: shadeFace(d.color, 0, -1), alpha: 0.95 });
   // Riveted plate seams (the goblin-yellow trim is applied in the super mark).
@@ -238,7 +240,7 @@ function hullSubmarine(g: Graphics, d: ShipDrawData): void {
   const w = d.beam;
   const s = shade(d.color);
   const body = d.submerged ? scale(s.shade, 0.85) : s.shade;
-  g.ellipse(0, 0, l, w).fill(body).stroke({ width: 3, color: s.outline });
+  g.ellipse(0, 0, l, w).fill(body).stroke({ width: 3.5, color: seaContour(d.color) });
   if (!d.submerged) {
     g.ellipse(-l * 0.1, -w * 0.25, l * 0.6, w * 0.45).fill({ color: s.lit, alpha: 0.7 });
   }
@@ -265,7 +267,7 @@ function hullLeviathan(g: Graphics, d: ShipDrawData): void {
   const s = shade(d.color);
   g.poly([l * 1.18, 0, l * 0.5, w * 0.9, -l * 0.3, w, -l * 0.95, w * 0.5, -l * 1.05, 0, -l * 0.95, -w * 0.5, -l * 0.3, -w, l * 0.5, -w * 0.9])
     .fill(s.shade)
-    .stroke({ width: 3, color: s.outline });
+    .stroke({ width: 3.5, color: seaContour(d.color) });
   g.poly([l * 1.18, 0, l * 0.5, -w * 0.9, -l * 0.3, -w, -l * 0.95, -w * 0.5, -l * 1.05, 0])
     .fill({ color: shadeFace(d.color, 0, -1), alpha: 0.92 });
   bowWedge(g, d.len, d.beam, 0.5, d.color);

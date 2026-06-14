@@ -225,6 +225,9 @@ function makeRuleset(): Ruleset {
       }),
       I007: equip('I007', 'sail', 100, { passives: passives({ moveSpeedPct: 0.1 }) }),
       I008: equip('I008', 'sail', 610, { passives: passives({ moveSpeedPct: 0.25 }) }),
+      // Silk Sail (the owner's named allied-handoff item): a sail equipment,
+      // NOT perishable, so it survives a teammate drop -> pickup.
+      I01V: equip('I01V', 'sail', 2935, { passives: passives({ moveSpeedPct: 0.4 }) }),
       I017: equip('I017', 'repair', 145, { passives: passives({ hpRegenPerTick: 0.1 }) }),
       I00B: equip('I00B', 'repair', 720, { passives: passives({ hpRegenPerTick: 0.5 }) }),
       I00C: equip('I00C', 'repair', 175, {
@@ -1185,6 +1188,34 @@ describe('dropItem & pickupItem', () => {
     expect(state.players[2]!.inventory[1]).toBeNull();
     expect(state.players[2]!.gold).toBe(18640);
     expect(state.groundItems[50]).toBeUndefined();
+  });
+
+  it('allied handoff: a teammate picks up and equips a dropped Silk Sail', () => {
+    // Player 2 (south) drops the Silk Sail; allied player 3 (south) picks it up.
+    // WC3 ground items have no per-owner restriction — any unit in reach grabs
+    // it; only the class/dup triggers run on the picker (war3map.j handoff).
+    give(state, 2, 'I01V', 0);
+    // Place teammate 3's ship next to the drop point (within reach 10 + 150).
+    const allyShip = makeShipEntity(11, 3, 'south', 'H000', 260, 100, 0);
+    state.entities[11] = allyShip;
+    state.players[3]!.shipId = 11;
+
+    applyEconomyCommand(state, ruleset, { type: 'dropItem', player: 2, slot: 0, x: 260, y: 0 });
+    const grounded = Object.values(state.groundItems).find((g) => g.itemId === 'I01V');
+    expect(grounded).toBeDefined(); // a sail is NOT perishable -> it lands on the ground
+    expect(state.players[2]!.inventory[0]).toBeNull();
+
+    applyEconomyCommand(state, ruleset, {
+      type: 'pickupItem',
+      player: 3,
+      groundItemId: grounded!.id,
+    });
+    // The TEAMMATE now holds the sail; no rejection, no refund (it's a clean
+    // equip — player 3 carried no other sail), and the ground item is gone.
+    expect(state.players[3]!.inventory[0]?.itemId).toBe('I01V');
+    expect(state.groundItems[grounded!.id]).toBeUndefined();
+    expect(eventsOfType(state, 'commandRejected')).toEqual([]);
+    expect(eventsOfType(state, 'refund')).toEqual([]);
   });
 });
 

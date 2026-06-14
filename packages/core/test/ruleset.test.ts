@@ -771,6 +771,15 @@ describe('compileClassicRuleset — abilities', () => {
     expect(rs.abilities['A02D']?.mechanic).toBe('special'); // Slow Aura (negative AOae)
     expect(rs.abilities['A037']?.specialKey).toBe('AHtc'); // EMP
   });
+
+  it('compiles the Fishing Net (A00Y, ANen) as a ranged ensnare hold', () => {
+    const net = rs.abilities['A00Y'];
+    expect(net?.mechanic).toBe('ensnare'); // not a stubbed 'special'
+    expect(net?.specialKey).toBeNull();
+    expect(net?.rangeUnits).toBe(800); // aran
+    expect(net?.durationTicksPerRank).toEqual([160]); // ahdu 8 s @ 20 tps
+    expect(net?.cooldownTicks).toBe(700); // acdn 35 s @ 20 tps
+  });
 });
 
 describe('ruleset integrity and determinism', () => {

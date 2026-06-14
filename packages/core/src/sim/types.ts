@@ -308,6 +308,14 @@ export type SimEvent =
   | { type: 'researchComplete'; tick: number; team: TeamId; upgradeId: string; level: number }
   | { type: 'questProgress'; tick: number; player: number; questId: string; stage: string }
   | {
+      type: 'abilityCast';
+      tick: number;
+      player: number;
+      abilityId: string;
+      /** Unit-target abilities (e.g. Fishing Net A00Y); null for self/point casts. */
+      targetEntityId: EntityId | null;
+    }
+  | {
       type: 'proximityWarning';
       tick: number;
       ownerPlayer: number;
@@ -958,9 +966,11 @@ export interface AbilitySpec {
   /**
    * 'stormBoltWeapon'/'phoenixFireWeapon' route to combat (weaponId set);
    * 'hullHp'/'sailSpeed'/'mechanicsRegen' are passive per-rank stats;
-   * 'dive'/'invisibility'/'flareDetection'/'trueSightPassive' route to
-   * specials; 'special' = exotic kit (Capsize, EMP, Eat Hero...) interpreted
-   * by specials via specialKey — may be stubbed pre-parity.
+   * 'dive'/'invisibility'/'flareDetection'/'trueSightPassive'/'ensnare' route
+   * to specials; 'ensnare' is the Fishing Net (ANen) hold that pins a target
+   * enemy ship's movement for durationTicksPerRank; 'special' = exotic kit
+   * (Capsize, EMP, Eat Hero...) interpreted by specials via specialKey — may
+   * be stubbed pre-parity.
    */
   mechanic:
     | 'stormBoltWeapon'
@@ -972,6 +982,7 @@ export interface AbilitySpec {
     | 'invisibility'
     | 'flareDetection'
     | 'trueSightPassive'
+    | 'ensnare'
     | 'special';
   specialKey: string | null;
   skill: HeroSkillRule | null;
@@ -1527,6 +1538,52 @@ export function isWater(mask: WaterMask, x: number, y: number): boolean {
   const row = Math.floor((bounds.maxY - y) / cellSizeY);
   if (col < 0 || col >= cols || row < 0 || row >= rows) return false;
   return cells[row * cols + col] === 1;
+}
+
+/**
+ * Snap a world point to the CENTER of the nearest navigable water cell, used to
+ * land a teleport/blink on valid shallow water (Light Teleporter I01L tooltip
+ * "Can only target shallow water" — WC3's AEbl snaps to the nearest pathable
+ * point the ship can occupy). Returns the original point unchanged when it is
+ * already water (the common case, and the all-water stub mask, so open-sea
+ * behaviour is preserved), or `null` when no water cell lies within
+ * `maxRadiusCells` rings (caller treats this as an invalid target).
+ *
+ * Deterministic: a fixed expanding-ring scan of the static mask with a fixed
+ * neighbour/ring order, plain integer arithmetic only — no RNG/time/trig and no
+ * iteration-order dependence, so callers stay bit-identical on replay.
+ */
+export function nearestWater(
+  mask: WaterMask,
+  x: number,
+  y: number,
+  maxRadiusCells = 24,
+): { x: number; y: number } | null {
+  if (isWater(mask, x, y)) return { x, y };
+  const { bounds, cols, rows, cellSizeX, cellSizeY, cells } = mask;
+  if (cells.length === 0) return { x, y }; // stub mask -> open sea, never snaps
+  // Clamp the seed cell into range so an off-map source still searches from the
+  // nearest in-bounds cell (the spiral then walks outward toward real water).
+  const sc = Math.max(0, Math.min(cols - 1, Math.floor((x - bounds.minX) / cellSizeX)));
+  const sr = Math.max(0, Math.min(rows - 1, Math.floor((bounds.maxY - y) / cellSizeY)));
+  const cellIsWater = (c: number, r: number): boolean =>
+    c >= 0 && c < cols && r >= 0 && r < rows && cells[r * cols + c] === 1;
+  const cellCenter = (c: number, r: number): { x: number; y: number } => ({
+    x: bounds.minX + (c + 0.5) * cellSizeX,
+    y: bounds.maxY - (r + 0.5) * cellSizeY,
+  });
+  // Expanding square rings around the seed; fixed dr-outer / dc-inner order so
+  // ties resolve deterministically to the lowest (row, col).
+  for (let radius = 1; radius <= maxRadiusCells; radius++) {
+    for (let dr = -radius; dr <= radius; dr++) {
+      for (let dc = -radius; dc <= radius; dc++) {
+        // Only the ring perimeter at this radius (interior was already scanned).
+        if (Math.abs(dr) !== radius && Math.abs(dc) !== radius) continue;
+        if (cellIsWater(sc + dc, sr + dr)) return cellCenter(sc + dc, sr + dr);
+      }
+    }
+  }
+  return null;
 }
 
 /**

@@ -64,15 +64,19 @@ export function initInventory(ctx: HudContext): void {
 
   // --- order buttons (stop / attack-move) -----------------------------------
   const orders = el('div', 'bh-orders', wrap);
-  const stopBtn = el('button', 'bh-order', orders);
-  stopBtn.type = 'button';
-  stopBtn.innerHTML = `<span class="bh-order-icon">■</span><span class="bh-slot-key">${keyLabel(bindingFor('stop'))}</span>`;
-  stopBtn.title = 'Stop';
+  // Build with textContent (NOT innerHTML) so rebindable key labels can never
+  // inject markup — keyLabel(bindingFor(...)) is user-controlled.
+  const orderButton = (icon: string, key: string, title: string): HTMLButtonElement => {
+    const btn = el('button', 'bh-order', orders);
+    btn.type = 'button';
+    el('span', 'bh-order-icon', btn).textContent = icon;
+    el('span', 'bh-slot-key', btn).textContent = key;
+    btn.title = title;
+    return btn;
+  };
+  const stopBtn = orderButton('■', keyLabel(bindingFor('stop')), 'Stop');
   stopBtn.addEventListener('click', orderStop);
-  const amBtn = el('button', 'bh-order', orders);
-  amBtn.type = 'button';
-  amBtn.innerHTML = `<span class="bh-order-icon">⚔</span><span class="bh-slot-key">${keyLabel(bindingFor('attackMove'))}</span>`;
-  amBtn.title = 'Attack-move (then click the map)';
+  const amBtn = orderButton('⚔', keyLabel(bindingFor('attackMove')), 'Attack-move (then click the map)');
   amBtn.addEventListener('click', armAttackMove);
 
   // --- actions ---------------------------------------------------------------

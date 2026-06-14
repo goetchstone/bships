@@ -352,12 +352,30 @@ asymmetry verbatim in Classic.
   (`isto`/`isst`): GrandMaster Craftsman restocks 1200 s, Leviathian Charm 300 s; the
   rest effectively always available. Enemy-side shop purchases are blocked by trigger
   (`Items_Not_Buyable`) with the gold refunded.
-- Engine sell-back (50% of gold cost, the WC3 default) requires a shop owning the
-  **Sell Items (`Asid`)** ability. **No BSP shop has it** (checked all `n*` shop units'
-  ability lists) ⇒ players cannot voluntarily sell items back at all.
-- All refunds are trigger-driven and pay **100%**: every stack-cap / class-restriction
-  violation refunds `R2I(GetItemLifeBJ(item))` — the item's HP field, which the map sets
-  equal to its gold price on every item (verified `ihtp == igol` across weapons/equipment).
+- **No voluntary sell-back (the "normally you did NOT get a refund" rule).** Engine
+  sell-back (50% of gold cost, the WC3 default) requires a shop owning the **Sell Items
+  (`Asid`)** ability. **No BSP shop has it** (checked all `n*` shop units' ability lists)
+  ⇒ a player can never sell an item back for gold by choice. A plain ground **DROP** is
+  not a refund either: `Trig_Destroy_Drops` (war3map.j 11158-11189) `RemoveItem`s any
+  dropped CAMPAIGN item ~0.05 s later for **NO gold** (unless a unit picks it up first —
+  see allied handoff). So in normal play you do not recoup gold.
+- **The "burn for full gold" path (the only refund, and it pays 100%).** This is the
+  duplicate-equip mechanic, NOT a generic sale: each `Only_One_*` trigger
+  (`Only_One_Hull` 8851-8877, `Only_One_Sail` 8939-8962, `Only_One_Kraken` 9020-9038,
+  `Only_One_Repair` 9039+) fires on `EVENT_PLAYER_UNIT_PICKUP_ITEM` and, when the ship
+  already carries another item of that class, does
+  `AdjustPlayerStateBJ(R2I(GetItemLifeBJ(manipulated)), owner, GOLD)` then
+  `RemoveItem(manipulated)` — i.e. **full gold + burn**. The owner's flow (drop the old
+  hull, buy a better one, click the old hull → "burnt" for full gold) resolves to this:
+  the duplicate is refunded at its Life/HP field `ihtp`, which the map sets equal to the
+  gold price on every real hull/sail/repair/utility (verified `ihtp == igol`: I009
+  200/200, I00A 2500/2500, I016 1100/1100, I01X 6600/6600, I01V 2935/2935, …). Quest /
+  contract / tome items have `ihtp = 1` (deliberately non-refundable). The same full-gold
+  refund + remove also fires when buying a CAMPAIGN item from an ENEMY-side shop
+  (`Items_Not_Buyable`, a purchase rejection — see above). It applies BOTH ways: upgrading
+  OR downgrading a hull/sail liquidates the old one for full gold.
+- `Trig_Change_Ship` (1542-1546) refunds **50% of the ship POINT VALUE** when swapping the
+  hero ship UNIT — a separate subsystem from item refunds.
 - Contract/lumber purchases additionally gate on `udg_PlayerLumber` (script economy:
   I00S/I00W/I00M/I01I/I00Q need 4/10/10/18/25 lumber; refund tiers 25–80), independent of
   the WC3 lumber resource.
@@ -370,11 +388,18 @@ classic.battle.net/war3/basics/heroitembasics.shtml. Shop ability survey + `ihtp
 units `nmer`/`nefm`/`ngol` have no Asid by default — confirm during SLK extraction).
 Refund-at-full-price: **high** (script).
 
-**SIM DECISION.** No sell action in the sim/UI for Classic. Shop model: per-shop item
-list, per-item stock + restock ticks, interact radius, team gating. Rule-violation
-refunds credit `igol` (= ihtp) and despawn the item, reproducing the 0.10 s
-teleport-away pattern as same-tick removal. Lumber contracts implemented from
-script-rules as player-scoped counters.
+**SIM DECISION.** No voluntary sell action in the sim/UI for Classic (`sellbackRate === 0`
+⇒ `sellItem` rejects `noSellback`). Shop model: per-shop item list, per-item stock +
+restock ticks, interact radius, team gating. The **burn refund** is modeled faithfully:
+hulls/sails/repair/Kraken are shop ITEMS with `onlyOneHull`/`onlyOneSail`/`onlyOneRepair`/
+`onlyOneKraken` stack rules (`maxPerShip: 1` + mutual exclusivity); when a duplicate is
+bought or picked up, `enforceItemRules` refunds it at `itemGoldPrice` (= `ihtp` = `igol`,
+**full price**) with a `refund` event and removes it — mirroring the `Only_One_*` triggers
+(the just-arrived item is evaluated last so it loses ties, matching the script always
+refunding `GetManipulatedItem`). A plain DROP without re-pickup yields no gold
+(`Trig_Destroy_Drops`); the sim's `dropItem` only destroys *perishable* trade goods on
+drop and otherwise leaves the item on the ground for handoff. Lumber contracts implemented
+from script-rules as player-scoped counters.
 
 ---
 

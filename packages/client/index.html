@@ -6,7 +6,12 @@
     <title>BattleShips Pro</title>
     <style>
       /* Minimal reset + dark naval theme. Module-specific styles live with
-         their modules; only the root layout contract is defined here. */
+         their modules; only the root layout contract is defined here.
+
+         PALETTE LOCKSTEP: these :root vars are ONE of two copies of the
+         palette — render/theme.ts holds the matching canvas hexes (TEAM_COLOR,
+         GOLD, NEUTRAL_COLOR, INK*, water + HP ramps). Change them together.
+         HUD reads var(--…); canvas reads theme.ts. */
       *,
       *::before,
       *::after {
@@ -15,18 +20,29 @@
         padding: 0;
       }
       :root {
-        --bg-deep: #07111c;
-        --bg-panel: #0d1f30;
-        --bg-panel-raised: #15314a;
-        --border: #2a4a66;
-        --text: #d8e6f2;
-        --text-dim: #7d96ab;
-        --accent: #36a3ff;
-        --gold: #f2c14e;
-        --lumber: #8fbf6a;
+        /* Surfaces — a deep, cool naval night graded in clear steps so panels
+           read as layered glass over the sea without muddying the field. */
+        --bg-deep: #061019;
+        --bg-panel: #0e2233;
+        --bg-panel-raised: #18415f;
+        --border: #305777;
+        /* A brighter hairline for emphasis edges (focused inputs, framed cards). */
+        --border-bright: #4a7ba1;
+        /* Ink — high-contrast cool white + a legible dim for secondary text. */
+        --text: #dde9f4;
+        --text-dim: #8aa4ba;
+        /* Accent (selection, links, interactive edges) — a clean signal cyan. */
+        --accent: #3aa9ff;
+        /* Currencies. */
+        --gold: #f4c95c;
+        --lumber: #95cb6f;
+        /* Teams — warm red south, cool blue north (mirror theme.ts TEAM_COLOR;
+           kept unmistakable at gameplay zoom). */
         --team-south: #ff5c5c;
         --team-north: #5c8aff;
         --danger: #ff5c5c;
+        /* Positive / ready cue (cooldown done, affordable, in-range). */
+        --ready: #52d273;
       }
       html,
       body {
@@ -35,11 +51,16 @@
         background: var(--bg-deep);
         color: var(--text);
         font-family:
+          'Inter',
           'Segoe UI',
           system-ui,
           -apple-system,
+          'Helvetica Neue',
           sans-serif;
         font-size: 14px;
+        line-height: 1.4;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
         user-select: none;
       }
       #app {
@@ -78,9 +99,10 @@
       .panel {
         background: var(--bg-panel);
         border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 20px 24px;
+        border-radius: 10px;
+        padding: 22px 26px;
         min-width: 320px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       }
     </style>
   </head>

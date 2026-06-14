@@ -12,6 +12,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  cueLabel,
   cueState,
   distanceLabel,
   nearestOwnSideShop,
@@ -125,6 +126,13 @@ describe('shopcue: distanceLabel', () => {
   it('rounds to a whole-unit string', () => {
     expect(distanceLabel(759.6)).toBe('760');
     expect(distanceLabel(0)).toBe('0');
+  });
+});
+
+describe('shopcue: cueLabel', () => {
+  it('formats the arrow label as "Shop  <distance>"', () => {
+    expect(cueLabel(759.6)).toBe('Shop  760');
+    expect(cueLabel(0)).toBe('Shop  0');
   });
 });
 

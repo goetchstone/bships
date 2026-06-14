@@ -712,6 +712,12 @@ function abilityMechanic(ctx: CompileCtx, abilityId: string, base: string): Abil
       return 'mechanicsRegen';
     case 'AEme':
       return 'dive';
+    case 'ANen':
+      // Fishing Net (A00Y) — Ensnare-type hold that pins a target enemy
+      // ship's movement (war3map.j tooltip "unable to move"; specials.ts
+      // applies the 'ensnared' status). atar=enemies, range/dur/cd from
+      // aran/ahdu/acdn.
+      return 'ensnare';
     case 'Aivs':
     case 'AIv1':
     case 'Agho':

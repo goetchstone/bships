@@ -79,6 +79,7 @@ import {
   allocEntityId,
   enemyTeam,
   isUnitEntity,
+  nearestWater,
   pointInRegion,
   rollInt,
   sortedNumericKeys,
@@ -509,6 +510,9 @@ function applyCastAbility(state: SimState, ruleset: Ruleset, cmd: CastAbilityCom
     case 'flareDetection':
       castFlare(state, cmd, player, ship, spec, abilityRank(ruleset, player, ship, spec));
       return;
+    case 'ensnare':
+      castNet(state, cmd, player, ship, spec, abilityRank(ruleset, player, ship, spec));
+      return;
     default:
       // Passive mechanics (hullHp/sailSpeed/mechanicsRegen/trueSightPassive)
       // and misrouted weapon casts cannot be activated.
@@ -681,6 +685,69 @@ function castFlare(
   player.cooldownGroups[spec.abilityId] = state.tick + (spec.cooldownTicks ?? 0);
 }
 
+/**
+ * Fishing Net (A00Y, base ANen Ensnare): pins a target ENEMY ship's movement
+ * for durationTicksPerRank (8 s = 160 ticks) — movement.ts effectiveMoveSpeed
+ * returns 0 while the 'ensnared' status is live. atar='enemies' and the
+ * tooltip names a ship, so the target must be a living enemy SHIP within
+ * spec.rangeUnits (800). Per-ability cooldown (acdn 35 s = 700 ticks) keyed by
+ * abilityId; the script has no shared cooldown group. Casting is an action
+ * (breaks smoke / reveals a ghost). A teleport (Blink) escapes the hold —
+ * applyEquipmentActive 'blink' clears the status after relocating.
+ */
+function castNet(
+  state: SimState,
+  cmd: CastAbilityCommand,
+  player: PlayerState,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+  rank: number,
+): void {
+  if (rank === 0) {
+    reject(state, cmd.player, cmd.type, 'notLearned');
+    return;
+  }
+  if ((player.cooldownGroups[spec.abilityId] ?? 0) > state.tick) {
+    reject(state, cmd.player, cmd.type, 'onCooldown');
+    return;
+  }
+  if (cmd.targetId === undefined) {
+    reject(state, cmd.player, cmd.type, 'missingTarget');
+    return;
+  }
+  const target = state.entities[cmd.targetId];
+  // atar='enemies' + tooltip "target enemy ship": living enemy SHIP only.
+  if (!target || target.dead || target.kind !== 'ship' || target.team === player.team) {
+    reject(state, cmd.player, cmd.type, 'invalidTarget');
+    return;
+  }
+  const dur = spec.durationTicksPerRank?.[rank - 1];
+  if (dur === undefined) {
+    reject(state, cmd.player, cmd.type, 'missingAbilityData');
+    return;
+  }
+  // Plain multiplication (not `**`): exponentiation is not bit-identical
+  // across engines; range gate matches castFlare's convention.
+  if (
+    spec.rangeUnits !== null &&
+    distSq(ship.x, ship.y, target.x, target.y) > spec.rangeUnits * spec.rangeUnits
+  ) {
+    reject(state, cmd.player, cmd.type, 'outOfRange');
+    return;
+  }
+
+  target.statuses.push({ kind: 'ensnared', expiresAtTick: state.tick + dur });
+  player.cooldownGroups[spec.abilityId] = state.tick + (spec.cooldownTicks ?? 0);
+  breakInvisibilityOnAction(state, ship.id);
+  state.events.push({
+    type: 'abilityCast',
+    tick: state.tick,
+    player: cmd.player,
+    abilityId: spec.abilityId,
+    targetEntityId: target.id,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Equipment actives (specials-owned kinds), called by economy.useItem
 // ---------------------------------------------------------------------------
@@ -777,17 +844,36 @@ export function applyEquipmentActive(
       return true;
     }
     case 'blink': {
+      // Light Teleporter (I01L, base AEbl Blink): jumps the ship to the target
+      // point clamped to maxDistance (1200). This is NOT bound by water-MOVE
+      // pathing — its whole purpose on the WEST/left side is to cross a land
+      // gap to far-side water that contiguous movement can't reach. We preserve
+      // the cross-gap jump, then snap the LANDING to navigable water (tooltip
+      // "Can only target shallow water" — AEbl lands on the nearest pathable
+      // cell). If no water is reachable near the landing, the cast is invalid:
+      // nothing moves and the caller consumes no charge/cooldown.
       if (x === undefined || y === undefined) return false;
       const d = Math.sqrt(distSq(ship.x, ship.y, x, y));
+      let destX: number;
+      let destY: number;
       if (d > active.maxDistance && d > 0) {
         const f = active.maxDistance / d;
-        ship.x += (x - ship.x) * f;
-        ship.y += (y - ship.y) * f;
+        destX = ship.x + (x - ship.x) * f;
+        destY = ship.y + (y - ship.y) * f;
       } else {
-        ship.x = x;
-        ship.y = y;
+        destX = x;
+        destY = y;
       }
+      const landing = nearestWater(ruleset.map.waterMask, destX, destY);
+      if (landing === null) return false; // no shallow water near the jump -> reject
+      ship.x = landing.x;
+      ship.y = landing.y;
       ship.order = { type: 'idle' };
+      // Teleport breaks a net: relocating the ship escapes an Ensnare hold and
+      // clears the lingering root so post-blink movement works (Blink-vs-Ensnare
+      // escape). Blink already bypasses movement.ts, so the jump itself is never
+      // blocked by the speed-0 pin.
+      ship.statuses = ship.statuses.filter((s) => s.kind !== 'ensnared');
       return true;
     }
     case 'reveal': {

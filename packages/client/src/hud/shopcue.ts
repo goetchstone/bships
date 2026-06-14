@@ -127,6 +127,15 @@ export function distanceLabel(distance: number): string {
   return String(Math.round(distance));
 }
 
+/**
+ * The full cue label shown next to the arrow, e.g. "Shop  760". A small,
+ * pure formatter so the panel text is consistent and unit-tested (the arrow
+ * itself is rotated separately toward the shop's screen position).
+ */
+export function cueLabel(distance: number): string {
+  return `Shop  ${distanceLabel(distance)}`;
+}
+
 // ---------------------------------------------------------------------------
 // DOM panel (browser only — never invoked by the pure tests)
 // ---------------------------------------------------------------------------
@@ -190,6 +199,6 @@ export function initShopCue(ctx: HudContext): void {
     const to = cam.worldToScreen(cs.shop.x, cs.shop.y);
     const angleDeg = (Math.atan2(to.y - from.y, to.x - from.x) * 180) / Math.PI;
     arrow.style.transform = `rotate(${angleDeg.toFixed(1)}deg)`;
-    label.textContent = `Shop  ${distanceLabel(cs.distance)}`;
+    label.textContent = cueLabel(cs.distance);
   });
 }

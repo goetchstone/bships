@@ -50,6 +50,7 @@ import {
   TIMBER_DARK,
   mix,
   scale,
+  seaContour,
   shade,
   shadeFace,
   dropShadow,
@@ -159,13 +160,21 @@ export function drawDropShadow(g: Graphics, r: number, height: number): void {
  */
 export function drawFootprint(g: Graphics, r: number, team: TeamId | null): void {
   const trim = trimColor(team);
+  // Dark sea-contour just outside the pad so the building's base reads crisply
+  // against the water (the grounded-silhouette counterpart of the hull contour).
+  g.ellipse(0, 0, r * 0.98, r * 0.98 * FORESHORTEN).stroke({
+    width: 2.5,
+    color: seaContour(STONE),
+    alpha: 0.85,
+  });
   // Wet stone pad, darker than the surrounding water-pop hulls.
-  g.ellipse(0, 0, r * 0.92, r * 0.92 * FORESHORTEN).fill({ color: scale(STONE_DARK, 0.7), alpha: 0.9 });
-  // Lit rim on the top-left (toward the light) for a touch of relief.
+  g.ellipse(0, 0, r * 0.92, r * 0.92 * FORESHORTEN).fill({ color: scale(STONE_DARK, 0.7), alpha: 0.92 });
+  // Lit rim on the top-left (toward the light), tinted by team trim for a
+  // clear at-a-glance owner cue right at the waterline.
   g.ellipse(0, 0, r * 0.92, r * 0.92 * FORESHORTEN).stroke({
     width: 2,
-    color: mix(scale(STONE, 1.1), trim, 0.25),
-    alpha: 0.6,
+    color: mix(scale(STONE, 1.12), trim, 0.32),
+    alpha: 0.7,
   });
 }
 

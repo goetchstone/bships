@@ -33,10 +33,16 @@ import {
   sweepFraction,
   xpProgress,
 } from '../src/hud/hudmath.js';
-import type { SimEvent } from '@bships/core';
+import type { SimEvent, TeamId } from '@bships/core';
 import { getCatalog } from '../src/catalog.js';
 import { HUD_CSS } from '../src/hud/hud.js';
 import { declares, ruleBody, valueOf } from '../src/hud/csslint.js';
+import {
+  OPENING_TIP_TEXT,
+  OnboardingState,
+  enemyHqName,
+  helpRows,
+} from '../src/hud/onboarding.js';
 
 function fakeKey(type: 'keydown' | 'keyup', code: string, repeat = false): KeyboardEvent {
   return {
@@ -66,6 +72,8 @@ describe('keymap', () => {
       scoreboard: 'Tab',
       chat: 'Enter',
       shopToggle: 'KeyB',
+      help: 'F1',
+      recenter: 'Space',
     });
     for (const code of Object.values(DEFAULT_BINDINGS)) {
       expect(code).not.toMatch(/^Numpad/);
@@ -407,5 +415,124 @@ describe('HUD layout contract (regression guards for the reported bugs)', () => 
     expect(declares(ruleBody(HUD_CSS, '.bh-order.bh-armed'), 'border-color', 'var(--danger)')).toBe(
       true,
     );
+  });
+});
+
+describe('onboarding: enemyHqName (objective from the STATIC map, never the sim)', () => {
+  // Two HQ harbors plus a noise structure; owner slots map to teams via
+  // playerStarts (mirrors the real catalog: owner 0 = south, owner 1 = north).
+  const playerStarts: Record<number, { team: TeamId }> = {
+    0: { team: 'south' },
+    1: { team: 'north' },
+  };
+  const structures = [
+    { role: 'shop', owner: 0, typeId: 'n002' }, // not an HQ
+    { role: 'hq', owner: 0, typeId: 'n000' }, // south HQ
+    { role: 'hq', owner: 1, typeId: 'n000' }, // north HQ
+  ];
+  const nameOf = (typeId: string): string | undefined =>
+    typeId === 'n000' ? 'Main Harbor' : undefined;
+
+  it('names the OPPOSING HQ for a south player', () => {
+    // South's enemy HQ is the north-owned harbor (owner 1).
+    expect(enemyHqName(structures, playerStarts, nameOf, 'south')).toBe('Main Harbor');
+  });
+
+  it('names the OPPOSING HQ for a north player', () => {
+    expect(enemyHqName(structures, playerStarts, nameOf, 'north')).toBe('Main Harbor');
+  });
+
+  it('falls back generically for a teamless (pre-slot / spectator) viewer', () => {
+    expect(enemyHqName(structures, playerStarts, nameOf, null)).toBe('enemy Main Harbor');
+  });
+
+  it('falls back when no opposing HQ exists or the name is missing', () => {
+    const onlyOwn = [{ role: 'hq', owner: 0, typeId: 'n000' }];
+    expect(enemyHqName(onlyOwn, playerStarts, nameOf, 'south')).toBe('enemy Main Harbor');
+    const nameless = [{ role: 'hq', owner: 1, typeId: 'zzzz' }];
+    expect(enemyHqName(nameless, playerStarts, nameOf, 'south')).toBe('enemy Main Harbor');
+  });
+
+  it('resolves against the real compiled catalog (south sees the north harbor)', () => {
+    const catalog = getCatalog();
+    const south = enemyHqName(
+      catalog.map.structures,
+      catalog.map.playerStarts,
+      (id) => catalog.unitTypes[id]?.name,
+      'south',
+    );
+    const north = enemyHqName(
+      catalog.map.structures,
+      catalog.map.playerStarts,
+      (id) => catalog.unitTypes[id]?.name,
+      'north',
+    );
+    expect(south.length).toBeGreaterThan(0);
+    expect(south).not.toBe('enemy Main Harbor'); // a real HQ was found
+    expect(north).toBe(south); // both bases share the harbor type name
+  });
+});
+
+describe('onboarding: helpRows (controls track the LIVE keymap)', () => {
+  it('builds rows from the keymap and explains the core verbs', () => {
+    const rows = helpRows((action) => action.toUpperCase());
+    const byLabel = new Map(rows.map((r) => [r.label, r.keys]));
+    // Mouse verbs are static; the rest come straight from the action labels.
+    expect(byLabel.has('Move / attack a target')).toBe(true);
+    expect(byLabel.get('Attack-move (then click)')).toBe('ATTACKMOVE');
+    expect(byLabel.get('Buy at a shop (when near one)')).toBe('SHOPTOGGLE');
+    expect(byLabel.get('Ship ability')).toBe('SHIPABILITY');
+    expect(byLabel.get('Recenter on your ship')).toBe('RECENTER');
+    expect(byLabel.get('Toggle this help')).toBe('HELP');
+  });
+
+  it('collapses the six inventory slots into one space-separated row', () => {
+    const rows = helpRows((action) => action.toUpperCase());
+    const items = rows.find((r) => r.label === 'Use inventory items');
+    expect(items?.keys.split(' ')).toEqual([
+      'SLOT0',
+      'SLOT1',
+      'SLOT2',
+      'SLOT3',
+      'SLOT4',
+      'SLOT5',
+    ]);
+  });
+
+  it('reflects rebinds through the injected label resolver', () => {
+    setBinding('shopToggle', 'KeyP');
+    try {
+      const rows = helpRows((action) => keyLabel(bindingFor(action)));
+      const buy = rows.find((r) => r.label === 'Buy at a shop (when near one)');
+      expect(buy?.keys).toBe('P');
+    } finally {
+      setBinding('shopToggle', 'KeyB'); // revert to default; don't leak the override
+    }
+  });
+});
+
+describe('onboarding: OnboardingState (once-only tip + shop reminder)', () => {
+  it('reveals the opening tip exactly once, on the first edge into playing', () => {
+    const s = new OnboardingState();
+    expect(s.onPhase('starting')).toBe(false);
+    expect(s.onPhase('playing')).toBe(true); // first edge -> show
+    expect(s.onPhase('playing')).toBe(false); // still playing -> no repeat
+    expect(s.onPhase('ended')).toBe(false);
+    expect(s.onPhase('playing')).toBe(false); // never again, even on re-entry
+  });
+
+  it('fires the shop reminder once, only while playing and near a shop', () => {
+    const s = new OnboardingState();
+    expect(s.onShopProximity(42, false)).toBe(false); // not playing yet
+    expect(s.onShopProximity(null, true)).toBe(false); // playing but not near
+    expect(s.onShopProximity(42, true)).toBe(true); // first proximity -> show
+    expect(s.onShopProximity(42, true)).toBe(false); // already shown
+    expect(s.onShopProximity(7, true)).toBe(false); // a different shop: still no
+  });
+
+  it('exposes a non-empty opening tip mentioning shops and pushing', () => {
+    expect(OPENING_TIP_TEXT.length).toBeGreaterThan(0);
+    expect(OPENING_TIP_TEXT.toLowerCase()).toContain('shop');
+    expect(OPENING_TIP_TEXT.toLowerCase()).toContain('lane');
   });
 });

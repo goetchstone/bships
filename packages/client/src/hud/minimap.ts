@@ -6,9 +6,15 @@
  * click/drag pans via getCamera().panTo.
  */
 
-import type { SnapshotEntity } from '@bships/core';
+import type { SnapshotEntity, TeamId } from '@bships/core';
 import { isWater } from '@bships/core';
 import { getCamera } from '../render/camera.js';
+import {
+  contestedBandFromLanes,
+  contestedRect,
+  lanePolyline,
+  traderRoutePath,
+} from '../render/fieldoverlay.js';
 import { store } from '../net/store.js';
 import type { HudContext } from './context.js';
 import { cssVar, el } from './context.js';
@@ -50,6 +56,81 @@ export function initMinimap(ctx: HudContext): void {
     return colors.neutral;
   }
 
+  // The player's team can settle after init; the lane ribbons brighten the own
+  // team and the trader routes pick the own-team deliver zone, so rebuild the
+  // static structure backdrop when the team changes (cheap, blitted each frame).
+  let bgTeam: TeamId | null | undefined;
+
+  /**
+   * Paint the STATIC map structure — lane ribbons (own team brighter), the
+   * contested-centre tint, and dashed trader-route hints — into `tg` (the
+   * terrain backdrop) so they sit BEHIND the live unit dots and are always
+   * visible. Pure map data from the catalog; mirrors render/fieldoverlay.ts so
+   * the field and minimap read the same. The same world->mini transform the
+   * dots use keeps everything aligned.
+   */
+  function drawStructureOverlay(tg: CanvasRenderingContext2D): void {
+    const map = ctx.catalog.map;
+    if (map.lanes.length === 0) return; // open-sea stub
+    const myTeam = store.match.myTeam;
+
+    // Contested centre: faint gold-bordered tint (the shared objective band).
+    const band = contestedRect(map.regions) ?? contestedBandFromLanes(map.lanes, map.bounds);
+    if (band !== null) {
+      const a = transform.toMini(band.minX, band.maxY);
+      const b = transform.toMini(band.maxX, band.minY);
+      tg.fillStyle = colors.shop;
+      tg.globalAlpha = 0.07;
+      tg.fillRect(a.x, a.y, b.x - a.x, b.y - a.y);
+      tg.globalAlpha = 0.28;
+      tg.strokeStyle = colors.shop;
+      tg.lineWidth = 1;
+      tg.strokeRect(a.x + 0.5, a.y + 0.5, b.x - a.x - 1, b.y - a.y - 1);
+      tg.globalAlpha = 1;
+    }
+
+    // Lane ribbons: own team a touch brighter so the player reads their lanes.
+    tg.lineCap = 'round';
+    tg.lineJoin = 'round';
+    for (const lane of map.lanes) {
+      const own = myTeam !== null && lane.team === myTeam;
+      const poly = lanePolyline(lane);
+      if (poly.length < 2) continue;
+      tg.strokeStyle = teamColor(lane.team);
+      tg.globalAlpha = own ? 0.5 : 0.28;
+      tg.lineWidth = own ? 2.5 : 1.75;
+      tg.beginPath();
+      const p0 = transform.toMini(poly[0]!.x, poly[0]!.y);
+      tg.moveTo(p0.x, p0.y);
+      for (let i = 1; i < poly.length; i++) {
+        const p = transform.toMini(poly[i]!.x, poly[i]!.y);
+        tg.lineTo(p.x, p.y);
+      }
+      tg.stroke();
+    }
+    tg.globalAlpha = 1;
+
+    // Trader routes: dashed gold supply lines for the viewer's runnable routes.
+    const routeTeam: TeamId = myTeam ?? 'south';
+    tg.strokeStyle = colors.shop;
+    tg.globalAlpha = 0.32;
+    tg.lineWidth = 1;
+    tg.setLineDash([2.5, 2.5]);
+    for (const route of ctx.catalog.contracts.tradeRoutes) {
+      if (route.team !== null && route.team !== routeTeam) continue;
+      const path = traderRoutePath(route, map.regions, routeTeam);
+      if (path.length < 2) continue;
+      const a = transform.toMini(path[0]!.x, path[0]!.y);
+      const b = transform.toMini(path[1]!.x, path[1]!.y);
+      tg.beginPath();
+      tg.moveTo(a.x, a.y);
+      tg.lineTo(b.x, b.y);
+      tg.stroke();
+    }
+    tg.setLineDash([]);
+    tg.globalAlpha = 1;
+  }
+
   // Static terrain backdrop: sample the water mask once per minimap pixel so
   // the land/water shape (the lanes-through-land map) is ALWAYS visible, even
   // before the first snapshot. Built once (the mask is immutable) and blitted
@@ -61,19 +142,25 @@ export function initMinimap(ctx: HudContext): void {
     const tg = terrainBg.getContext('2d');
     const mask = ctx.catalog.map.waterMask;
     if (tg === null) return;
+    bgTeam = store.match.myTeam;
+    tg.clearRect(0, 0, terrainBg.width, terrainBg.height);
     tg.fillStyle = colors.seaTile;
     tg.fillRect(0, 0, terrainBg.width, terrainBg.height);
-    if (mask.cells.length === 0) return; // open-sea stub: all water
-    for (let py = 0; py < terrainBg.height; py++) {
-      for (let px = 0; px < terrainBg.width; px++) {
-        const w = transform.toWorld(px + 0.5, py + 0.5);
-        if (!isWater(mask, w.x, w.y)) {
-          // North-lit land: a touch brighter on the upper rows reads as relief.
-          tg.fillStyle = py < terrainBg.height * 0.5 ? colors.landLit : colors.land;
-          tg.fillRect(px, py, 1, 1);
+    if (mask.cells.length > 0) {
+      for (let py = 0; py < terrainBg.height; py++) {
+        for (let px = 0; px < terrainBg.width; px++) {
+          const w = transform.toWorld(px + 0.5, py + 0.5);
+          if (!isWater(mask, w.x, w.y)) {
+            // North-lit land: a touch brighter on the upper rows reads as relief.
+            tg.fillStyle = py < terrainBg.height * 0.5 ? colors.landLit : colors.land;
+            tg.fillRect(px, py, 1, 1);
+          }
         }
       }
     }
+    // Lanes / contested centre / trader routes on top of the terrain, behind
+    // the live unit dots the per-frame draw paints (see drawStructureOverlay).
+    drawStructureOverlay(tg);
   }
   buildTerrainBg();
 
@@ -152,8 +239,11 @@ export function initMinimap(ctx: HudContext): void {
 
   function draw(nowMs: number): void {
     if (g === null) return;
+    // Rebuild the static backdrop once the player's team settles, so own lanes
+    // brighten and the trader routes pick the own-team deliver zone.
+    if (store.match.myTeam !== bgTeam) buildTerrainBg();
     g.clearRect(0, 0, canvas.width, canvas.height);
-    // Static land/water terrain backdrop (shows the lanes-through-land shape).
+    // Static land/water terrain backdrop (lanes-through-land + map structure).
     g.drawImage(terrainBg, 0, 0);
 
     const sample = hudSample(nowMs);

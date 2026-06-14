@@ -38,23 +38,26 @@ export const TEAM_COLOR: Record<TeamId, number> = {
   north: 0x5c8aff,
 };
 
-/** Neutral (unowned shops, creep-empire structures): warm parchment gray. */
+/** Neutral (unowned shops, creep-empire structures): warm parchment gray.
+ *  Locked to index.html's neutral parchment + foundation.test.ts. */
 export const NEUTRAL_COLOR = 0xc8bda0;
 
 /** Gold accent (royal trim, level-up, currency cues) — mirrors --gold. */
-export const GOLD = 0xf2c14e;
+export const GOLD = 0xf4c95c;
 
 /**
  * Water depth ramp, shallowest (coast) -> deepest (open sea). The world
  * renderer interpolates along this by a per-pixel/per-band "depth" value so
  * the sea reads as layered rather than a single flat fill. All cool navies,
- * tuned to sit darker than every unit so hulls pop.
+ * deliberately DESATURATED and a touch darker than the old ramp so the warm
+ * red / cool blue team hulls read as the brightest, most saturated things on
+ * screen (competitive readability: the eye goes to the ships, not the sea).
  */
 export const WATER_RAMP: readonly number[] = [
-  0x2f86a8, // shallow / near coast — bright teal
-  0x217498, // mid
-  0x195d82, // deep open sea (where ships sail — a real blue, not a void)
-  0x0e3a55, // abyss / map edge
+  0x2c7e9e, // shallow / near coast — muted teal
+  0x1f6c8c, // mid
+  0x16526f, // deep open sea (where ships sail — a real blue, not a void)
+  0x0b3047, // abyss / map edge
 ];
 
 /** Foam / wave-crest highlight stroked on the lighter water bands. */
@@ -65,36 +68,41 @@ export const COAST_SAND = 0x8a7a55;
 export const COAST_ROCK = 0x4a5560;
 
 /** Map-edge abyss vignette fill (outside playable bounds). */
-export const ABYSS = 0x04101c;
+export const ABYSS = 0x040d16;
 
 /** Masonry for stone structures (towers, HQ keep), lit/shadow derived. */
-export const STONE = 0x6a7a8c;
-export const STONE_DARK = 0x3a4a5c;
+export const STONE = 0x70808f;
+export const STONE_DARK = 0x3c4b5b;
 
 /** Timber for piers / docks / shop frames. */
-export const TIMBER = 0x6b5234;
+export const TIMBER = 0x735838;
 export const TIMBER_DARK = 0x4a3a26;
 
 /** Canvas/awning neutral (shop tents). */
-export const CANVAS_LIGHT = 0xe8e0cc;
+export const CANVAS_LIGHT = 0xece5d2;
 
 /** Metal (cranes, missile rails, hardware). */
-export const METAL = 0x9aa4ad;
+export const METAL = 0xa0aab3;
 export const METAL_DARK = 0x5a646d;
 
-/** Generic UI ink colors mirrored from index.html for canvas-drawn labels. */
-export const INK = 0xd8e6f2;
-export const INK_DIM = 0x7d96ab;
-export const INK_OUTLINE = 0x06121f;
+/** Generic UI ink colors mirrored from index.html (--text/--text-dim/--bg-deep). */
+export const INK = 0xdde9f4;
+export const INK_DIM = 0x8aa4ba;
+export const INK_OUTLINE = 0x05101a;
 
 // ---------------------------------------------------------------------------
 // HP bar palette (re-exported here so all modules share one source).
+//
+// LOCKSTEP NOTE: HP_GREEN/YELLOW/RED MUST equal viz.hpBarColor's return values
+// (asserted in render.test.ts) — they are the single HP ramp shared by the
+// floating bars (units.ts), the minimap, and the scoreboard. Don't drift them
+// from viz.ts without updating that test.
 // ---------------------------------------------------------------------------
 
 export const HP_GREEN = 0x52d273;
 export const HP_YELLOW = 0xe8c84e;
 export const HP_RED = 0xe0524e;
-export const HP_BACK = 0x06121f;
+export const HP_BACK = 0x05101a;
 
 // ===========================================================================
 // PSEUDO-3D CONSTANTS — one consistent light, one consistent shadow.
@@ -108,12 +116,17 @@ export const HP_BACK = 0x06121f;
  */
 export const LIGHT_DIR = { x: -0.55, y: -0.83 } as const;
 
-/** Lit-face brightening / shadow-face darkening factors for bevels. */
-export const BEVEL_LIT = 1.28;
-export const BEVEL_SHADE = 0.62;
+/**
+ * Lit-face brightening / shadow-face darkening factors for bevels. Tuned for a
+ * crisper read at gameplay zoom: a brighter sun face and a deeper shadow face
+ * widen the value range across a hull so its volume (and thus its facing) is
+ * legible without zooming in — readability for competitive play.
+ */
+export const BEVEL_LIT = 1.34;
+export const BEVEL_SHADE = 0.56;
 
 /** Ambient floor so shadowed faces never go pure black (keeps team hue). */
-export const AMBIENT = 0.42;
+export const AMBIENT = 0.44;
 
 /**
  * Drop-shadow on the water under every unit/structure. Offset is in SCREEN
@@ -232,8 +245,20 @@ export function shade(base: number): Shaded {
     // Shadow face: darkened, then floored back toward base by AMBIENT so the
     // team hue survives in shadow (never crushes to black).
     shade: mix(scale(base, BEVEL_SHADE), base, AMBIENT),
-    outline: scale(base, 1.12),
+    // A bright lit-rim outline reads as a sunlit gunwale and lifts the hull
+    // off the darker water — a touch punchier than the old 1.12.
+    outline: scale(base, 1.18),
   };
+}
+
+/**
+ * A dark sea-contour stroke for a base color: the deep counter-edge a
+ * silhouette gets where it meets the water, so a team-coloured hull stays
+ * crisply readable against the desaturated sea even when two hulls overlap.
+ * Pairs with `shade().outline` (the lit rim) on the opposite, lit side.
+ */
+export function seaContour(base: number): number {
+  return mix(scale(base, 0.3), INK_OUTLINE, 0.5);
 }
 
 /**

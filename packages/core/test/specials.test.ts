@@ -78,6 +78,8 @@ import {
   recomputeVisibility,
   stepSpecials,
 } from '../src/sim/specials.js';
+import { stepMovement } from '../src/sim/movement.js';
+import { isWater } from '../src/sim/types.js';
 
 beforeEach(() => {
   recorded.damage.length = 0;
@@ -176,6 +178,20 @@ const superbombQuest: SuicideQuestSpec = {
   rewardXp: 1200,
   warnPingTicks: 240,
 };
+
+/** Empty (no-op) lane-nav field — navStepToward returns null, straight-line. */
+function stubNavField() {
+  return {
+    cols: 0,
+    rows: 0,
+    cellSizeX: 1,
+    cellSizeY: 1,
+    bounds: { minX: -2000, minY: -2000, maxX: 2000, maxY: 2000 },
+    goalX: 0,
+    goalY: 0,
+    dist: new Int32Array(0),
+  };
+}
 
 function makeRuleset(): Ruleset {
   const attackRow = {
@@ -281,6 +297,21 @@ function makeRuleset(): Ruleset {
         rangeUnits: 600,
         weaponId: null,
       },
+      // A00Y Fishing Net — ANen Ensnare, hero skill rank 1, range 800 (aran),
+      // duration 8 s = 160 ticks (ahdu), cooldown 35 s = 700 ticks (acdn).
+      A00Y: {
+        abilityId: 'A00Y',
+        name: 'Fishing Net',
+        kind: 'heroSkill',
+        mechanic: 'ensnare',
+        specialKey: null,
+        skill: { abilityId: 'A00Y', ranks: 1, levelsPerRank: 2, minHeroLevel: 5 },
+        magnitudePerRank: [],
+        durationTicksPerRank: [160],
+        cooldownTicks: 700,
+        rangeUnits: 800,
+        weaponId: null,
+      },
       // A009 Onboard Mechanics — passive hero skill, never castable.
       A009: {
         abilityId: 'A009',
@@ -303,7 +334,7 @@ function makeRuleset(): Ruleset {
         maxHp: 775,
         moveSpeed: 250,
         detectionRadius: 1200, // Adtg aran (abilities.json)
-        abilityIds: ['A047', 'A01A'],
+        abilityIds: ['A047', 'A01A', 'A00Y'],
       }),
       H005: shipSpec('H005', { maxHp: 100, moveSpeed: 280, inventorySlots: 4 }),
       H00V: shipSpec('H00V', {
@@ -403,6 +434,18 @@ function makeRuleset(): Ruleset {
     },
     map: {
       bounds: { minX: -2000, minY: -2000, maxX: 2000, maxY: 2000 },
+      // Stub mask (empty cells) -> isWater true everywhere, nearestWater snaps
+      // nothing, so blink lands on its clamped point exactly as before.
+      waterMask: {
+        bounds: { minX: -2000, minY: -2000, maxX: 2000, maxY: 2000 },
+        cols: 0,
+        rows: 0,
+        cellSizeX: 1,
+        cellSizeY: 1,
+        cells: new Uint8Array(0),
+      },
+      navByTeam: { south: stubNavField(), north: stubNavField() },
+      navHomeByTeam: { south: stubNavField(), north: stubNavField() },
       regions: {
         GoblinBombShop: region('GoblinBombShop', 0, 0, 200, 200),
         SouthReward: region('SouthReward', 400, 0, 600, 200),
@@ -1278,6 +1321,113 @@ describe('castAbility hide / flare / specials stubs', () => {
 });
 
 // ---------------------------------------------------------------------------
+// castAbility: net (A00Y Fishing Net — ANen Ensnare)
+// ---------------------------------------------------------------------------
+
+describe('castAbility net (A00Y)', () => {
+  /** Caster H001 with A00Y learned; target enemy ship within net range. */
+  function netFixture(targetDistance = 500) {
+    const rs = makeRuleset();
+    const caster = makeShip(rs, 10, 2, 'south', 'H001', 0, 0);
+    const target = makeShip(rs, 11, 7, 'north', 'H000', targetDistance, 0);
+    const caster2 = makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A00Y: 1 } });
+    const target7 = makePlayer(7, 'north', { shipId: 11 });
+    const state = makeState([caster2, target7], [caster, target], 100);
+    return { rs, state, caster, target, casterPlayer: caster2 };
+  }
+
+  it('nets an in-range enemy ship for 8 s (160 ticks) and starts the 35 s cooldown', () => {
+    const { rs, state, target, casterPlayer } = netFixture(500);
+    applySpecialsCommand(state, rs, {
+      type: 'castAbility',
+      player: 2,
+      abilityId: 'A00Y',
+      targetId: 11,
+    });
+    expect(target.statuses).toContainEqual({ kind: 'ensnared', expiresAtTick: 100 + 160 });
+    expect(casterPlayer.cooldownGroups['A00Y']).toBe(100 + 700);
+    const cast = state.events.find((e) => e.type === 'abilityCast');
+    expect(cast).toMatchObject({ type: 'abilityCast', player: 2, abilityId: 'A00Y', targetEntityId: 11 });
+  });
+
+  it('a netted ship cannot move (movement step keeps it in place) until the hold expires', () => {
+    const { rs, state, target } = netFixture(500);
+    applySpecialsCommand(state, rs, {
+      type: 'castAbility',
+      player: 2,
+      abilityId: 'A00Y',
+      targetId: 11,
+    });
+    // Order the netted ship to move; effectiveMoveSpeed is 0 while ensnared.
+    target.order = { type: 'move', x: 2000, y: 0 };
+    const x0 = target.x;
+    // Ensnared from tick 100..259 (expiresAtTick 260, active while 260 > tick).
+    for (let t = 100; t < 260; t++) {
+      state.tick = t;
+      stepMovement(state, rs);
+      expect(target.x).toBe(x0); // pinned the whole hold
+    }
+    // At tick 260 the hold has lapsed (260 > 260 is false) -> the ship moves.
+    state.tick = 260;
+    stepMovement(state, rs);
+    expect(target.x).toBeGreaterThan(x0);
+  });
+
+  it('rejects an out-of-range target (> 800) and nets nothing', () => {
+    const far = netFixture(900);
+    applySpecialsCommand(far.state, far.rs, {
+      type: 'castAbility',
+      player: 2,
+      abilityId: 'A00Y',
+      targetId: 11,
+    });
+    expect(rejections(far.state)).toEqual(['outOfRange']);
+    expect(far.target.statuses).toEqual([]);
+  });
+
+  it('rejects a friendly / missing target and an unlearned net', () => {
+    const rs = makeRuleset();
+    const caster = makeShip(rs, 10, 2, 'south', 'H001', 0, 0);
+    const ally = makeShip(rs, 12, 3, 'south', 'H000', 300, 0);
+    const enemy = makeShip(rs, 11, 7, 'north', 'H000', 300, 0);
+    const state = makeState(
+      [
+        makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A00Y: 1 } }),
+        makePlayer(3, 'south', { shipId: 12 }),
+        makePlayer(7, 'north', { shipId: 11 }),
+      ],
+      [caster, ally, enemy],
+      100,
+    );
+    // Friendly target.
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A00Y', targetId: 12 });
+    // Missing target.
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A00Y' });
+    expect(rejections(state)).toEqual(['invalidTarget', 'missingTarget']);
+    expect(ally.statuses).toEqual([]);
+
+    // Not learned: a caster without the skill point.
+    const rs2 = makeRuleset();
+    const c2 = makeShip(rs2, 10, 2, 'south', 'H001', 0, 0);
+    const e2 = makeShip(rs2, 11, 7, 'north', 'H000', 300, 0);
+    const s2 = makeState(
+      [makePlayer(2, 'south', { shipId: 10 }), makePlayer(7, 'north', { shipId: 11 })],
+      [c2, e2],
+      100,
+    );
+    applySpecialsCommand(s2, rs2, { type: 'castAbility', player: 2, abilityId: 'A00Y', targetId: 11 });
+    expect(rejections(s2)).toEqual(['notLearned']);
+  });
+
+  it('respects its cooldown (a second cast while cooling down is rejected)', () => {
+    const { rs, state } = netFixture(500);
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A00Y', targetId: 11 });
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A00Y', targetId: 11 });
+    expect(rejections(state)).toEqual(['onCooldown']);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Suicide quests
 // ---------------------------------------------------------------------------
 
@@ -1800,6 +1950,90 @@ describe('applyEquipmentActive', () => {
         cooldownTicks: 900,
       }),
     ).toBe(false);
+  });
+
+  it('blink crosses a NON-water gap to far-side water within range (Light Teleporter)', () => {
+    const rs = makeRuleset();
+    // 8 cols x 1 row over the -2000..2000 box (cell 500 wide): cols 0-2 water,
+    // cols 3-4 a LAND gap (x -500..500), cols 5-7 water. Normal MOVE pathing
+    // cannot cross the land gap; the teleport must.
+    rs.map.waterMask = {
+      bounds: { minX: -2000, minY: -2000, maxX: 2000, maxY: 2000 },
+      cols: 8,
+      rows: 1,
+      cellSizeX: 500,
+      cellSizeY: 4000,
+      cells: new Uint8Array([1, 1, 1, 0, 0, 1, 1, 1]),
+    };
+    const ship = makeShip(rs, 10, 2, 'south', 'H000', -750, 0); // col 2 (water)
+    const state = makeState([makePlayer(2, 'south', { shipId: 10 })], [ship], 100);
+    expect(isWater(rs.map.waterMask, ship.x, ship.y)).toBe(true);
+
+    const handled = applyEquipmentActive(
+      state,
+      rs,
+      2,
+      { kind: 'blink', maxDistance: 1200, cooldownTicks: 1000 },
+      700, // far-side water (col 5)
+      0,
+    );
+    expect(handled).toBe(true);
+    // Landed across the land gap on the FAR (positive) side, on valid water.
+    expect(ship.x).toBeGreaterThan(500);
+    expect(isWater(rs.map.waterMask, ship.x, ship.y)).toBe(true);
+    expect(ship.order).toEqual({ type: 'idle' });
+  });
+
+  it('blink is rejected (nothing consumed) when no water is reachable near the landing', () => {
+    const rs = makeRuleset();
+    // Entirely land -> nearestWater finds nothing -> reject. (The source cell
+    // being land is irrelevant; blink never validates where it starts.)
+    rs.map.waterMask = {
+      bounds: { minX: -2000, minY: -2000, maxX: 2000, maxY: 2000 },
+      cols: 8,
+      rows: 1,
+      cellSizeX: 500,
+      cellSizeY: 4000,
+      cells: new Uint8Array(8).fill(0),
+    };
+    const ship = makeShip(rs, 10, 2, 'south', 'H000', -750, 0);
+    const state = makeState([makePlayer(2, 'south', { shipId: 10 })], [ship], 100);
+    const handled = applyEquipmentActive(
+      state,
+      rs,
+      2,
+      { kind: 'blink', maxDistance: 1200, cooldownTicks: 1000 },
+      700,
+      0,
+    );
+    expect(handled).toBe(false); // caller consumes no charge/cooldown
+    expect(ship.x).toBe(-750); // unmoved
+    expect(ship.y).toBe(0);
+  });
+
+  it('blink breaks a net: the ship relocates AND the ensnared hold is cleared (escape)', () => {
+    const rs = makeRuleset(); // stub mask -> all water
+    const ship = makeShip(rs, 10, 2, 'south', 'H001', 0, 0);
+    ship.statuses.push({ kind: 'ensnared', expiresAtTick: 260 });
+    const state = makeState([makePlayer(2, 'south', { shipId: 10 })], [ship], 100);
+
+    const handled = applyEquipmentActive(
+      state,
+      rs,
+      2,
+      { kind: 'blink', maxDistance: 1200, cooldownTicks: 1000 },
+      800,
+      0,
+    );
+    expect(handled).toBe(true);
+    expect(ship.x).toBe(800); // relocated
+    expect(ship.statuses.some((s) => s.kind === 'ensnared')).toBe(false); // freed
+
+    // And it can actually move next tick (no lingering root).
+    ship.order = { type: 'move', x: 2000, y: 0 };
+    const before = ship.x;
+    stepMovement(state, rs);
+    expect(ship.x).toBeGreaterThan(before);
   });
 });
 

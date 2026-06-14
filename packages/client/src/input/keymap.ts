@@ -28,7 +28,9 @@ export type HudAction =
   | 'attackMove'
   | 'scoreboard'
   | 'chat'
-  | 'shopToggle';
+  | 'shopToggle'
+  | 'help'
+  | 'recenter';
 
 /** Stable action order — also the precedence order when codes collide. */
 export const HUD_ACTIONS: readonly HudAction[] = [
@@ -44,9 +46,17 @@ export const HUD_ACTIONS: readonly HudAction[] = [
   'scoreboard',
   'chat',
   'shopToggle',
+  'help',
+  'recenter',
 ];
 
-/** Default bindings, keyed by `KeyboardEvent.code`. */
+/**
+ * Default bindings, keyed by `KeyboardEvent.code`.
+ *
+ * `help` toggles the onboarding controls/help panel (hud/onboarding.ts);
+ * `recenter` re-engages the camera follow on the player ship (camera.ts
+ * `recenterOnPlayer`). Both are rebind-ready like every other action.
+ */
 export const DEFAULT_BINDINGS: Record<HudAction, string> = {
   slot0: 'KeyW',
   slot1: 'KeyE',
@@ -60,6 +70,8 @@ export const DEFAULT_BINDINGS: Record<HudAction, string> = {
   scoreboard: 'Tab',
   chat: 'Enter',
   shopToggle: 'KeyB',
+  help: 'F1',
+  recenter: 'Space',
 };
 
 const STORAGE_KEY = 'bships.keybinds';
@@ -152,7 +164,9 @@ function isTextInputFocused(): boolean {
  */
 export function handleKeyEvent(e: KeyboardEvent): void {
   if (isTextInputFocused()) return;
-  if (e.code === 'Tab') e.preventDefault();
+  // Keys whose browser default would steal focus / scroll / open help mid-match
+  // are always suppressed, bound or not.
+  if (e.code === 'Tab' || e.code === 'F1' || e.code === 'Space') e.preventDefault();
   for (const fn of [...rawListeners]) {
     if (fn(e) === true) return;
   }
