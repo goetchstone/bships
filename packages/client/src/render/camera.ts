@@ -23,7 +23,16 @@ import { FORESHORTEN } from './viz.js';
 export { FORESHORTEN };
 
 export const MIN_ZOOM = 0.5;
-export const MAX_ZOOM = 2.0;
+export const MAX_ZOOM = 3.0;
+
+/** Default zoom when a match starts (close enough that your ship reads big). */
+export const DEFAULT_ZOOM = 1.7;
+
+/**
+ * After a manual pan, the camera resumes following the player ship once the
+ * player has left the camera alone for this long. "center and follow."
+ */
+const FOLLOW_RESUME_MS = 2500;
 
 /** Exponential smoothing rate (per second) for x/y/zoom convergence. */
 const SMOOTH_PER_S = 10;
@@ -66,6 +75,13 @@ interface CameraState {
   /** Middle-drag in progress (suspends edge scroll). */
   dragging: boolean;
   inputAttached: boolean;
+  /** World point the camera follows (own ship); null = nothing to follow. */
+  followX: number | null;
+  followY: number | null;
+  /** Whether the camera is currently locked onto the follow target. */
+  following: boolean;
+  /** ms since the last manual camera input, for follow-resume. */
+  idleMs: number;
 }
 
 const state: CameraState = {
@@ -80,7 +96,17 @@ const state: CameraState = {
   pointer: null,
   dragging: false,
   inputAttached: false,
+  followX: null,
+  followY: null,
+  following: true,
+  idleMs: 0,
 };
+
+/** Mark that the player just took manual camera control (pauses follow). */
+function manualControl(): void {
+  state.following = false;
+  state.idleMs = 0;
+}
 
 function clamp(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;
@@ -120,6 +146,7 @@ const cameraApi: Camera = {
   worldToScreen,
   screenToWorld,
   panTo(worldX: number, worldY: number): void {
+    manualControl();
     state.targetX = worldX;
     state.targetY = worldY;
     clampTarget();
@@ -161,6 +188,27 @@ export function snapCamera(x: number, y: number, zoom?: number): void {
   state.x = state.targetX;
   state.y = state.targetY;
   state.zoom = state.targetZoom;
+  // Match start centers on the spawn and locks follow on.
+  state.followX = x;
+  state.followY = y;
+  state.following = true;
+  state.idleMs = 0;
+}
+
+/**
+ * The renderer reports the player's own ship position every frame. The camera
+ * keeps it centered while `following`; after a manual pan it resumes following
+ * once the player has been idle for FOLLOW_RESUME_MS.
+ */
+export function setFollowTarget(x: number, y: number): void {
+  state.followX = x;
+  state.followY = y;
+}
+
+/** Re-engage follow immediately (bound to a recenter hotkey + minimap dbl). */
+export function recenterOnPlayer(): void {
+  state.following = true;
+  state.idleMs = 0;
 }
 
 /**
@@ -186,6 +234,7 @@ export function zoomAt(sx: number, sy: number, factor: number): void {
  * pointer follows the pointer 1:1, so this moves current AND target.
  */
 export function dragBy(dxPx: number, dyPx: number): void {
+  manualControl();
   state.targetX -= dxPx / state.zoom;
   state.targetY += dyPx / (state.zoom * FORESHORTEN);
   clampTarget();
@@ -207,10 +256,23 @@ export function updateCamera(dtMs: number): void {
     if (py <= EDGE_MARGIN_PX) dy += speed / FORESHORTEN;
     else if (py >= state.viewportH - EDGE_MARGIN_PX) dy -= speed / FORESHORTEN;
     if (dx !== 0 || dy !== 0) {
+      manualControl();
       state.targetX += dx;
       state.targetY += dy;
       clampTarget();
     }
+  }
+
+  // Follow the player's ship. After a manual pan, resume following once the
+  // player has left the camera idle for FOLLOW_RESUME_MS.
+  if (!state.following && !state.dragging) {
+    state.idleMs += dtMs;
+    if (state.idleMs >= FOLLOW_RESUME_MS) state.following = true;
+  }
+  if (state.following && state.followX !== null && state.followY !== null) {
+    state.targetX = state.followX;
+    state.targetY = state.followY;
+    clampTarget();
   }
 
   const k = 1 - Math.exp(-SMOOTH_PER_S * dt);
@@ -293,4 +355,8 @@ export function resetCameraForTest(viewportW = 1600, viewportH = 900): void {
   state.targetZoom = 1;
   state.pointer = null;
   state.dragging = false;
+  state.followX = null;
+  state.followY = null;
+  state.following = true;
+  state.idleMs = 0;
 }

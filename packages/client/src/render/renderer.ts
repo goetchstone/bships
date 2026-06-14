@@ -29,7 +29,14 @@ import { Application } from 'pixi.js';
 import { getCatalog } from '../catalog.js';
 import { sampleWorld } from '../net/interpolation.js';
 import { store } from '../net/store.js';
-import { attachCameraInput, setViewport, snapCamera, updateCamera } from './camera.js';
+import {
+  attachCameraInput,
+  DEFAULT_ZOOM,
+  setFollowTarget,
+  setViewport,
+  snapCamera,
+  updateCamera,
+} from './camera.js';
 import { createFog } from './fog.js';
 import { createFx } from './fx.js';
 import { attachPointer } from './pointer.js';
@@ -44,10 +51,10 @@ function placeInitialCamera(): void {
   const slot = store.match.mySlot;
   const start = slot === null ? undefined : map.playerStarts[slot];
   if (start !== undefined) {
-    snapCamera(start.x, start.y, 1);
+    snapCamera(start.x, start.y, DEFAULT_ZOOM);
   } else {
     const b = map.bounds;
-    snapCamera((b.minX + b.maxX) / 2, (b.minY + b.maxY) / 2, 1);
+    snapCamera((b.minX + b.maxX) / 2, (b.minY + b.maxY) / 2, DEFAULT_ZOOM);
   }
 }
 
@@ -87,9 +94,19 @@ export async function initRenderer(opts: { mount: HTMLElement }): Promise<void> 
   placeInitialCamera();
 
   app.ticker.add((ticker) => {
-    updateCamera(ticker.deltaMS);
     const nowMs = performance.now();
     const sample = sampleWorld(nowMs);
+    // Keep the camera centered on the player's own ship (center + follow).
+    if (sample !== null) {
+      const mySlot = store.match.mySlot;
+      if (mySlot !== null) {
+        const own = sample.entities.find(
+          (e) => e.kind === 'ship' && e.ownerSlot === mySlot,
+        );
+        if (own !== undefined) setFollowTarget(own.x, own.y);
+      }
+    }
+    updateCamera(ticker.deltaMS);
     world.update(sample, nowMs);
     units.update(sample, nowMs);
     fx.update(sample, nowMs);

@@ -11,13 +11,16 @@ import type { SnapshotEntity } from '@bships/core';
 
 import { getCatalog } from '../src/catalog.js';
 import {
+  DEFAULT_ZOOM,
   FORESHORTEN,
   MAX_ZOOM,
   MIN_ZOOM,
   dragBy,
   getCamera,
   getViewportSize,
+  recenterOnPlayer,
   resetCameraForTest,
+  setFollowTarget,
   snapCamera,
   updateCamera,
   zoomAt,
@@ -125,7 +128,7 @@ describe('camera transform', () => {
 describe('camera zoom', () => {
   beforeEach(() => resetCameraForTest(W, H));
 
-  it('clamps zoom to [0.5, 2.0]', () => {
+  it('clamps zoom to [MIN_ZOOM, MAX_ZOOM]', () => {
     zoomAt(W / 2, H / 2, 1000);
     converge();
     expect(getCamera().zoom).toBeCloseTo(MAX_ZOOM, 5);
@@ -155,6 +158,67 @@ describe('camera zoom', () => {
     expect(cam.x).toBeCloseTo(0, 3);
     expect(cam.y).toBeCloseTo(0, 3);
     expect(cam.zoom).toBeCloseTo(1, 5);
+  });
+});
+
+describe('camera follow (center + follow the player)', () => {
+  beforeEach(() => resetCameraForTest(W, H));
+
+  it('snapCamera centers on the spawn at DEFAULT_ZOOM and engages follow', () => {
+    snapCamera(800, -1200, DEFAULT_ZOOM);
+    const cam = getCamera();
+    expect(cam.x).toBeCloseTo(800, 5);
+    expect(cam.y).toBeCloseTo(-1200, 5);
+    expect(cam.zoom).toBeCloseTo(DEFAULT_ZOOM, 5);
+  });
+
+  it('keeps the camera centered on the moving follow target each frame', () => {
+    snapCamera(0, 0, DEFAULT_ZOOM);
+    // The ship sails: the renderer reports its position every frame.
+    let tx = 0;
+    let ty = 0;
+    for (let i = 0; i < 200; i++) {
+      tx = i * 10;
+      ty = i * 6;
+      setFollowTarget(tx, ty);
+      updateCamera(16);
+    }
+    const cam = getCamera();
+    // The smoothed camera trails a constantly-moving target by a small lag,
+    // but stays locked on (within ~100 world units) — it is following.
+    expect(Math.hypot(cam.x - tx, cam.y - ty)).toBeLessThan(100);
+    expect(cam.x).toBeGreaterThan(1800);
+  });
+
+  it('a manual pan suspends follow, which resumes after the idle window', () => {
+    snapCamera(0, 0, DEFAULT_ZOOM);
+    setFollowTarget(3000, 3000);
+    // Manual drag detaches follow: camera does NOT jump to the ship.
+    dragBy(40, 40);
+    for (let i = 0; i < 5; i++) {
+      setFollowTarget(3000, 3000);
+      updateCamera(16);
+    }
+    expect(getCamera().x).toBeLessThan(1000);
+    // After ~2.5s idle, follow re-engages and the camera converges on the ship.
+    for (let i = 0; i < 400; i++) {
+      setFollowTarget(3000, 3000);
+      updateCamera(16);
+    }
+    expect(getCamera().x).toBeCloseTo(3000, -1);
+    expect(getCamera().y).toBeCloseTo(3000, -1);
+  });
+
+  it('recenterOnPlayer re-engages follow immediately', () => {
+    snapCamera(0, 0, DEFAULT_ZOOM);
+    dragBy(100, 0);
+    setFollowTarget(2000, 0);
+    recenterOnPlayer();
+    for (let i = 0; i < 200; i++) {
+      setFollowTarget(2000, 0);
+      updateCamera(16);
+    }
+    expect(getCamera().x).toBeCloseTo(2000, -1);
   });
 });
 
