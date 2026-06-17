@@ -166,6 +166,12 @@ const ABILITY_EMOJI: Record<string, string> = {
   flareDetection: '\u{1F4E1}', // satellite antenna — detector / echo-location
   stormBoltWeapon: '\u{1F4A5}', // collision — Captain's Cannon / Torpedo
   phoenixFireWeapon: '\u{1F525}', // fire
+  // Passive hero skills — never cast, but rank-able in the SKILLS strip, so
+  // they need distinct icons there (otherwise hull/sails/repair all read alike).
+  hullHp: '\u{1F6E1}', // shield — Enforced / Reinforced / Super Hull
+  sailSpeed: '\u{26F5}', // sailboat — Ship Sails
+  mechanicsRegen: '\u{1F527}', // wrench — Onboard Mechanics / Repair Crew
+  trueSightPassive: '\u{1F441}', // eye — True Sight
 };
 
 /** Per-special-kind icon, so the exotic kit reads distinctly in the spellbook. */
@@ -339,6 +345,27 @@ export function shipLearnableSkills(
     });
   }
   return out;
+}
+
+/**
+ * The hull's learnable hero skills that DON'T get a castable quick-key — the
+ * PASSIVES (Enforced/Reinforced/Super Hull, Onboard Mechanics Crew, Ship Sails,
+ * Slow/Damage/Regen auras, Nautical engineer...). These carry a HeroSkillRule
+ * (so a skill point ranks them up and they matter — hull HP, move speed, regen)
+ * but never appear in shipAbilitySlots, so the cast-bar level-up picker can
+ * never reach them. The dedicated "Skills" strip renders THESE so every
+ * learnable skill has exactly one place to spend a point: castable-learnable
+ * skills keep their + in the cast bar, passive ones get it here. Without this
+ * the bulk of a hull's progression (and, for hulls whose only castable skills
+ * are high-level-gated, ALL of it) is unspendable — the owner's "I can't learn
+ * it / bigger ships show no skills" bug. Pure catalog lookup.
+ */
+export function shipPassiveLearnableSkills(
+  catalog: Pick<Ruleset, 'ships' | 'abilities'>,
+  shipTypeId: string,
+): LearnableSkill[] {
+  const castable = new Set(shipAbilitySlots(catalog, shipTypeId).map((s) => s.abilityId));
+  return shipLearnableSkills(catalog, shipTypeId).filter((s) => !castable.has(s.abilityId));
 }
 
 /**

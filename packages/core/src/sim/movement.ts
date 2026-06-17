@@ -14,14 +14,18 @@
  *   clamped to [constants.minMoveSpeed, constants.maxMoveSpeed]. Sails are
  *   equipment passives on the owning player's inventory; 'slowed'/'speedAura'
  *   statuses contribute; 'ensnared' pins speed to 0.
- * - Lane navigation: for a move/attackMove the kinematics steer toward the next
- *   step of the team's static lane-navigation field (ruleset.map.navByTeam /
- *   navHomeByTeam — a precomputed BFS gradient over the water mask) when the
- *   order is a base-bound long haul, so creeps and ships follow the winding
+ * - Lane navigation: for ANY haul beyond a short micro hop — a move/attackMove
+ *   OR an attackTarget chase — the kinematics steer toward the next step of the
+ *   team's static lane-navigation field (ruleset.map.navByTeam / navHomeByTeam,
+ *   a precomputed BFS gradient over the water mask; the field with its goal
+ *   nearer the destination is chosen, so a push uses navByTeam and a retreat /
+ *   trade run uses navHomeByTeam). Creeps and ships thus follow the winding
  *   water lanes AROUND the central landmass instead of beelining into it
- *   (laneNavGoal; see types.ts NavField + docs/TERRAIN.md §3). Near the goal /
- *   on a stub mask the field is inert and movement is plain straight-line, so
- *   open-sea behaviour and all legacy tests are unchanged. Arrival/idle is
+ *   (laneNavGoal / nearestFieldStep; see types.ts NavField + docs/TERRAIN.md §3).
+ *   If a candidate step still ends wedged on a concave coast, resolveAgainstLand
+ *   nudges along the same gradient rather than pinning the unit at the wall.
+ *   Near the goal / on a stub mask the field is inert and movement is plain
+ *   straight-line, so open-sea behaviour and all legacy tests are unchanged. Arrival/idle is
  *   always judged on the TRUE order point, never an intermediate nav waypoint.
  * - Collision: circle-vs-circle pushout (equal split), processing entities
  *   in ascending id order; then resolve against the static land/water mask
@@ -141,7 +145,7 @@ export function stepMovement(state: SimState, ruleset: Ruleset): void {
     if (!entity || !isUnitEntity(entity) || entity.dead) continue;
     if (isMovementLocked(state, entity)) continue;
 
-    resolveAgainstLand(mask, entity, prevX[id] ?? entity.x, prevY[id] ?? entity.y);
+    resolveAgainstLand(ruleset, mask, entity, prevX[id] ?? entity.x, prevY[id] ?? entity.y);
 
     if (entity.x < bounds.minX) entity.x = bounds.minX;
     else if (entity.x > bounds.maxX) entity.x = bounds.maxX;
@@ -154,7 +158,8 @@ export function stepMovement(state: SimState, ruleset: Ruleset): void {
  * Keep a unit out of non-water cells (docs/TERRAIN.md §4 "pathing"). Called
  * after kinematics + pushout with the unit's CURRENT (candidate) position and
  * its pre-move (water-valid) position. Deterministic: plain arithmetic +
- * `isWater` only — no trig, no RNG, no iteration order dependence.
+ * `isWater` / `navStepToward` only — no trig, no RNG, no iteration order
+ * dependence.
  *
  * Resolution order (matches the contract):
  *   1. Candidate is water  -> accept (the common case; also the all-water stub
@@ -162,12 +167,22 @@ export function stepMovement(state: SimState, ruleset: Ruleset): void {
  *   2. Axis-separated slide -> keep the water-valid axis, snap the blocked axis
  *      back to its pre-move value. Tried X-kept-first then Y-kept so a unit
  *      hugging a coast advances along the open axis instead of stalling.
- *   3. Fallback -> revert to the pre-move position (never moved onto land).
+ *   3. Gradient nudge -> when both slides hit land (a concave corner that would
+ *      otherwise PIN the unit at the coast forever, re-deriving the same heading
+ *      into the same wall every tick — the "ships hang up on land" bug), step a
+ *      short way from the pre-move position toward the next downhill water cell
+ *      of the unit's lane field, IF that point is water. This is the "if a
+ *      straight step would cross land, step along the water gradient instead"
+ *      recovery, so a wedged ship rounds the landmass instead of stalling.
+ *   4. Fallback -> revert to the pre-move position (never moved onto land); the
+ *      last resort when even the gradient cell is unavailable (stub mask, no
+ *      field, or no downhill water neighbour).
  *
  * The pre-move position is assumed water-valid (the unit was there last tick
  * after this same resolver), so the fallback is always a legal tile.
  */
 function resolveAgainstLand(
+  ruleset: Ruleset,
   mask: WaterMask,
   entity: UnitEntity,
   fromX: number,
@@ -187,10 +202,67 @@ function resolveAgainstLand(
     entity.x = fromX;
     return;
   }
-  // No water-valid slide — stall at the coast (pre-move tile).
+
+  // Both slides hit land: take a short step from the pre-move tile toward the
+  // lane field's next downhill water cell (toward the unit's current goal) so a
+  // ship wedged on a concave coast keeps rounding the landmass instead of being
+  // pinned at the wall. Only mobile, navigable kinds have a field; stub masks /
+  // no-field / local-minimum return null below -> fall through to the revert.
+  const goal = orderDestination(ruleset, entity);
+  if (goal !== null) {
+    const stepCell = nearestFieldStep(ruleset, entity, goal.x, goal.y, fromX, fromY);
+    if (stepCell !== null && isWater(mask, stepCell.x, stepCell.y)) {
+      // Clamp to a single step length so the nudge is a smooth slide, not a
+      // teleport to the cell center. Capacity bounded by the cell size.
+      const dgx = stepCell.x - fromX;
+      const dgy = stepCell.y - fromY;
+      const len = Math.sqrt(dgx * dgx + dgy * dgy);
+      if (len > 0) {
+        const stepLen = Math.min(len, LAND_GRADIENT_NUDGE_UNITS);
+        const nx = fromX + (dgx / len) * stepLen;
+        const ny = fromY + (dgy / len) * stepLen;
+        if (isWater(mask, nx, ny)) {
+          entity.x = nx;
+          entity.y = ny;
+          return;
+        }
+      }
+    }
+  }
+
+  // No water-valid slide or gradient nudge — stall at the coast (pre-move tile).
   entity.x = fromX;
   entity.y = fromY;
 }
+
+/**
+ * The world point a unit's current order is trying to reach — the lane field is
+ * picked by which base goal is nearer THIS point. Move/attackMove use the order
+ * point; an attackTarget chase uses the live target (null if it vanished). Idle/
+ * hold have no destination. Pure lookups, no RNG/trig.
+ */
+function orderDestination(
+  ruleset: Ruleset,
+  entity: UnitEntity,
+): { x: number; y: number } | null {
+  const order = entity.order;
+  if (order.type === 'move' || order.type === 'attackMove') return { x: order.x, y: order.y };
+  if (order.type === 'attackTarget') {
+    // The resolver has no SimState handle, so the live target position is not
+    // available here. A combat chase heads toward the enemy, so steer along the
+    // push field: returning its goal point selects navByTeam in nearestFieldStep
+    // and rounds the landmass toward the enemy base. Better than pinning the
+    // unit at the coast (null), which is the bug we are fixing.
+    const push = ruleset.map.navByTeam?.[entity.team];
+    if (push !== undefined && push.dist.length > 0) return { x: push.goalX, y: push.goalY };
+    return null;
+  }
+  return null;
+}
+
+/** Max single-tick distance the land resolver nudges a wedged unit along the
+ * water gradient (cellSize is 128, so this stays within one cell). */
+const LAND_GRADIENT_NUDGE_UNITS = 96;
 
 /**
  * Current effective speed in units/sec after sails, auras, statuses and the
@@ -383,6 +455,15 @@ function stepUnitKinematics(state: SimState, ruleset: Ruleset, entity: UnitEntit
   const order = entity.order;
   if (order.type === 'idle' || order.type === 'hold') return;
 
+  // The TRUE destination this order is judged against: the live target (chase)
+  // or the order point (move/attackMove). Arrival, the attack stop-distance and
+  // the creep hold-gate are all measured against THIS, never an intermediate
+  // nav waypoint.
+  let orderX: number;
+  let orderY: number;
+  // The point the kinematics actually STEER toward this tick: either the true
+  // destination (straight-line, the common close-range case) or the next lane
+  // field waypoint that rounds the central landmass when far.
   let goalX: number;
   let goalY: number;
   let stopDist = 0;
@@ -393,10 +474,23 @@ function stepUnitKinematics(state: SimState, ruleset: Ruleset, entity: UnitEntit
       entity.order = { type: 'idle' };
       return;
     }
-    goalX = target.x;
-    goalY = target.y;
+    orderX = target.x;
+    orderY = target.y;
     stopDist = attackStopDistance(ruleset, entity, target);
+    // Route the chase around land too: when the target is beyond a short hop,
+    // steer the next lane-field waypoint toward it (field chosen by which base
+    // goal is nearer the target). Close in / same basin / stub mask -> null ->
+    // steer the live target directly (preserving the exact in-range approach).
+    let goal: { x: number; y: number } | null = null;
+    const tDistSq = (orderX - entity.x) ** 2 + (orderY - entity.y) ** 2;
+    if (tDistSq >= NAV_SHIP_MIN_HAUL * NAV_SHIP_MIN_HAUL) {
+      goal = nearestFieldStep(ruleset, entity, orderX, orderY, entity.x, entity.y);
+    }
+    goalX = goal?.x ?? orderX;
+    goalY = goal?.y ?? orderY;
   } else {
+    orderX = order.x;
+    orderY = order.y;
     // move / attackMove: follow the team's static lane-navigation field around
     // the central landmass when far from the order point (the lanes wind too
     // sharply for straight-line + coast-slide to traverse — see types.ts
@@ -408,21 +502,19 @@ function stepUnitKinematics(state: SimState, ruleset: Ruleset, entity: UnitEntit
     goalY = nav.y;
   }
 
-  // Arrival is judged against the TRUE order point (move/attackMove), never an
-  // intermediate nav waypoint — so a unit following the lane field keeps going
-  // until it reaches the actual order point, then snaps + idles as before. For
-  // a chase the order point is the (live) target, already in goalX/goalY.
-  const orderX = chasing ? goalX : order.x;
-  const orderY = chasing ? goalY : order.y;
-
+  // Distance to the STEERING goal (heading) vs the TRUE destination (stop/arrival).
   const dx = goalX - entity.x;
   const dy = goalY - entity.y;
   const d = Math.sqrt(dx * dx + dy * dy);
-  const dOrder = chasing ? d : Math.sqrt((orderX - entity.x) ** 2 + (orderY - entity.y) ** 2);
+  const dOrder = Math.sqrt((orderX - entity.x) ** 2 + (orderY - entity.y) ** 2);
+  // Steering onto a nav waypoint that is NOT the true destination (the long haul
+  // down the lane around land). For a chase this means routing around land; for
+  // a move it is the lane-following leg.
+  const viaWaypoint = goalX !== orderX || goalY !== orderY;
   if (d === 0) {
     // Exactly on the steering goal: if it is also the order point, the move
     // completes; otherwise (a nav waypoint coincident with us) just hold facing.
-    if (!chasing && dOrder === 0) entity.order = { type: 'idle' };
+    if (!chasing && !viaWaypoint && dOrder === 0) entity.order = { type: 'idle' };
     return;
   }
 
@@ -440,8 +532,10 @@ function stepUnitKinematics(state: SimState, ruleset: Ruleset, entity: UnitEntit
   const err = wrapAngle(desired - entity.facingRad);
   if (Math.abs(err) > HALF_PI) return;
 
-  // In range of an attack target: face it, no advance, keep the order.
-  if (chasing && d <= stopDist) return;
+  // In range of an attack target: face it, no advance, keep the order. Judged on
+  // the TRUE target distance (dOrder), so steering a lane waypoint around land
+  // never spuriously "stops in range" at the waypoint.
+  if (chasing && dOrder <= stopDist) return;
 
   // Creep/summon HOLD: when attack-moving and steering the TRUE order point
   // directly (the lane field has handed off to the straight-line final approach
@@ -456,8 +550,7 @@ function stepUnitKinematics(state: SimState, ruleset: Ruleset, entity: UnitEntit
   if (
     !chasing &&
     order.type === 'attackMove' &&
-    goalX === orderX &&
-    goalY === orderY
+    !viaWaypoint
   ) {
     const engageStop = creepEngageStopDistance(ruleset, entity);
     if (
@@ -473,7 +566,7 @@ function stepUnitKinematics(state: SimState, ruleset: Ruleset, entity: UnitEntit
   if (speed <= 0) return;
   const step = speed / ruleset.tickRate;
 
-  if (!chasing && dOrder <= step) {
+  if (!chasing && !viaWaypoint && dOrder <= step) {
     // Arrival: snap to the TRUE order point and go idle (judged on the order
     // point, so a lane-following unit only completes at the real destination).
     entity.x = orderX;
@@ -482,7 +575,12 @@ function stepUnitKinematics(state: SimState, ruleset: Ruleset, entity: UnitEntit
     return;
   }
 
-  const advance = chasing ? Math.min(step, d - stopDist) : step;
+  // Advance along the current facing. Steering a nav waypoint (move OR chase
+  // routed around land) takes a full step toward it; a direct chase clamps so it
+  // does not overshoot the target's stop ring (judged on dOrder, the TRUE target
+  // distance, not the waypoint).
+  const advance = chasing && !viaWaypoint ? Math.min(step, dOrder - stopDist) : step;
+  if (advance <= 0) return;
   entity.x += dCos(entity.facingRad) * advance;
   entity.y += dSin(entity.facingRad) * advance;
 }
@@ -492,14 +590,13 @@ function stepUnitKinematics(state: SimState, ruleset: Ruleset, entity: UnitEntit
  * that routes around the central landmass toward `(orderX, orderY)`, or the
  * order point itself (straight line — the legacy behaviour) when no field helps.
  *
- * Field choice (both flow over the same water network, see types.ts NavField):
- *   - navByTeam[team]     -> the ENEMY base (the push goal),
- *   - navHomeByTeam[team] -> the OWN base (retreats / shop detours).
- * We pick the field whose goal is NEARER the order point, then steer along its
- * gradient — but ONLY when the gradient step actually reduces straight-line
- * distance to the order point (so the detour genuinely helps reach THAT order,
- * never drags the unit the wrong way). Mid-lane micro / short repositions where
- * the straight line is fine, and stub masks, fall through to the order point.
+ * CREEPS / SUMMONS always ride the team push field down their lane (then hand
+ * off to the straight line near their hold-gate order point). SHIPS choose
+ * whichever static field's goal is nearest the order point — push toward the
+ * enemy base, home toward the own base, or a trader-destination field
+ * (map.navToRegion) — via nearestFieldStep, so a push, a retreat and an outbound
+ * trade leg each follow the right gradient around the land. Short micro hops
+ * (below NAV_SHIP_MIN_HAUL) and stub masks fall through to the order point;
  * navStepToward returns null near the goal so the final approach is the true
  * straight line. Pure: distance compares + navStepToward arithmetic, no RNG/trig.
  */
@@ -513,7 +610,6 @@ function laneNavGoal(
     return { x: orderX, y: orderY };
   }
   const push = ruleset.map.navByTeam?.[entity.team];
-  const home = ruleset.map.navHomeByTeam?.[entity.team];
   if (push === undefined || push.dist.length === 0) return { x: orderX, y: orderY };
 
   // CREEPS / SUMMONS follow the push field for the LONG HAUL down their lane,
@@ -533,41 +629,87 @@ function laneNavGoal(
     return step ?? { x: orderX, y: orderY };
   }
 
-  // SHIPS (players / AI) can push, retreat, shop or micro locally, so steer via
-  // a field ONLY for a genuine LONG HAUL toward a base: the order must be
-  // (a) far from the ship (not a short shop/repair/micro hop, which must stay
-  // straight-line so it reaches its exact point) AND (b) its destination near a
-  // base goal (so the field actually flows there). We then pick whichever field
-  // (push / home) has its goal nearer the order point.
+  // SHIPS (players / AI) can push, retreat, shop, run trade routes or micro
+  // locally. Steer via a field for any genuine HAUL (anything beyond a short
+  // micro hop), NOT just base-bound orders: the real reason ships "hang up on
+  // land" is that mid-lane brawl/siege points and trader destinations (shops,
+  // refinery, reward zones, pickup corners) are NOT near a base goal, so the
+  // old base-proximity gate excluded essentially every order and left ships
+  // beelining into the coast. We now pick whichever field (push toward the
+  // enemy base / home toward the own base) flows nearer the ORDER POINT and ride
+  // its gradient around the landmass; the field's local-goal handoff
+  // (navStepToward returns null within localGoalDistCells, types.ts) restores
+  // the exact straight-line final approach so arrival is unchanged. Only true
+  // micro/short repositions (below NAV_SHIP_MIN_HAUL) stay straight-line so they
+  // reach their exact point without a cell-granular detour.
   const orderDistSq = (orderX - entity.x) ** 2 + (orderY - entity.y) ** 2;
   if (orderDistSq < NAV_SHIP_MIN_HAUL * NAV_SHIP_MIN_HAUL) return { x: orderX, y: orderY };
 
-  const pushGapSq = (orderX - push.goalX) ** 2 + (orderY - push.goalY) ** 2;
-  const homeGapSq =
-    home === undefined || home.dist.length === 0
-      ? Infinity
-      : (orderX - home.goalX) ** 2 + (orderY - home.goalY) ** 2;
-  const field = homeGapSq < pushGapSq ? (home as NavField) : push;
-  const gapSq = Math.min(pushGapSq, homeGapSq);
-  // Following the gradient may move AWAY from the order point briefly (rounding
-  // the landmass) — that is the whole point, so there is no "must reduce
-  // straight-line distance" guard.
-  if (gapSq > NAV_BASE_ORDER_RADIUS * NAV_BASE_ORDER_RADIUS) return { x: orderX, y: orderY };
-
-  const step = navStepToward(field, entity.x, entity.y);
+  const step = nearestFieldStep(ruleset, entity, orderX, orderY, entity.x, entity.y);
   return step ?? { x: orderX, y: orderY };
 }
 
-/** Order-point proximity to a base goal that makes a SHIP move/attackMove
- * eligible for lane-field steering: large enough to cover a base's whole apron +
- * shop cluster + repair bay, small enough that a mid-lane waypoint stays
- * straight. (Creeps are not gated — they always follow the push field.) */
-const NAV_BASE_ORDER_RADIUS = 4000;
+/**
+ * Pick the static NavField whose goal is NEAREST `(towardX, towardY)` and return
+ * the next downhill water cell to steer toward from `(fromX, fromY)`, or null to
+ * fall through to a straight line (no field, stub mask, unreachable/land source
+ * cell, or already in the goal's local basin).
+ *
+ * Candidate fields (all flow over the same water network around the central
+ * land): the team push field (toward the enemy base), the team home field
+ * (toward the own base), and the static trader-destination fields
+ * (map.navToRegion: the pickup corners + Refinery + reward zones). Choosing by
+ * goal proximity means a push uses navByTeam, a retreat / inbound-trade leg uses
+ * navHomeByTeam, and an OUTBOUND trade leg to a far pickup corner uses that
+ * region's field — exactly the gradient that rounds the land toward THAT goal.
+ *
+ * Shared by laneNavGoal (move/attackMove), the attackTarget chase, and
+ * resolveAgainstLand so all three steer on the SAME gradient. Pure: distance
+ * compares + a FIXED-order scan (push, home, then region fields in their stable
+ * insertion order) + navStepToward arithmetic — no RNG/trig and no
+ * iteration-order ambiguity (ties keep the earlier field). Open-sea-safe: with
+ * empty fields (stub mask) every candidate is skipped and this returns null, so
+ * the caller keeps today's straight-line behaviour and legacy replays/tests are
+ * unchanged.
+ */
+function nearestFieldStep(
+  ruleset: Ruleset,
+  entity: UnitEntity,
+  towardX: number,
+  towardY: number,
+  fromX: number,
+  fromY: number,
+): { x: number; y: number } | null {
+  let best: NavField | null = null;
+  let bestGapSq = Infinity;
+  const consider = (field: NavField | undefined): void => {
+    if (field === undefined || field.dist.length === 0) return;
+    const gapSq = (towardX - field.goalX) ** 2 + (towardY - field.goalY) ** 2;
+    // Strict `<` so the fixed scan order breaks ties to the earlier field.
+    if (gapSq < bestGapSq) {
+      bestGapSq = gapSq;
+      best = field;
+    }
+  };
+  consider(ruleset.map.navByTeam?.[entity.team]);
+  consider(ruleset.map.navHomeByTeam?.[entity.team]);
+  // Region fields only help traders sailing OUT to a non-base destination; for
+  // captains a base field's goal is always nearer their order, so this never
+  // changes captain steering. Insertion order of navToRegion is stable (ruleset
+  // builds it from a fixed allowlist array).
+  for (const name in ruleset.map.navToRegion) consider(ruleset.map.navToRegion[name]);
+  if (best === null) return null;
+  return navStepToward(best, fromX, fromY);
+}
 
 /** Minimum straight-line order distance for a SHIP to use lane-field steering.
- * Below this a move is a local hop (shop dock, repair bay, micro) that must run
- * straight to its exact point; only long hauls toward a base follow the lane. */
-const NAV_SHIP_MIN_HAUL = 2500;
+ * Below this a move is a local hop (shop dock approach, repair bay, micro) that
+ * runs straight to its exact point; at or above it ANY order (mid-lane brawl,
+ * siege, trade-route leg, retreat) rides the lane field around the landmass — a
+ * few cells of slack (cellSize 128) so cross-lane moves route but adjacent-cell
+ * nudges stay straight. The old base-proximity gate is gone: it excluded every
+ * mid-lane / trader order, which is why ships beelined into the coast. */
+const NAV_SHIP_MIN_HAUL = 800;
 
 /** Order-point proximity at which a CREEP/SUMMON drops the lane field and steers
  * its order point straight-line — the final approach onto the hold-gate's

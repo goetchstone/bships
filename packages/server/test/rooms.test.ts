@@ -979,7 +979,8 @@ describe('room manager', () => {
     if (entry === undefined) throw new Error('runtime not created');
     // Human seat passed as a seat; AI seat passed via aiSeats (excluded from seats).
     expect(entry.deps.seats).toEqual([{ slot: 2, name: 'Host' }]);
-    expect(entry.deps.aiSeats).toEqual([{ slot: 7, ai: { difficulty: 'hard' } }]);
+    // The sole north AI is auto-designated its team's trader (one per team).
+    expect(entry.deps.aiSeats).toEqual([{ slot: 7, ai: { difficulty: 'hard', role: 'trader' } }]);
   });
 
   it('passes AI seats sorted ascending and excludes them from human seats/stats', () => {
@@ -999,9 +1000,11 @@ describe('room manager', () => {
     const entry = factory.created[0];
     if (entry === undefined) throw new Error('runtime not created');
     expect(entry.deps.seats).toEqual([{ slot: 2, name: 'Host' }]);
+    // Both AIs are north; the lowest-slot one (7) is its team's trader, the
+    // rest are captains (one trader per team, deterministic by slot).
     expect(entry.deps.aiSeats).toEqual([
-      { slot: 7, ai: { difficulty: 'normal' } },
-      { slot: 8, ai: { difficulty: 'easy' } },
+      { slot: 7, ai: { difficulty: 'normal', role: 'trader' } },
+      { slot: 8, ai: { difficulty: 'easy', role: 'captain' } },
     ]);
   });
 

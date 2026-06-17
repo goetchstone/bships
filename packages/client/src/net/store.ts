@@ -49,6 +49,21 @@ export interface Store {
     selectedEntityId: number | null;
     /** hud writes, render consumes. */
     pendingOrder: 'attackMove' | null;
+    /**
+     * Armed targeted ability/item awaiting a map click (hud writes, pointer
+     * consumes). `targeting` decides whether the click resolves to a world
+     * point (x/y) or a unit (targetId); on resolution pointer.ts sends the
+     * pending useItem/castAbility with the target and clears this. Mutually
+     * exclusive with pendingOrder (arming one clears the other).
+     */
+    pendingTarget:
+      | {
+          kind: 'item' | 'ability';
+          targeting: 'point' | 'unit';
+          slot?: number;
+          abilityId?: string;
+        }
+      | null;
     /** hud derives + owns. */
     shopEntityId: number | null;
   };
@@ -74,7 +89,7 @@ export const store: Store = {
     winnerTeam: null,
     chat: [],
   },
-  ui: { selectedEntityId: null, pendingOrder: null, shopEntityId: null },
+  ui: { selectedEntityId: null, pendingOrder: null, pendingTarget: null, shopEntityId: null },
   subscribe(fn: () => void): () => void {
     subscribers.add(fn);
     return () => subscribers.delete(fn);
@@ -147,6 +162,7 @@ export function resetMatchState(clearChat = false): void {
   if (clearChat) store.match.chat = [];
   store.ui.selectedEntityId = null;
   store.ui.pendingOrder = null;
+  store.ui.pendingTarget = null;
   store.ui.shopEntityId = null;
   resetInterpolation();
 }

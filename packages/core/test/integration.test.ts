@@ -248,6 +248,71 @@ describe('integration — superbomb quest on the COMPILED ruleset', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Ability cast end-to-end on the COMPILED ruleset, through the public router
+// (applyCommands -> routeCommand -> applySpecialsCommand). Regression for the
+// owner's "abilities are not visibly firing" report: a castAbility command
+// must reach the sim, apply its effect, and start the cooldown.
+// ---------------------------------------------------------------------------
+
+describe('integration — ability cast (F-key) on the COMPILED ruleset', () => {
+  it('Shore Leave (A01D) at the home harbour heals to full and emits a cast event', () => {
+    const state = createMatch(ruleset, 7, [{ slot: SOUTH_PLAYER, control: 'user' }]);
+    const player = state.players[SOUTH_PLAYER];
+    if (!player || player.shipId === null) throw new Error('no south player ship');
+    const ship = state.entities[player.shipId];
+    if (!ship || ship.kind !== 'ship') throw new Error('not a ship');
+
+    // The real F-key binding for the starter hull is Shore Leave (the same id
+    // the client's shipActiveAbilityId returns); it only fires inside the OWN
+    // Main Harbour, so seat the ship there and wound it.
+    const abilityId = 'A01D';
+    expect(ruleset.abilities[abilityId]?.mechanic).toBe('shoreLeave');
+    const main = ruleset.map.regions['South_Main'];
+    if (!main) throw new Error('South_Main missing');
+    ship.x = main.centerX;
+    ship.y = main.centerY;
+    ship.hp = 1; // wounded
+
+    // applyCommands pushes onto state.events (stepTick later returns + clears).
+    applyCommands(state, ruleset, [{ type: 'castAbility', player: SOUTH_PLAYER, abilityId }]);
+    const events = state.events;
+
+    // Effect: healed to full. Cooldown: recorded against the ability id.
+    expect(ship.hp).toBe(ship.maxHp);
+    expect(player.cooldownGroups[abilityId]).toBeGreaterThanOrEqual(state.tick);
+    expect(events).toContainEqual(
+      expect.objectContaining({ type: 'abilityCast', player: SOUTH_PLAYER, abilityId }),
+    );
+    expect(events.some((e) => e.type === 'commandRejected')).toBe(false);
+  });
+
+  it('the SAME cast away from the harbour is rejected (no silent success), nothing healed', () => {
+    const state = createMatch(ruleset, 7, [{ slot: SOUTH_PLAYER, control: 'user' }]);
+    const player = state.players[SOUTH_PLAYER];
+    if (!player || player.shipId === null) throw new Error('no south player ship');
+    const ship = state.entities[player.shipId];
+    if (!ship || ship.kind !== 'ship') throw new Error('not a ship');
+
+    // Out on open water, far from any harbour region center.
+    ship.x = 272;
+    ship.y = 0;
+    ship.hp = 1;
+    applyCommands(state, ruleset, [
+      { type: 'castAbility', player: SOUTH_PLAYER, abilityId: 'A01D' },
+    ]);
+    const events = state.events;
+    expect(ship.hp).toBe(1); // unchanged
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        type: 'commandRejected',
+        commandType: 'castAbility',
+        reason: 'notAtMainHarbour',
+      }),
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Game-mode vote effects (war3map.j Trig_Mode_Vote_Done_Check_Actions).
 // ---------------------------------------------------------------------------
 

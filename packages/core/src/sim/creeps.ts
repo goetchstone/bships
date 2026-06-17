@@ -311,7 +311,17 @@ export function spawnWave(
     : wave.zeroBountyTypeId;
   const unitType = ruleset.unitTypes[typeId];
   if (unitType === undefined) {
-    throw new Error(`spawnWave: unknown creep unit type '${typeId}' (wave '${wave.name}')`);
+    // Defensive: never THROW from the per-tick hot path. A live match would
+    // crash on its first wave if a data edit dropped a creep type, and the
+    // server's per-tick try/catch (match.ts) would convert that into an abrupt
+    // finish(null) — a player perceives the game "crashing" mid-match. The wave
+    // timer is advanced by the caller (stepCreeps) regardless, so skipping this
+    // spawn just means no creeps this fire (no infinite retry). With current
+    // data every wave type resolves, so this branch is unreachable and the
+    // replay hash is unchanged; it exists only so future data drift degrades
+    // gracefully instead of killing the match. Deterministic: pure early
+    // return, no RNG/trig/state mutation.
+    return;
   }
   const mods = spawnUpgradeMods(state, ruleset, lane.team, typeId);
   const maxHp = Math.round(unitType.maxHp * (1 + mods.hpPctOfBase) + mods.hpFlat);

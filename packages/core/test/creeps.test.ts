@@ -451,4 +451,45 @@ describe('stepCreeps — end-to-end on the compiled Classic ruleset', () => {
     expect(hashState(replay.state)).toBe(hashState(baseline.state));
     expect(replay.events.length).toBe(baseline.events.length);
   });
+
+  // Crash-guard (work item A): spawnWave must NEVER throw on the per-tick hot
+  // path, even if a data edit leaves a wave pointing at a creep type that is not
+  // in ruleset.unitTypes. Previously it threw `spawnWave: unknown creep unit
+  // type`, which the server's per-tick try/catch turns into an abrupt
+  // finish(null) — a player perceives the game crashing mid-match. Now the bad
+  // wave is skipped (no creeps that fire) and the match keeps stepping. We patch
+  // EVERY wave's creep types to bogus ids so a spawn is attempted with an
+  // unknown type, then step well past several wave periods and assert no throw.
+  it('a wave with an unknown creep unit type is skipped, not thrown — the match keeps stepping', () => {
+    const broken: Ruleset = {
+      ...ruleset,
+      map: {
+        ...ruleset.map,
+        waves: ruleset.map.waves.map((w) => ({
+          ...w,
+          bountyTypeId: 'ZZZZ', // not in unitTypes
+          zeroBountyTypeId: 'ZZZZ',
+        })),
+      },
+    };
+    // Sanity: the bogus type really is absent.
+    expect(broken.unitTypes['ZZZZ']).toBeUndefined();
+
+    const state = createMatch(broken, 7, []);
+    expect(() => {
+      // Step past several wave periods (waves fire on a periodic timer); with the
+      // old throw this would die on the first spawn.
+      for (let t = 0; t < 2000; t++) {
+        applyCommands(state, broken, []);
+        stepTick(state, broken);
+      }
+    }).not.toThrow();
+    // The match advanced normally — no creep ever spawned from the broken waves.
+    let creepCount = 0;
+    for (const id of sortedNumericKeys(state.entities)) {
+      if (state.entities[id]?.kind === 'creep') creepCount++;
+    }
+    expect(creepCount).toBe(0);
+    expect(state.tick).toBe(2000);
+  });
 });

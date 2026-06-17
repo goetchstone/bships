@@ -667,6 +667,25 @@ function grantedAbilityIds(ctx: CompileCtx, unitCode: string): string[] {
   return [...new Set(kept)].sort();
 }
 
+/**
+ * The DISTINCT display name for a hull: the unit's Proper Name (upro), first
+ * entry. BSP ships are hero units (Hpal base) whose `unam` is a generic class
+ * shared across hulls ("Battle Ship" on the Sailor/Crusader/Interceptor alike),
+ * while `upro` carries the name the player actually knows it by ("Sailor",
+ * "Crusader,Raider,Destroyer" -> "Crusader", "Dominator", ...). Strips WC3
+ * colour codes and falls back to the class name when there is no proper name.
+ */
+function properShipName(ctx: CompileCtx, typeId: string, fallback: string): string {
+  const upro = fieldStr(ctx.units, typeId, 'upro');
+  if (upro === null) return fallback;
+  const first = upro
+    .split(',')[0]
+    ?.replace(/\|c[0-9a-fA-F]{8}/g, '')
+    .replace(/\|r/g, '')
+    .trim();
+  return first !== undefined && first.length > 0 ? first : fallback;
+}
+
 function compileShipRow(ctx: CompileCtx, row: RawShipRow): ShipSpec {
   const typeId = mustStr(row.rawcode, 'ship rawcode');
   const rawHp = mustNum(row.hp, `ship ${typeId} hp`);
@@ -674,9 +693,11 @@ function compileShipRow(ctx: CompileCtx, row: RawShipRow): ShipSpec {
   if (!ctx.units.fields[typeId]) fail(`ship ${typeId}: missing from units.json`);
   const udty = fieldStr(ctx.units, typeId, 'udty');
   const c = ctx.constants;
+  const name = mustStr(row.name, `ship ${typeId} name`);
   return {
     typeId,
-    name: mustStr(row.name, `ship ${typeId} name`),
+    name,
+    properName: properShipName(ctx, typeId, name),
     gold: mustNum(row.gold, `ship ${typeId} gold`),
     rawHp,
     rawArmor,

@@ -165,6 +165,7 @@ function fixtureRuleset(): Ruleset {
       H000: {
         typeId: 'H000',
         name: 'Battle Ship',
+        properName: 'Sailor',
         gold: 200,
         rawHp: 200,
         rawArmor: 0,

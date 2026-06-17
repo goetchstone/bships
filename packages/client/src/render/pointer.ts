@@ -37,6 +37,33 @@ export function attachPointer(canvas: HTMLCanvasElement): () => void {
     const { x: sx, y: sy } = localPos(e);
 
     if (e.button === 0) {
+      // Armed targeted ability/item (hud set store.ui.pendingTarget): resolve
+      // the click to a world point or a unit and send the SAME useItem/
+      // castAbility command WITH the target. Clears the pending state on send
+      // (and on a missed unit-click so the player isn't stuck armed).
+      const pending = store.ui.pendingTarget;
+      if (pending !== null) {
+        if (pending.targeting === 'point') {
+          const w = cam.screenToWorld(sx, sy);
+          if (pending.kind === 'item' && pending.slot !== undefined) {
+            sendCommand({ type: 'useItem', slot: pending.slot, x: w.x, y: w.y });
+          } else if (pending.kind === 'ability' && pending.abilityId !== undefined) {
+            sendCommand({ type: 'castAbility', abilityId: pending.abilityId, x: w.x, y: w.y });
+          }
+        } else {
+          const hit = hitTestEntities(sample.entities, sx, sy, cam, getCatalog());
+          if (hit !== null) {
+            if (pending.kind === 'item' && pending.slot !== undefined) {
+              sendCommand({ type: 'useItem', slot: pending.slot, targetId: hit.id });
+            } else if (pending.kind === 'ability' && pending.abilityId !== undefined) {
+              sendCommand({ type: 'castAbility', abilityId: pending.abilityId, targetId: hit.id });
+            }
+          }
+        }
+        store.ui.pendingTarget = null;
+        emitChange();
+        return;
+      }
       if (store.ui.pendingOrder === 'attackMove') {
         const w = cam.screenToWorld(sx, sy);
         sendCommand({ type: 'attackMove', x: w.x, y: w.y });
@@ -50,6 +77,17 @@ export function attachPointer(canvas: HTMLCanvasElement): () => void {
         store.ui.selectedEntityId = id;
         emitChange();
       }
+      return;
+    }
+
+    // Right-click while an ability/item is armed (or attack-move is pending):
+    // CANCEL the armed cast instead of issuing an order — the standard RTS
+    // "right-click to back out of targeting" gesture (Esc does the same in the
+    // hud). Without this, a player trying to abort would fire a move/attack.
+    if (store.ui.pendingTarget !== null || store.ui.pendingOrder !== null) {
+      store.ui.pendingTarget = null;
+      store.ui.pendingOrder = null;
+      emitChange();
       return;
     }
 
@@ -71,12 +109,22 @@ export function attachPointer(canvas: HTMLCanvasElement): () => void {
     }
   });
 
+  // Crosshair cursor while a targeted cast / attack-move is armed, so the
+  // canvas itself signals "click to pick a target" (the hud also shows a
+  // centred cue + highlights the armed slot). Driven by the store signal.
+  const unsubCursor = store.subscribe(() => {
+    const armed = store.ui.pendingTarget !== null || store.ui.pendingOrder !== null;
+    canvas.style.cursor = armed ? 'crosshair' : '';
+  });
+
   canvas.addEventListener('contextmenu', onContextMenu);
   canvas.addEventListener('pointerdown', onPointerDown);
 
   return () => {
     canvas.removeEventListener('contextmenu', onContextMenu);
     canvas.removeEventListener('pointerdown', onPointerDown);
+    canvas.style.cursor = '';
     unsubEvents();
+    unsubCursor();
   };
 }

@@ -16,18 +16,124 @@ serializability-test note in `packages/core/test/ruleset.test.ts`.
 
 ## 1. The data and how it threads through
 
-- **Source**: `data/json/terrain.json`, emitted by `tools/extractor/terrain.py`
-  from `data/extracted/war3map.wpm`. `water = (byte & 0x40) OR not(byte & 0x02)`
-  — painted water OR walkable ground; LAND is only the `0x0a` not-walkable
-  cliffs that carve the lanes. `yOrientation` top-down, no flip. Native pathing
-  resolution 384×512.
-  - **RULE CORRECTION (integrator)**: the original `water = byte & 0x40` rule was
-    wrong — it flagged every `0x08` base-dock cell as land, so the south HQ,
-    several ship spawns and the base aprons were unsailable and ships spawned
-    stuck. The extractor now validates (fail-loud) that all 12 player spawns and
-    all lane spawns sit ON water, the two bases form one connected water network,
-    and the centre stays >25% land. Regenerate with
-    `python3 tools/extractor/terrain.py`.
+- **Source**: `data/json/terrain.json`, emitted by `tools/extractor/terrain.py`.
+  Water is the map's OWN embedded minimap `data/reference/war3mapMap.png` (the
+  literal picture WC3 draws, **owner-confirmed correct**) CLASSIFIED per terrain
+  tile by the owner's **confirmed colour key**: SAILABLE WATER = **NON-BLUE**
+  (yellow deep + green shallow + pink passable), LAND = **only the blue-dominant**
+  ridge pixels. `war3map.w3e` is read only for the grid GEOMETRY (97×129
+  tilepoints at 128 u spacing; the emitted grid is the playable sub-rectangle,
+  **81×113** — the camera-bounds crop with the WEST bound extended 3 cells west so
+  the Goblin Potion Dealer shop sits off the grid edge on a sail-around island,
+  see PLAYABLE CROP below). The minimap is BOTH the source and the fidelity
+  target — we classify it directly, so land-vs-water agreement with it is ~0.99.
+  - **WATER RULE (NON-BLUE = sailable water)**: a terrain tile is water when its
+    3×3 minimap pixel patch (sampled at the tile's world centre via the letterbox-
+    aware registration below) classifies NON-BLUE by majority. Excluding the white
+    letterbox (`R>238 AND G>238 AND B>238`), a content pixel is **LAND iff
+    blue-dominant** (`B>R`) and **WATER otherwise** (yellow + green + pink). The
+    prior version was WRONG: it classified ONLY the yellow as water (~0.29) and
+    called the green + pink LAND — far too dry. Re-classifying NON-BLUE = water
+    gives the owner's ~half-water silhouette: over the playable crop ~0.66, vs the
+    ~0.535 measured over the WHOLE minimap content box (which still includes the
+    land-heavy outer borders the playable rectangle excludes). For RENDER metadata
+    only (sailability is purely water-vs-land) water sub-classifies into a depth
+    band — DEEP (`R−B>35 AND R≥G`, yellow/tan), PINK (`R>150 AND B>120 AND R−G>15`,
+    magenta), else SHALLOW (green) — emitted as the OPTIONAL `depth` RLE the sim
+    IGNORES. The green shallow water RINGS the blue ridge cores, so the west
+    sail-around loops emerge naturally. The earlier w3e-channel rule + wpm-pathing
+    additions are GONE: deriving FROM the minimap is simpler and pure-stdlib.
+  - **MINIMAP REGISTRATION** (letterbox-aware, calibrated on dock coords): the
+    256×256 PNG's non-white content box (cols 32..223, rows 0..255, aspect 0.75 =
+    97/129) maps to the FULL w3e tile-edge extent `x[−6144,6144] y[−8192,8192]`,
+    north = top. For world (x,y): `fx=(x+6144)/12288`, `fy=(8192−y)/16384`,
+    `px=32+fx·191`, `py=fy·255`. Calibrated so the docks the owner said read water
+    — Harbor2(256,−5952), Harbor3(−2304,5248), Harbor4(128,5248) — classify
+    NON-BLUE water; the HQ footprints read green-grey (base platform) and are
+    added back below.
+  - **MINIMAL CONNECTIVITY NECKS** (the ONLY additions on top of the raw trace):
+    (1) drop size-1 water components (classifier speckle on the land); (2)
+    base-platform addback — every HQ/Harbour/ship-spawn/lane-spawn tilepoint is a
+    base-platform footprint the minimap draws green-grey, so set those cells water
+    and thread each to the main sea; (3) base-to-base — ensure the two HQ water
+    cells share one 4-connected network; (4) shop necks — for each shop not within
+    `ACCESS_CELLS`(=2) of the main sea, carve the shortest navigable neck from the
+    sea to its access ring via a Dijkstra (cost 1 per water cell, 30 per land
+    cell). Under the NON-BLUE key most shops are already sea-reachable, so few
+    necks fire. **(5) west sail-around island loops** (owner-approved): the two
+    far-west shops (Swedish Lumber Mill, Goblin Potion Dealer) sit on ISLANDS you
+    SAIL AROUND through a SINGLE narrow entrance. The green shallow water already
+    rings the blue cores, so the loops largely emerge naturally; this step
+    GUARANTEES the closed moat — a compact
+    5×5 (25-cell) LAND core, ringed by a thin 1-cell navigable water moat (a closed
+    4-connected cycle, length 24), sealed by an outer land wall, connected to the
+    main sea by EXACTLY ONE entrance (deterministic Dijkstra; extra mouths
+    re-landed). The anchor is picked deterministically so the whole ring lands
+    on-grid AND the shop stays within ACCESS_CELLS of the moat, preferring the shop
+    on the land core. After the WEST-bound extension (3 cells, see PLAYABLE CROP)
+    BOTH west shops sit at grid col ≥ 3 == the minimum island-anchor col (R+1, R=2),
+    so BOTH land **ON the 25-cell land core** (island land you sail around): the
+    Lumber Mill shop at grid col 6, the Goblin Potion Dealer shop at grid col 3 (its
+    moat ring's west side lands on grid col 0; the outer wall at col −1 is off-grid =
+    boundary, which seals that side of the moat exactly like a land wall). BOTH are
+    true sail-around islands (a 25-cell water-enclosed core, a closed 24-cell loop,
+    ONE entrance — proven by an entrance-removal isolation test that cuts the moat
+    off from the main sea). Net effect: water fraction (playable crop) **0.656**
+    (the NON-BLUE classification + a handful of 1-cell necks + the two carved
+    moats), minimap land-vs-water agreement ~0.990.
+  - **PLAYABLE CROP**: the full w3e extent has an ASYMMETRIC unplayable border
+    (8 tiles N, 4 S, 5 W, 6 E per war3map.w3i). The mask is cropped to the w3i
+    **camera bounds** `x[-4992,4864] y[-7424,6912]`, then the WEST bound is extended
+    `WEST_EXTEND_CELLS`=**3** whole cells (384 u) further west to `minX=-5440`
+    (owner-approved). The camera-bounds crop alone placed the Goblin Potion Dealer
+    (world x=−4960) on grid col 0 — the west edge — so it could NOT be a sail-around
+    island (no map west of it); the minimap content + w3e tile-edge extent reach west
+    to x=−6144, so there is real minimap content west of the camera bound. The new
+    west columns get their water from the SAME minimap trace. Only `minX`/`cols`
+    change (`minY`/`maxX`/`maxY`/`rows`/`cellSize` unchanged). Final crop = the
+    tilepoints whose center lies in `x[-5440,4864] y[-7424,6912]`: cols 6..86 → **81
+    wide**, rows 6..118 → 113 tall. This rect matches the embedded minimap content
+    and is the single source of truth for `MapSpec.bounds` (camera, client minimap,
+    movement clamp) — see §1 bounds note below. The emitted `bounds` pad that rect by
+    half a cell on each side so the sim's floor() transform lands on the nearest
+    tilepoint.
+  - `yOrientation` top-down: the minimap is north-up; tiles are sampled at their
+    world centres, emit row 0 = north (matching the sim `isWater` transform).
+  - **GATES** (fail-loud in the extractor, all PASS): 2/2 HQs, 4/4 harbours,
+    12/12 player spawns + 4/4 lane spawns ON water; south HQ ↔ north HQ
+    4-connected by water; **16/16 shops sea-reachable** (a main-sea water cell
+    within 2 cells — the trader can sail to every shop, both sides, N + S);
+    water fraction in [0.55,0.70] (NON-BLUE classification + necks + moats 0.656;
+    depth split land/deep/shallow/pink = 0.344/0.291/0.356/0.009); the two west
+    islands are sail-around loops (closed water cycle length 24 with a SINGLE
+    entrance each, verified by an entrance-removal isolation test); the east
+    north→brewery wrap and the winding bottom-right are present. G2 minimap
+    land-vs-water agreement ≥ 0.90 (here 0.990 — we classify the minimap directly
+    by the owner's colour key). The
+    extractor also writes the 3-panel `data/reference/colorkey-compare.png` (real
+    minimap | rebuilt 4-shade mask + 16 green shop dots | land-vs-water diff, ≤440px) and the zoomed
+    `data/reference/westedge-compare.png` (≤440px: [before | after] of the west
+    corner showing BOTH sail-around island rings — Lumber Mill + Goblin — with a
+    single entrance each and green shop dots on the AFTER panel). Regenerate with
+    `make terrain` / `python3 tools/extractor/terrain.py` (pure stdlib; reads the
+    committed minimap PNG + w3e via a pure-stdlib PNG decoder, no venv / no .w3x;
+    byte-identical run to run). The minimap PNG itself is reproduced from
+    `war3mapMap.blp` by `extract.py` (guarded Pillow import for the BLP1-JPEG
+    decode — that step is NOT part of `make terrain`).
+  - **AI shop-nav caveat**: even on the ~half-water NON-BLUE mask a shop's dock
+    can sit behind a short land peninsula, so the AI brain's straight-line
+    dockside re-supply (coast-slide, no A*) can stall short of a base shop instead
+    of threading the channel around it. The AI economy LADDER is
+    proven on the open-sea stub mask (core `ai.test.ts`); on the real mask the
+    server `ai-match.test.ts` asserts the durable signals (creep funnel engages
+    towers, lane churn, determinism) rather than completed buys. Reliable AI shop
+    docking on the real mask is a movement/AI follow-up (have the brain follow the
+    lane nav field back to a shop), NOT a terrain-mask defect.
+  - **BOUNDS SOURCE**: when terrain is loaded, `compileMap` sets `MapSpec.bounds`
+    to the terrain mask bounds (the playable rect), NOT the editor
+    `mapBounds.playableArea` (which still includes part of the unplayable border
+    and is kept only for provenance / region math). The open-sea stub path (no
+    terrain) still uses `playableArea`, so the legacy harnesses are unchanged.
 - **Raw shape**: `RawTerrainFile` (types.ts) — `bounds`, `cols`, `rows`,
   `cellSizeX`, `cellSizeY`, `yOrientation`, and `water` = per-row RLE
   (`water[r] = [leadingValue, run0, run1, ...]`, runs alternate from
@@ -86,9 +192,10 @@ row = floor((bounds.maxY - y) / cellSizeY)    // 0 .. rows-1, row 0 = max-Y (nor
 cell = cells[row * cols + col]                // 1 = water, 0 = land
 ```
 
-`cellSizeX ≈ 28.25`, `cellSizeY ≈ 29.0`. This transform lives **only** inside
-`isWater`. Anyone needing cell coordinates (e.g. the land renderer iterating
-cells for batching) must use the same formula; do not invent a second one.
+`cellSizeX == cellSizeY == 128` (the WC3 tile spacing; the mask grid is the w3e
+tilepoint grid). This transform lives **only** inside `isWater`. Anyone needing
+cell coordinates (e.g. the land renderer iterating cells for batching) must use
+the same formula; do not invent a second one.
 
 ---
 
@@ -255,8 +362,11 @@ still deliver the chip. Integrator reconciles if a milestone tick moves.
 ## 6. Validation already done (for confidence)
 
 `compileWaterMask` round-trips the RLE bit-exactly (the extractor verified it
-against the source `.wpm`). terrain.json embeds a structure cross-check: HQs
-2/2 on/near water, spawn buildings 4/4 on water, shops 16/16 within ~115u,
-towers 20/24 within ~115u (the 4 inland towers guard the lane behind the
-chokepoint — expected, towers are land buildings). The decisive south-HQ test
-rejected the flipped orientation. Trust the mask; do not re-derive the rule.
+against the source `.w3e`). terrain.json embeds a structure cross-check: HQs
+2/2 ON water, spawn buildings (harbours) 4/4 ON water, all 12 player spawns ON
+water, shops 16/16 within 1 cell, towers 24/24 within 2 cells (the inland mid
+towers guard the lane behind the chokepoint — expected, towers are land
+buildings). The two bases are 4-connected by water. Water fraction ≈ 0.505. The
+decisive HQs/harbours/spawns-on-water gate rejected both the waterLevel-height
+rule and the flipped (north-first) w3e row order. Trust the mask; do not
+re-derive the rule.

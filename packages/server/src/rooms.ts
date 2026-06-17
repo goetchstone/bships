@@ -843,9 +843,24 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
 
     // AI seats are NOT human seats: excluded from `seated`/`slotIdentity`/stats
     // participants above; they only seed `control: 'computer'` AI players.
-    const aiSeats: AiSeat[] = [...room.aiSlots.entries()]
-      .sort((a, b) => a[0] - b[0])
-      .map(([slot, difficulty]) => ({ slot, ai: { difficulty } }));
+    //
+    // Trader designation (docs/AI.md "one trader per team"): the combat brain
+    // never trades, so in solo-vs-AI the faithful trade-route / refinery /
+    // repair-mission chains only fire if a bot is seated as a quest-runner.
+    // Deterministically pick the LOWEST-slot AI seat on each team as its trader
+    // (sorted ascending first, so iteration order is irrelevant); the rest are
+    // captains. No lobby UI needed — traders are auto-assigned at start.
+    const aiEntries = [...room.aiSlots.entries()].sort((a, b) => a[0] - b[0]);
+    const traderSlotByTeam = new Map<TeamId, number>();
+    for (const [slot] of aiEntries) {
+      const team = teamOfSlot(slot);
+      if (team !== null && !traderSlotByTeam.has(team)) traderSlotByTeam.set(team, slot);
+    }
+    const aiSeats: AiSeat[] = aiEntries.map(([slot, difficulty]) => {
+      const team = teamOfSlot(slot);
+      const role = team !== null && traderSlotByTeam.get(team) === slot ? 'trader' : 'captain';
+      return { slot, ai: { difficulty, role } };
+    });
 
     const runtime = createRuntime({
       ruleset,
