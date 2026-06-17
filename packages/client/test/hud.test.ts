@@ -8,6 +8,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  ABILITY_ACTIONS,
   DEFAULT_BINDINGS,
   HUD_ACTIONS,
   actionForCode,
@@ -22,18 +23,27 @@ import type { HudAction } from '../src/input/keymap.js';
 import {
   CooldownTracker,
   abilityCooldownInfo,
+  abilityIcon,
+  abilityTargetingMode,
+  canLearnSkill,
   cooldownSecondsText,
   createMinimapTransform,
   itemCooldownTicks,
   itemDisplay,
+  itemTargetingMode,
   keyLabel,
   killFeedLine,
   nearestShopInRange,
   ownShipPosition,
+  rejectionMessage,
+  shipAbilitySlots,
   shipActiveAbilityId,
+  shipLearnableSkills,
   sweepFraction,
+  targetingCueText,
   xpProgress,
 } from '../src/hud/hudmath.js';
+import type { PendingTargetLike } from '../src/hud/hudmath.js';
 import type { SimEvent, TeamId } from '@bships/core';
 import { getCatalog } from '../src/catalog.js';
 import { HUD_CSS } from '../src/hud/hud.js';
@@ -67,7 +77,13 @@ describe('keymap', () => {
       slot3: 'KeyA',
       slot4: 'KeyS',
       slot5: 'KeyD',
-      shipAbility: 'KeyF',
+      // Hull spellbook quick-keys: F kept primary, then the left-hand cluster.
+      ability0: 'KeyF',
+      ability1: 'KeyQ',
+      ability2: 'KeyT',
+      ability3: 'KeyC',
+      ability4: 'KeyX',
+      ability5: 'KeyZ',
       stop: 'KeyV',
       attackMove: 'KeyG',
       scoreboard: 'Tab',
@@ -84,9 +100,9 @@ describe('keymap', () => {
 
   it('bindingFor honors setBinding overrides and reverts to defaults', () => {
     expect(bindingFor('stop')).toBe('KeyV');
-    setBinding('stop', 'KeyX');
-    expect(bindingFor('stop')).toBe('KeyX');
-    expect(actionForCode('KeyX')).toBe('stop');
+    setBinding('stop', 'KeyM'); // KeyM is otherwise unbound
+    expect(bindingFor('stop')).toBe('KeyM');
+    expect(actionForCode('KeyM')).toBe('stop');
     expect(actionForCode('KeyV')).toBeNull();
     setBinding('stop', 'KeyV'); // back to default clears the override
     expect(bindingFor('stop')).toBe('KeyV');
@@ -99,7 +115,7 @@ describe('keymap', () => {
     handleKeyEvent(fakeKey('keydown', 'KeyW'));
     handleKeyEvent(fakeKey('keydown', 'KeyW', true)); // auto-repeat ignored
     handleKeyEvent(fakeKey('keyup', 'KeyW'));
-    handleKeyEvent(fakeKey('keydown', 'KeyZ')); // unbound
+    handleKeyEvent(fakeKey('keydown', 'KeyM')); // unbound
 
     expect(got).toEqual([
       { action: 'slot0', type: 'keydown' },
@@ -122,9 +138,9 @@ describe('keymap', () => {
     onRawKey((e) => e.code === 'KeyB');
 
     handleKeyEvent(fakeKey('keydown', 'KeyB')); // consumed by raw listener
-    handleKeyEvent(fakeKey('keydown', 'KeyF')); // passes through
+    handleKeyEvent(fakeKey('keydown', 'KeyF')); // passes through (ability slot 0)
 
-    expect(actions).toEqual(['shipAbility']);
+    expect(actions).toEqual(['ability0']);
   });
 });
 
@@ -356,6 +372,292 @@ describe('catalog integration (display data)', () => {
   });
 });
 
+describe('ability casting: F-key binding + targeting (the "abilities never fire" bug)', () => {
+  const catalog = getCatalog();
+
+  // applyCastAbility (specials.ts) routes mechanic 'special' straight to a
+  // 'unimplemented' rejection, so F must never resolve to one — that was a
+  // guaranteed silent no-op for Merchant Boat / some Cruisers / Flagship /
+  // Leviathian. Every hull's F ability must instead map to a mechanic the sim
+  // actually handles.
+  const SIM_HANDLED_MECHANICS = new Set([
+    'shoreLeave',
+    'flareDetection',
+    'ensnare',
+    'invisibility',
+    'dive',
+    'stormBoltWeapon',
+    'phoenixFireWeapon',
+  ]);
+
+  it('every hull binds F to a sim-handled ability (never an unimplemented "special")', () => {
+    for (const typeId of Object.keys(catalog.ships)) {
+      const abilityId = shipActiveAbilityId(catalog, typeId);
+      if (abilityId === null) continue; // a hull with no castable active is fine
+      const mechanic = catalog.abilities[abilityId]?.mechanic;
+      expect(mechanic, `hull ${typeId} F-ability ${abilityId}`).toBeDefined();
+      expect(
+        SIM_HANDLED_MECHANICS.has(mechanic!),
+        `hull ${typeId} F-ability ${abilityId} has mechanic '${mechanic}' which the sim rejects`,
+      ).toBe(true);
+    }
+  });
+
+  it('the starter Battle Ship (H000) still surfaces Shore Leave on F', () => {
+    const abilityId = shipActiveAbilityId(catalog, 'H000');
+    expect(abilityId).toBe('A01D');
+    expect(catalog.abilities[abilityId!]?.mechanic).toBe('shoreLeave');
+  });
+
+  it('abilityTargetingMode arms the right click per mechanic', () => {
+    // The client must supply the target the sim demands; otherwise the cast is
+    // rejected ('missingTarget'/'invalidTarget') and "the ability does nothing".
+    const flare = Object.values(catalog.abilities).find((a) => a.mechanic === 'flareDetection');
+    const ensnare = Object.values(catalog.abilities).find((a) => a.mechanic === 'ensnare');
+    const torpedo = Object.values(catalog.abilities).find((a) => a.mechanic === 'stormBoltWeapon');
+    const shore = Object.values(catalog.abilities).find((a) => a.mechanic === 'shoreLeave');
+    expect(flare && abilityTargetingMode(catalog, flare.abilityId)).toBe('point');
+    expect(ensnare && abilityTargetingMode(catalog, ensnare.abilityId)).toBe('unit');
+    // stormBoltWeapon (sub Torpedo) fires at an enemy unit -> needs a unit click.
+    expect(torpedo && abilityTargetingMode(catalog, torpedo.abilityId)).toBe('unit');
+    // Shore Leave is self-cast at the harbour -> no click armed.
+    expect(shore && abilityTargetingMode(catalog, shore.abilityId)).toBe('none');
+    expect(abilityTargetingMode(catalog, 'not-an-ability')).toBe('none');
+  });
+
+  it('itemTargetingMode arms point for blink, unit for reveal/rejuvenation, none otherwise', () => {
+    // Light Teleporter (blink) needs an x/y or the sim returns 'invalidTarget'.
+    expect(itemTargetingMode(catalog, 'I01L')).toBe('point');
+    // Informant (reveal) and the mechanic crews (rejuvenation) need an ally/enemy.
+    expect(itemTargetingMode(catalog, 'wshs')).toBe('unit');
+    expect(itemTargetingMode(catalog, 'I01J')).toBe('unit');
+    // Self/untargeted actives send immediately (no arming).
+    expect(itemTargetingMode(catalog, 'I00C')).toBe('none'); // repair wood (instantHeal)
+    expect(itemTargetingMode(catalog, 'I01K')).toBe('none'); // smoke (invisibility)
+    expect(itemTargetingMode(catalog, 'not-an-item')).toBe('none');
+  });
+});
+
+describe('spellbook: shipAbilitySlots renders one quick-key per castable ability', () => {
+  const catalog = getCatalog();
+
+  // G2: an N-ability hull shows N quick-keys. The HUD loop in inventory.ts
+  // builds exactly shipAbilitySlots(...).length visible slots, so testing the
+  // pure driver proves the render count without a DOM.
+  it('the Crusader (H001) shows MORE castable quick-keys than the Sailor (H000)', () => {
+    const sailor = shipAbilitySlots(catalog, 'H000');
+    const crusader = shipAbilitySlots(catalog, 'H001');
+    // Sailor casts Shore Leave + Captain's Cannon (Hull/Sails/Mechanics are
+    // passive — ranked in the picker, never a quick-key).
+    expect(sailor.map((s) => s.abilityId).sort()).toEqual(['A01D', 'A01Y']);
+    // Crusader casts Fishing Net + Shore Leave + Hide + Capsize (the active
+    // 'special' now surfaces; Sails + True Sight are passive).
+    expect(crusader.map((s) => s.abilityId).sort()).toEqual(['A00Y', 'A01A', 'A01D', 'A047']);
+    expect(crusader.length).toBeGreaterThan(sailor.length); // more abilities, more keys
+  });
+
+  it('never assigns more quick-keys than the keymap has ability hotkeys', () => {
+    for (const typeId of Object.keys(catalog.ships)) {
+      expect(shipAbilitySlots(catalog, typeId).length).toBeLessThanOrEqual(ABILITY_ACTIONS.length);
+    }
+  });
+
+  // G4: each slot carries the targeting the sim demands, so the cast routes the
+  // right command (self-fire vs an armed target click).
+  it('carries the correct targeting per ability (self / point / unit)', () => {
+    const crusader = shipAbilitySlots(catalog, 'H001');
+    const byId = new Map(crusader.map((s) => [s.abilityId, s.targeting]));
+    expect(byId.get('A00Y')).toBe('unit'); // Fishing Net ensnares an enemy ship
+    expect(byId.get('A047')).toBe('none'); // Hide is self-cast
+    expect(byId.get('A01D')).toBe('none'); // Shore Leave is self-cast at harbour
+    // The submarine's Torpedo + Echo-Location need a unit / point respectively.
+    const sub = new Map(shipAbilitySlots(catalog, 'H00V').map((s) => [s.abilityId, s.targeting]));
+    expect(sub.get('A04X')).toBe('unit'); // Torpedo -> enemy unit
+    expect(sub.get('A04D')).toBe('point'); // Echo-Location -> map point
+    expect(sub.get('A04C')).toBe('none'); // Dive -> self
+  });
+
+  it('surfaces ACTIVE specials (Capsize) but excludes passive auras + passives', () => {
+    const crusader = shipAbilitySlots(catalog, 'H001').map((s) => s.abilityId);
+    expect(crusader).toContain('A01A'); // Capsize — active 'special', now castable
+    expect(catalog.abilities['A01A']?.mechanic).toBe('special');
+    expect(abilityTargetingMode(catalog, 'A01A')).toBe('unit'); // suicidal nuke targets a ship
+    expect(crusader).not.toContain('A03W'); // Ship Sails (passive)
+    expect(crusader).not.toContain('Adtg'); // True Sight (passive)
+
+    // Passive 'special' auras never claim a quick-key (Cruiser H006 carries
+    // Slow Aura A02D); the active Cruiser specials do.
+    const cruiser = shipAbilitySlots(catalog, 'H006').map((s) => s.abilityId);
+    expect(cruiser).not.toContain('A02D'); // Slow Aura (passive aura)
+    expect(cruiser).toContain('A037'); // EMP (active)
+  });
+
+  it('gives every castable slot a non-empty icon and a defined ability', () => {
+    let total = 0;
+    for (const typeId of Object.keys(catalog.ships)) {
+      for (const slot of shipAbilitySlots(catalog, typeId)) {
+        total++;
+        expect(catalog.abilities[slot.abilityId]).toBeDefined();
+        expect(abilityIcon(catalog, slot.abilityId).length).toBeGreaterThan(0);
+      }
+    }
+    expect(total).toBeGreaterThan(0);
+  });
+
+  // BUG 1 regression: the OLD filter hid EVERY mechanic 'special' ability, so a
+  // hull with active specials lost those quick-keys. The fix surfaces the
+  // castable ones, so the slot count must go UP vs that old behavior.
+  it('shows MORE quick-keys than the old special-excluded filter (BUG 1)', () => {
+    // The pre-fix rule: a 'special' ability never got a quick-key.
+    const oldSlots = (typeId: string): string[] => {
+      const ship = catalog.ships[typeId];
+      if (ship === undefined) return [];
+      return ship.abilityIds.filter((id) => {
+        const a = catalog.abilities[id];
+        return a !== undefined && a.mechanic !== 'special' && shipAbilitySlots(catalog, typeId).some((s) => s.abilityId === id);
+      });
+    };
+    // Crusader (Capsize active special) and Cruiser (EMP active special) both
+    // gain at least one castable special the old filter would have hidden.
+    for (const typeId of ['H001', 'H006']) {
+      const now = shipAbilitySlots(catalog, typeId).map((s) => s.abilityId);
+      const before = oldSlots(typeId);
+      expect(now.length).toBeGreaterThan(before.length);
+      // Every newly-surfaced id is an active (non-passive, non-null) special.
+      for (const id of now.filter((x) => !before.includes(x))) {
+        const a = catalog.abilities[id];
+        expect(a?.mechanic).toBe('special');
+        expect(a?.special).not.toBeNull();
+        expect(a?.special?.passive).not.toBe(true);
+      }
+    }
+  });
+});
+
+describe('targeting cue + arming (BUG 2): pending-target prompt and cancel', () => {
+  const catalog = getCatalog();
+
+  it('targetingCueText names the ability and what to click (unit vs point)', () => {
+    // Fishing Net (A00Y) is a unit-target ensnare; the cue says "enemy ship".
+    const netName = catalog.abilities['A00Y']?.name ?? 'Fishing Net';
+    const unitCue = targetingCueText(catalog, {
+      kind: 'ability',
+      targeting: 'unit',
+      abilityId: 'A00Y',
+    });
+    expect(unitCue).toContain(netName);
+    expect(unitCue).toContain('enemy ship');
+
+    // Echo-Location (A04D) is point-cast; the cue says "click a location".
+    const flareName = catalog.abilities['A04D']?.name ?? 'Echo-Location';
+    const pointCue = targetingCueText(catalog, {
+      kind: 'ability',
+      targeting: 'point',
+      abilityId: 'A04D',
+    });
+    expect(pointCue).toContain(flareName);
+    expect(pointCue).toContain('location');
+  });
+
+  it('uses the caller-supplied item name for an item cast (and falls back)', () => {
+    const cue = targetingCueText(
+      catalog,
+      { kind: 'item', targeting: 'unit', slot: 2 },
+      'Light Teleporter',
+    );
+    expect(cue).toContain('Light Teleporter');
+    expect(cue).toContain('enemy ship');
+    // No name supplied -> a generic but non-empty label, never blank/undefined.
+    const generic = targetingCueText(catalog, { kind: 'item', targeting: 'point', slot: 0 });
+    expect(generic).toContain('location');
+    expect(generic).not.toContain('undefined');
+  });
+
+  it('the armed-slot highlight is derivable from a pendingTarget (matches the hud loop)', () => {
+    // The hud frame loop highlights ability slot i when the pendingTarget's
+    // abilityId equals shipAbilitySlots()[i]. Prove that derivation here.
+    const armed: PendingTargetLike = { kind: 'ability', targeting: 'unit', abilityId: 'A00Y' };
+    const slots = shipAbilitySlots(catalog, 'H001');
+    const armedIndex = slots.findIndex((s) => s.abilityId === armed.abilityId);
+    expect(armedIndex).toBeGreaterThanOrEqual(0); // Fishing Net is a Crusader quick-key
+    expect(slots[armedIndex]?.targeting).toBe('unit'); // and it arms a unit click
+  });
+});
+
+describe('level-up picker: shipLearnableSkills + canLearnSkill (the learnSkill gate)', () => {
+  const catalog = getCatalog();
+
+  // G3: the picker lists every hull hero skill (passive or active) and gates a
+  // rank-up exactly like the sim (progression.applyLearnSkill), so a '+' click
+  // only ever sends a learnSkill the sim will accept.
+  it('lists the Crusader hull hero skills (incl. passives) in ability order', () => {
+    const ids = shipLearnableSkills(catalog, 'H001').map((s) => s.abilityId);
+    // Fishing Net, Capsize, Ship Sails, Hide — every ability with a HeroSkillRule
+    // (Shore Leave + True Sight are innate, no rule, so they are NOT listed).
+    expect(ids).toEqual(['A00Y', 'A01A', 'A03W', 'A047']);
+    expect(ids).not.toContain('A01D');
+    expect(ids).not.toContain('Adtg');
+  });
+
+  it('lists the Sailor hero skills (hull / mechanics / cannon / sails)', () => {
+    const ids = shipLearnableSkills(catalog, 'H000').map((s) => s.abilityId);
+    expect(ids).toEqual(['A007', 'A009', 'A01Y', 'A03W']);
+  });
+
+  it('canLearnSkill mirrors the sim gate: unspent point + level + below max rank', () => {
+    // Ship Sails on the Sailor: ranks 6, minHeroLevel 1, levelsPerRank 2.
+    const sails = shipLearnableSkills(catalog, 'H000').find((s) => s.abilityId === 'A03W')!;
+    expect(sails.ranks).toBe(6);
+    // No unspent point -> never.
+    expect(canLearnSkill(sails, 0, 1, 0)).toBe(false);
+    // Rank 0 -> 1 needs level >= minHeroLevel (1).
+    expect(canLearnSkill(sails, 0, 1, 1)).toBe(true);
+    // Rank 1 -> 2 needs level >= 1 + 1*2 = 3.
+    expect(canLearnSkill(sails, 1, 2, 1)).toBe(false);
+    expect(canLearnSkill(sails, 1, 3, 1)).toBe(true);
+    // At max rank -> never, even with points/level.
+    expect(canLearnSkill(sails, 6, 99, 9)).toBe(false);
+  });
+
+  it('respects a high minHeroLevel gate (Fishing Net needs level 5)', () => {
+    const net = shipLearnableSkills(catalog, 'H001').find((s) => s.abilityId === 'A00Y')!;
+    expect(net.minHeroLevel).toBe(5);
+    expect(canLearnSkill(net, 0, 4, 1)).toBe(false); // too low
+    expect(canLearnSkill(net, 0, 5, 1)).toBe(true); // clears the gate
+  });
+});
+
+describe('rejectionMessage: friendly text for sim commandRejected reasons', () => {
+  it('explains a rank-0 hero skill (notLearned) and names it + the fix', () => {
+    const msg = rejectionMessage('notLearned', "Captain's Cannon");
+    expect(msg).toContain("Captain's Cannon");
+    expect(msg.toLowerCase()).toContain('learn');
+    expect(msg).toContain('+'); // points to the learn badge
+  });
+
+  it('maps the skill-gate reasons to actionable help', () => {
+    expect(rejectionMessage('noSkillPoints', 'Fishing Net').toLowerCase()).toContain('level up');
+    expect(rejectionMessage('levelTooLow', 'Fishing Net')).toContain('Fishing Net');
+    expect(rejectionMessage('maxRank', 'Fishing Net').toLowerCase()).toContain('max rank');
+  });
+
+  it('maps Shore Leave away-from-harbour and the target reasons', () => {
+    expect(rejectionMessage('notAtMainHarbour', null).toLowerCase()).toContain('main harbour');
+    expect(rejectionMessage('missingTarget', 'Torpedo').toLowerCase()).toContain('target');
+    expect(rejectionMessage('needsTarget', 'Torpedo').toLowerCase()).toContain('target');
+    expect(rejectionMessage('invalidTarget', 'Torpedo').toLowerCase()).toContain('target');
+  });
+
+  it('falls back to a terse line for unknown reasons (named and unnamed)', () => {
+    expect(rejectionMessage('somethingElse', 'Acid Bomb')).toBe('Cannot use Acid Bomb: somethingElse');
+    expect(rejectionMessage('somethingElse', null)).toBe('Cannot do that: somethingElse');
+  });
+
+  it('uses a generic subject when no label is known', () => {
+    expect(rejectionMessage('notLearned', null)).toContain('That ability');
+  });
+});
+
 describe('csslint: rule extraction', () => {
   const css = `
     /* a comment */
@@ -449,6 +751,81 @@ describe('HUD layout contract (regression guards for the reported bugs)', () => 
       true,
     );
   });
+
+  it('the armed-target cue (BUG 2) is centred, danger-accented, click-through', () => {
+    const cue = ruleBody(HUD_CSS, '.bh-targetcue');
+    expect(cue).not.toBeNull();
+    expect(declares(cue, 'position', 'absolute')).toBe(true);
+    expect(declares(cue, 'transform', 'translateX(-50%)')).toBe(true); // horizontally centred
+    // Matches the attack-move armed look (danger border) so both armed states read alike.
+    expect(declares(cue, 'border', 'var(--danger)')).toBe(true);
+    // pointer-events:none so the targeting click passes through to the canvas.
+    expect(declares(cue, 'pointer-events', 'none')).toBe(true);
+    // Hidden when nothing is armed.
+    expect(declares(ruleBody(HUD_CSS, '.bh-targetcue[hidden]'), 'display', 'none')).toBe(true);
+  });
+
+  it('the spellbook quick-keys sit in their own flex group, gold-framed', () => {
+    expect(declares(ruleBody(HUD_CSS, '.bh-abilities'), 'display', 'flex')).toBe(true);
+    // Ability slots are gold-bordered to read as the hull spellbook.
+    expect(declares(ruleBody(HUD_CSS, '.bh-slot.bh-ability'), 'border-color', 'var(--gold)')).toBe(
+      true,
+    );
+    // An ability slot the hull does NOT carry collapses out of the bar.
+    expect(declares(ruleBody(HUD_CSS, '.bh-slot.bh-hidden'), 'display', 'none')).toBe(true);
+  });
+
+  it('the level-up "+" badge is hidden until shown, then a green clickable pip', () => {
+    const plus = ruleBody(HUD_CSS, '.bh-slot-plus');
+    expect(declares(plus, 'display', 'none')).toBe(true); // hidden by default
+    expect(declares(plus, 'cursor', 'pointer')).toBe(true);
+    expect(declares(plus, 'background', 'var(--ready)')).toBe(true);
+    // Toggled visible only when the ability can be ranked up right now.
+    expect(declares(ruleBody(HUD_CSS, '.bh-slot-plus.bh-show'), 'display', 'flex')).toBe(true);
+  });
+
+  it('the learnable "+" badge glows (pulses) only when a point can be spent', () => {
+    // Base badge no longer carries the pulse — it is on .bh-can-learn so a shown
+    // badge that cannot be afforded does not falsely pulse.
+    expect(declares(ruleBody(HUD_CSS, '.bh-slot-plus'), 'animation', 'bh-plus-pulse')).toBe(false);
+    const canLearn = ruleBody(HUD_CSS, '.bh-slot-plus.bh-can-learn');
+    expect(declares(canLearn, 'animation', 'bh-plus-pulse')).toBe(true);
+    expect(declares(canLearn, 'box-shadow', 'var')).toBe(false); // a literal glow, not a token
+  });
+
+  it('an UNLEARNED hero skill slot is desaturated/dimmed with a lock stamp', () => {
+    // The icon reads as locked (grayscale + dimmed) so a rank-0 skill is not
+    // mistaken for a broken key.
+    const icon = ruleBody(HUD_CSS, '.bh-slot.bh-ability.bh-unlearned .bh-slot-icon');
+    expect(declares(icon, 'filter', 'grayscale')).toBe(true);
+    // And a lock glyph is stamped over it.
+    const lock = ruleBody(HUD_CSS, '.bh-slot.bh-ability.bh-unlearned::after');
+    expect(lock).not.toBeNull();
+    expect(declares(lock, 'content', '1F512')).toBe(true);
+    expect(declares(lock, 'pointer-events', 'none')).toBe(true); // never eats the click
+  });
+
+  it('the unspent-skill-points indicator is a glowing pill, hidden at zero', () => {
+    const sp = ruleBody(HUD_CSS, '.bh-skillpoints');
+    expect(declares(sp, 'border', 'var(--ready)')).toBe(true);
+    expect(declares(sp, 'animation', 'bh-plus-pulse')).toBe(true);
+    expect(declares(ruleBody(HUD_CSS, '.bh-skillpoints[hidden]'), 'display', 'none')).toBe(true);
+  });
+
+  it('the shop cue clears the inventory bar (never covers a slot hotkey, task #21)', () => {
+    const inv = ruleBody(HUD_CSS, '.bh-inventory');
+    const cue = ruleBody(HUD_CSS, '.bh-shopcue');
+    expect(declares(cue, 'position', 'absolute')).toBe(true);
+    // The inventory hugs the bottom edge (bottom <= 16) and is ~110px tall with
+    // its hint caption; the cue must sit ABOVE that whole span so its gold pill
+    // never overlaps the centred inventory slots' quick-key labels.
+    const invBottom = Number.parseInt(valueOf(inv, 'bottom') ?? '0', 10);
+    const cueBottom = Number.parseInt(valueOf(cue, 'bottom') ?? '0', 10);
+    expect(cueBottom).toBeGreaterThan(invBottom + 110);
+    // ...and the press-B pill (its in-range counterpart) sits at the same height.
+    const pillBottom = Number.parseInt(valueOf(ruleBody(HUD_CSS, '.bh-shop-pill'), 'bottom') ?? '0', 10);
+    expect(pillBottom).toBe(cueBottom);
+  });
 });
 
 describe('onboarding: enemyHqName (objective from the STATIC map, never the sim)', () => {
@@ -514,7 +891,10 @@ describe('onboarding: helpRows (controls track the LIVE keymap)', () => {
     expect(byLabel.has('Move / attack a target')).toBe(true);
     expect(byLabel.get('Attack-move (then click)')).toBe('ATTACKMOVE');
     expect(byLabel.get('Buy at a shop (when near one)')).toBe('SHOPTOGGLE');
-    expect(byLabel.get('Ship ability')).toBe('SHIPABILITY');
+    // The spellbook row joins every ability-cluster key into one string.
+    expect(byLabel.get('Ship abilities (spellbook)')).toBe(
+      'ABILITY0 ABILITY1 ABILITY2 ABILITY3 ABILITY4 ABILITY5',
+    );
     expect(byLabel.get('Recenter on your ship')).toBe('RECENTER');
     expect(byLabel.get('Toggle this help')).toBe('HELP');
   });

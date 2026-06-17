@@ -166,8 +166,14 @@ applyCommands (server-ordered array, routed per command type)
   true-damage detonation via combat.applyDamage, scripted death, payouts),
   dive type-swap with HP-fraction carryover (flagged open), sub base
   teleports, repair bays (pause/invuln/heal/eject), wards/zones/summons
-  expiry, motion-detector warnings, goblin-mine arm + 5 s kill, exotic
-  ability stubs that reject as 'unimplemented'.
+  expiry, motion-detector warnings, goblin-mine arm + 5 s kill, and the
+  exotic 'special' kit (`castSpecial` dispatch on `AbilitySpec.special.kind`:
+  Capsize/EMP/Freeze/Acid/Sail-Ripper/Board damage+debuffs, Disrupt silence,
+  Hull/Goblin Repair HoT, Pirate/Ghost-Crew/Seamonster summons, Mirror-Image
+  decoy, Eat/Digest devour, Intercept haste, Barrier invuln, Send-Spy
+  detector, Goblin-Bomber mine) plus per-tick passive auras (`runSpecialAuras`:
+  Slow Aura, Ghost-cloud damage, regen aura). Unknown special bases still
+  reject 'unimplemented'.
 
 ## Module: progression
 

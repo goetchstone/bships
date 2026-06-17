@@ -758,6 +758,16 @@ export interface PlayerConfig {
 export type AiDifficulty = 'easy' | 'normal' | 'hard';
 
 /**
+ * AI behavior role. 'captain' (the default) is the combat brain that pushes
+ * lanes and sieges the enemy HQ. 'trader' is an OPTIONAL dedicated quest-runner
+ * that buys a carrier hull + trade contract and sails trade routes so the
+ * faithful trader/quest chains (economy.ts / specials.ts) fire even in an
+ * ALL-AI (no-human) match. Omit (or 'captain') to keep the original behavior +
+ * every existing replay/determinism test unchanged (docs/AI.md).
+ */
+export type AiRole = 'captain' | 'trader';
+
+/**
  * Per-slot AI configuration, fixed at match setup and stored in SimState so
  * it survives serialize/reconnect and is covered by hashState (determinism).
  * The brain reads `difficulty` to derive its cadence and behavior knobs; it
@@ -765,6 +775,13 @@ export type AiDifficulty = 'easy' | 'normal' | 'hard';
  */
 export interface AiConfig {
   difficulty: AiDifficulty;
+  /**
+   * Optional behavior role; defaults to 'captain' (the combat brain). Set
+   * 'trader' to designate this bot a quest-runner — typically ONE per team so
+   * the trade routes/refinery/treasure/repair-mission chains fire in solo-vs-AI
+   * without destabilizing the combat AI or the bit-identical replay contract.
+   */
+  role?: AiRole;
 }
 
 /**
@@ -784,6 +801,13 @@ export interface AiConfig {
 export interface AiMemory {
   slot: number;
   difficulty: AiDifficulty;
+  /**
+   * Behavior role copied from AiConfig at createMatch (default 'captain').
+   * The brain branches on this each think: 'captain' runs the combat brain,
+   * 'trader' runs the quest-running trader. Stored here (not read from a
+   * side table) so it rides inside SimState + hashState like `difficulty`.
+   */
+  role: AiRole;
   /**
    * Seed captured at createMatch for this slot's private PRNG stream:
    * derived from (match seed, slot) so two AIs on the same seed diverge and a
@@ -959,6 +983,77 @@ export interface HeroSkillRule {
   minHeroLevel: number;
 }
 
+/**
+ * Normalized behavior of an AbilitySpec whose `mechanic` is 'special' — the
+ * exotic hull kit interpreted by specials.ts (Capsize, EMP, Slow Aura, ...).
+ * The base rawcode (`specialKey`) maps to one of these via ruleset compile;
+ * a few rawcodes share a base but differ by abilityId (Send Spy vs Goblin
+ * Bomber both Ashs), so the compiler keys those by id.
+ */
+export type SpecialKind =
+  | 'capsize' // Auco A01A: targeted suicidal nuke (primary + splash, caster dies)
+  | 'empBlast' // AHtc A037: self-centred AoE damage + sail-speed slow
+  | 'acidBomb' // ANab A01B: targeted DoT + slow + splash DoT
+  | 'freezeWater' // AOw2 A03M: self-centred AoE damage + root (ensnare)
+  | 'sailRipper' // AEsh A03N: targeted damage + heavy sail-speed slow
+  | 'boardShip' // Amls A01R: targeted root (ensnare) + DoT
+  | 'damageAura' // Aap1 A01W: passive damaging aura (Aura of Fright)
+  | 'slowAura' // AOae(-) A02D: passive enemy sail-speed slow aura
+  | 'regenAura' // AUau A02E: passive ally HP-regen-boost aura
+  | 'summonSwarm' // AUls/ACsf: spawn N timed summons (Pirate/Ghost Crew, Seamonster, Hunters)
+  | 'sendSpy' // Ashs A02Z: drop a detector/vision spy on a target ship
+  | 'disrupt' // ANsi A038: point-area silence
+  | 'repairHot' // Arej A01E/A053: targeted heal-over-time (ally ship / building)
+  | 'mirrorImage' // AOmi A03U/A048: spawn one decoy ("bogus ship")
+  | 'devour' // ACdv/Advc A04R/A04N: disable + heavy DoT (Eat / Digest Hero)
+  | 'intercept' // Absk A00N: timed self sail-speed haste
+  | 'barrier' // AHds A01V: timed self invulnerability (Divine Shield)
+  | 'goblinMine' // Ashs A055: mark a target ship to sink on its next action
+  | 'fireMissile'; // Afzy A032: route a cast to the missile system
+
+/**
+ * Per-rank parameters for a 'special' ability, indexed 0 = rank 1. The
+ * compiler fills only the arrays a given `kind` consumes; the rest stay empty.
+ * All durations are in TICKS (seconds already converted), all damage values
+ * are raw (the sim chooses attack/damage type); DoT figures are per SECOND
+ * (the sim divides by tickRate). Range/cooldown stay on the AbilitySpec.
+ */
+export interface SpecialParams {
+  kind: SpecialKind;
+  /** Cast destroys the caster ship (Capsize). */
+  suicidal: boolean;
+  /** Always-on aura applied by stepSpecials, never an explicit cast. */
+  passive: boolean;
+  /** Target is a friendly unit (Hull Repair) rather than an enemy. */
+  friendlyTarget: boolean;
+  /** Target is a structure (Goblin Repair Crew). */
+  structureTarget: boolean;
+  /** Self/area/aura radius (aare); 0 when not area-based. */
+  areaRadius: number;
+  /** Direct (non-DoT) damage per rank. */
+  damagePerRank: number[];
+  /** Secondary splash damage per rank (Capsize). */
+  splashPerRank: number[];
+  /** Splash radius per rank (Capsize). */
+  splashRadiusPerRank: number[];
+  /** Damage-per-SECOND per rank for DoTs (Acid/Board/Ghost cloud/Devour). */
+  dotPerSecondPerRank: number[];
+  /** Splash DoT damage-per-SECOND per rank (Acid secondary). */
+  splashDotPerSecondPerRank: number[];
+  /** Move-speed delta fraction per rank: negative = slow, positive = haste. */
+  moveSpeedPctPerRank: number[];
+  /** Total heal across the HoT per rank (Repair). */
+  healTotalPerRank: number[];
+  /** Ally regen-boost fraction per rank (regen aura). */
+  regenPctPerRank: number[];
+  /** Effect / buff / summon duration in TICKS per rank. */
+  effectDurTicksPerRank: number[];
+  /** Summoned unit type id per rank. */
+  summonTypeIdPerRank: string[];
+  /** Summon count per rank. */
+  summonCountPerRank: number[];
+}
+
 export interface AbilitySpec {
   abilityId: string;
   name: string;
@@ -990,6 +1085,12 @@ export interface AbilitySpec {
     | 'shoreLeave'
     | 'special';
   specialKey: string | null;
+  /**
+   * Decoded behaviour for `mechanic === 'special'` abilities (null otherwise).
+   * specials.ts dispatches on `special.kind`; the compiler populates it from
+   * the WC3 object data keyed off `specialKey`/abilityId.
+   */
+  special: SpecialParams | null;
   skill: HeroSkillRule | null;
   /** Per-rank magnitude (damage, HP, %, HP/s...); index 0 = rank 1. */
   magnitudePerRank: number[];
@@ -1481,7 +1582,8 @@ export interface WaveSpec {
 }
 
 /**
- * Compiled, STATIC land/water mask (extracted from war3map.wpm into
+ * Compiled, STATIC land/water mask (extracted from war3map.w3e — the WC3
+ * environment/terrain map, authoritative for visible water — into
  * data/json/terrain.json; see docs/TERRAIN.md). `water=true` marks a
  * ship-navigable cell; `false` is land that blocks ship movement.
  *
@@ -1503,10 +1605,10 @@ export interface WaveSpec {
 export interface WaterMask {
   /** Playable-area extent the mask spans (matches MapSpec.bounds). */
   bounds: { minX: number; minY: number; maxX: number; maxY: number };
-  /** Native pathing resolution (384 x 512). */
+  /** w3e tilepoint resolution (97 x 129). */
   cols: number;
   rows: number;
-  /** World units per cell along each axis (~28.25 x ~29.0). */
+  /** World units per cell along each axis (128 x 128, the WC3 tile spacing). */
   cellSizeX: number;
   cellSizeY: number;
   /**
@@ -1716,6 +1818,20 @@ export interface MapSpec {
    */
   navByTeam: Record<TeamId, NavField>;
   navHomeByTeam: Record<TeamId, NavField>;
+  /**
+   * Static lane-navigation fields toward fixed NON-base destinations a TRADER
+   * sails to that the per-team base fields do not flow toward — the trade-route
+   * pickup regions (AleFactory, Swede Lumber Mill, Goblin Bomb/Potion Shop, Pig
+   * Farm, Ghost Ship) and the Refinery. Keyed by region name; each is a
+   * `compileNavField` toward that region's center, built once from `waterMask`.
+   * Movement consults these alongside navByTeam/navHomeByTeam (whichever field's
+   * goal is nearest the order point wins) so a trader routes around the central
+   * land to a far pickup corner instead of beelining into the coast. Empty on a
+   * stub mask (no-op). The reward zones / HQs / Trade Masters cluster at each
+   * base, so navHomeByTeam already covers the inbound/buy legs — only these
+   * outbound destinations need their own field.
+   */
+  navToRegion: Record<string, NavField>;
   regions: Record<string, RegionRect>;
   structures: StructurePlacement[];
   /** Keyed by player slot. */
@@ -2065,7 +2181,7 @@ export interface RawMapLayoutFile {
  */
 /**
  * Parsed data/json/terrain.json — the static land/water mask emitted by
- * tools/extractor/terrain.py from war3map.wpm. `compileWaterMask` decodes the
+ * tools/extractor/terrain.py from war3map.w3e. `compileWaterMask` decodes the
  * per-row RLE into the runtime WaterMask. See docs/TERRAIN.md.
  *
  * rleFormat: water[r] = [leadingValue, run0, run1, ...]; runs alternate from

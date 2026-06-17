@@ -53,8 +53,17 @@
  *   is not a kill), DetectionZone expiry, motion-detector 'proximityWarning'
  *   events (no vision granted); goblin-mine ('goblinMine' status) arming on
  *   victim action + 5 s scripted kill.
- * - Exotic ship abilities (AbilitySpec mechanic 'special'): pre-parity
- *   stubs — always 'commandRejected' with reason 'unimplemented'.
+ * - Exotic ship abilities (AbilitySpec mechanic 'special'): castSpecial
+ *   dispatches on the compiled SpecialParams.kind (Capsize suicidal nuke,
+ *   EMP/Freeze self-AoE damage+slow/root, Acid/Board DoT+debuff, Sail Ripper
+ *   slow, Disrupt area-silence, Hull/Goblin Repair HoT, Pirate/Ghost Crew &
+ *   Seamonster summons, Mirror-Image decoy, Eat/Digest Hero devour, Intercept
+ *   haste, Barrier invuln, Send Spy detector, Goblin Bomber mine, Fire Missile
+ *   route). Passive auras (Slow Aura, Ghost-cloud damage, regen aura) run in
+ *   runSpecialAuras every tick. Unknown bases (special === null) still reject
+ *   'unimplemented'; passive auras reject an explicit cast as 'passiveAura'.
+ *   All effects are deterministic (no RNG/wall-clock) and the AI never casts
+ *   them, so seed-equal AI replays stay bit-identical.
  *
  * Ability cooldowns are tracked in PlayerState.cooldownGroups keyed by
  * abilityId (the record is shared with item icid groups; rawcode namespaces
@@ -78,6 +87,7 @@ import { grantXp } from './progression.js';
 import {
   allocEntityId,
   enemyTeam,
+  isCombatant,
   isUnitEntity,
   nearestWater,
   pointInRegion,
@@ -87,6 +97,7 @@ import {
 import type {
   AbilitySpec,
   CastAbilityCommand,
+  DamageInstance,
   EntityId,
   EquipmentActive,
   FireMissileCommand,
@@ -94,6 +105,7 @@ import type {
   Ruleset,
   ShipEntity,
   SimState,
+  SpecialParams,
   SpecialsCommandU,
   Status,
   StructureEntity,
@@ -165,6 +177,7 @@ export function stepSpecials(state: SimState, ruleset: Ruleset): void {
   runSubTeleports(state, ruleset);
   runRepairBays(state, ruleset);
   emitProximityWarnings(state);
+  runSpecialAuras(state, ruleset);
   recomputeVisibility(state, ruleset);
 }
 
@@ -497,9 +510,9 @@ function applyCastAbility(state: SimState, ruleset: Ruleset, cmd: CastAbilityCom
 
   switch (spec.mechanic) {
     case 'special':
-      // Exotic kit (Capsize, EMP, Eat Hero, ...) — pre-parity stubs must
-      // reject loudly, never silently succeed.
-      reject(state, cmd.player, cmd.type, 'unimplemented');
+      // Exotic kit (Capsize, EMP, Freeze Water, Eat Hero, ...) decoded into
+      // SpecialParams at compile time and dispatched by castSpecial.
+      castSpecial(state, ruleset, cmd, player, ship, spec, abilityRank(ruleset, player, ship, spec));
       return;
     case 'dive':
       castDive(state, ruleset, cmd, player, ship, spec);
@@ -803,6 +816,570 @@ function castShoreLeave(
     abilityId: spec.abilityId,
     targetEntityId: ship.id,
   });
+}
+
+// ---------------------------------------------------------------------------
+// Exotic 'special' abilities (SpecialParams.kind dispatch)
+//
+// Every behavior here is a pure, deterministic reaction to an explicit
+// castAbility command (no RNG draws, no wall-clock) so seed-equal AI replays —
+// which never issue these casts — stay bit-identical. Magnitudes/durations come
+// from the compiled SpecialParams (ruleset.ts compileSpecial, from the map
+// object data). Direct (non-DoT) ability damage uses the BSP spell convention
+// (attackType 'spells', damageType 'magic'); DoTs reuse combat's 'dot' status
+// (true damage, armor-ignoring) like Phoenix Fire.
+// ---------------------------------------------------------------------------
+
+/** Rank-indexed lookup into a per-rank array (clamped). 0/'' when empty. */
+function atRank(arr: number[], rank: number): number {
+  if (arr.length === 0) return 0;
+  return arr[Math.min(rank, arr.length) - 1] ?? 0;
+}
+function atRankStr(arr: string[], rank: number): string {
+  if (arr.length === 0) return '';
+  return arr[Math.min(rank, arr.length) - 1] ?? '';
+}
+
+/** A spell DamageInstance (spells/magic) — the convention for ability damage. */
+function spellDamage(
+  amount: number,
+  sourcePlayer: number,
+  sourceEntityId: EntityId,
+  weaponId: string,
+): DamageInstance {
+  return {
+    amount,
+    attackType: 'spells',
+    damageType: 'magic',
+    noTypeMult: false,
+    nonLethal: false,
+    sourcePlayer,
+    sourceEntityId,
+    weaponId,
+  };
+}
+
+/** Living enemy UNITS (ship/creep/summon) within `radius` of (x,y), id order. */
+function enemyUnitsInRadius(
+  state: SimState,
+  x: number,
+  y: number,
+  radius: number,
+  team: TeamId,
+): UnitEntity[] {
+  const out: UnitEntity[] = [];
+  const r2 = radius * radius;
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.dead || !isUnitEntity(e)) continue;
+    if (e.team === team) continue;
+    if (distSq(x, y, e.x, e.y) > r2) continue;
+    out.push(e);
+  }
+  return out;
+}
+
+/** Apply spell AoE damage to every enemy combatant in range (deterministic). */
+function damageEnemiesInRadius(
+  state: SimState,
+  ruleset: Ruleset,
+  x: number,
+  y: number,
+  radius: number,
+  team: TeamId,
+  caster: ShipEntity,
+  weaponId: string,
+  amount: number,
+  hitStructures: boolean,
+  excludeId?: EntityId,
+): void {
+  if (amount <= 0) return;
+  const r2 = radius * radius;
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.dead || !isCombatant(e) || e.id === excludeId) continue;
+    if (e.team === null || e.team === team) continue;
+    if (e.kind === 'structure' && !hitStructures) continue;
+    if (distSq(x, y, e.x, e.y) > r2) continue;
+    applyDamage(state, ruleset, e.id, spellDamage(amount, caster.owner, caster.id, weaponId));
+  }
+}
+
+/** Push a DoT (true damage per tick, like Phoenix Fire) onto a unit. */
+function applyDot(
+  target: UnitEntity,
+  buffId: string,
+  dmgPerSecond: number,
+  tickRate: number,
+  expiresAtTick: number,
+  sourcePlayer: number,
+): void {
+  if (dmgPerSecond <= 0) return;
+  target.statuses.push({
+    kind: 'dot',
+    buffId,
+    dmgPerTick: dmgPerSecond / tickRate,
+    expiresAtTick,
+    nonLethal: false,
+    sourcePlayer,
+  });
+}
+
+/**
+ * Spawn `count` timed summons around the caster on a deterministic ring
+ * (evenly-spaced angles, no RNG). Used by Pirate/Ghost Crew, Release Hunters,
+ * Spawn Seamonster, and Mirror Image (count 1, ship typeId decoy).
+ */
+function spawnSummons(
+  state: SimState,
+  ruleset: Ruleset,
+  caster: ShipEntity,
+  typeId: string,
+  count: number,
+  expiresAtTick: number,
+  hpOverride: number | null,
+): void {
+  if (count <= 0) return;
+  const unitSpec = ruleset.unitTypes[typeId];
+  // Mirror-image decoys carry the caster's SHIP typeId (absent from unitTypes):
+  // hpOverride supplies the HP and the lack of an attack makes it inert.
+  const maxHp = hpOverride ?? unitSpec?.maxHp ?? 1;
+  const ringR = 96 + (ruleset.ships[caster.typeId]?.collisionRadius ?? 16);
+  for (let i = 0; i < count; i++) {
+    const angle = (2 * Math.PI * i) / count;
+    const id = allocEntityId(state);
+    const summon: SummonEntity = {
+      id,
+      typeId,
+      x: caster.x + ringR * Math.cos(angle),
+      y: caster.y + ringR * Math.sin(angle),
+      facingRad: caster.facingRad,
+      dead: false,
+      kind: 'summon',
+      owner: caster.owner,
+      team: caster.team,
+      hp: maxHp,
+      maxHp,
+      order: { type: 'idle' },
+      statuses: [],
+      vision: { south: true, north: true },
+      attackReadyAtTick: 0,
+      expiresAtTick,
+    };
+    state.entities[id] = summon;
+  }
+}
+
+function emitCast(
+  state: SimState,
+  player: number,
+  abilityId: string,
+  targetEntityId: EntityId | null,
+): void {
+  state.events.push({ type: 'abilityCast', tick: state.tick, player, abilityId, targetEntityId });
+}
+
+/**
+ * Dispatch a 'special' ability cast. Validates rank/cooldown/target per
+ * SpecialParams.kind, applies the effect, starts the cooldown, and breaks
+ * invisibility (casting is an action). Passive auras (Slow Aura, Ghost cloud,
+ * regen aura) are NOT castable and reject; unknown bases (special === null)
+ * reject 'unimplemented'.
+ */
+function castSpecial(
+  state: SimState,
+  ruleset: Ruleset,
+  cmd: CastAbilityCommand,
+  player: PlayerState,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+  rank: number,
+): void {
+  const p = spec.special;
+  if (p === null || p === undefined) {
+    reject(state, cmd.player, cmd.type, 'unimplemented');
+    return;
+  }
+  if (p.kind === 'fireMissile') {
+    // A032 routes to the missile launcher (no hull carries it today).
+    applyFireMissile(state, ruleset, { type: 'fireMissile', player: cmd.player });
+    return;
+  }
+  if (p.passive) {
+    // Slow Aura / Ghost cloud / regen aura run every tick in runSpecialAuras.
+    reject(state, cmd.player, cmd.type, 'passiveAura');
+    return;
+  }
+  if (rank <= 0) {
+    reject(state, cmd.player, cmd.type, spec.kind === 'heroSkill' ? 'notLearned' : 'notOnShip');
+    return;
+  }
+  if ((player.cooldownGroups[spec.abilityId] ?? 0) > state.tick) {
+    reject(state, cmd.player, cmd.type, 'onCooldown');
+    return;
+  }
+
+  if (!applySpecialEffect(state, ruleset, cmd, player, ship, spec, p, rank)) return;
+
+  player.cooldownGroups[spec.abilityId] = state.tick + (spec.cooldownTicks ?? 0);
+  // Capsize (and any suicidal cast) is itself the action that ends the boat;
+  // every other cast breaks smoke / reveals a ghost like a normal action.
+  if (!p.suicidal) breakInvisibilityOnAction(state, ship.id);
+}
+
+/**
+ * Resolve the cast's effect. Returns false (and rejects) when targeting is
+ * invalid so the caller skips the cooldown/break — keeping a mis-click free.
+ */
+function applySpecialEffect(
+  state: SimState,
+  ruleset: Ruleset,
+  cmd: CastAbilityCommand,
+  player: PlayerState,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+  p: SpecialParams,
+  rank: number,
+): boolean {
+  const tick = state.tick;
+  const tr = ruleset.tickRate;
+  const dur = atRank(p.effectDurTicksPerRank, rank);
+
+  switch (p.kind) {
+    case 'capsize': {
+      const target = enemyShipTarget(state, cmd, ship, spec, player);
+      if (target === null) return false;
+      // Splash hits NEARBY ships (tooltip: "and DataD damage in splash to
+      // nearby ships") — the primary target is excluded and takes DataB only.
+      damageEnemiesInRadius(
+        state, ruleset, target.x, target.y, atRank(p.splashRadiusPerRank, rank), ship.team, ship,
+        spec.abilityId, atRank(p.splashPerRank, rank), false, target.id,
+      );
+      applyDamage(
+        state, ruleset, target.id,
+        spellDamage(atRank(p.damagePerRank, rank), ship.owner, ship.id, spec.abilityId),
+      );
+      emitCast(state, cmd.player, spec.abilityId, target.id);
+      // Suicide: the caster sinks (scripted death, no killer credit).
+      ship.dead = true;
+      state.pendingDeaths.push({
+        entityId: ship.id,
+        victimPlayer: ship.owner,
+        killerPlayer: null,
+        killerEntityId: null,
+        scripted: true,
+      });
+      return true;
+    }
+    case 'empBlast': {
+      const r = p.areaRadius;
+      damageEnemiesInRadius(
+        state, ruleset, ship.x, ship.y, r, ship.team, ship, spec.abilityId,
+        atRank(p.damagePerRank, rank), false,
+      );
+      const pct = atRank(p.moveSpeedPctPerRank, rank);
+      for (const e of enemyUnitsInRadius(state, ship.x, ship.y, r, ship.team)) {
+        if (e.kind === 'ship') e.statuses.push({ kind: 'slowed', moveSpeedPct: pct, expiresAtTick: tick + dur });
+      }
+      emitCast(state, cmd.player, spec.abilityId, null);
+      return true;
+    }
+    case 'freezeWater': {
+      const r = p.areaRadius;
+      damageEnemiesInRadius(
+        state, ruleset, ship.x, ship.y, r, ship.team, ship, spec.abilityId,
+        atRank(p.damagePerRank, rank), false,
+      );
+      for (const e of enemyUnitsInRadius(state, ship.x, ship.y, r, ship.team)) {
+        if (e.kind === 'ship') e.statuses.push({ kind: 'ensnared', expiresAtTick: tick + dur });
+      }
+      emitCast(state, cmd.player, spec.abilityId, null);
+      return true;
+    }
+    case 'acidBomb': {
+      const target = enemyShipTarget(state, cmd, ship, spec, player, true);
+      if (target === null) return false;
+      if (isUnitEntity(target)) {
+        applyDot(target, spec.abilityId, atRank(p.dotPerSecondPerRank, rank), tr, tick + dur, ship.owner);
+        if (target.kind === 'ship') {
+          target.statuses.push({ kind: 'slowed', moveSpeedPct: atRank(p.moveSpeedPctPerRank, rank), expiresAtTick: tick + dur });
+        }
+      }
+      const splashDps = atRank(p.splashDotPerSecondPerRank, rank);
+      for (const e of enemyUnitsInRadius(state, target.x, target.y, p.areaRadius, ship.team)) {
+        if (e.id !== target.id) applyDot(e, spec.abilityId, splashDps, tr, tick + dur, ship.owner);
+      }
+      emitCast(state, cmd.player, spec.abilityId, target.id);
+      return true;
+    }
+    case 'sailRipper': {
+      const target = enemyShipTarget(state, cmd, ship, spec, player);
+      if (target === null) return false;
+      applyDamage(
+        state, ruleset, target.id,
+        spellDamage(atRank(p.damagePerRank, rank), ship.owner, ship.id, spec.abilityId),
+      );
+      target.statuses.push({ kind: 'slowed', moveSpeedPct: atRank(p.moveSpeedPctPerRank, rank), expiresAtTick: tick + dur });
+      emitCast(state, cmd.player, spec.abilityId, target.id);
+      return true;
+    }
+    case 'boardShip': {
+      const target = enemyShipTarget(state, cmd, ship, spec, player);
+      if (target === null) return false;
+      target.statuses.push({ kind: 'ensnared', expiresAtTick: tick + dur });
+      applyDot(target, spec.abilityId, atRank(p.dotPerSecondPerRank, rank), tr, tick + dur, ship.owner);
+      emitCast(state, cmd.player, spec.abilityId, target.id);
+      return true;
+    }
+    case 'disrupt': {
+      if (cmd.x === undefined || cmd.y === undefined) {
+        reject(state, cmd.player, cmd.type, 'missingTarget');
+        return false;
+      }
+      if (
+        spec.rangeUnits !== null &&
+        distSq(ship.x, ship.y, cmd.x, cmd.y) > spec.rangeUnits * spec.rangeUnits
+      ) {
+        reject(state, cmd.player, cmd.type, 'outOfRange');
+        return false;
+      }
+      for (const e of enemyUnitsInRadius(state, cmd.x, cmd.y, p.areaRadius, ship.team)) {
+        if (e.kind === 'ship') e.statuses.push({ kind: 'silenced', expiresAtTick: tick + dur });
+      }
+      emitCast(state, cmd.player, spec.abilityId, null);
+      return true;
+    }
+    case 'devour': {
+      const target = enemyShipTarget(state, cmd, ship, spec, player);
+      if (target === null) return false;
+      // Swallow: disable (stun) + heavy DoT for the digest window. The target
+      // stays on-map (regurgitation on caster death is OMITTED — PROVISIONAL).
+      target.statuses.push({ kind: 'stunned', expiresAtTick: tick + dur });
+      applyDot(target, spec.abilityId, atRank(p.dotPerSecondPerRank, rank), tr, tick + dur, ship.owner);
+      emitCast(state, cmd.player, spec.abilityId, target.id);
+      return true;
+    }
+    case 'sendSpy': {
+      const target = enemyShipTarget(state, cmd, ship, spec, player);
+      if (target === null) return false;
+      // Drop a stationary detection zone where the spy boards (it does not
+      // follow the ship — PROVISIONAL; gives vision + invis detection there).
+      state.detectionZones.push({
+        team: ship.team,
+        x: target.x,
+        y: target.y,
+        radius: SEND_SPY_DETECT_RADIUS,
+        expiresAtTick: tick + dur,
+      });
+      emitCast(state, cmd.player, spec.abilityId, target.id);
+      return true;
+    }
+    case 'goblinMine': {
+      const target = enemyShipTarget(state, cmd, ship, spec, player);
+      if (target === null) return false;
+      // Reuse the goblin-mine system: arms on the victim's next item/cast.
+      target.statuses.push({ kind: 'goblinMine', sourcePlayer: ship.owner, detonateAtTick: null });
+      emitCast(state, cmd.player, spec.abilityId, target.id);
+      return true;
+    }
+    case 'repairHot': {
+      const target = friendlyTarget(state, cmd, ship, spec, p);
+      if (target === null) return false;
+      const total = atRank(p.healTotalPerRank, rank);
+      if (dur > 0 && total > 0) {
+        target.statuses.push({ kind: 'hot', buffId: spec.abilityId, healPerTick: total / dur, expiresAtTick: tick + dur });
+      }
+      emitCast(state, cmd.player, spec.abilityId, target.id);
+      return true;
+    }
+    case 'summonSwarm': {
+      spawnSummons(
+        state, ruleset, ship, atRankStr(p.summonTypeIdPerRank, rank),
+        atRank(p.summonCountPerRank, rank), tick + dur, null,
+      );
+      emitCast(state, cmd.player, spec.abilityId, null);
+      return true;
+    }
+    case 'mirrorImage': {
+      // One decoy carrying the caster's ship typeId (a believable "bogus ship"
+      // with the hull's HP and no attack of its own).
+      spawnSummons(state, ruleset, ship, ship.typeId, 1, tick + dur, ship.maxHp);
+      emitCast(state, cmd.player, spec.abilityId, null);
+      return true;
+    }
+    case 'intercept': {
+      // Timed self sail-speed HASTE: reuse the timed 'slowed' move-speed delta
+      // with a POSITIVE pct (movement sums it like any other speed modifier).
+      ship.statuses.push({ kind: 'slowed', moveSpeedPct: atRank(p.moveSpeedPctPerRank, rank), expiresAtTick: tick + dur });
+      emitCast(state, cmd.player, spec.abilityId, ship.id);
+      return true;
+    }
+    case 'barrier': {
+      ship.statuses.push({ kind: 'shielded', expiresAtTick: tick + dur });
+      emitCast(state, cmd.player, spec.abilityId, ship.id);
+      return true;
+    }
+    default:
+      // damageAura / slowAura / regenAura are passive (handled above);
+      // fireMissile routed above. Nothing else reaches here.
+      reject(state, cmd.player, cmd.type, 'notActivatable');
+      return false;
+  }
+}
+
+/** Stationary Send-Spy detection radius (no aare in the dump — PROVISIONAL). */
+const SEND_SPY_DETECT_RADIUS = 1600;
+
+/**
+ * Validate a unit-target enemy cast: requires a targetId, a living enemy ship
+ * (or any combatant when allowStructures), and the target within spec.rangeUnits.
+ * Rejects with the right reason and returns null on failure.
+ */
+function enemyShipTarget(
+  state: SimState,
+  cmd: CastAbilityCommand,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+  player: PlayerState,
+): ShipEntity | null;
+function enemyShipTarget(
+  state: SimState,
+  cmd: CastAbilityCommand,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+  player: PlayerState,
+  allowStructures: true,
+): ShipEntity | StructureEntity | null;
+function enemyShipTarget(
+  state: SimState,
+  cmd: CastAbilityCommand,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+  player: PlayerState,
+  allowStructures = false,
+): ShipEntity | StructureEntity | null {
+  if (cmd.targetId === undefined) {
+    reject(state, cmd.player, cmd.type, 'missingTarget');
+    return null;
+  }
+  const target = state.entities[cmd.targetId];
+  const okKind = target && !target.dead && (target.kind === 'ship' || (allowStructures && isCombatant(target)));
+  if (!okKind || target.team === player.team || target.team === null) {
+    reject(state, cmd.player, cmd.type, 'invalidTarget');
+    return null;
+  }
+  if (
+    spec.rangeUnits !== null &&
+    distSq(ship.x, ship.y, target.x, target.y) > spec.rangeUnits * spec.rangeUnits
+  ) {
+    reject(state, cmd.player, cmd.type, 'outOfRange');
+    return null;
+  }
+  return target as ShipEntity | StructureEntity;
+}
+
+/**
+ * Validate a friendly-target cast (Hull Repair / Goblin Repair Crew): defaults
+ * to the caster when no target is given; requires a same-team living ship (or
+ * structure when structureTarget) within range.
+ */
+function friendlyTarget(
+  state: SimState,
+  cmd: CastAbilityCommand,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+  p: SpecialParams,
+): ShipEntity | StructureEntity | null {
+  const id = cmd.targetId ?? (p.structureTarget ? undefined : ship.id);
+  if (id === undefined) {
+    reject(state, cmd.player, cmd.type, 'missingTarget');
+    return null;
+  }
+  const target = state.entities[id];
+  const okKind =
+    target && !target.dead && (target.kind === 'ship' || (p.structureTarget && target.kind === 'structure'));
+  if (!okKind || target.team !== ship.team) {
+    reject(state, cmd.player, cmd.type, 'invalidTarget');
+    return null;
+  }
+  if (
+    spec.rangeUnits !== null &&
+    distSq(ship.x, ship.y, target.x, target.y) > spec.rangeUnits * spec.rangeUnits
+  ) {
+    reject(state, cmd.player, cmd.type, 'outOfRange');
+    return null;
+  }
+  return target as ShipEntity | StructureEntity;
+}
+
+// ---------------------------------------------------------------------------
+// Passive special auras (Slow Aura, Ghost cloud damage, regen aura)
+//
+// Re-evaluated every specials tick: prior aura-applied statuses are cleared
+// (so leaving the radius drops the effect and re-entry never stacks), then
+// re-applied from each live source. Deterministic — id-ordered, no RNG.
+// ---------------------------------------------------------------------------
+
+function runSpecialAuras(state: SimState, ruleset: Ruleset): void {
+  // 1. Clear last tick's aura-applied statuses (identified by their source).
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.dead || !isUnitEntity(e) || e.statuses.length === 0) continue;
+    e.statuses = e.statuses.filter((s) => {
+      if (s.kind === 'speedAura') return ruleset.abilities[s.sourceAbilityId]?.special?.kind !== 'slowAura';
+      if (s.kind === 'hot') return ruleset.abilities[s.buffId]?.special?.kind !== 'regenAura';
+      return true;
+    });
+  }
+  // 2. Re-apply from each live aura source ship.
+  for (const id of sortedNumericKeys(state.entities)) {
+    const ship = state.entities[id];
+    if (!ship || ship.kind !== 'ship' || ship.dead) continue;
+    if (ship.pausedUntilTick > state.tick) continue;
+    const shipSpec = ruleset.ships[ship.typeId];
+    const owner = state.players[ship.owner];
+    if (!shipSpec || !owner) continue;
+    for (const abilityId of shipSpec.abilityIds) {
+      const spec = ruleset.abilities[abilityId];
+      if (!spec || spec.mechanic !== 'special' || spec.special === null || !spec.special.passive) continue;
+      const rank = abilityRank(ruleset, owner, ship, spec);
+      if (rank > 0) applyAura(state, ruleset, ship, spec, spec.special, rank);
+    }
+  }
+}
+
+function applyAura(
+  state: SimState,
+  ruleset: Ruleset,
+  ship: ShipEntity,
+  spec: AbilitySpec,
+  p: SpecialParams,
+  rank: number,
+): void {
+  const r = p.areaRadius;
+  if (r <= 0) return;
+  if (p.kind === 'slowAura') {
+    const pct = atRank(p.moveSpeedPctPerRank, rank);
+    for (const e of enemyUnitsInRadius(state, ship.x, ship.y, r, ship.team)) {
+      if (e.kind === 'ship') e.statuses.push({ kind: 'speedAura', moveSpeedPct: pct, sourceAbilityId: spec.abilityId });
+    }
+  } else if (p.kind === 'damageAura') {
+    // Aura of Fright: deals dmg/s to enemies each tick (per-tick direct hit).
+    const perTick = atRank(p.dotPerSecondPerRank, rank) / ruleset.tickRate;
+    damageEnemiesInRadius(state, ruleset, ship.x, ship.y, r, ship.team, ship, spec.abilityId, perTick, false);
+  } else if (p.kind === 'regenAura') {
+    // +pct of the ALLY hull's base HP regen, granted as a 1-tick 'hot'.
+    const pct = atRank(p.regenPctPerRank, rank);
+    const r2 = r * r;
+    for (const eid of sortedNumericKeys(state.entities)) {
+      const e = state.entities[eid];
+      if (!e || e.dead || e.kind !== 'ship' || e.team !== ship.team) continue;
+      if (distSq(ship.x, ship.y, e.x, e.y) > r2) continue;
+      const base = ruleset.ships[e.typeId]?.hpRegenPerTick ?? 0;
+      const bonus = base * pct;
+      if (bonus > 0) e.statuses.push({ kind: 'hot', buffId: spec.abilityId, healPerTick: bonus, expiresAtTick: state.tick + 2 });
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------

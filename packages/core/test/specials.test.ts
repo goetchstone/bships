@@ -19,6 +19,7 @@ import type {
   ShipEntity,
   ShipSpec,
   SimState,
+  SpecialParams,
   StructureEntity,
   SuicideQuestSpec,
   TeamId,
@@ -116,6 +117,29 @@ function shipSpec(typeId: string, over: Partial<ShipSpec>): ShipSpec {
     sightRadius: 1600,
     detectionRadius: null,
     nativeAttackRangeUnits: null,
+    ...over,
+  };
+}
+
+function special(kind: SpecialParams['kind'], over: Partial<SpecialParams>): SpecialParams {
+  return {
+    kind,
+    suicidal: false,
+    passive: false,
+    friendlyTarget: false,
+    structureTarget: false,
+    areaRadius: 0,
+    damagePerRank: [],
+    splashPerRank: [],
+    splashRadiusPerRank: [],
+    dotPerSecondPerRank: [],
+    splashDotPerSecondPerRank: [],
+    moveSpeedPctPerRank: [],
+    healTotalPerRank: [],
+    regenPctPerRank: [],
+    effectDurTicksPerRank: [],
+    summonTypeIdPerRank: [],
+    summonCountPerRank: [],
     ...over,
   };
 }
@@ -283,18 +307,149 @@ function makeRuleset(): Ruleset {
         rangeUnits: null,
         weaponId: null,
       },
-      // A01A Capsize — exotic 'special' mechanic, pre-parity stub.
+      // A01A Capsize — Auco suicidal nuke (primary + splash, caster dies).
       A01A: {
         abilityId: 'A01A',
         name: 'Capsize',
         kind: 'heroSkill',
         mechanic: 'special',
-        specialKey: 'capsize',
+        specialKey: 'Auco',
+        special: special('capsize', {
+          suicidal: true,
+          damagePerRank: [250, 500, 750, 1000, 1250, 1500],
+          splashPerRank: [100, 160, 220, 280, 340, 400],
+          splashRadiusPerRank: [600, 700, 800, 900, 1000, 1100],
+        }),
         skill: { abilityId: 'A01A', ranks: 6, levelsPerRank: 2, minHeroLevel: 1 },
-        magnitudePerRank: [0, 0, 0, 0, 0, 0],
+        magnitudePerRank: [],
         durationTicksPerRank: null,
-        cooldownTicks: 200,
-        rangeUnits: 600,
+        cooldownTicks: null,
+        rangeUnits: 250,
+        weaponId: null,
+      },
+      // A037 EMP — AHtc self-centred blast: damage + sail-speed slow.
+      A037: {
+        abilityId: 'A037',
+        name: 'Electro Magnetic Pulse',
+        kind: 'heroSkill',
+        mechanic: 'special',
+        specialKey: 'AHtc',
+        special: special('empBlast', {
+          areaRadius: 700,
+          damagePerRank: [500],
+          moveSpeedPctPerRank: [-0.4],
+          effectDurTicksPerRank: [200],
+        }),
+        skill: { abilityId: 'A037', ranks: 1, levelsPerRank: 2, minHeroLevel: 5 },
+        magnitudePerRank: [],
+        durationTicksPerRank: null,
+        cooldownTicks: 900,
+        rangeUnits: null,
+        weaponId: null,
+      },
+      // A01V Barrier — AHds innate self-invulnerability (Divine Shield).
+      A01V: {
+        abilityId: 'A01V',
+        name: 'Barrier',
+        kind: 'innate',
+        mechanic: 'special',
+        specialKey: 'AHds',
+        special: special('barrier', { effectDurTicksPerRank: [100, 120, 140, 160, 180, 200] }),
+        skill: null,
+        magnitudePerRank: [],
+        durationTicksPerRank: null,
+        cooldownTicks: null,
+        rangeUnits: null,
+        weaponId: null,
+      },
+      // A02D Slow Aura — AOae(-) passive enemy sail-speed slow.
+      A02D: {
+        abilityId: 'A02D',
+        name: 'Slow Aura',
+        kind: 'heroSkill',
+        mechanic: 'special',
+        specialKey: 'AOae',
+        special: special('slowAura', {
+          passive: true,
+          areaRadius: 1500,
+          moveSpeedPctPerRank: [-0.05, -0.1, -0.15, -0.2, -0.25, -0.3],
+        }),
+        skill: { abilityId: 'A02D', ranks: 6, levelsPerRank: 2, minHeroLevel: 1 },
+        magnitudePerRank: [],
+        durationTicksPerRank: null,
+        cooldownTicks: null,
+        rangeUnits: null,
+        weaponId: null,
+      },
+      // A01E Hull Repair — Arej targeted ally heal-over-time.
+      A01E: {
+        abilityId: 'A01E',
+        name: 'Hull Repair',
+        kind: 'heroSkill',
+        mechanic: 'special',
+        specialKey: 'Arej',
+        special: special('repairHot', {
+          friendlyTarget: true,
+          healTotalPerRank: [450, 600, 750, 900, 1050, 1200],
+          effectDurTicksPerRank: [120, 120, 120, 120, 120, 120],
+        }),
+        skill: { abilityId: 'A01E', ranks: 6, levelsPerRank: 2, minHeroLevel: 1 },
+        magnitudePerRank: [],
+        durationTicksPerRank: null,
+        cooldownTicks: 1000,
+        rangeUnits: 300,
+        weaponId: null,
+      },
+      // A02L Spawn Seamonster — ACsf timed summon (one nba2 here).
+      A02L: {
+        abilityId: 'A02L',
+        name: 'Spawn Seamonster',
+        kind: 'heroSkill',
+        mechanic: 'special',
+        specialKey: 'ACsf',
+        special: special('summonSwarm', {
+          summonTypeIdPerRank: ['nba2'],
+          summonCountPerRank: [1],
+          effectDurTicksPerRank: [600],
+        }),
+        skill: { abilityId: 'A02L', ranks: 6, levelsPerRank: 2, minHeroLevel: 1 },
+        magnitudePerRank: [],
+        durationTicksPerRank: null,
+        cooldownTicks: 4000,
+        rangeUnits: null,
+        weaponId: null,
+      },
+      // A055 Goblin Bomber — Ashs mark: sinks the target on its next action.
+      A055: {
+        abilityId: 'A055',
+        name: 'Goblin Bomber',
+        kind: 'heroSkill',
+        mechanic: 'special',
+        specialKey: 'Ashs',
+        special: special('goblinMine', {}),
+        skill: { abilityId: 'A055', ranks: 1, levelsPerRank: 2, minHeroLevel: 8 },
+        magnitudePerRank: [],
+        durationTicksPerRank: null,
+        cooldownTicks: 3000,
+        rangeUnits: 650,
+        weaponId: null,
+      },
+      // A00N Intercept — Absk timed self sail-speed haste.
+      A00N: {
+        abilityId: 'A00N',
+        name: 'Intercept',
+        kind: 'heroSkill',
+        mechanic: 'special',
+        specialKey: 'Absk',
+        special: special('intercept', {
+          moveSpeedPctPerRank: [0.45, 0.5, 0.55, 0.6, 0.65, 0.7],
+          effectDurTicksPerRank: [200],
+        }),
+        skill: { abilityId: 'A00N', ranks: 6, levelsPerRank: 2, minHeroLevel: 1 },
+        magnitudePerRank: [],
+        durationTicksPerRank: null,
+        cooldownTicks: 900,
+        rangeUnits: null,
         weaponId: null,
       },
       // A00Y Fishing Net — ANen Ensnare, hero skill rank 1, range 800 (aran),
@@ -352,6 +507,12 @@ function makeRuleset(): Ruleset {
         abilityIds: ['A047', 'A01A', 'A00Y'],
       }),
       H005: shipSpec('H005', { maxHp: 100, moveSpeed: 280, inventorySlots: 4 }),
+      // Cruiser test hull carrying the exotic 'special' kit.
+      H006: shipSpec('H006', {
+        maxHp: 1775,
+        moveSpeed: 180,
+        abilityIds: ['A037', 'A01V', 'A02D', 'A01E', 'A02L', 'A055', 'A00N'],
+      }),
       H00V: shipSpec('H00V', {
         maxHp: 2025,
         moveSpeed: 200,
@@ -461,6 +622,7 @@ function makeRuleset(): Ruleset {
       },
       navByTeam: { south: stubNavField(), north: stubNavField() },
       navHomeByTeam: { south: stubNavField(), north: stubNavField() },
+      navToRegion: {},
       regions: {
         GoblinBombShop: region('GoblinBombShop', 0, 0, 200, 200),
         SouthReward: region('SouthReward', 400, 0, 600, 200),
@@ -1276,19 +1438,14 @@ describe('castAbility hide / flare / specials stubs', () => {
     expect(state.detectionZones).toEqual([]);
   });
 
-  it("exotic 'special' abilities reject with reason 'unimplemented' and mutate nothing", () => {
+  it("an unknown 'special' base (special === null) still rejects 'unimplemented'", () => {
     const rs = makeRuleset();
+    // Force an unrecognized special: no decoded params -> hard reject.
+    rs.abilities['A047'] = { ...rs.abilities['A047']!, mechanic: 'special', special: null };
     const ship = makeShip(rs, 10, 2, 'south', 'H001', 0, 0);
-    const player = makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A01A: 3 } });
+    const player = makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A047: 3 } });
     const state = makeState([player], [ship]);
-
-    applySpecialsCommand(state, rs, {
-      type: 'castAbility',
-      player: 2,
-      abilityId: 'A01A',
-      targetId: 10,
-    });
-
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A047' });
     expect(rejections(state)).toEqual(['unimplemented']);
     expect(ship.statuses).toEqual([]);
     expect(player.cooldownGroups).toEqual({});
@@ -1332,6 +1489,196 @@ describe('castAbility hide / flare / specials stubs', () => {
     applySpecialsCommand(state, rs, { type: 'castAbility', player: 9, abilityId: 'A047' });
     applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A047' });
     expect(rejections(state)).toEqual(['unknownPlayer', 'noShip']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// castAbility: exotic 'special' kit (Capsize, EMP, Barrier, ...)
+// ---------------------------------------------------------------------------
+
+describe('castAbility special abilities', () => {
+  it('Capsize: rank-scaled primary + splash damage, then the caster sinks (suicide)', () => {
+    const rs = makeRuleset();
+    const caster = makeShip(rs, 10, 2, 'south', 'H001', 0, 0);
+    const target = makeShip(rs, 20, 7, 'north', 'H001', 200, 0); // within range 250
+    const bystander = makeShip(rs, 21, 7, 'north', 'H001', 350, 0); // within rank-3 splash 800 of target
+    const player = makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A01A: 3 } });
+    const state = makeState([player, makePlayer(7, 'north')], [caster, target, bystander]);
+
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A01A', targetId: 20 });
+
+    // Rank 3 -> 750 primary to the target only, 220 splash to nearby ships.
+    const dmgTo = (id: number) =>
+      recorded.damage.filter((d) => d.targetId === id).reduce((s, d) => s + d.damage.amount, 0);
+    expect(dmgTo(20)).toBe(750); // primary target takes the primary blow only
+    expect(dmgTo(21)).toBe(220); // bystander takes splash
+    // Suicide: the caster is dead with a scripted (unattributed) PendingDeath.
+    expect(caster.dead).toBe(true);
+    expect(state.pendingDeaths).toContainEqual({
+      entityId: 10,
+      victimPlayer: 2,
+      killerPlayer: null,
+      killerEntityId: null,
+      scripted: true,
+    });
+  });
+
+  it('Capsize rejects an out-of-range or friendly target (and the caster lives)', () => {
+    const rs = makeRuleset();
+    const caster = makeShip(rs, 10, 2, 'south', 'H001', 0, 0);
+    const farEnemy = makeShip(rs, 20, 7, 'north', 'H001', 400, 0); // > 250
+    const ally = makeShip(rs, 21, 3, 'south', 'H001', 50, 0);
+    const state = makeState(
+      [makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A01A: 1 } }), makePlayer(7, 'north'), makePlayer(3, 'south')],
+      [caster, farEnemy, ally],
+    );
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A01A', targetId: 20 });
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A01A', targetId: 21 });
+    expect(rejections(state)).toEqual(['outOfRange', 'invalidTarget']);
+    expect(caster.dead).toBe(false);
+    expect(recorded.damage).toEqual([]);
+  });
+
+  it('EMP: self-centred AoE damages + slows enemy ships in 700, sparing those outside', () => {
+    const rs = makeRuleset();
+    const caster = makeShip(rs, 10, 2, 'south', 'H006', 0, 0);
+    const near = makeShip(rs, 20, 7, 'north', 'H001', 600, 0);
+    const far = makeShip(rs, 21, 7, 'north', 'H001', 1000, 0);
+    const player = makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A037: 1 } });
+    const state = makeState([player, makePlayer(7, 'north')], [caster, near, far]);
+
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A037' });
+
+    expect(recorded.damage).toEqual([{ targetId: 20, damage: expect.objectContaining({ amount: 500 }) }]);
+    expect(near.statuses).toContainEqual({ kind: 'slowed', moveSpeedPct: -0.4, expiresAtTick: state.tick + 200 });
+    expect(far.statuses).toEqual([]);
+    expect(player.cooldownGroups['A037']).toBe(state.tick + 900);
+  });
+
+  it('Barrier: grants timed invulnerability (shielded) that combat honours', () => {
+    const rs = makeRuleset();
+    const ship = makeShip(rs, 10, 2, 'south', 'H006', 0, 0);
+    const player = makePlayer(2, 'south', { shipId: 10 });
+    const state = makeState([player], [ship]);
+
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A01V' });
+    // Innate rank-1 duration 100 ticks.
+    expect(ship.statuses).toContainEqual({ kind: 'shielded', expiresAtTick: state.tick + 100 });
+  });
+
+  it('Hull Repair: applies an ally heal-over-time (total / duration per tick)', () => {
+    const rs = makeRuleset();
+    const caster = makeShip(rs, 10, 2, 'south', 'H006', 0, 0);
+    const ally = makeShip(rs, 20, 3, 'south', 'H001', 100, 0);
+    const state = makeState(
+      [makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A01E: 1 } }), makePlayer(3, 'south', { shipId: 20 })],
+      [caster, ally],
+    );
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A01E', targetId: 20 });
+    expect(ally.statuses).toContainEqual({
+      kind: 'hot',
+      buffId: 'A01E',
+      healPerTick: 450 / 120, // rank 1 total 450 over 120 ticks
+      expiresAtTick: state.tick + 120,
+    });
+  });
+
+  it('Hull Repair rejects an enemy target', () => {
+    const rs = makeRuleset();
+    const caster = makeShip(rs, 10, 2, 'south', 'H006', 0, 0);
+    const enemy = makeShip(rs, 20, 7, 'north', 'H001', 100, 0);
+    const state = makeState(
+      [makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A01E: 1 } }), makePlayer(7, 'north')],
+      [caster, enemy],
+    );
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A01E', targetId: 20 });
+    expect(rejections(state)).toEqual(['invalidTarget']);
+    expect(enemy.statuses).toEqual([]);
+  });
+
+  it('Spawn Seamonster: spawns the rank-1 summon with the right team / lifetime', () => {
+    const rs = makeRuleset();
+    const caster = makeShip(rs, 10, 2, 'south', 'H006', 0, 0);
+    const player = makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A02L: 1 } });
+    const state = makeState([player], [caster]);
+
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A02L' });
+
+    const summons = Object.values(state.entities).filter((e) => e.kind === 'summon');
+    expect(summons).toHaveLength(1);
+    const s = summons[0];
+    expect(s?.kind === 'summon' && s.typeId).toBe('nba2');
+    expect(s?.kind === 'summon' && s.team).toBe('south');
+    expect(s?.kind === 'summon' && s.owner).toBe(2);
+    expect(s?.kind === 'summon' && s.expiresAtTick).toBe(state.tick + 600);
+    expect(s?.kind === 'summon' && s.hp).toBe(8500); // nba2 maxHp
+  });
+
+  it('Goblin Bomber: marks an in-range enemy with a goblin mine that the action system arms', () => {
+    const rs = makeRuleset();
+    const caster = makeShip(rs, 10, 2, 'south', 'H006', 0, 0);
+    const target = makeShip(rs, 20, 7, 'north', 'H001', 600, 0); // within range 650
+    const state = makeState(
+      [makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A055: 1 } }), makePlayer(7, 'north')],
+      [caster, target],
+    );
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A055', targetId: 20 });
+    expect(target.statuses).toContainEqual({ kind: 'goblinMine', sourcePlayer: 2, detonateAtTick: null });
+
+    // The mine arms on the victim's next action (5 s / 100 ticks later).
+    breakInvisibilityOnAction(state, 20);
+    const mine = target.statuses.find((s) => s.kind === 'goblinMine');
+    expect(mine?.kind === 'goblinMine' && mine.detonateAtTick).toBe(state.tick + 100);
+  });
+
+  it('Intercept: a timed self sail-speed haste (positive move-speed delta)', () => {
+    const rs = makeRuleset();
+    const ship = makeShip(rs, 10, 2, 'south', 'H006', 0, 0);
+    const player = makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A00N: 1 } });
+    const state = makeState([player], [ship]);
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A00N' });
+    expect(ship.statuses).toContainEqual({ kind: 'slowed', moveSpeedPct: 0.45, expiresAtTick: state.tick + 200 });
+  });
+
+  it('Slow Aura is passive: an explicit cast is rejected, never silently no-ops', () => {
+    const rs = makeRuleset();
+    const ship = makeShip(rs, 10, 2, 'south', 'H006', 0, 0);
+    const player = makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A02D: 3 } });
+    const state = makeState([player], [ship]);
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A02D' });
+    expect(rejections(state)).toEqual(['passiveAura']);
+  });
+
+  it('Slow Aura: stepSpecials slows enemy ships in range, and clears it once they leave', () => {
+    const rs = makeRuleset();
+    const caster = makeShip(rs, 10, 2, 'south', 'H006', 0, 0);
+    const enemy = makeShip(rs, 20, 7, 'north', 'H001', 1000, 0); // within 1500
+    const state = makeState(
+      [makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A02D: 3 } }), makePlayer(7, 'north')],
+      [caster, enemy],
+    );
+
+    stepSpecials(state, rs);
+    expect(enemy.statuses).toContainEqual({
+      kind: 'speedAura',
+      moveSpeedPct: -0.15, // rank 3
+      sourceAbilityId: 'A02D',
+    });
+
+    // Out of range -> next pass strips the aura (no stacking, range-tracked).
+    enemy.x = 3000;
+    stepSpecials(state, rs);
+    expect(enemy.statuses.some((s) => s.kind === 'speedAura')).toBe(false);
+  });
+
+  it('a special cast on cooldown is rejected', () => {
+    const rs = makeRuleset();
+    const ship = makeShip(rs, 10, 2, 'south', 'H006', 0, 0);
+    const player = makePlayer(2, 'south', { shipId: 10, heroSkillLevels: { A037: 1 } });
+    const state = makeState([player], [ship]);
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A037' });
+    applySpecialsCommand(state, rs, { type: 'castAbility', player: 2, abilityId: 'A037' });
+    expect(rejections(state)).toEqual(['onCooldown']);
   });
 });
 

@@ -775,6 +775,50 @@ describe('compileClassicRuleset — abilities', () => {
     expect(rs.abilities['A037']?.specialKey).toBe('AHtc'); // EMP
   });
 
+  it('decodes special abilities into SpecialParams (kinds + per-rank magnitudes)', () => {
+    // Capsize (Auco A01A): suicidal nuke, primary Dda2 + splash Dda4 by rank.
+    const cap = rs.abilities['A01A']?.special;
+    expect(cap?.kind).toBe('capsize');
+    expect(cap?.suicidal).toBe(true);
+    expect(cap?.damagePerRank).toEqual([250, 500, 750, 1000, 1250, 1500]);
+    expect(cap?.splashPerRank).toEqual([100, 160, 220, 280, 340, 400]);
+
+    // EMP (AHtc A037): self-AoE damage Htc1 + 40% sail slow for 10 s.
+    const emp = rs.abilities['A037']?.special;
+    expect(emp?.kind).toBe('empBlast');
+    expect(emp?.areaRadius).toBe(700);
+    expect(emp?.damagePerRank).toEqual([500]);
+    expect(emp?.moveSpeedPctPerRank).toEqual([-0.4]);
+    expect(emp?.effectDurTicksPerRank).toEqual([200]);
+
+    // Slow Aura (AOae A02D): passive enemy sail-speed slow (Oae1).
+    const slow = rs.abilities['A02D']?.special;
+    expect(slow?.kind).toBe('slowAura');
+    expect(slow?.passive).toBe(true);
+    expect(slow?.areaRadius).toBe(1500);
+    expect(slow?.moveSpeedPctPerRank).toEqual([-0.05, -0.1, -0.15, -0.2, -0.25, -0.3]);
+
+    // Pirate Crew (AUls A00J): timed summon swarm (Ulsu u000, Uls1 counts).
+    const swarm = rs.abilities['A00J']?.special;
+    expect(swarm?.kind).toBe('summonSwarm');
+    expect(swarm?.summonTypeIdPerRank?.[0]).toBe('u000');
+    expect(swarm?.summonCountPerRank).toEqual([4, 6, 8, 10, 12, 14]);
+
+    // Barrier (AHds A01V): innate timed invulnerability (adur 5..10 s).
+    expect(rs.abilities['A01V']?.special?.kind).toBe('barrier');
+    expect(rs.abilities['A01V']?.special?.effectDurTicksPerRank).toEqual([100, 120, 140, 160, 180, 200]);
+
+    // Shared base, different behavior keyed by id: Send Spy vs Goblin Bomber.
+    expect(rs.abilities['A02Z']?.special?.kind).toBe('sendSpy');
+    expect(rs.abilities['A055']?.special?.kind).toBe('goblinMine');
+    // Eat Hero / Digest Hero both decode to 'devour'.
+    expect(rs.abilities['A04R']?.special?.kind).toBe('devour');
+    expect(rs.abilities['A04N']?.special?.kind).toBe('devour');
+    // Non-special abilities carry no special params.
+    expect(rs.abilities['A00Y']?.special).toBeNull(); // Fishing Net (ensnare)
+    expect(rs.abilities['A04C']?.special).toBeNull(); // Dive
+  });
+
   it('compiles the Fishing Net (A00Y, ANen) as a ranged ensnare hold', () => {
     const net = rs.abilities['A00Y'];
     expect(net?.mechanic).toBe('ensnare'); // not a stubbed 'special'
@@ -822,7 +866,7 @@ describe('ruleset integrity and determinism', () => {
       expect(rs.map.navByTeam[team].dist).toBeInstanceOf(Int32Array);
       expect(rs.map.navHomeByTeam[team].dist).toBeInstanceOf(Int32Array);
     }
-    const { waterMask, navByTeam, navHomeByTeam, ...mapRest } = rs.map;
+    const { waterMask, navByTeam, navHomeByTeam, navToRegion, ...mapRest } = rs.map;
     const { cells, ...maskRest } = waterMask;
     void cells;
     // Strip the typed `dist` from each nav field; keep the JSON-able metadata.
@@ -830,6 +874,11 @@ describe('ruleset integrity and determinism', () => {
       const { dist, ...rest } = nav;
       void dist;
       return rest;
+    };
+    const stripRegionNav = (fields: typeof navToRegion): Record<string, object> => {
+      const out: Record<string, object> = {};
+      for (const name of Object.keys(fields)) out[name] = stripNav(fields[name]!);
+      return out;
     };
     const jsonable = {
       ...rs,
@@ -841,6 +890,7 @@ describe('ruleset integrity and determinism', () => {
           south: stripNav(navHomeByTeam.south),
           north: stripNav(navHomeByTeam.north),
         },
+        navToRegion: stripRegionNav(navToRegion),
       },
     };
     expect(JSON.parse(JSON.stringify(jsonable))).toEqual(jsonable);

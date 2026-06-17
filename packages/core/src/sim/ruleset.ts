@@ -86,6 +86,8 @@ import type {
   ShipSpec,
   ShopItemEntry,
   ShopSpec,
+  SpecialKind,
+  SpecialParams,
   StackRule,
   StructurePlacement,
   StructureEntity,
@@ -134,6 +136,12 @@ const AHTB_DEFAULT_MISSILE_SPEED = 1000;
 const AREL_DEFAULT_HP_PER_SEC = 2;
 /** SEMANTICS §5: H001's Adtg true-sight radius (stock 1200). */
 const ADTG_TRUE_SIGHT_RADIUS = 1200;
+/** Send Spy (A02Z): no duration field in the dump — PROVISIONAL spy lifetime. */
+const SEND_SPY_LIFETIME_S = 60;
+/** Eat Hero (A04R): flat 210 dmg/s while digesting (tooltip text). */
+const EAT_HERO_DPS = 210;
+/** Devour digest window (Dev1/Dev3 ~= 99 s); the DoT usually kills first. */
+const DEVOUR_WINDOW_S = 99;
 /** SEMANTICS §5: stock sentry-ward (oeye) true-sight/vision radius. */
 const PROVISIONAL_SENTRY_WARD_SIGHT = 1600;
 /** WC3 engine: 0.20 rad per 0.03 s frame is the effective turn-rate cap. */
@@ -760,6 +768,310 @@ function slopeExtendedRanks(ctx: CompileCtx, abilityId: string, fieldId: string,
   return Array.from({ length: ranks }, (_, i) => step * (i + 1));
 }
 
+// ---------------------------------------------------------------------------
+// Exotic 'special' abilities (specials.ts dispatches on SpecialParams.kind)
+// ---------------------------------------------------------------------------
+
+/**
+ * Map a special ability to its normalized behavior. A few rawcodes share a
+ * WC3 base but behave differently, so abilityId wins before base: Send Spy
+ * (A02Z) and Goblin Bomber (A055) are both Ashs; Digest Hero (A04N, Advc) and
+ * Eat Hero (A04R, ACdv) are both 'devour'. Unknown bases stay null and the sim
+ * rejects the cast (no silent success).
+ */
+function specialKindFor(abilityId: string, base: string): SpecialKind | null {
+  switch (abilityId) {
+    case 'A02Z':
+      return 'sendSpy';
+    case 'A055':
+      return 'goblinMine';
+    case 'A04N':
+      return 'devour';
+    case 'A032':
+      return 'fireMissile';
+  }
+  switch (base) {
+    case 'Auco':
+      return 'capsize';
+    case 'AHtc':
+      return 'empBlast';
+    case 'ANab':
+      return 'acidBomb';
+    case 'AOw2':
+      return 'freezeWater';
+    case 'AEsh':
+      return 'sailRipper';
+    case 'Amls':
+      return 'boardShip';
+    case 'Aap1':
+      return 'damageAura';
+    case 'AOae':
+      return 'slowAura';
+    case 'AUau':
+      return 'regenAura';
+    case 'AUls':
+    case 'ACsf':
+      return 'summonSwarm';
+    case 'Ashs':
+      return 'sendSpy';
+    case 'ANsi':
+      return 'disrupt';
+    case 'Arej':
+      return 'repairHot';
+    case 'AOmi':
+      return 'mirrorImage';
+    case 'ACdv':
+    case 'Advc':
+      return 'devour';
+    case 'Absk':
+      return 'intercept';
+    case 'AHds':
+      return 'barrier';
+    case 'Afzy':
+      return 'fireMissile';
+    default:
+      return null;
+  }
+}
+
+/** Fill nulls with the nearest known value (prev, else next), else fallback. */
+function fillGaps(raw: (number | null)[], fallback: number): number[] {
+  const out = raw.slice();
+  let prev: number | null = null;
+  for (let i = 0; i < out.length; i++) {
+    const v = out[i];
+    if (v !== null && v !== undefined) prev = v;
+    else if (prev !== null) out[i] = prev;
+  }
+  let next: number | null = null;
+  for (let i = out.length - 1; i >= 0; i--) {
+    const v = out[i];
+    if (v !== null && v !== undefined) next = v;
+    else if (next !== null) out[i] = next;
+  }
+  return out.map((v) => (v === null || v === undefined ? fallback : v));
+}
+
+/** Per-rank numeric field, gaps filled from neighbours (index 0 = rank 1). */
+function specialNums(
+  ctx: CompileCtx,
+  abilityId: string,
+  fieldId: string,
+  ranks: number,
+  fallback = 0,
+): number[] {
+  const raw: (number | null)[] = [];
+  for (let lvl = 1; lvl <= ranks; lvl++) {
+    raw.push(fieldNumAt(ctx.abilities, abilityId, fieldId, lvl));
+  }
+  return fillGaps(raw, fallback);
+}
+
+/** Per-rank string field (Ulsu/Osf1 unit-type ids) with carry-forward. */
+function specialStrs(ctx: CompileCtx, abilityId: string, fieldId: string, ranks: number): string[] {
+  const out: string[] = [];
+  let last = '';
+  for (let lvl = 1; lvl <= ranks; lvl++) {
+    const v =
+      fieldStr(ctx.abilities, abilityId, `${fieldId}:${lvl}`) ??
+      fieldStr(ctx.abilities, abilityId, fieldId);
+    if (v !== null) last = v;
+    out.push(v !== null ? v : last);
+  }
+  return out;
+}
+
+/** Hero-aware effect duration in TICKS per rank: adur (hero) else ahdu. */
+function heroDurTicks(ctx: CompileCtx, abilityId: string, ranks: number): number[] {
+  const raw: (number | null)[] = [];
+  for (let lvl = 1; lvl <= ranks; lvl++) {
+    const s =
+      fieldNumAt(ctx.abilities, abilityId, 'adur', lvl) ??
+      fieldNumAt(ctx.abilities, abilityId, 'ahdu', lvl);
+    raw.push(s);
+  }
+  return fillGaps(raw, 0).map((s) => secondsToTicks(s, ctx.tickRate));
+}
+
+function emptySpecial(kind: SpecialKind): SpecialParams {
+  return {
+    kind,
+    suicidal: false,
+    passive: false,
+    friendlyTarget: false,
+    structureTarget: false,
+    areaRadius: 0,
+    damagePerRank: [],
+    splashPerRank: [],
+    splashRadiusPerRank: [],
+    dotPerSecondPerRank: [],
+    splashDotPerSecondPerRank: [],
+    moveSpeedPctPerRank: [],
+    healTotalPerRank: [],
+    regenPctPerRank: [],
+    effectDurTicksPerRank: [],
+    summonTypeIdPerRank: [],
+    summonCountPerRank: [],
+  };
+}
+
+/**
+ * Decode a 'special' ability's per-rank parameters from its WC3 object data.
+ * Field codes come from the map dump (data/json/abilities.json); the
+ * interpretation is the WC3 base-ability semantics parameterized by them
+ * (none of these are trigger-scripted — confirmed 0 war3map.j references
+ * except A032/A01R). PROVISIONAL choices are flagged inline.
+ */
+function compileSpecial(
+  ctx: CompileCtx,
+  abilityId: string,
+  base: string,
+  ranks: number,
+): SpecialParams | null {
+  const kind = specialKindFor(abilityId, base);
+  if (kind === null) return null;
+  const p = emptySpecial(kind);
+  const area1 = fieldNumAt(ctx.abilities, abilityId, 'aare', 1) ?? 0;
+
+  switch (kind) {
+    case 'capsize':
+      // Auco A01A: targeted suicidal explosion. Dda2 primary, Dda4 splash,
+      // Dda3 splash radius; the caster ship is destroyed (BTNSelfDestruct).
+      p.suicidal = true;
+      p.damagePerRank = specialNums(ctx, abilityId, 'Dda2', ranks);
+      p.splashPerRank = specialNums(ctx, abilityId, 'Dda4', ranks);
+      p.splashRadiusPerRank = specialNums(ctx, abilityId, 'Dda3', ranks);
+      break;
+    case 'empBlast':
+      // AHtc A037: self-centred AoE damage (Htc1) + sail-speed slow (Htc4)
+      // for the hero duration (adur). Area aare.
+      p.areaRadius = area1;
+      p.damagePerRank = specialNums(ctx, abilityId, 'Htc1', ranks);
+      p.moveSpeedPctPerRank = specialNums(ctx, abilityId, 'Htc4', ranks).map((v) => -v);
+      p.effectDurTicksPerRank = heroDurTicks(ctx, abilityId, ranks);
+      break;
+    case 'acidBomb':
+      // ANab A01B: targeted DoT (Nab4) + splash DoT (Nab5) + slow (Nab1) over
+      // the hero duration. Armor reduction (Nab3) is OMITTED — the sim has no
+      // armor-debuff channel (PROVISIONAL).
+      p.areaRadius = area1;
+      p.dotPerSecondPerRank = specialNums(ctx, abilityId, 'Nab4', ranks);
+      p.splashDotPerSecondPerRank = specialNums(ctx, abilityId, 'Nab5', ranks);
+      p.moveSpeedPctPerRank = specialNums(ctx, abilityId, 'Nab1', ranks).map((v) => -v);
+      p.effectDurTicksPerRank = heroDurTicks(ctx, abilityId, ranks);
+      break;
+    case 'freezeWater':
+      // AOw2 A03M: self-centred AoE damage (Wrs1) + root (ensnare) for ahdu.
+      p.areaRadius = area1;
+      p.damagePerRank = specialNums(ctx, abilityId, 'Wrs1', ranks);
+      p.effectDurTicksPerRank = heroDurTicks(ctx, abilityId, ranks);
+      break;
+    case 'sailRipper':
+      // AEsh A03N: targeted damage (Esh5) + heavy sail slow for adur. The
+      // rank-1 "reduce to X%" field (Esh2) is absent in the dump, so the slow
+      // magnitude is PROVISIONAL (reduce to ~50% => -0.5).
+      p.damagePerRank = specialNums(ctx, abilityId, 'Esh5', ranks);
+      p.moveSpeedPctPerRank = specialNums(ctx, abilityId, 'Esh2', ranks, 0.5).map((v) => -(1 - v));
+      p.effectDurTicksPerRank = heroDurTicks(ctx, abilityId, ranks);
+      break;
+    case 'boardShip':
+      // Amls A01R: root (ensnare) the target + DoT (mls1) for adur.
+      p.dotPerSecondPerRank = specialNums(ctx, abilityId, 'mls1', ranks);
+      p.effectDurTicksPerRank = heroDurTicks(ctx, abilityId, ranks);
+      break;
+    case 'damageAura':
+      // Aap1 A01W: passive Aura of Fright — Apl2 dmg/s to enemies in aare.
+      p.passive = true;
+      p.areaRadius = area1;
+      p.dotPerSecondPerRank = specialNums(ctx, abilityId, 'Apl2', ranks);
+      break;
+    case 'slowAura':
+      // AOae(-) A02D: passive enemy sail-speed slow (Oae1, negative) in aare.
+      p.passive = true;
+      p.areaRadius = area1;
+      p.moveSpeedPctPerRank = specialNums(ctx, abilityId, 'Oae1', ranks);
+      break;
+    case 'regenAura':
+      // AUau A02E: passive ally regen-boost (Uau2 fraction) in aare.
+      p.passive = true;
+      p.areaRadius = area1;
+      p.friendlyTarget = true;
+      p.regenPctPerRank = specialNums(ctx, abilityId, 'Uau2', ranks);
+      break;
+    case 'summonSwarm': {
+      // AUls (Locust-swarm: Pirate/Ghost Crew, Release Hunters) or ACsf
+      // (Spawn Seamonster). Ulsu/Osf1 unit type, Uls1/Osf2 count, adur dur.
+      p.areaRadius = area1;
+      const uls = specialStrs(ctx, abilityId, 'Ulsu', ranks);
+      const hasUls = uls.some((s) => s.length > 0);
+      p.summonTypeIdPerRank = hasUls ? uls : specialStrs(ctx, abilityId, 'Osf1', ranks);
+      p.summonCountPerRank = hasUls
+        ? specialNums(ctx, abilityId, 'Uls1', ranks, 1)
+        : specialNums(ctx, abilityId, 'Osf2', ranks, 1);
+      p.effectDurTicksPerRank = heroDurTicks(ctx, abilityId, ranks);
+      break;
+    }
+    case 'sendSpy':
+      // Ashs A02Z: drop a detector/vision spy on the target ship. No duration
+      // field in the dump; PROVISIONAL lifetime = the recast cooldown.
+      p.effectDurTicksPerRank = Array.from({ length: ranks }, () =>
+        secondsToTicks(SEND_SPY_LIFETIME_S, ctx.tickRate),
+      );
+      break;
+    case 'disrupt':
+      // ANsi A038: point-area silence. Nsi1 is the Silence buff duration
+      // (15 s); the tooltip's HeroDur token (adur 0.5 s) is treated as a map
+      // data artefact — the meaningful silence is Nsi1 (PROVISIONAL choice).
+      p.areaRadius = area1;
+      p.effectDurTicksPerRank = specialNums(ctx, abilityId, 'Nsi1', ranks).map((s) =>
+        secondsToTicks(s, ctx.tickRate),
+      );
+      break;
+    case 'repairHot':
+      // Arej A01E (ally ship) / A053 (building): heal Rej1 total over adur.
+      p.friendlyTarget = true;
+      p.structureTarget = base === 'Arej' && abilityId === 'A053';
+      p.healTotalPerRank = specialNums(ctx, abilityId, 'Rej1', ranks);
+      p.effectDurTicksPerRank = heroDurTicks(ctx, abilityId, ranks);
+      break;
+    case 'mirrorImage':
+      // AOmi A03U/A048: spawn ONE decoy "bogus ship" for adur (tooltip says a
+      // single bogus ship; the Omi1 image count is ignored — PROVISIONAL).
+      p.summonCountPerRank = Array.from({ length: ranks }, () => 1);
+      p.effectDurTicksPerRank = heroDurTicks(ctx, abilityId, ranks);
+      break;
+    case 'devour':
+      // ACdv A04R / Advc A04N: disable + heavy DoT. Eat Hero deals a flat
+      // 210 dmg/s (tooltip); Digest Hero uses Dev2. Regurgitation-on-caster-
+      // death is OMITTED (PROVISIONAL). Dev1/Dev3 ~= digest window (99 s).
+      p.dotPerSecondPerRank =
+        abilityId === 'A04R'
+          ? Array.from({ length: ranks }, () => EAT_HERO_DPS)
+          : specialNums(ctx, abilityId, 'Dev2', ranks, EAT_HERO_DPS);
+      p.effectDurTicksPerRank = Array.from({ length: ranks }, () =>
+        secondsToTicks(DEVOUR_WINDOW_S, ctx.tickRate),
+      );
+      break;
+    case 'intercept':
+      // Absk A00N: timed self sail-speed HASTE (bsk1, positive) for adur.
+      p.moveSpeedPctPerRank = specialNums(ctx, abilityId, 'bsk1', ranks);
+      p.effectDurTicksPerRank = heroDurTicks(ctx, abilityId, ranks);
+      break;
+    case 'barrier':
+      // AHds A01V: timed self invulnerability (Divine Shield) for adur.
+      p.effectDurTicksPerRank = heroDurTicks(ctx, abilityId, ranks);
+      break;
+    case 'goblinMine':
+      // Ashs A055: mark a target ship — sinks on its next item/ability use.
+      // Handled by the existing goblin-mine status system (specials.ts).
+      break;
+    case 'fireMissile':
+      // Afzy A032: cast routes to the missile launcher (no per-rank data).
+      break;
+  }
+  return p;
+}
+
 function compileAbility(ctx: CompileCtx, abilityId: string): AbilitySpec {
   // Stock abilities the map never overrides (absent from abilities.json).
   if (abilityId === 'Adtg') {
@@ -769,6 +1081,7 @@ function compileAbility(ctx: CompileCtx, abilityId: string): AbilitySpec {
       kind: 'innate',
       mechanic: 'trueSightPassive',
       specialKey: null,
+      special: null,
       skill: null,
       magnitudePerRank: [ADTG_TRUE_SIGHT_RADIUS],
       durationTicksPerRank: null,
@@ -784,6 +1097,7 @@ function compileAbility(ctx: CompileCtx, abilityId: string): AbilitySpec {
       kind: 'innate',
       mechanic: 'invisibility',
       specialKey: 'Agho',
+      special: null,
       skill: null,
       magnitudePerRank: [],
       durationTicksPerRank: null, // permanent (suppressed while acting)
@@ -851,6 +1165,7 @@ function compileAbility(ctx: CompileCtx, abilityId: string): AbilitySpec {
     kind: isHeroSkill ? 'heroSkill' : 'innate',
     mechanic,
     specialKey: mechanic === 'special' ? base : null,
+    special: mechanic === 'special' ? compileSpecial(ctx, abilityId, base, ranks) : null,
     skill,
     magnitudePerRank,
     durationTicksPerRank,
@@ -1873,12 +2188,26 @@ function compileMap(mapLayout: RawMapLayoutFile, tickRate: number, terrain?: Raw
     regionOrFail(name);
   }
 
-  const bounds = {
-    minX: mapLayout.mapBounds.playableArea.minX,
-    minY: mapLayout.mapBounds.playableArea.minY,
-    maxX: mapLayout.mapBounds.playableArea.maxX,
-    maxY: mapLayout.mapBounds.playableArea.maxY,
-  };
+  // Map extent. When the real terrain mask is loaded, the PLAYABLE rectangle it
+  // was cropped to (war3map.w3i camera bounds; the unplayable border removed —
+  // see docs/TERRAIN.md) is the single source of truth: the movement clamp, the
+  // camera and the client minimap all read map.bounds, and the water mask must
+  // span the SAME rect so isWater maps world coords into it. Fall back to the
+  // editor Entire_Map playable rect for the open-sea stub (no terrain), keeping
+  // the legacy behaviour of every harness that compiles without terrain.json.
+  const bounds = terrain
+    ? {
+        minX: mustNum(terrain.bounds.minX, 'terrain minX'),
+        minY: mustNum(terrain.bounds.minY, 'terrain minY'),
+        maxX: mustNum(terrain.bounds.maxX, 'terrain maxX'),
+        maxY: mustNum(terrain.bounds.maxY, 'terrain maxY'),
+      }
+    : {
+        minX: mapLayout.mapBounds.playableArea.minX,
+        minY: mapLayout.mapBounds.playableArea.minY,
+        maxX: mapLayout.mapBounds.playableArea.maxX,
+        maxY: mapLayout.mapBounds.playableArea.maxY,
+      };
   const waterMask = compileWaterMask(bounds, terrain);
 
   // Per-team push goal = the ENEMY HQ (south pushes north, north pushes south).
@@ -1903,11 +2232,40 @@ function compileMap(mapLayout: RawMapLayoutFile, tickRate: number, terrain?: Raw
     north: compileNavField(waterMask, northBase.x, northBase.y), // north retreats home
   };
 
+  // Trader-destination fields (see MapSpec.navToRegion): the per-team base
+  // fields only flow toward a base, so a trader sailing OUT to a far pickup
+  // corner or the central Refinery has no gradient to follow and beelines into
+  // land. Compile a field toward each such region's center so movement can route
+  // the trader around the landmass. Allowlist of static trade-route pickup
+  // regions + the Refinery + both reward zones (only the ones that exist in this
+  // map's regions; missing ones are skipped). Built once, deterministic, no
+  // per-tick cost. Bases (South_Main/North_Main) are intentionally omitted —
+  // navHomeByTeam already covers them.
+  const TRADER_DEST_REGIONS = [
+    'AleFactory',
+    'ElvenLibrary',
+    'GhostShip',
+    'GoblinBombShop',
+    'GoblinPotionShop',
+    'Pigfarm',
+    'SwedeLumberMill',
+    'Refinery',
+    'SouthReward',
+    'NorthReward',
+  ];
+  const navToRegion: Record<string, NavField> = {};
+  for (const name of TRADER_DEST_REGIONS) {
+    const region = regions[name];
+    if (region === undefined) continue;
+    navToRegion[name] = compileNavField(waterMask, region.centerX, region.centerY);
+  }
+
   return {
     bounds,
     waterMask,
     navByTeam,
     navHomeByTeam,
+    navToRegion,
     regions,
     structures,
     playerStarts,
