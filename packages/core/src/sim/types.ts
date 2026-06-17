@@ -1109,7 +1109,13 @@ export interface BountySpec {
 
 export interface ShipSpec {
   typeId: string;
+  /** WC3 unit Name (unam) — the generic CLASS ("Battle Ship", "Cruiser").
+   * Collides across hulls; the renderer keys the sprite off it. */
   name: string;
+  /** WC3 Proper Name (upro), first entry — the DISTINCT hull name the player
+   * knows it by ("Sailor", "Crusader", "Interceptor", "Dominator", ...). Falls
+   * back to `name` when the unit has no proper name. Use for any UI label. */
+  properName: string;
   gold: number;
   /** Raw object-data fields (uhpm/udef) preserved for audit. */
   rawHp: number;

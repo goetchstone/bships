@@ -228,7 +228,8 @@ function buildShips(stage: Container): void {
   let col = 0;
   let rowPair = 0;
   for (const [typeId, spec] of ships) {
-    const name = (spec as { name: string }).name;
+    const s = spec as { name: string; properName?: string };
+    const name = s.properName ?? s.name;
     const gold = (spec as { gold: number }).gold;
 
     // South on the upper half-row, North on the lower half-row of one band.
@@ -252,7 +253,7 @@ function buildShips(stage: Container): void {
   const subIds = ships.filter(([, s]) => (s as { isSub?: boolean }).isSub).map(([id]) => id);
   let sc = 0;
   for (const id of subIds) {
-    const nm = (catalog.ships[id] as { name: string }).name;
+    const nm = (catalog.ships[id] as { name: string; properName?: string }).properName ?? (catalog.ships[id] as { name: string }).name;
     const surf = cell(stage, sc, 0, subY, `${nm}`, 'surfaced');
     previewShip(surf.container, id, 'south', SHIP_DISPLAY_SCALE, false);
     const sub = cell(stage, sc + 1, 0, subY, `${nm}`, 'submerged');

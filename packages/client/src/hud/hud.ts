@@ -159,6 +159,8 @@ export const HUD_CSS = `
   pointer-events: auto;
 }
 .bh-slots { display: flex; gap: 6px; }
+/* Spellbook quick-keys: one slot per castable hull ability, after a gap. */
+.bh-abilities { display: flex; gap: 6px; margin-left: 10px; }
 .bh-slot {
   position: relative; width: 52px; height: 52px;
   background: radial-gradient(circle at 32% 26%, var(--bg-panel-raised), var(--bg-deep));
@@ -177,13 +179,98 @@ export const HUD_CSS = `
   background: var(--bg-deep);
 }
 .bh-slot.bh-empty:hover { border-color: var(--border); box-shadow: none; }
+.bh-slot.bh-hidden { display: none; }
 .bh-slot.bh-ability {
-  margin-left: 10px; border-color: var(--gold);
+  border-color: var(--gold);
   background: radial-gradient(circle at 32% 26%, var(--bg-panel-raised), #1a2236);
 }
-.bh-slot.bh-ability:not(.bh-empty):hover {
+.bh-slot.bh-ability:hover {
   box-shadow: 0 0 0 1px var(--gold), 0 0 12px rgba(244, 201, 92, 0.45);
 }
+/* Current learned rank (e.g. "2/4"), bottom-left of the ability slot. */
+.bh-slot-rank {
+  position: absolute; bottom: 1px; left: 4px;
+  font-size: 10px; font-weight: 700; color: var(--gold);
+  text-shadow: 0 1px 2px #000; font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+/* Level-up '+' badge (top-right): shown only while the ability can be ranked.
+   Hidden by default; .bh-show reveals it. When a point can actually be spent
+   (.bh-can-learn) it grows into a glowing "+1pt" pill so the affordance is
+   impossible to miss. */
+.bh-slot-plus {
+  position: absolute; top: -6px; right: -6px;
+  min-width: 17px; height: 17px; border-radius: 999px;
+  display: none; align-items: center; justify-content: center;
+  background: var(--ready); border: 1px solid var(--bg-deep);
+  color: var(--bg-deep); font-size: 11px; font-weight: 900; line-height: 1;
+  cursor: pointer; padding: 0 4px;
+  box-shadow: 0 0 8px rgba(106, 222, 138, 0.7);
+}
+.bh-slot-plus.bh-show { display: flex; }
+.bh-slot-plus.bh-can-learn {
+  box-shadow: 0 0 0 2px rgba(106, 222, 138, 0.55), 0 0 12px rgba(106, 222, 138, 0.95);
+  animation: bh-plus-pulse 1.1s ease-in-out infinite;
+}
+.bh-slot-plus:hover { background: var(--text); }
+@keyframes bh-plus-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.16); }
+}
+
+/* An UNLEARNED hero skill (rank 0): desaturate + dim the icon and stamp a lock
+   so it reads as "not yet learned" rather than a broken key. The slot frame
+   stays so its key + the "+" badge remain visible/clickable. */
+.bh-slot.bh-ability.bh-unlearned { border-color: var(--border); opacity: 0.96; }
+.bh-slot.bh-ability.bh-unlearned .bh-slot-icon {
+  filter: grayscale(1) brightness(0.6); opacity: 0.5;
+}
+.bh-slot.bh-ability.bh-unlearned::after {
+  content: '\\1F512'; /* lock */
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; opacity: 0.85; pointer-events: none;
+  text-shadow: 0 1px 3px #000;
+}
+.bh-slot.bh-ability.bh-unlearned .bh-slot-rank { color: var(--text-dim); }
+
+/* Unspent-skill-points indicator beside the spellbook: a glowing pill so the
+   player knows there's a point to spend on a pulsing "+" badge. */
+.bh-skillpoints {
+  display: flex; align-items: center; gap: 5px; align-self: center;
+  margin-left: 8px; padding: 4px 9px; border-radius: 999px;
+  background: color-mix(in srgb, var(--ready) 18%, var(--bg-panel-raised));
+  border: 1px solid var(--ready);
+  color: var(--ready); font-size: 11px; font-weight: 700; white-space: nowrap;
+  box-shadow: 0 0 10px rgba(106, 222, 138, 0.45);
+  animation: bh-plus-pulse 1.6s ease-in-out infinite;
+}
+.bh-skillpoints[hidden] { display: none; }
+.bh-skillpoints-dot { font-size: 9px; line-height: 1; }
+
+/* Passive-skill learn strip: its own shelf just above the inventory bar. One
+   chip per passive learnable skill (hull / sails / repair crew / auras) with
+   the same "+1pt" badge as the cast bar, so every learnable skill has exactly
+   one place to spend a point. Hidden when the hull has no passive skills. */
+.bh-skillstrip {
+  position: absolute; bottom: 84px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 9px; max-width: 92vw;
+  padding: 4px 10px; border-radius: 10px;
+  background: linear-gradient(180deg, var(--bg-panel), var(--bg-panel-raised));
+  border: 1px solid var(--border); box-shadow: var(--bh-shadow);
+  pointer-events: auto;
+}
+.bh-skillstrip[hidden] { display: none; }
+.bh-skillstrip-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
+  color: var(--gold); white-space: nowrap;
+}
+.bh-skillchips { display: flex; gap: 6px; }
+.bh-slot.bh-skillchip { width: 38px; height: 38px; cursor: default; }
+.bh-slot.bh-skillchip:hover {
+  box-shadow: 0 0 0 1px var(--gold), 0 0 10px rgba(244, 201, 92, 0.4);
+}
+.bh-slot.bh-skillchip .bh-slot-icon { font-size: 18px; }
+.bh-slot.bh-skillchip.bh-ability.bh-unlearned::after { font-size: 14px; }
 .bh-slot-icon {
   display: flex; align-items: center; justify-content: center;
   width: 100%; height: 100%; font-size: 24px;
@@ -232,9 +319,28 @@ export const HUD_CSS = `
   cursor: help; pointer-events: auto;
 }
 
+/* ---- armed-target cue (BUG 2): centred prompt while a targeted ability /
+   item is armed (store.ui.pendingTarget). Anchored above the inventory bar,
+   pointer-events:none so the player's targeting click passes through to the
+   canvas. Uses the danger accent to match the attack-move armed state. ---- */
+.bh-targetcue {
+  position: absolute; bottom: 168px; left: 50%; transform: translateX(-50%);
+  z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 7px 16px; border-radius: 999px;
+  background: color-mix(in srgb, var(--danger) 20%, var(--bg-panel-raised));
+  border: 1px solid var(--danger);
+  box-shadow: 0 0 14px rgba(255, 92, 92, 0.5);
+  color: var(--text); font: inherit; white-space: nowrap;
+  pointer-events: none;
+  animation: bh-plus-pulse 1.4s ease-in-out infinite;
+}
+.bh-targetcue[hidden] { display: none; }
+.bh-targetcue-text { font-weight: 700; letter-spacing: 0.2px; }
+.bh-targetcue-hint { font-size: 10px; color: var(--text-dim); }
+
 /* ---- shop ---- */
 .bh-shop-pill {
-  position: absolute; bottom: 84px; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: 132px; left: 50%; transform: translateX(-50%);
   padding: 6px 15px; border-radius: 999px;
   background: var(--bg-panel-raised); border: 1px solid var(--accent);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
@@ -242,9 +348,13 @@ export const HUD_CSS = `
 }
 .bh-shop-pill .bh-slot-key { position: static; font-size: 13px; }
 
-/* ---- shop proximity cue (off-screen base shop, click to frame) ---- */
+/* ---- shop proximity cue (off-screen base shop, click to frame) ----
+   Anchored ABOVE the inventory bar (which hugs the bottom edge and can wrap to
+   ~110px tall with its hint caption) so the gold pill never covers an inventory
+   slot's quick-key label (task #21). z-index keeps it below the bar regardless. */
 .bh-shopcue {
-  position: absolute; bottom: 84px; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: 132px; left: 50%; transform: translateX(-50%);
+  z-index: 1;
   display: flex; align-items: center; gap: 8px;
   padding: 6px 15px; border-radius: 999px;
   background: var(--bg-panel-raised); border: 1px solid var(--gold);

@@ -75,11 +75,32 @@ function shipOf(state: SimState, slot: number): ShipEntity {
 describe('terrain integration (real water mask)', () => {
   it('compiles a real mask (not the open-sea stub) and per-team nav fields', () => {
     expect(ruleset.map.waterMask.cells.length).toBeGreaterThan(0);
-    // ~61% of the 384x512 grid is water; the rest is the landmass the lanes cut.
+    // The mask is the embedded minimap classified by the owner's CONFIRMED colour
+    // key — SAILABLE WATER = NON-BLUE (yellow deep + green shallow + pink passable),
+    // LAND = only the blue-dominant ridge pixels — per tile, cropped to the 81x113
+    // PLAYABLE tilepoint grid (the unplayable border removed; the WEST bound extended
+    // 3 cells west of the camera bounds so the Goblin Potion Dealer shop sits off the
+    // grid edge — see docs/TERRAIN.md WEST-BOUND EXTENSION), PLUS only MINIMAL 1-cell
+    // connectivity necks (so every shop + dock/spawn reaches the sea and the two
+    // bases stay water-connected) PLUS the two owner-approved carved WEST
+    // sail-around island moats: each is a closed 1-cell water ring (24-cell cycle)
+    // around a 25-cell land core with EXACTLY ONE entrance. After the west-bound
+    // extension BOTH west shops sit ON their island LAND core (Goblin at grid col 3,
+    // Lumber Mill at grid col 6) — true sail-around islands you loop around through a
+    // single narrow entrance. Water fraction is the NON-BLUE classification + necks +
+    // moats ~0.66 (here 0.656), the faithful ~half-water silhouette — NOT the prior
+    // too-dry ~0.29 yellow-only trace.
     const water = ruleset.map.waterMask.cells.reduce((n, c) => n + c, 0);
     const total = ruleset.map.waterMask.cells.length;
-    expect(water / total).toBeGreaterThan(0.4);
-    expect(water / total).toBeLessThan(0.9);
+    expect(total).toBe(81 * 113);
+    // ~0.66: the NON-BLUE colour-key classification (sailable water = yellow deep
+    // + green shallow + pink passable; LAND = only the blue-dominant ridge pixels)
+    // + minimal necks + the two west moats. Over the playable crop this reads
+    // honestly higher than the ~0.535 measured over the WHOLE minimap content box,
+    // because the playable rectangle excludes the land-heavy outer borders. Stays
+    // inside [0.55, 0.70]; NOT the prior too-dry ~0.29 yellow-only trace.
+    expect(water / total).toBeGreaterThan(0.55);
+    expect(water / total).toBeLessThan(0.7);
     // Nav fields are populated (a real flood from each base goal).
     expect(ruleset.map.navByTeam.south.dist.length).toBe(total);
     expect(ruleset.map.navByTeam.north.dist.length).toBe(total);
@@ -100,10 +121,11 @@ describe('terrain integration (real water mask)', () => {
     const spawnY = ship.y;
     expect(isWater(mask, spawnX, spawnY)).toBe(true);
 
-    // Straight north from the south spawn runs into the central landmass (the
-    // coast sits ~800u ahead). The target is deep inland and mid-map (far from
-    // any base, so the nav field stays out of it) — a pure coast-stall case.
-    const target = { x: spawnX, y: spawnY + 4000 };
+    // The west-central landmass is solid land. This target sits deep inside it
+    // (a 3-cell radius of land around it, far from any base so the nav field
+    // stays out of it) — a pure coast-stall case: the ship must stop at the coast,
+    // never crossing a land cell, and stall well short of the inland target.
+    const target = { x: -3584, y: -2048 };
     expect(isWater(mask, target.x, target.y)).toBe(false); // target is on land
 
     applyCommands(state, ruleset, [
@@ -119,9 +141,10 @@ describe('terrain integration (real water mask)', () => {
     // Never entered a land cell, and stalled well short of the inland target.
     expect(everOnLand).toBe(false);
     expect(isWater(mask, ship.x, ship.y)).toBe(true);
-    expect(ship.y).toBeLessThan(target.y - 1000); // did not reach the land target
-    // It did advance toward the coast (left the dock), then stopped there.
-    expect(ship.y).toBeGreaterThan(spawnY);
+    // Did not reach the land target (stopped at the coast short of it).
+    expect(Math.hypot(ship.x - target.x, ship.y - target.y)).toBeGreaterThan(1000);
+    // It did move off the dock toward the target before stopping at the coast.
+    expect(Math.hypot(ship.x - spawnX, ship.y - spawnY)).toBeGreaterThan(50);
   });
 
   it('a ship ordered toward the enemy base follows the lane and makes forward progress', () => {
@@ -243,4 +266,95 @@ describe('terrain integration (real water mask)', () => {
     // ... and that engagement chipped at least one enemy tower's HP.
     expect(damagedTowers.size).toBeGreaterThan(0);
   }, 30000);
+
+  // Guards the core pathfinding fix (B) on the REAL mask for an ARBITRARY,
+  // NON-base destination: AleFactory sits on the far EAST edge (x≈4720), NOT
+  // near either team's base goal. Before the fix a ship ordered there got pure
+  // straight-line steering (the base-proximity gate excluded it) and stalled on
+  // the central/east coast — the owner's "ships hang up on land". With the wider
+  // field eligibility + the trader-destination fields (map.navToRegion), the
+  // ship must round the central landmass and arrive, never crossing a land cell.
+  // This is the exact leg the trader's outbound run depends on, isolated from
+  // combat/respawn so it is fast + deterministic.
+  it('a ship ordered to a far non-base destination (AleFactory) rounds the land and arrives', () => {
+    const state = createMatch(ruleset, 1, [{ slot: SOUTH_PLAYER, control: 'user' }]);
+    const ship = shipOf(state, SOUTH_PLAYER);
+    const mask = ruleset.map.waterMask;
+    const ale = ruleset.map.regions['AleFactory']!;
+    const spawnX = ship.x;
+    const spawnY = ship.y;
+
+    applyCommands(state, ruleset, [
+      { type: 'move', player: SOUTH_PLAYER, x: ale.centerX, y: ale.centerY },
+    ]);
+
+    let everOnLand = false;
+    let minDist = Infinity;
+    for (let t = 0; t < 2500; t++) {
+      // Re-issue periodically in case the field hands off to idle at the coast
+      // edge of the (land) region center — a real ship would keep nudging in.
+      if (t % 200 === 0 && ship.order.type === 'idle') {
+        applyCommands(state, ruleset, [
+          { type: 'move', player: SOUTH_PLAYER, x: ale.centerX, y: ale.centerY },
+        ]);
+      }
+      stepTick(state, ruleset);
+      if (!isWater(mask, ship.x, ship.y)) everOnLand = true;
+      minDist = Math.min(minDist, Math.hypot(ship.x - ale.centerX, ship.y - ale.centerY));
+    }
+
+    expect(everOnLand).toBe(false); // stayed on water the whole way around
+    // Arrived right next to the (land) region center — far closer than the
+    // ~5000u straight-line distance the old coast-stall left it at.
+    expect(minDist).toBeLessThan(500);
+    // And it genuinely travelled across the map (not a short hop).
+    expect(Math.hypot(ship.x - spawnX, ship.y - spawnY)).toBeGreaterThan(3000);
+  }, 30000);
+
+  // Guards the AI TRADER fix (C) end-to-end on the REAL mask: a SEATED trader
+  // (role auto-assigned by the server; here set explicitly) must buy a carrier +
+  // contract, sail OUT to AleFactory rounding the land, then back to SouthReward
+  // and DELIVER (questProgress 'delivered'). The unarmed trader is repeatedly
+  // sunk by lane creeps crossing the contested centre and respawns, so a full
+  // haul takes several minutes — the budget is generous. Both slots are traders
+  // so neither runs the combat brain (isolates the trade loop from a captain's
+  // push), and both teams are seated. The stub-mask ai.test.ts proves the trade
+  // LOGIC on open sea; only this real-mask run proves the land ROUTING that the
+  // owner reported broken ("could not get to the repair station").
+  it('a seated trader completes a full haul around the land (real mask, questProgress delivered)', () => {
+    const state = createMatch(ruleset, 0x7ade, [
+      { slot: SOUTH_PLAYER, control: 'computer', ai: { difficulty: 'normal', role: 'trader' } },
+      { slot: 7, control: 'computer', ai: { difficulty: 'normal', role: 'trader' } },
+    ]);
+    expect(state.aiMemory[SOUTH_PLAYER]?.role).toBe('trader');
+
+    const ale = ruleset.map.regions['AleFactory']!;
+    let reachedAle = false;
+    let delivered = false;
+    for (let t = 0; t < 16000 && !delivered; t++) {
+      const batch: Command[] = [];
+      for (const slot of sortedNumericKeys(state.aiMemory)) {
+        const mem = state.aiMemory[slot];
+        if (mem && state.tick >= mem.nextThinkTick) {
+          batch.push(...computeAiCommands(state, ruleset, slot, mem));
+        }
+      }
+      applyCommands(state, ruleset, batch);
+      const events = stepTick(state, ruleset);
+
+      const sid = state.players[SOUTH_PLAYER]?.shipId ?? null;
+      const sh = sid === null ? null : state.entities[sid];
+      if (sh && sh.kind === 'ship' && Math.hypot(sh.x - ale.centerX, sh.y - ale.centerY) < 500) {
+        reachedAle = true;
+      }
+      for (const e of events) {
+        if (e.type === 'questProgress' && e.stage === 'delivered' && e.player === SOUTH_PLAYER) {
+          delivered = true;
+        }
+      }
+    }
+
+    expect(reachedAle).toBe(true); // the trader rounded the land to the far pickup corner
+    expect(delivered).toBe(true); // and brought the goods back to the reward zone
+  }, 60000);
 });

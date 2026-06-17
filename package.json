@@ -10,7 +10,7 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "lint": "eslint .",
-    "dev": "pnpm --filter @bships/core build && STATS_INGEST_SECRET=\"${STATS_INGEST_SECRET:-dev-local-secret}\" STATS_URL=\"${STATS_URL:-http://localhost:8088}\" concurrently -k -n stats,server,client -c magenta,blue,green \"pnpm --filter @bships/stats dev\" \"pnpm --filter @bships/server dev\" \"pnpm --filter @bships/client dev\"",
+    "dev": "pnpm --filter @bships/core build && STATS_INGEST_SECRET=\"${STATS_INGEST_SECRET:-dev-local-secret}\" STATS_URL=\"${STATS_URL:-http://localhost:8088}\" concurrently -k -n stats,server,client -c magenta,blue,green \"pnpm --filter @bships/stats dev\" \"PORT=8787 pnpm --filter @bships/server dev\" \"pnpm --filter @bships/client dev\"",
     "start": "pnpm -r build && STATS_INGEST_SECRET=\"${STATS_INGEST_SECRET:?set STATS_INGEST_SECRET for production}\" STATS_URL=\"${STATS_URL:-http://localhost:8088}\" concurrently -k -n stats,server -c magenta,blue \"pnpm --filter @bships/stats start\" \"pnpm --filter @bships/server start\""
   },
   "devDependencies": {

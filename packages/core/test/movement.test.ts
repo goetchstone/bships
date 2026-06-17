@@ -74,6 +74,7 @@ function makeShipSpec(
   return {
     typeId,
     name: typeId,
+    properName: typeId,
     gold: 0,
     rawHp: 0,
     rawArmor: 0,

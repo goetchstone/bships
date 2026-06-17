@@ -12,7 +12,7 @@ import { onEvent, store } from '../net/store.js';
 import { bindingFor, onAction } from '../input/keymap.js';
 import type { HudContext } from './context.js';
 import { el } from './context.js';
-import { keyLabel } from './hudmath.js';
+import { keyLabel, rejectionMessage } from './hudmath.js';
 
 const MAX_LINES = 9;
 const LINE_TTL_MS = 12000;
@@ -75,9 +75,14 @@ export function initChat(ctx: HudContext): void {
   store.subscribe(drainChat);
 
   // -- own command rejections (kill lines are now in killfeed.ts) -------------
+  // Surface the sim's terse rejection reason as a helpful, human line: a rank-0
+  // hero skill ('notLearned'), a Shore-Leave-away-from-harbour ('notAtMainHarbour'),
+  // a missing target, etc. The event only carries commandType (not the specific
+  // ability), so the message is reason-driven; the inventory bar adds the named
+  // hint when it blocks a cast locally before sending.
   onEvent((ev) => {
     if (ev.type === 'commandRejected' && ev.player === store.match.mySlot) {
-      pushLine(`Cannot ${ev.commandType}: ${ev.reason}`, 'bh-system bh-reject');
+      pushLine(rejectionMessage(ev.reason, null), 'bh-system bh-reject');
     }
   });
 

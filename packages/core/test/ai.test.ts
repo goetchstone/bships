@@ -29,11 +29,13 @@ import { applyCommands, createMatch, hashState, stepTick } from '../src/sim/sim.
 import type {
   AiDifficulty,
   AiMemory,
+  AiRole,
   Command,
   PlayerConfig,
   RawDataFiles,
   Ruleset,
   ShipEntity,
+  SimEvent,
   SimState,
   StructureEntity,
 } from '../src/sim/types.js';
@@ -78,12 +80,15 @@ const SOUTH_WEAPON_SHOP_KEY = 'n001_0022'; // sells I001 on the south side
 // Helpers
 // ---------------------------------------------------------------------------
 
+/** One AI slot config for the test helpers (optional role -> default captain). */
+type AiSlotCfg = { slot: number; difficulty: AiDifficulty; role?: AiRole };
+
 /** Create a match with the given slots driven by the AI brain. */
-function makeAiMatch(seed: number, configs: { slot: number; difficulty: AiDifficulty }[]): SimState {
+function makeAiMatch(seed: number, configs: AiSlotCfg[]): SimState {
   const playerConfigs: PlayerConfig[] = configs.map((c) => ({
     slot: c.slot,
     control: 'computer',
-    ai: { difficulty: c.difficulty },
+    ai: { difficulty: c.difficulty, role: c.role },
   }));
   return createMatch(ruleset, seed, playerConfigs);
 }
@@ -142,9 +147,10 @@ function think(state: SimState, slot: number): Command[] {
  * ascending order whose nextThinkTick is due, call the brain BEFORE
  * applyCommands and merge its commands into the tick batch (ascending slot).
  */
-function driveAiMatch(seed: number, configs: { slot: number; difficulty: AiDifficulty }[], ticks: number) {
+function driveAiMatch(seed: number, configs: AiSlotCfg[], ticks: number) {
   const state = makeAiMatch(seed, configs);
   const captured: Command[][] = [];
+  const questEvents: SimEvent[] = [];
   for (let t = 0; t < ticks; t++) {
     const batch: Command[] = [];
     for (const slot of sortedNumericKeys(state.aiMemory)) {
@@ -156,15 +162,19 @@ function driveAiMatch(seed: number, configs: { slot: number; difficulty: AiDiffi
     }
     captured.push(batch);
     applyCommands(state, ruleset, batch);
-    stepTick(state, ruleset);
+    // stepTick returns + clears the per-tick event buffer; collect questProgress
+    // so all-AI quest-firing can be asserted (events are derived, not replayed).
+    for (const e of stepTick(state, ruleset)) {
+      if (e.type === 'questProgress') questEvents.push(e);
+    }
   }
-  return { state, hash: hashState(state), captured };
+  return { state, hash: hashState(state), captured, questEvents };
 }
 
 /** Replay a captured command stream onto a fresh match (no brain calls). */
 function replayCommands(
   seed: number,
-  configs: { slot: number; difficulty: AiDifficulty }[],
+  configs: AiSlotCfg[],
   captured: Command[][],
 ): SimState {
   const state = makeAiMatch(seed, configs);
@@ -797,4 +807,206 @@ describe('AI siege resolves the match', () => {
     // incidental chip alone would not reach.
     expect(mostDamaged).toBeGreaterThan(2000);
   }, 60000);
+});
+
+// ---------------------------------------------------------------------------
+// Trader role (docs/AI.md "Trader quests"): the OPTIONAL quest-runner bot. We
+// assert the trade loop (buy carrier -> buy contract -> pickup -> deliver),
+// that it never runs the combat brain, and — critically — that adding a trader
+// preserves the bit-identical replay contract AND makes the faithful quest
+// chains fire in an all-AI match (the whole point of the role).
+// ---------------------------------------------------------------------------
+
+describe('AI trader role', () => {
+  const SOUTH_HQ_KEY = 'n000_0020'; // sells the carrier hulls (H00D/H005)
+  const SOUTH_TRADE_MASTER_KEY = 'n00E_0021'; // Will — sells the south trade contracts
+  const TRADE_BOAT = 'H00D';
+  const TRADE_SHIP = 'H005';
+  const ALE_CONTRACT = 'I00K'; // free route, no lumber threshold -> first pick
+  const ALE_GOODS = 'I00J';
+
+  /** Set the player's hull type (entity + the PlayerState mirror). */
+  function setHull(state: SimState, slot: number, typeId: string): void {
+    const s = shipOf(state, slot);
+    s.typeId = typeId;
+    state.players[slot]!.shipTypeId = typeId;
+  }
+
+  it('initAiMemory defaults role to captain; the trader role is carried into memory', () => {
+    expect(initAiMemory(SOUTH_SLOT, 1, { difficulty: 'normal' }).role).toBe('captain');
+    expect(initAiMemory(SOUTH_SLOT, 1, { difficulty: 'normal', role: 'trader' }).role).toBe('trader');
+  });
+
+  it('buys a Trade Boat (H00D) at the team HQ when it lacks a carrier and can afford it', () => {
+    const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' }]);
+    const hq = findStructure(state, SOUTH_HQ_KEY);
+    const ship = shipOf(state, SOUTH_SLOT);
+    const spec = ruleset.shops[hq.typeId]!;
+    ship.x = hq.x;
+    ship.y = hq.y + spec.interactRadius - 10;
+    state.players[SOUTH_SLOT]!.gold = 1000;
+    const cmds = think(state, SOUTH_SLOT);
+    expect(cmds).toContainEqual({
+      type: 'buyShip',
+      player: SOUTH_SLOT,
+      shopId: hq.id,
+      shipTypeId: TRADE_BOAT,
+    });
+  });
+
+  it('sails to the HQ (no buy) when out of interact range', () => {
+    const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' }]);
+    const hq = findStructure(state, SOUTH_HQ_KEY);
+    const ship = shipOf(state, SOUTH_SLOT);
+    ship.x = hq.x + 3000;
+    ship.y = hq.y;
+    state.players[SOUTH_SLOT]!.gold = 1000;
+    const cmds = think(state, SOUTH_SLOT);
+    expect(cmds.some((c) => c.type === 'buyShip')).toBe(false);
+    const move = cmds.find((c) => c.type === 'move');
+    expect(move).toBeDefined();
+    if (move && move.type === 'move') expect(move.x).toBeLessThan(ship.x); // heads back to the HQ
+  });
+
+  it('idles at the HQ (no buy) until income funds the Trade Boat', () => {
+    const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' }]);
+    const hq = findStructure(state, SOUTH_HQ_KEY);
+    const ship = shipOf(state, SOUTH_SLOT);
+    const spec = ruleset.shops[hq.typeId]!;
+    ship.x = hq.x;
+    ship.y = hq.y + spec.interactRadius - 10;
+    state.players[SOUTH_SLOT]!.gold = 200; // below the 300g Trade Boat price
+    const cmds = think(state, SOUTH_SLOT);
+    expect(cmds.some((c) => c.type === 'buyShip')).toBe(false);
+  });
+
+  it('buys the Ale trade contract at the team Trade Master once it has a carrier', () => {
+    const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' }]);
+    setHull(state, SOUTH_SLOT, TRADE_BOAT);
+    const tm = findStructure(state, SOUTH_TRADE_MASTER_KEY);
+    const ship = shipOf(state, SOUTH_SLOT);
+    const spec = ruleset.shops[tm.typeId]!;
+    ship.x = tm.x;
+    ship.y = tm.y + spec.interactRadius - 10;
+    const cmds = think(state, SOUTH_SLOT);
+    expect(cmds).toContainEqual({
+      type: 'buyItem',
+      player: SOUTH_SLOT,
+      shopId: tm.id,
+      itemId: ALE_CONTRACT,
+    });
+  });
+
+  it('sails to the pickup region (AleFactory) while holding the contract but no goods', () => {
+    const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' }]);
+    setHull(state, SOUTH_SLOT, TRADE_BOAT);
+    state.players[SOUTH_SLOT]!.inventory[1] = { itemId: ALE_CONTRACT, charges: null, readyAtTick: 0 };
+    const ship = shipOf(state, SOUTH_SLOT);
+    ship.x = 0;
+    ship.y = -6000;
+    const pickup = ruleset.map.regions['AleFactory']!;
+    const cmds = think(state, SOUTH_SLOT);
+    const move = cmds.find((c) => c.type === 'move');
+    expect(move).toBeDefined();
+    if (move && move.type === 'move') {
+      expect(move.x).toBeCloseTo(pickup.centerX, 0);
+      expect(move.y).toBeCloseTo(pickup.centerY, 0);
+    }
+    // A trader never attack-moves (it is unarmed and avoids the combat brain).
+    expect(cmds.some((c) => c.type === 'attackMove')).toBe(false);
+  });
+
+  it('sails to its own reward region (SouthReward) while holding contract + goods', () => {
+    const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' }]);
+    setHull(state, SOUTH_SLOT, TRADE_BOAT);
+    const player = state.players[SOUTH_SLOT]!;
+    player.inventory[1] = { itemId: ALE_CONTRACT, charges: null, readyAtTick: 0 };
+    player.inventory[2] = { itemId: ALE_GOODS, charges: null, readyAtTick: 0 };
+    const ship = shipOf(state, SOUTH_SLOT);
+    const pickup = ruleset.map.regions['AleFactory']!;
+    ship.x = pickup.centerX;
+    ship.y = pickup.centerY;
+    const reward = ruleset.map.regions['SouthReward']!;
+    const cmds = think(state, SOUTH_SLOT);
+    const move = cmds.find((c) => c.type === 'move');
+    expect(move).toBeDefined();
+    if (move && move.type === 'move') {
+      expect(move.x).toBeCloseTo(reward.centerX, 0);
+      expect(move.y).toBeCloseTo(reward.centerY, 0);
+    }
+  });
+
+  it('upgrades H00D -> H005 at the HQ once it can afford the Trade Ship', () => {
+    const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' }]);
+    setHull(state, SOUTH_SLOT, TRADE_BOAT);
+    const hq = findStructure(state, SOUTH_HQ_KEY);
+    const ship = shipOf(state, SOUTH_SLOT);
+    const spec = ruleset.shops[hq.typeId]!;
+    ship.x = hq.x;
+    ship.y = hq.y + spec.interactRadius - 10;
+    state.players[SOUTH_SLOT]!.gold = 6000; // >= the 4525g Trade Ship price
+    const cmds = think(state, SOUTH_SLOT);
+    expect(cmds).toContainEqual({
+      type: 'buyShip',
+      player: SOUTH_SLOT,
+      shopId: hq.id,
+      shipTypeId: TRADE_SHIP,
+    });
+  });
+
+  it('emits ONLY trade actions (never the combat brain attackMove/research/siege)', () => {
+    const run = driveAiMatch(
+      7,
+      [
+        { slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' },
+        { slot: NORTH_SLOT, difficulty: 'hard' },
+      ],
+      2500,
+    );
+    for (const batch of run.captured) {
+      for (const c of batch) {
+        if (c.player !== SOUTH_SLOT) continue;
+        expect(['move', 'buyItem', 'buyShip']).toContain(c.type);
+      }
+    }
+  }, 30000);
+
+  it('a full all-AI match WITH A TRADER fires questProgress (trade deliveries)', () => {
+    // The combat brain alone fires zero quests in an all-AI match (the deferred
+    // decision in docs/AI.md); the trader closes at least one trade route
+    // (pickup -> own reward zone -> payout), so questProgress events appear.
+    const run = driveAiMatch(
+      7,
+      [
+        { slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' },
+        { slot: NORTH_SLOT, difficulty: 'hard' },
+      ],
+      3000,
+    );
+    expect(run.questEvents.some((e) => e.type === 'questProgress' && e.stage === 'delivered')).toBe(
+      true,
+    );
+  }, 30000);
+
+  it('a full match WITH A TRADER on both teams replays bit-identically (hashState)', () => {
+    const configs: AiSlotCfg[] = [
+      { slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' },
+      { slot: 3, difficulty: 'hard' },
+      { slot: NORTH_SLOT, difficulty: 'hard' },
+    ];
+    const TICKS = 2500;
+    const run = driveAiMatch(7, configs, TICKS);
+    // Re-driving the brain reproduces the FULL hash (the trader's AiMemory too).
+    const rerun = driveAiMatch(7, configs, TICKS);
+    expect(rerun.hash).toBe(run.hash);
+    // Re-applying ONLY the captured commands (buyShip/buyItem/move) reproduces
+    // the whole world (entities/players/teams) minus the brain's private memory.
+    const replayed = replayCommands(7, configs, run.captured);
+    expect(worldHash(replayed)).toBe(worldHash(run.state));
+    expect(run.captured.some((b) => b.length > 0)).toBe(true);
+    // And the trader actually completed quests during the determinism run.
+    expect(run.questEvents.some((e) => e.type === 'questProgress' && e.stage === 'delivered')).toBe(
+      true,
+    );
+  }, 30000);
 });

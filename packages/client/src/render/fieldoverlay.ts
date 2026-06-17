@@ -1,8 +1,11 @@
 /**
  * render-fieldoverlay: a cosmetic, READ-ONLY map-legibility layer painted on
- * the water — the 2 combat lanes per team, the contested centre, the trader
- * routes — so the structure of the map is obvious at a glance even with simple
- * graphics (CLAUDE.md "LANES + CENTER + TRADER ROUTES legibility").
+ * the water — the contested centre and the dashed trader routes — so the
+ * structure of the map is obvious at a glance even with simple graphics
+ * (CLAUDE.md "CENTER + TRADER ROUTES legibility"). The solid per-team lane
+ * RIBBONS were removed on owner feedback (they read as "lines imitating waves");
+ * the pure lane geometry helpers below are kept because the minimap + tests
+ * still import them.
  *
  * OWNERSHIP / boundaries (this is the LEGIBILITY module's render half):
  *  - Self-contained layer with the SAME lifecycle as render/land.ts, so the
@@ -19,8 +22,8 @@
  *  - All world->screen goes through getCamera().worldToScreen and all pixel
  *    sizes multiply by getCamera().zoom; no raw screen offsets (matches
  *    world.ts / land.ts).
- *  - Team colors come from theme.TEAM_COLOR; the contested centre + trader
- *    routes use theme.GOLD / a neutral tint so they read as "shared".
+ *  - The contested centre + trader routes use theme.GOLD / a neutral tint so
+ *    they read as "shared".
  *  - Faint by design: low alpha, thin ribbons — it must never fight the
  *    ships/structures for attention.
  *
@@ -47,7 +50,7 @@ import { store } from '../net/store.js';
 import type { WorldSample } from '../net/interpolation.js';
 import { getCamera, getViewportSize } from './camera.js';
 import { seaStaticSignature } from './world.js';
-import { GOLD, NEUTRAL_COLOR, TEAM_COLOR } from './theme.js';
+import { GOLD, NEUTRAL_COLOR } from './theme.js';
 
 // ---------------------------------------------------------------------------
 // Pure geometry (DOM-/pixi-free, unit-tested in test/fieldoverlay.test.ts)
@@ -82,17 +85,22 @@ export function lanePolyline(lane: LaneSpec): Pt[] {
  * trig), keeping every `sampleEvery`-th cell (default 1 — adjacent water cells,
  * so the chord between consecutive points can never skip a land sliver at a
  * channel bend) and hard-capped at `maxPoints`/`maxSteps`, then the lane's
- * final raw waypoints (enemy harbour + HQ) are appended so the ribbon connects
- * to the goal even when the gradient bottoms out in the base basin
- * (navStepToward returns null within its local-goal radius). Falls back to the
- * raw `lanePolyline` when there is no real field (stub mask). Pure — the caller
- * caches it (compute once per catalog).
+ * final raw waypoints (enemy harbour + HQ) are appended ONLY when the straight
+ * leg from the ribbon's current end to that waypoint stays on water — so the
+ * ribbon connects to the goal when the gradient bottoms out a few cells short
+ * inside the base basin (navStepToward returns null within its local-goal
+ * radius), but never zig-zags backward across LAND to a waypoint the gradient
+ * has already rounded (the enemy HARBOUR sits beside the channel, off the direct
+ * spawn->HQ line, so a blind straight append to it cuts across the central land).
+ * Falls back to the raw `lanePolyline` when there is no real field (stub mask).
+ * Pure — the caller caches it (compute once per catalog).
  *
  * `field` must be the lane TEAM's enemy-base field (catalog.map.navByTeam[team]).
  */
 export function traceLaneWaterPath(
   lane: LaneSpec,
   field: NavField,
+  mask: WaterMask | undefined = undefined,
   options: { sampleEvery?: number; maxPoints?: number; maxSteps?: number } = {},
 ): Pt[] {
   const sampleEvery = options.sampleEvery ?? 1;
@@ -116,9 +124,21 @@ export function traceLaneWaterPath(
   }
 
   // Append the lane's raw waypoints (enemy harbour centre, enemy HQ) so the
-  // ribbon always terminates AT the objective — the gradient stops a few cells
-  // short inside the base, and the last leg into the exact HQ is open water.
-  for (const wp of lane.waypoints) pts.push({ x: wp.x, y: wp.y });
+  // ribbon always terminates AT the objective — but ONLY a waypoint whose
+  // straight leg from the ribbon's current end (a) stays on water AND (b) moves
+  // the ribbon CLOSER to the nav goal. The gradient already winds (on the
+  // faithful narrow mask) right into the enemy base basin within a few cells of
+  // the HQ, so the enemy harbour centre — which sits OFF to the side of the
+  // channel — is now BEHIND the ribbon end; a blind append would stroke a
+  // backward/sideways leg that strands the ribbon at the harbour, ~1.7k units
+  // shy of the HQ. The closer-to-goal gate skips that off-axis harbour waypoint
+  // and keeps only the final HQ hop (the short open-water leg from the basin).
+  const goalDist = (p: Pt): number => Math.hypot(p.x - field.goalX, p.y - field.goalY);
+  for (const wp of lane.waypoints) {
+    const end = pts[pts.length - 1]!;
+    const onWater = mask === undefined || segmentStaysOnWater(end, wp, mask);
+    if (onWater && goalDist(wp) < goalDist(end)) pts.push({ x: wp.x, y: wp.y });
+  }
   return pts;
 }
 
@@ -126,6 +146,22 @@ export function traceLaneWaterPath(
 export function polylineStaysOnWater(pts: readonly Pt[], mask: WaterMask): boolean {
   for (const p of pts) {
     if (!isWater(mask, p.x, p.y)) return false;
+  }
+  return true;
+}
+
+/**
+ * Does the straight segment a->b stay entirely on navigable water? Dense-sampled
+ * at ~14u (well under a cell) so a land sliver clipped at a channel bend is
+ * caught. Pure — no RNG/time/trig. Used to gate the appended lane waypoints so
+ * the ribbon never strokes a leg across LAND.
+ */
+export function segmentStaysOnWater(a: Pt, b: Pt, mask: WaterMask): boolean {
+  const len = Math.hypot(b.x - a.x, b.y - a.y);
+  const steps = Math.max(1, Math.ceil(len / 14));
+  for (let s = 0; s <= steps; s++) {
+    const t = s / steps;
+    if (!isWater(mask, a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t)) return false;
   }
   return true;
 }
@@ -147,7 +183,7 @@ export function laneWaterPath(lane: LaneSpec, map: MapSpec): Pt[] {
   const cached = laneWaterPathCache.get(lane.id);
   if (cached !== undefined) return cached;
   const field = map.navByTeam[lane.team];
-  const path = field === undefined ? lanePolyline(lane) : traceLaneWaterPath(lane, field);
+  const path = field === undefined ? lanePolyline(lane) : traceLaneWaterPath(lane, field, map.waterMask);
   laneWaterPathCache.set(lane.id, path);
   return path;
 }
@@ -268,37 +304,11 @@ export interface FieldOverlayLayer {
 }
 
 // --- look tuning (all faint so the field overlay never fights the units) ----
-const LANE_ALPHA = 0.16;
-const LANE_OWN_ALPHA = 0.26; // own lanes a touch brighter
-const LANE_WIDTH_UNITS = 220; // ribbon half-width in WORLD units (scales w/ zoom)
 const CENTRE_ALPHA = 0.07;
 const CENTRE_BORDER_ALPHA = 0.22;
 const ROUTE_ALPHA = 0.16;
 const ROUTE_DASH_PX = 10; // dash length at zoom 1
 const ROUTE_GAP_PX = 9;
-
-/**
- * Stroke a world-space polyline as a connected screen path on `g`. Each segment
- * goes through the camera so the ribbon obeys the 2.5D squash like everything
- * else. Returns without drawing for <2 points.
- */
-function strokePolyline(
-  g: Graphics,
-  pts: readonly Pt[],
-  cam: ReturnType<typeof getCamera>,
-  width: number,
-  color: number,
-  alpha: number,
-): void {
-  if (pts.length < 2) return;
-  const first = cam.worldToScreen(pts[0]!.x, pts[0]!.y);
-  g.moveTo(first.x, first.y);
-  for (let i = 1; i < pts.length; i++) {
-    const s = cam.worldToScreen(pts[i]!.x, pts[i]!.y);
-    g.lineTo(s.x, s.y);
-  }
-  g.stroke({ width, color, alpha, cap: 'round', join: 'round' });
-}
 
 /**
  * Stroke a world-space polyline as a DASHED screen path (PixiJS v8 has no
@@ -344,12 +354,13 @@ function strokeDashed(
 export function createFieldOverlay(): FieldOverlayLayer {
   const view = new Container();
 
-  // Z-order WITHIN the layer: centre tint (lowest) -> lane ribbons -> trader
-  // routes (dashed, on top so they read as supply lines over the lanes).
+  // Z-order WITHIN the layer: centre tint (lowest) -> trader routes (dashed, on
+  // top). The solid lane RIBBONS were removed (owner feedback: they read as
+  // "lines imitating waves"); the contested-centre tint and the dashed trader
+  // supply routes remain and are visually distinct.
   const centre = new Graphics();
-  const lanes = new Graphics();
   const routes = new Graphics();
-  view.addChild(centre, lanes, routes);
+  view.addChild(centre, routes);
 
   let sig = '';
 
@@ -366,7 +377,6 @@ export function createFieldOverlay(): FieldOverlayLayer {
     sig = next;
 
     centre.clear();
-    lanes.clear();
     routes.clear();
 
     const map = getCatalog().map;
@@ -385,22 +395,6 @@ export function createFieldOverlay(): FieldOverlayLayer {
       const h = br.y - tl.y;
       centre.rect(x, y, w, h).fill({ color: NEUTRAL_COLOR, alpha: CENTRE_ALPHA });
       centre.rect(x, y, w, h).stroke({ width: 1.5, color: GOLD, alpha: CENTRE_BORDER_ALPHA });
-    }
-
-    // --- lane ribbons: each lane's SAILED water route, own team brighter -----
-    // laneWaterPath traces the winding navigable channel (around the central
-    // land, through the tower chokepoints) instead of the straight skeleton.
-    const widthPx = Math.max(2, LANE_WIDTH_UNITS * zoom);
-    for (const lane of map.lanes) {
-      const own = myTeam !== null && lane.team === myTeam;
-      strokePolyline(
-        lanes,
-        laneWaterPath(lane, map),
-        cam,
-        widthPx,
-        TEAM_COLOR[lane.team],
-        own ? LANE_OWN_ALPHA : LANE_ALPHA,
-      );
     }
 
     // --- trader routes: dashed pickup->own-team deliver supply lines --------

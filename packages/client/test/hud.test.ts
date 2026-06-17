@@ -39,6 +39,7 @@ import {
   shipAbilitySlots,
   shipActiveAbilityId,
   shipLearnableSkills,
+  shipPassiveLearnableSkills,
   sweepFraction,
   targetingCueText,
   xpProgress,
@@ -624,6 +625,68 @@ describe('level-up picker: shipLearnableSkills + canLearnSkill (the learnSkill g
     expect(net.minHeroLevel).toBe(5);
     expect(canLearnSkill(net, 0, 4, 1)).toBe(false); // too low
     expect(canLearnSkill(net, 0, 5, 1)).toBe(true); // clears the gate
+  });
+
+  // --- "I can't learn it / bigger ships show no skills" bug ----------------
+  // Root cause: the cast bar's '+' only ever appeared on CASTABLE abilities, so
+  // the PASSIVE hero skills (hull HP, sails, repair crew, auras) — which carry
+  // skill rules but no quick-key — had no badge anywhere and could never be
+  // ranked. shipPassiveLearnableSkills feeds the dedicated "Skills" strip that
+  // fixes this. These tests lock the invariant that no learnable skill is
+  // orphaned and that every hull has somewhere to spend a starting point.
+  it('the passive strip surfaces the Sailor hull/mechanics/sails (not its cannon)', () => {
+    const passive = shipPassiveLearnableSkills(catalog, 'H000').map((s) => s.abilityId);
+    // Enforced Hull, Onboard Mechanics Crew, Ship Sails — the passives.
+    expect(passive).toEqual(['A007', 'A009', 'A03W']);
+    // The Captain's Cannon (A01Y) is castable, so it keeps its badge in the cast
+    // bar and is NOT duplicated into the strip.
+    expect(passive).not.toContain('A01Y');
+    expect(passive).not.toContain('A01D'); // Shore Leave: innate, not learnable
+  });
+
+  it('EVERY learnable skill on EVERY hull is reachable (cast-bar OR strip) — no orphans', () => {
+    for (const typeId of Object.keys(catalog.ships)) {
+      const castIds = new Set(shipAbilitySlots(catalog, typeId).map((s) => s.abilityId));
+      const passiveIds = new Set(shipPassiveLearnableSkills(catalog, typeId).map((s) => s.abilityId));
+      for (const skill of shipLearnableSkills(catalog, typeId)) {
+        const reachable = castIds.has(skill.abilityId) || passiveIds.has(skill.abilityId);
+        expect(reachable, `${typeId} skill ${skill.abilityId} has no +badge`).toBe(true);
+      }
+    }
+  });
+
+  it('a hull whose castable skills are all level-gated still shows spendable passives at L1', () => {
+    // H00A Royal Ship: its only castable hero skill (A01B) needs hero level 8,
+    // so before the fix it showed ZERO '+' badges at level 1 ("no skills"). The
+    // passive strip (Mechanics, Super Hull, Nautical, Sails) is spendable at L1.
+    const passive = shipPassiveLearnableSkills(catalog, 'H00A');
+    expect(passive.length).toBeGreaterThan(0);
+    const spendableNow = passive.filter((s) => canLearnSkill(s, 0, 1, 1));
+    expect(spendableNow.length).toBeGreaterThan(0);
+  });
+});
+
+describe('ship names: distinct properName per hull (so the player knows which is which)', () => {
+  const catalog = getCatalog();
+
+  it('gives each hull its distinct WC3 proper name, not the shared class name', () => {
+    const proper = (id: string): string =>
+      (catalog.ships[id] as { properName?: string }).properName ?? '';
+    // The class name (unam) collides across hulls; the proper name (upro) does not.
+    expect(catalog.ships['H000']?.name).toBe('Battle Ship');
+    expect(proper('H000')).toBe('Sailor');
+    expect(proper('H001')).toBe('Crusader');
+    expect(proper('H003')).toBe('Interceptor');
+    // The four "Cruiser"-class hulls are distinguishable by proper name.
+    const cruisers = ['H006', 'H007', 'H008', 'H009'].map(proper);
+    expect(new Set(cruisers).size).toBe(4);
+  });
+
+  it('every hull has a non-empty proper name', () => {
+    for (const [id, spec] of Object.entries(catalog.ships)) {
+      const proper = (spec as { properName?: string }).properName ?? '';
+      expect(proper.length, `${id} has empty properName`).toBeGreaterThan(0);
+    }
   });
 });
 

@@ -15,7 +15,7 @@
       "minY": -8192.0,
       "maxX": 5312.0,
       "maxY": 6656.0,
-      "note": "matches editor Entire_Map rect and war3map.w3i playable size 85x116 tiles at 128 units/tile"
+      "note": "editor Entire_Map rect (war3map.w3i playable size 85x116 tiles at 128 units/tile). NOTE: this is NOT the rect the runtime uses for the map extent. The compiled MapSpec.bounds (camera, minimap, movement clamp) and data/json/terrain.json are CROPPED to cameraBoundsW3i below — the playable rectangle that matches the embedded minimap; the editor Entire_Map rect still includes part of the unplayable border, which threw off lane proportions. Kept here for provenance / region math."
     },
     "cameraBoundsW3i": {
       "minX": -4992.0,
@@ -27,6 +27,13 @@
         "right": 6,
         "bottom": 4,
         "top": 8
+      },
+      "note": "THE PLAYABLE RECTANGLE used at runtime, with the WEST bound then extended 3 cells (384u) further west (see westBoundExtension below): MapSpec.bounds + terrain.json bounds are minX=-5440, minY=-7424, maxX=4864, maxY=6912 (the unplayable asymmetric border cropped: 8 tiles north, 4 south, 5 west, 6 east; then the west bound pushed 3 cells out so the Goblin Potion Dealer shop sits off the grid edge on a sail-around island). Chosen because it matches the embedded minimap content; the terrain extractor crops the w3e tilepoint grid to the tilepoints whose center lies in this rect (cols 6..86 => 81 wide after the west extension, rows 6..118 => 113 tall, 128 units/tile).",
+      "westBoundExtension": {
+        "cellsAddedWest": 3,
+        "extendedMinX": -5440.0,
+        "cols": 81,
+        "note": "Owner-approved: the camera-bounds crop (minX=-4992) placed the Goblin Potion Dealer (world x=-4960) on grid col 0 (the west edge), so it could not be a sail-around island. The minimap content + w3e tile-edge extent reach west to x=-6144, so there is real minimap content west of the camera bound. terrain.py (WEST_EXTEND_CELLS=3) extends the playable west bound by 3 whole 128u cells (only minX/cols change), filling the new west columns from the SAME minimap trace, so the Goblin shop lands on grid col 3 == the minimum island-anchor col and sits on a compact 25-cell land core ringed by a closed 1-cell moat with exactly one entrance (a true sail-around island, like the Swedish Lumber Mill)."
       }
     },
     "cameraBoundsScript": {

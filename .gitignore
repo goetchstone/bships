@@ -2,6 +2,12 @@
 # Run `make extract` with your own copy of the map (see tools/extractor/README.md).
 /reference/
 /data/extracted/
+# Decoded map imagery (minimap, route overlays) — derived Blizzard/WC3 assets,
+# kept local like the map file itself; not redistributed.
+/data/reference/
+
+# Local agent/editor tooling and scratch (preview config, workflow scripts).
+.claude/
 
 node_modules/
 dist/

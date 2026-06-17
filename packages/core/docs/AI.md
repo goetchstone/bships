@@ -44,8 +44,9 @@ Rationale (the determinism mandate):
   reconstructed to keep `hashState` honest; storing it in state avoids that
   entire class of bug.
 
-`AiConfig` (just `difficulty`) is supplied per slot at `createMatch` via the new
-optional `PlayerConfig.ai` field; `createMatch` calls `initAiMemory(slot, seed,
+`AiConfig` (`difficulty` + an optional `role: 'captain' | 'trader'`, default
+`'captain'`) is supplied per slot at `createMatch` via the new optional
+`PlayerConfig.ai` field; `createMatch` calls `initAiMemory(slot, seed,
 config.ai)` for each AI slot (ascending slot order) and writes
 `state.aiMemory[slot]`. **`initAiMemory` does NOT touch `state.rngState`** — the
 brain's PRNG stream is derived from `(seed, slot)` separately, so adding AI
@@ -82,11 +83,13 @@ export const AI_TUNING: Readonly<Record<AiDifficulty, AiTuning>>;
 export function thinkIntervalTicks(difficulty: AiDifficulty): number;
 ```
 
-`AiMemory` (serializable POJO in `SimState`): `slot`, `difficulty`,
+`AiMemory` (serializable POJO in `SimState`): `slot`, `difficulty`, `role`
+(copied from `AiConfig`; selects the captain vs trader path each think),
 `initialSeed`, `aiRngState` (brain's private mulberry32 state), `nextThinkTick`
 (cadence gate), `laneId`, `stance` (`'push'|'retreat'|'regroup'`),
 `lastOrder[XY]`, `lastProgress[XY]`, `lastProgressTick`, `stuckCount`. All
-tick-valued fields are **absolute** sim ticks.
+tick-valued fields are **absolute** sim ticks. The trader path needs NO extra
+fields — its state machine is derived purely from carried inventory + hull type.
 
 ---
 
@@ -214,20 +217,38 @@ at the far +y end (`map-layout.json`). Per think, in order:
 Teammate bots use the same brain; loose coordination comes from reading allied
 ship positions/lanes, not from shared mutable state.
 
-### Trader quests are HUMAN-DRIVEN (deliberate scope decision)
+### Trader role (the OPTIONAL quest-runner)
 
-The brain has **no trader role**: it never buys a Trade Boat/Ship hull or a
-contract and never routes to a pickup region. The trader quest SYSTEMS (trade
-routes, refinery incl. the superbomb mints, repair mission, treasure hunt,
-suicide bombs) live in `economy.ts`/`specials.ts`, are faithful to `war3map.j`,
-and are exercised + asserted end-to-end through the HUMAN command path
-(`test/quests.test.ts`, `test/specials.test.ts`, `test/integration.test.ts`) —
-i.e. the real solo-vs-AI player can do every quest. Driving them from an AI bot
-would add a large pathing/state machine that risks the bit-identical replay
-contract for a feature already reachable and verified via the player. So in an
-ALL-AI (no-human) match the quest chains intentionally do not fire; this is a
-recorded decision, not an unaudited gap. (If an AI trader is ever added, gate it
-to one slot/team and add its own determinism test, like the combat brain has.)
+The quest SYSTEMS (trade routes, refinery incl. the superbomb mints, repair
+mission, treasure hunt, suicide bombs) live in `economy.ts`/`specials.ts`, are
+faithful to `war3map.j`, and are exercised + asserted end-to-end through the
+HUMAN command path (`test/quests.test.ts`, `test/specials.test.ts`,
+`test/integration.test.ts`). The combat **captain** brain still does none of
+this — it never buys a carrier or a contract — so an all-captain match fires
+zero quests. That was the original deferred decision; it is now lifted by an
+OPTIONAL second role rather than by complicating the captain.
+
+A slot whose `AiConfig.role` is `'trader'` runs a dedicated quest-runner path
+(`computeTraderThink` in `sim/ai.ts`) INSTEAD of the combat brain. It:
+
+1. buys a carrier hull at its team HQ (`n000`) — the Trade Boat `H00D` first,
+   then upgrades to the Trade Ship `H005` between hauls once it can afford it;
+2. buys a trade-route contract at its team Trade Master (`n00E` south / `n00F`
+   north) — the first eligible + affordable route in `contracts.tradeRoutes`
+   order (a fresh 0-lumber trader picks the free Ale route `I00K`);
+3. sails into the route's `pickupRegion`, then into its OWN team reward zone
+   (`SouthReward`/`NorthReward`) to deliver, and **repeats** (the contract is
+   kept on delivery), so `questProgress` fires every trip.
+
+The trader's whole state machine is derived **purely from carried inventory +
+hull type** (no committed-route memory), and it emits only the same
+`buyShip`/`buyItem`/`move` Commands a human trader would — so it cannot cheat
+the rules and the captain brain + the bit-identical replay contract are
+completely untouched. It obeys the SAME determinism rules (brain PRNG only via
+`seedAiRng`/`commitAiRng`; `dSin`/`dCos`/`dAtan2`; ascending-id shop scans;
+integer ticks) and has its own determinism + quest-firing tests in
+`test/ai.test.ts` ("AI trader role"). Designate **one trader per team** so the
+chains fire in solo-vs-AI; leave every other bot a `'captain'` (the default).
 
 ---
 

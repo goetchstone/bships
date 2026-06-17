@@ -159,6 +159,7 @@ export function initAiMemory(slot: number, seed: number, config: AiConfig): AiMe
   return {
     slot,
     difficulty: config.difficulty,
+    role: config.role ?? 'captain',
     initialSeed,
     aiRngState: initialSeed,
     nextThinkTick: 0,
@@ -275,6 +276,20 @@ export function computeAiCommands(
   if (!ship) return finish();
   const team = player.team;
   const foe = enemyTeam(team);
+
+  // --- Trader role (docs/AI.md "Trader quests") -----------------------------
+  // A designated quest-runner: it buys a carrier hull + a trade contract and
+  // sails pickup -> own reward zone -> repeat, so the faithful trade-route /
+  // refinery / treasure chains fire even in an ALL-AI match. It NEVER runs the
+  // combat brain below (no economy ladder / push / siege), so the captain
+  // brain + its replay contract are completely untouched. Every action here
+  // obeys the SAME determinism rules (brain PRNG only via `rng`, dSin/dCos/
+  // dAtan2 geometry, ascending-id iteration, integer ticks) and commits the
+  // PRNG exactly once through `finish()`.
+  if (memory.role === 'trader') {
+    computeTraderThink(state, ruleset, slot, memory, player, ship, team, commands, rng);
+    return finish();
+  }
 
   // --- 3. Survival + stance (hysteresis) ------------------------------------
   // retreatHpFraction enters retreat; recover to push only above a higher band
@@ -1150,4 +1165,323 @@ function stuckDetour(
     x: ship.x + dCos(perp) * STUCK_DETOUR_UNITS,
     y: ship.y + dSin(perp) * STUCK_DETOUR_UNITS,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Trader role (docs/AI.md "Trader quests"): an OPTIONAL dedicated quest-runner.
+//
+// The combat brain above has NO trader behavior — so in an ALL-AI match the
+// faithful trader chains (trade routes, refinery incl. the superbomb mints,
+// repair mission, treasure hunt) never fire. A bot whose `AiMemory.role` is
+// 'trader' runs THIS path instead: it buys a carrier hull (Trade Boat H00D,
+// then upgrades to Trade Ship H005), buys a trade-route contract from its team
+// Trade Master, then sails pickupRegion -> own reward zone -> repeat. The quest
+// SYSTEMS themselves are unchanged (economy.ts `stepContracts`/`stepQuestSystems`
+// grant the goods on pickup and pay out + keep the contract on delivery); the
+// trader only PRODUCES the same buy/move Commands a human trader would, so it
+// cannot cheat the rules and the bit-identical replay contract still holds.
+//
+// Determinism: same rules as the captain brain — randomness ONLY via `rng`
+// (the brain's private PRNG, committed once by `finish`), geometry via
+// `pointTowards`/`stuckDetour` (dSin/dCos/dAtan2), shop scans via
+// `nearestSellingShop`/`nearestShipShop` (ascending-id), integer ticks. The
+// trader's state machine is derived PURELY from carried inventory + hull type,
+// so no new AiMemory fields are needed and replays reproduce it exactly.
+// ---------------------------------------------------------------------------
+
+/** Cheapest trade carrier (Trade Boat, 3 inventory slots) — bought first. */
+const TRADER_ENTRY_HULL = 'H00D';
+/** Upgrade carrier (Trade Ship / Merchant Boat, 4 inventory slots). */
+const TRADER_UPGRADE_HULL = 'H005';
+/** Gold kept on hand before splurging on the H005 upgrade (0 = buy ASAP). */
+const TRADER_UPGRADE_RESERVE = 0;
+/** Stop this far inside a shop's interact radius so we never shove its collision. */
+const TRADER_SHOP_APPROACH_OFFSET = 64;
+
+/** A single trade route from the compiled ruleset (contracts.tradeRoutes). */
+type TradeRoute = Ruleset['contracts']['tradeRoutes'][number];
+/** What the trader should do for its active route this think. */
+type TraderPhase = 'buyContract' | 'pickup' | 'deliver';
+
+/** True when this slot carries `itemId` (ascending inventory scan). */
+function carriesItem(player: SimState['players'][number], itemId: string): boolean {
+  for (const item of player.inventory) if (item && item.itemId === itemId) return true;
+  return false;
+}
+
+/** True when `shipTypeId` is a trade carrier (eligible for ANY trade-route pickup). */
+function isCarrierHull(ruleset: Ruleset, shipTypeId: string): boolean {
+  for (const route of ruleset.contracts.tradeRoutes) {
+    if (route.carrierMaxItems[shipTypeId] !== undefined) return true;
+  }
+  return false;
+}
+
+/** A route this hull may carry AND this team is allowed to run (team gate). */
+function traderRouteEligible(route: TradeRoute, ship: ShipEntity, team: TeamId): boolean {
+  if (route.carrierMaxItems[ship.typeId] === undefined) return false; // wrong hull
+  if (route.team !== null && route.team !== team) return false; // team-gated route
+  return true;
+}
+
+/** True while the trader is carrying any in-transit trade good (a haul to finish). */
+function traderCarriesGoods(
+  ruleset: Ruleset,
+  player: SimState['players'][number],
+  ship: ShipEntity,
+  team: TeamId,
+): boolean {
+  for (const route of ruleset.contracts.tradeRoutes) {
+    if (!traderRouteEligible(route, ship, team)) continue;
+    if (carriesItem(player, route.goodsItemId)) return true;
+  }
+  return false;
+}
+
+/**
+ * Nearest structure on this team's side that SELLS `shipTypeId` (the team HQ
+ * n000 sells the carrier hulls; ranked by distance from the team base so the
+ * choice is ship-position independent). Unlike `nearestSellingShop` this does
+ * NOT require role 'shop' — the HQ that sells hulls has role 'hq'. null if none.
+ */
+function nearestShipShop(
+  state: SimState,
+  ruleset: Ruleset,
+  team: TeamId,
+  shipTypeId: string,
+): StructureEntity | null {
+  let best: StructureEntity | null = null;
+  let bestDist = Infinity;
+  const base = ownBasePoint(team);
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.kind !== 'structure' || e.dead) continue;
+    const spec = ruleset.shops[e.typeId];
+    if (!spec || !spec.ships.some((s) => s.shipTypeId === shipTypeId)) continue;
+    const side = shopSideOf(ruleset, e);
+    if (side !== null && side !== team) continue; // enemy-side: would reject
+    const d = dist(base.x, base.y, e.x, e.y);
+    if (d < bestDist) {
+      bestDist = d;
+      best = e;
+    }
+  }
+  return best;
+}
+
+/**
+ * Can the team afford `contractItemId` at its Trade Master right now? Mirrors
+ * economy.buyItem's gates: the gold price AND the udg_PlayerLumber THRESHOLD
+ * (never consumed, but required to buy). The free Ale route (I00K: gold 0,
+ * threshold 0) is always affordable; richer routes unlock as deliveries bank
+ * lumber. Reads the live shop entry so the bot's view matches the rule.
+ */
+function contractAffordable(
+  state: SimState,
+  ruleset: Ruleset,
+  team: TeamId,
+  player: SimState['players'][number],
+  contractItemId: string,
+): boolean {
+  const shop = nearestSellingShop(state, ruleset, team, contractItemId);
+  if (!shop) return false;
+  const spec = ruleset.shops[shop.typeId];
+  const entry = spec?.items.find((i) => i.itemId === contractItemId);
+  if (!entry) return false;
+  const lumberNeeded = Math.max(entry.lumberCost, ruleset.contracts.lumberCosts[contractItemId] ?? 0);
+  return player.lumber >= lumberNeeded && player.gold >= entry.gold;
+}
+
+/**
+ * First eligible + affordable + fully-mappable route to commit to (ascending
+ * tradeRoutes order — the same fixed order economy.ts scans, so the choice is
+ * deterministic). "Mappable" = its pickup AND own-team reward regions exist.
+ * With a fresh trader (0 lumber) this is the free Ale route; the trader then
+ * KEEPS that contract across deliveries, so it never thrashes between routes.
+ */
+function chooseTraderRoute(
+  state: SimState,
+  ruleset: Ruleset,
+  player: SimState['players'][number],
+  ship: ShipEntity,
+  team: TeamId,
+): TradeRoute | null {
+  for (const route of ruleset.contracts.tradeRoutes) {
+    if (!traderRouteEligible(route, ship, team)) continue;
+    if (!ruleset.map.regions[route.pickupRegion]) continue;
+    const deliverName = route.deliverRegionByTeam[team];
+    if (deliverName === undefined || !ruleset.map.regions[deliverName]) continue;
+    if (!contractAffordable(state, ruleset, team, player, route.contractItemId)) continue;
+    return route;
+  }
+  return null;
+}
+
+/**
+ * The trader's active route + phase, derived PURELY from carried inventory so
+ * it is stable across thinks (no committed-route memory needed):
+ *   1. carrying a route's goods (+ its kept contract) -> DELIVER it;
+ *   2. else carrying a route's contract (no goods)     -> PICKUP its good;
+ *   3. else                                            -> BUY a new contract.
+ */
+function traderRoutePlan(
+  state: SimState,
+  ruleset: Ruleset,
+  player: SimState['players'][number],
+  ship: ShipEntity,
+  team: TeamId,
+): { route: TradeRoute; phase: TraderPhase } | null {
+  const routes = ruleset.contracts.tradeRoutes;
+  for (const route of routes) {
+    if (!traderRouteEligible(route, ship, team)) continue;
+    if (carriesItem(player, route.goodsItemId) && carriesItem(player, route.contractItemId)) {
+      return { route, phase: 'deliver' };
+    }
+  }
+  for (const route of routes) {
+    if (!traderRouteEligible(route, ship, team)) continue;
+    if (carriesItem(player, route.contractItemId) && !carriesItem(player, route.goodsItemId)) {
+      if (ruleset.map.regions[route.pickupRegion]) return { route, phase: 'pickup' };
+    }
+  }
+  const target = chooseTraderRoute(state, ruleset, player, ship, team);
+  if (target) return { route: target, phase: 'buyContract' };
+  return null;
+}
+
+/**
+ * Sail toward (tx, ty) with the SAME stuck detector the captain push uses, so a
+ * trader wedged on land/collision (real-terrain server) still breaks free; in
+ * the open-sea test mask it is a plain straight-line move. The dead-zone in
+ * `issueMove` keeps a stable destination from resetting pathing every think.
+ */
+function traderSail(
+  state: SimState,
+  ruleset: Ruleset,
+  memory: AiMemory,
+  slot: number,
+  ship: ShipEntity,
+  tx: number,
+  ty: number,
+  commands: Command[],
+  rng: Rng,
+): void {
+  const tuning = AI_TUNING[memory.difficulty];
+  const epsilonSq = stuckEpsilonSq(ruleset, ship, tuning.thinkIntervalTicks);
+  if (bumpStuck(state, memory, ship, epsilonSq)) {
+    const detour = stuckDetour(ship, tx, ty, rng);
+    issueMove(commands, memory, slot, 'move', detour.x, detour.y, true);
+  } else {
+    issueMove(commands, memory, slot, 'move', tx, ty);
+  }
+}
+
+/**
+ * Acquire (or upgrade) the carrier hull at the team HQ. Returns true when it
+ * OWNS this think — i.e. it bought a hull, is sitting docked banking income for
+ * one, or is sailing to the HQ — so the caller skips the route logic. Returns
+ * false once the trader already has a sufficient carrier (then the caller runs
+ * the route plan). Buys the Trade Boat first; upgrades to the Trade Ship only
+ * between hauls (no goods in transit) once its full price is banked.
+ */
+function traderEnsureCarrier(
+  state: SimState,
+  ruleset: Ruleset,
+  slot: number,
+  memory: AiMemory,
+  player: SimState['players'][number],
+  ship: ShipEntity,
+  team: TeamId,
+  commands: Command[],
+  rng: Rng,
+): boolean {
+  let targetHull: string | null = null;
+  if (!isCarrierHull(ruleset, ship.typeId)) {
+    targetHull = TRADER_ENTRY_HULL;
+  } else if (ship.typeId === TRADER_ENTRY_HULL && !traderCarriesGoods(ruleset, player, ship, team)) {
+    const upShop = nearestShipShop(state, ruleset, team, TRADER_UPGRADE_HULL);
+    const upEntry = upShop
+      ? ruleset.shops[upShop.typeId]?.ships.find((s) => s.shipTypeId === TRADER_UPGRADE_HULL)
+      : undefined;
+    if (upEntry && player.gold >= upEntry.gold + TRADER_UPGRADE_RESERVE) {
+      targetHull = TRADER_UPGRADE_HULL;
+    }
+  }
+  if (targetHull === null) return false; // already a sufficient carrier
+
+  const shop = nearestShipShop(state, ruleset, team, targetHull);
+  if (!shop) return false; // no HQ sells it (shouldn't happen) -> let caller proceed
+  const spec = ruleset.shops[shop.typeId];
+  const reach = spec ? spec.interactRadius : 0;
+  const entry = spec?.ships.find((s) => s.shipTypeId === targetHull);
+  const cost = entry ? entry.gold : null;
+  if (dist(ship.x, ship.y, shop.x, shop.y) <= reach) {
+    // Docked: buy when affordable, else idle at the HQ banking income until it is.
+    if (cost !== null && player.gold >= cost) {
+      commands.push({ type: 'buyShip', player: slot, shopId: shop.id, shipTypeId: targetHull });
+    }
+    updateProgress(state, memory, ship);
+    return true;
+  }
+  const approach = pointTowards(
+    shop.x,
+    shop.y,
+    ship.x,
+    ship.y,
+    Math.max(0, reach - TRADER_SHOP_APPROACH_OFFSET),
+  );
+  traderSail(state, ruleset, memory, slot, ship, approach.x, approach.y, commands, rng);
+  return true;
+}
+
+/**
+ * One trader think (see the section header). Order: (1) ensure a carrier hull;
+ * (2) resolve the active route + phase from inventory; (3) act — buy the
+ * contract at the Trade Master, or sail into the pickup / own reward region
+ * (the economy quest scan does the grant/payout the tick the ship is inside the
+ * rect, since movement runs before economy in stepTick). Mutates `commands` +
+ * `memory`; the caller commits the PRNG once via `finish`.
+ */
+function computeTraderThink(
+  state: SimState,
+  ruleset: Ruleset,
+  slot: number,
+  memory: AiMemory,
+  player: SimState['players'][number],
+  ship: ShipEntity,
+  team: TeamId,
+  commands: Command[],
+  rng: Rng,
+): void {
+  if (traderEnsureCarrier(state, ruleset, slot, memory, player, ship, team, commands, rng)) return;
+
+  const plan = traderRoutePlan(state, ruleset, player, ship, team);
+  if (!plan) return; // no eligible/affordable route this think -> idle
+  const { route, phase } = plan;
+
+  if (phase === 'buyContract') {
+    const shop = nearestSellingShop(state, ruleset, team, route.contractItemId);
+    if (!shop) return;
+    const spec = ruleset.shops[shop.typeId];
+    const reach = spec ? spec.interactRadius : 0;
+    if (dist(ship.x, ship.y, shop.x, shop.y) <= reach) {
+      commands.push({ type: 'buyItem', player: slot, shopId: shop.id, itemId: route.contractItemId });
+      updateProgress(state, memory, ship);
+    } else {
+      const approach = pointTowards(
+        shop.x,
+        shop.y,
+        ship.x,
+        ship.y,
+        Math.max(0, reach - TRADER_SHOP_APPROACH_OFFSET),
+      );
+      traderSail(state, ruleset, memory, slot, ship, approach.x, approach.y, commands, rng);
+    }
+    return;
+  }
+
+  const regionName = phase === 'pickup' ? route.pickupRegion : route.deliverRegionByTeam[team];
+  const region = ruleset.map.regions[regionName];
+  if (!region) return;
+  traderSail(state, ruleset, memory, slot, ship, region.centerX, region.centerY, commands, rng);
 }

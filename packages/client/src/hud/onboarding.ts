@@ -127,7 +127,17 @@ export function helpRows(actionLabel: (action: HudAction) => string): HelpRow[] 
     actionLabel('slot5'),
   ].join(' ');
   rows.push({ keys: slotKeys, label: 'Use inventory items' });
-  rows.push({ keys: actionLabel('shipAbility'), label: 'Ship ability' });
+  // The hull spellbook quick-keys collapse to one row (a hull shows as many as
+  // it carries; the keys cover the largest hull's set).
+  const abilityKeys = [
+    actionLabel('ability0'),
+    actionLabel('ability1'),
+    actionLabel('ability2'),
+    actionLabel('ability3'),
+    actionLabel('ability4'),
+    actionLabel('ability5'),
+  ].join(' ');
+  rows.push({ keys: abilityKeys, label: 'Ship abilities (spellbook)' });
   // Info.
   rows.push({ keys: actionLabel('scoreboard'), label: 'Scoreboard (hold)' });
   rows.push({ keys: actionLabel('chat'), label: 'Chat' });

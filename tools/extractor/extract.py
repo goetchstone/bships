@@ -50,6 +50,7 @@ KNOWN_FILES = [
     ("war3map.doo", "war3map.doo", False),
     ("war3mapUnits.doo", "war3mapUnits.doo", False),
     ("war3map.wpm", "war3map.wpm", False),
+    ("war3mapMap.blp", "war3mapMap.blp", False),
 ]
 
 # objectclass -> (extension, uses extended modification records)
@@ -166,11 +167,61 @@ def parse_object_file(raw: bytes, extended: bool, strings: dict[int, str]) -> di
     return {"version": version, "objects": objects}
 
 
+def decode_blp_minimap(blp: bytes, out_png: Path) -> bool:
+    """Decode the map's embedded minimap (war3mapMap.blp, BLP1) to a PNG.
+
+    BLP1 stores either a palette image (compression 1) or a JPEG (compression
+    0). This map's minimap is a 256x256 JPEG with 4 components in BGRA order
+    (the WC3 convention); we recombine the shared JPEG header with mip-0's body,
+    decode it, and map BGRA -> RGB. The minimap is WC3's OWN picture of the map,
+    so data/reference/war3mapMap.png is the fidelity target the terrain extractor
+    matches its water mask against (see tools/extractor/terrain.py + TERRAIN.md).
+
+    Pillow is OPTIONAL: it is only needed to JPEG-decode the BLP here. The import
+    is guarded so `extract.py` (and everything downstream) still works without
+    it — the function just reports it was skipped. The decoded PNG is committed,
+    so `make terrain` never needs Pillow."""
+    try:
+        from PIL import Image  # type: ignore
+    except ImportError:
+        print("skipped war3mapMap.png: Pillow not installed (pip install Pillow); "
+              "BLP->PNG decode is optional and the PNG is committed")
+        return False
+    if blp[:4] != b"BLP1":
+        print(f"skipped war3mapMap.png: unexpected BLP magic {blp[:4]!r}")
+        return False
+    (compression,) = struct.unpack_from("<I", blp, 4)
+    width, height = struct.unpack_from("<II", blp, 12)
+    mip_offsets = struct.unpack_from("<16I", blp, 28)
+    mip_sizes = struct.unpack_from("<16I", blp, 28 + 64)
+    if compression != 0:
+        print(f"skipped war3mapMap.png: unsupported BLP compression {compression} (expected 0=JPEG)")
+        return False
+    jpeg_header_pos = 28 + 64 + 64
+    (jpeg_header_size,) = struct.unpack_from("<I", blp, jpeg_header_pos)
+    shared = blp[jpeg_header_pos + 4: jpeg_header_pos + 4 + jpeg_header_size]
+    body = blp[mip_offsets[0]: mip_offsets[0] + mip_sizes[0]]
+    image = Image.open(io.BytesIO(shared + body))  # CMYK-tagged 4-channel
+    px = image.load()
+    rgb = Image.new("RGB", (width, height))
+    rpx = rgb.load()
+    for y in range(height):
+        for x in range(width):
+            b, g, r, _a = px[x, y]  # BLP stores BGRA
+            rpx[x, y] = (r, g, b)
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    rgb.save(out_png)
+    print(f"decoded war3mapMap.blp -> {out_png} ({width}x{height})")
+    return True
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("map", type=Path, help="path to the .w3x map file")
     parser.add_argument("--out-raw", type=Path, default=Path("data/extracted"))
     parser.add_argument("--out-json", type=Path, default=Path("data/json"))
+    parser.add_argument("--out-ref", type=Path, default=Path("data/reference"),
+                        help="where to write decoded reference assets (the minimap PNG)")
     args = parser.parse_args()
 
     raw_files = extract_raw(args.map, args.out_raw)
@@ -193,6 +244,17 @@ def main() -> None:
         out_path = args.out_json / f"{class_name}.json"
         out_path.write_text(json.dumps(parsed, indent=1, ensure_ascii=False) + "\n")
         print(f"parsed {len(parsed['objects'])} {class_name} -> {out_path.name}")
+
+    # Embedded minimap: copy the raw BLP into the reference dir and decode it to a
+    # PNG (the terrain extractor's fidelity target). Both are reproducible from
+    # the map; the PNG decode is guarded so extract still works without Pillow.
+    blp = raw_files.get("war3mapMap.blp")
+    if blp:
+        args.out_ref.mkdir(parents=True, exist_ok=True)
+        (args.out_ref / "war3mapMap.blp").write_bytes(blp)
+        decode_blp_minimap(blp, args.out_ref / "war3mapMap.png")
+    else:
+        print("skipped war3mapMap: not in archive")
 
 
 if __name__ == "__main__":

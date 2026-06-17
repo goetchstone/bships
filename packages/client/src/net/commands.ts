@@ -94,6 +94,17 @@ export function dropItem(slot: number, x: number, y: number): void {
   sendCommand({ type: 'dropItem', slot, x, y });
 }
 
+/**
+ * Spend an unspent hero-skill point to rank up `abilityId` on the current hull
+ * (Dota-style level-up picker). Thin sender — the sim + server re-validate that
+ * the ability is on the hull, the player has an unspent point, the hero level
+ * clears the rank's minimum, and the rank is below max (reasons surfaced in
+ * chat on rejection). `abilityId` must be one of ships[shipTypeId].abilityIds.
+ */
+export function learnSkill(abilityId: string): void {
+  sendCommand({ type: 'learnSkill', abilityId });
+}
+
 export function sendChat(scope: 'all' | 'team', text: string): void {
   const trimmed = text.trim().slice(0, MAX_CHAT_LENGTH);
   if (trimmed === '') return;

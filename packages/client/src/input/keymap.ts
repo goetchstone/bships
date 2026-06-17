@@ -23,7 +23,12 @@ export type HudAction =
   | 'slot3'
   | 'slot4'
   | 'slot5'
-  | 'shipAbility'
+  | 'ability0'
+  | 'ability1'
+  | 'ability2'
+  | 'ability3'
+  | 'ability4'
+  | 'ability5'
   | 'stop'
   | 'attackMove'
   | 'scoreboard'
@@ -40,7 +45,12 @@ export const HUD_ACTIONS: readonly HudAction[] = [
   'slot3',
   'slot4',
   'slot5',
-  'shipAbility',
+  'ability0',
+  'ability1',
+  'ability2',
+  'ability3',
+  'ability4',
+  'ability5',
   'stop',
   'attackMove',
   'scoreboard',
@@ -48,6 +58,22 @@ export const HUD_ACTIONS: readonly HudAction[] = [
   'shopToggle',
   'help',
   'recenter',
+];
+
+/**
+ * The hull spellbook hotkeys, in slot order. A hull renders ONE quick-key per
+ * ability it carries (a Sailor ~5, a Crusader 6), so these must outnumber the
+ * largest hull's ability set. Kept as a left-hand grouped cluster distinct from
+ * the W/E/R/A/S/D item slots: F (the legacy ship-ability key, kept first for
+ * muscle memory) then Q T C X Z. Consumed by hud/inventory.ts.
+ */
+export const ABILITY_ACTIONS: readonly HudAction[] = [
+  'ability0',
+  'ability1',
+  'ability2',
+  'ability3',
+  'ability4',
+  'ability5',
 ];
 
 /**
@@ -64,7 +90,15 @@ export const DEFAULT_BINDINGS: Record<HudAction, string> = {
   slot3: 'KeyA',
   slot4: 'KeyS',
   slot5: 'KeyD',
-  shipAbility: 'KeyF',
+  // Hull spellbook: F kept as the primary ability key (legacy muscle memory),
+  // then the rest of the left-hand cluster Q T C X Z. None collide with the
+  // item slots / movement / stop / attack-move / shop keys.
+  ability0: 'KeyF',
+  ability1: 'KeyQ',
+  ability2: 'KeyT',
+  ability3: 'KeyC',
+  ability4: 'KeyX',
+  ability5: 'KeyZ',
   stop: 'KeyV',
   attackMove: 'KeyG',
   scoreboard: 'Tab',

@@ -25,7 +25,7 @@ export function initBanner(ctx: HudContext): void {
   let endBuiltFor: TeamId | null | 'none' = 'none';
 
   function shipName(typeId: string): string {
-    return ctx.catalog.ships[typeId]?.name ?? typeId;
+    return ctx.catalog.ships[typeId]?.properName ?? typeId;
   }
 
   function buildEndPanel(winner: TeamId | null): void {

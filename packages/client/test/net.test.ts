@@ -28,6 +28,7 @@ import type {
 import {
   addAi,
   dropItem,
+  learnSkill,
   leaveRoom,
   removeAi,
   returnToLobby,
@@ -47,7 +48,9 @@ import {
 import { send } from '../src/net/socket.js';
 import {
   applyServerMessage,
+  emitChange,
   onEvent,
+  resetMatchState,
   resetStoreForTest,
   store,
   teamForSlot,
@@ -441,6 +444,31 @@ describe('store.applyServerMessage', () => {
     expect(store.match.phase).not.toBe('playing');
     warn.mockRestore();
   });
+
+  // BUG 2: arming a targeted cast writes store.ui.pendingTarget; the cancel
+  // gesture (right-click / Esc, both via the same store mutation) and a match
+  // reset clear it. Mutually exclusive with pendingOrder by contract.
+  it('pendingTarget arms a targeted cast and is cleared by cancel / reset', () => {
+    // Arm a unit-target ability (what castAbilitySlot writes for Fishing Net).
+    store.ui.pendingOrder = null;
+    store.ui.pendingTarget = { kind: 'ability', targeting: 'unit', abilityId: 'A00Y' };
+    emitChange();
+    expect(store.ui.pendingTarget).not.toBeNull();
+    expect(store.ui.pendingTarget?.targeting).toBe('unit');
+
+    // Cancel (the right-click / Esc path both pointer.ts + inventory.ts run):
+    // clear pendingTarget (and any pendingOrder).
+    store.ui.pendingTarget = null;
+    store.ui.pendingOrder = null;
+    emitChange();
+    expect(store.ui.pendingTarget).toBeNull();
+
+    // A leftover armed cast does not survive a match reset.
+    store.ui.pendingTarget = { kind: 'item', targeting: 'point', slot: 3 };
+    resetMatchState();
+    expect(store.ui.pendingTarget).toBeNull();
+    expect(store.ui.pendingOrder).toBeNull();
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -476,6 +504,24 @@ describe('commands', () => {
       type: 'command',
       command: { type: 'dropItem', player: 2, slot: 3, x: 123, y: -456 },
     });
+  });
+
+  it('learnSkill sends a learnSkill command for the picked ability (player filled)', () => {
+    applyServerMessage(keyframe(10, []), 10 * MS); // phase playing, mySlot 2
+    learnSkill('A00Y'); // Fishing Net (a Crusader hero skill)
+    expect(sendMock).toHaveBeenCalledTimes(1);
+    const msg = sendMock.mock.calls[0]?.[0];
+    expect(msg).toMatchObject({
+      type: 'command',
+      command: { type: 'learnSkill', player: 2, abilityId: 'A00Y' },
+    });
+  });
+
+  it('learnSkill is dropped (not sent) outside a playing match', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    learnSkill('A00Y');
+    expect(sendMock).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   it('dropItem is dropped (not sent) outside a playing match', () => {

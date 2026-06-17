@@ -18,7 +18,7 @@ export function initScoreboard(ctx: HudContext): void {
   panel.hidden = true;
 
   function shipName(typeId: string): string {
-    return ctx.catalog.ships[typeId]?.name ?? typeId;
+    return ctx.catalog.ships[typeId]?.properName ?? typeId;
   }
 
   function rebuild(): void {

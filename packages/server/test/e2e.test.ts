@@ -23,7 +23,7 @@
 import { randomBytes } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { WebSocket } from 'ws';
-import { PROTOCOL_VERSION } from '@bships/core';
+import { PROTOCOL_VERSION, nearestWater } from '@bships/core';
 import type {
   ClientMessage,
   Command,
@@ -59,13 +59,75 @@ const shopPlacement = [...ruleset.map.structures]
   )[0];
 if (!shopPlacement) throw new Error(`no ${SHOP_TYPE_ID} shop on the map`);
 
-/** Sail to ~280 units short of the shop center (interactRadius is 450). */
-const SHOP_APPROACH = (() => {
-  const dx = start2.x - shopPlacement.x;
-  const dy = start2.y - shopPlacement.y;
-  const d = Math.hypot(dx, dy);
-  return { x: shopPlacement.x + (dx / d) * 280, y: shopPlacement.y + (dy / d) * 280 };
-})();
+/** The shop's DOCK: the nearest navigable-water cell to its (land) footprint. */
+const SHOP_DOCK = nearestWater(ruleset.map.waterMask, shopPlacement.x, shopPlacement.y) ?? {
+  x: shopPlacement.x,
+  y: shopPlacement.y,
+};
+
+/**
+ * Deterministic 4-connected WATER-path waypoints from `from` to `to` over the
+ * static water mask, returned as world points (one per ~`stride`-th path cell)
+ * plus the exact `to`. Under the faithful NON-BLUE water mask the spawn-side
+ * Weapons Merchant sits behind a short land peninsula: the dock is water-
+ * connected to the spawn but a single straight `move` stalls on the coast (the
+ * resolver coast-slides, it does not A*). A player clicks through the channel;
+ * the test does the same by feeding these waypoints leg by leg. Pure BFS over
+ * the immutable mask (fixed neighbour order) so it is replay-stable. Returns
+ * just [`to`] if no water path exists (caller then sees the move stall — a real
+ * failure, not a silent skip).
+ */
+function waterPathWaypoints(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  stride = 4,
+): { x: number; y: number }[] {
+  const m = ruleset.map.waterMask;
+  const { bounds, cols, rows, cellSizeX, cellSizeY, cells } = m;
+  const toCell = (x: number, y: number): [number, number] => [
+    Math.max(0, Math.min(cols - 1, Math.floor((x - bounds.minX) / cellSizeX))),
+    Math.max(0, Math.min(rows - 1, Math.floor((bounds.maxY - y) / cellSizeY))),
+  ];
+  const center = (c: number, r: number): { x: number; y: number } => ({
+    x: bounds.minX + (c + 0.5) * cellSizeX,
+    y: bounds.maxY - (r + 0.5) * cellSizeY,
+  });
+  const water = (c: number, r: number): boolean =>
+    c >= 0 && c < cols && r >= 0 && r < rows && cells[r * cols + c] === 1;
+  const [sc, sr] = toCell(from.x, from.y);
+  const [dc, dr] = toCell(to.x, to.y);
+  const prev = new Map<string, [number, number]>();
+  const seen = new Set<string>([`${sc},${sr}`]);
+  const queue: [number, number][] = [[sc, sr]];
+  while (queue.length > 0) {
+    const [c, r] = queue.shift()!;
+    if (c === dc && r === dr) break;
+    for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+      const nc = c + a;
+      const nr = r + b;
+      const key = `${nc},${nr}`;
+      if (water(nc, nr) && !seen.has(key)) {
+        seen.add(key);
+        prev.set(key, [c, r]);
+        queue.push([nc, nr]);
+      }
+    }
+  }
+  if (!seen.has(`${dc},${dr}`)) return [to];
+  const cellsPath: [number, number][] = [];
+  let cur: [number, number] | undefined = [dc, dr];
+  while (cur) {
+    cellsPath.push(cur);
+    cur = prev.get(`${cur[0]},${cur[1]}`);
+  }
+  cellsPath.reverse();
+  const out: { x: number; y: number }[] = [];
+  for (let i = stride; i < cellsPath.length; i += stride) {
+    out.push(center(cellsPath[i]![0], cellsPath[i]![1]));
+  }
+  out.push(to); // exact dock as the final leg
+  return out;
+}
 
 /**
  * Rendezvous = the ENEMY base point for each side. MAP-FIDELITY CHANGE
@@ -529,7 +591,27 @@ describe('e2e phase B: burst-mode match — shopping, fog of war, reconnect', ()
     );
     if (!shop) throw new Error('spawn-side shop entity not in keyframe');
 
-    south.sendCommand({ type: 'move', player: SOUTH_SLOT, x: SHOP_APPROACH.x, y: SHOP_APPROACH.y });
+    // Sail to the shop's water dock leg by leg along the navigable channel (the
+    // faithful NON-BLUE mask puts a short land peninsula between the spawn basin
+    // and this dock, so a single straight move stalls on the coast — see
+    // waterPathWaypoints). Issue the next waypoint once the current one is near,
+    // exactly as a player clicks through the channel; the final leg is the dock.
+    const startShip = south.shipOf(SOUTH_SLOT);
+    if (!startShip) throw new Error('own ship not in keyframe');
+    const legs = waterPathWaypoints(startShip, SHOP_DOCK);
+    for (const leg of legs) {
+      south.sendCommand({ type: 'move', player: SOUTH_SLOT, x: leg.x, y: leg.y });
+      await south.waitUntil(() => {
+        const ship = south.shipOf(SOUTH_SLOT);
+        return (
+          ship !== undefined &&
+          (Math.hypot(ship.x - leg.x, ship.y - leg.y) <= 160 ||
+            Math.hypot(ship.x - shop.x, ship.y - shop.y) <= 400)
+        );
+      }, `own ship reaching waypoint (${leg.x.toFixed(0)},${leg.y.toFixed(0)})`);
+      const ship = south.shipOf(SOUTH_SLOT);
+      if (ship && Math.hypot(ship.x - shop.x, ship.y - shop.y) <= 400) break;
+    }
     await south.waitUntil(() => {
       const ship = south.shipOf(SOUTH_SLOT);
       return ship !== undefined && Math.hypot(ship.x - shop.x, ship.y - shop.y) <= 400;
