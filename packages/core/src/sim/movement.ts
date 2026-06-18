@@ -452,6 +452,35 @@ function enemyStructureAt(state: SimState, team: TeamId, px: number, py: number)
   return false;
 }
 
+/**
+ * True when a living ENEMY mobile unit (creep or ship) sits within `range` of
+ * `creep` AND in its forward arc (within ±90° of its current facing). Used to
+ * HOLD an attack-moving creep in place while it brawls the opposing wave it ran
+ * into — combat auto-acquires + fires from the hold (WC3 attack-move's
+ * stop-to-engage). The arc gate (ahead only) lets a creep that has broken
+ * through keep pushing forward instead of freezing on the enemies it left
+ * behind, so the lane front stays dynamic and survivors leak on toward the
+ * structures. Ascending-id scan + dot-product arc test: deterministic (dCos/
+ * dSin are the engine's fixed-point trig; no RNG).
+ */
+function enemyUnitInAttackArc(state: SimState, creep: UnitEntity, range: number): boolean {
+  const rangeSq = range * range;
+  const fx = dCos(creep.facingRad);
+  const fy = dSin(creep.facingRad);
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (e === undefined || e.dead) continue;
+    if (e.kind !== 'creep' && e.kind !== 'ship') continue; // mobile enemies only
+    if (e.team === null || e.team === creep.team || e.hp <= 0) continue;
+    const dx = e.x - creep.x;
+    const dy = e.y - creep.y;
+    if (dx * dx + dy * dy > rangeSq) continue; // out of attack range
+    if (dx * fx + dy * fy <= 0) continue; // behind the creep -> not blocking it
+    return true;
+  }
+  return false;
+}
+
 function stepUnitKinematics(state: SimState, ruleset: Ruleset, entity: UnitEntity): void {
   const order = entity.order;
   if (order.type === 'idle' || order.type === 'hold') return;
@@ -543,6 +572,19 @@ function stepUnitKinematics(state: SimState, ruleset: Ruleset, entity: UnitEntit
   // the TRUE target distance (dOrder), so steering a lane waypoint around land
   // never spuriously "stops in range" at the waypoint.
   if (chasing && dOrder <= stopDist) return;
+
+  // Creep wave clash (WC3 attack-move stop-to-engage): an attack-moving creep
+  // HOLDS while a living enemy unit is within its attack range and forward arc,
+  // so opposing waves brawl where they meet — combat fires from the hold —
+  // instead of marching straight through each other to the towers (the bug: the
+  // structure hold-gate only stopped them AT a tower, so mid-lane the waves slid
+  // past). The arc gate keeps a creep that has broken through still pushing, so
+  // the front is dynamic and survivors leak on. Ships are exempt (vestigial
+  // attack, no compiled damage — they must keep maneuvering).
+  if (!chasing && order.type === 'attackMove' && entity.kind === 'creep') {
+    const atkRange = ruleset.unitTypes[entity.typeId]?.attack?.rangeUnits ?? 0;
+    if (atkRange > 0 && enemyUnitInAttackArc(state, entity, atkRange)) return;
+  }
 
   // Creep/summon HOLD: when attack-moving and steering the TRUE order point
   // directly (the lane field has handed off to the straight-line final approach

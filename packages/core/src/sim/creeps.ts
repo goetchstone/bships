@@ -277,6 +277,12 @@ export function stepCreeps(state: SimState, ruleset: Ruleset): void {
   // stall it at the chokepoint) instead of ghosting toward the HQ waypoint.
   // When no enemy structure remains ahead, the creep keeps its waypoint order
   // (open run to the HQ point). Players are never touched.
+  //
+  // The opposing-wave CLASH (spawn ships fighting each other before pushing on)
+  // is NOT done here by retargeting: that produced a perfect stalemate wall.
+  // Instead movement.ts halts an attack-moving creep while a living enemy is in
+  // its attack arc (WC3 attack-move), so the waves brawl where they meet AND the
+  // front stays dynamic — survivors leak through and resume the push.
   for (const id of sortedNumericKeys(state.entities)) {
     const entity = state.entities[id];
     if (entity === undefined || entity.kind !== 'creep' || entity.dead) continue;

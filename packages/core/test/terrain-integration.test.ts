@@ -219,7 +219,12 @@ describe('terrain integration (real water mask)', () => {
     const creepRange = (c: CreepEntity): number =>
       ruleset.unitTypes[c.typeId]?.attack?.rangeUnits ?? 0;
 
-    for (let t = 0; t < 4000; t++) {
+    // Longer window than the original 4000: opposing waves now CLASH mid-lane
+    // first (movement.ts halts an attack-moving creep while an enemy is in its
+    // arc), so a creep only reaches the enemy tower once its lane's front breaks
+    // through — the AI captains pushing a lane tip it. 9000 ticks clears both the
+    // hold-at-tower contact and the resulting tower chip with margin.
+    for (let t = 0; t < 9000; t++) {
       const batch: Command[] = [];
       for (const slot of sortedNumericKeys(state.aiMemory)) {
         const mem = state.aiMemory[slot];

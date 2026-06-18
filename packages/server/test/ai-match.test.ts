@@ -44,6 +44,36 @@ const BOTH_TEAMS_AI: AiSeat[] = [
 
 const liveRuntimes: MatchRuntime[] = [];
 
+/**
+ * True when a south creep and a north creep are within `range` world units —
+ * i.e. the opposing waves have MET and are in firing range of each other (the
+ * lane clash). A robust, fast signal that the funnel brings the waves into
+ * combat: creep deaths (which the churn assertions pin) require this contact, so
+ * it occurs well within the tick cap. We assert the clash here rather than the
+ * now-SLOW tower leakage — opposing creeps brawl mid-lane before any survivor
+ * leaks to a tower (that emergent leak is covered by the 9000-tick
+ * terrain-integration core test). Squared-distance compare, O(south×north).
+ */
+function opposingCreepsInContact(state: SimState, range: number): boolean {
+  const south: { x: number; y: number }[] = [];
+  const north: { x: number; y: number }[] = [];
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.kind !== 'creep' || e.dead) continue;
+    if (e.team === 'south') south.push({ x: e.x, y: e.y });
+    else if (e.team === 'north') north.push({ x: e.x, y: e.y });
+  }
+  const r2 = range * range;
+  for (const a of south) {
+    for (const b of north) {
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      if (dx * dx + dy * dy <= r2) return true;
+    }
+  }
+  return false;
+}
+
 afterEach(() => {
   while (liveRuntimes.length > 0) liveRuntimes.pop()?.stop();
 });
@@ -156,14 +186,16 @@ describe('bot-vs-bot match (real brain, both teams AI)', () => {
     expect(northFromSpawn).toBeGreaterThan(800);
   });
 
-  it('the lane funnels creeps onto the enemy tower chokepoint (creeps hold + the tower takes damage)', async () => {
+  it('the lane funnels opposing creeps together and they CLASH at the chokepoint', async () => {
     // The core map-fidelity behavior (docs/TERRAIN.md §4 creep-ai + pathing):
-    // lane creeps follow the winding water lane to the FRONTMOST living enemy
-    // structure and hold there, fighting it, instead of ghosting to the HQ. We
-    // assert (a) a creep's forward advance stalls in the chokepoint band (it
-    // does not sail clean through to the enemy base), and (b) an enemy tower
-    // actually loses HP — proof the funnel + hold gate engage. Bots run on both
-    // teams so creeps spawn from every lane.
+    // lane creeps follow the winding water lane toward the FRONTMOST living enemy
+    // structure, but where the two waves MEET they halt and brawl (movement.ts
+    // arc-halt) instead of marching through each other — "spawn ships fight each
+    // other before moving on" (the owner's intent). We assert the opposing waves
+    // come into firing contact (the clash) and that the population churns (creeps
+    // die in it). Tower leakage is now slow + emergent (one hard captain per team
+    // barely tips a lane), covered by the 9000-tick terrain-integration core
+    // test. Bots run on both teams so creeps spawn from every lane.
     const runtime = createMatchRuntime({
       ruleset,
       seed: SEED,
@@ -175,31 +207,23 @@ describe('bot-vs-bot match (real brain, both teams AI)', () => {
     });
     liveRuntimes.push(runtime);
 
-    const towerMaxHp = new Map<number, number>();
-    for (const id of sortedNumericKeys(runtime.getState().entities)) {
-      const e = runtime.getState().entities[id];
-      if (e && e.kind === 'structure' && e.role === 'tower') towerMaxHp.set(e.id, e.maxHp);
-    }
-    expect(towerMaxHp.size).toBeGreaterThan(0);
-
+    const nextIdStart = runtime.getState().nextEntityId;
     runtime.start();
-    const damagedTowers = new Set<number>();
+    let clashContact = false;
     for (;;) {
       const s = runtime.getState();
       if (s.status.phase === 'ended' || s.tick >= TICK_CAP) break;
-      for (const id of sortedNumericKeys(s.entities)) {
-        const e = s.entities[id];
-        if (e && e.kind === 'structure' && e.role === 'tower') {
-          const max = towerMaxHp.get(e.id);
-          if (max !== undefined && e.hp < max) damagedTowers.add(e.id);
-        }
-      }
+      // 600u: inside the rowboat's 550 attack range (+ margin) so contact means
+      // the waves are actually firing on each other, not merely near.
+      if (!clashContact && opposingCreepsInContact(s, 600)) clashContact = true;
       await new Promise<void>((resolve) => setTimeout(resolve, 0));
     }
 
-    // At least one enemy tower took damage from the funnelled creeps holding at
-    // the chokepoint (observed 4-6 of 24 towers chipped within the cap).
-    expect(damagedTowers.size).toBeGreaterThan(0);
+    // The opposing waves met in firing range (clashed) ...
+    expect(clashContact).toBe(true);
+    // ... and creeps spawned + died in the brawl (id churn outpaces the bounded
+    // live population only if entities are dying as fast as they spawn).
+    expect(runtime.getState().nextEntityId - nextIdStart).toBeGreaterThan(200);
   });
 
   it('the AI funnels creeps onto the enemy towers and churns the contested lane (real-mask push)', async () => {
@@ -221,20 +245,12 @@ describe('bot-vs-bot match (real brain, both teams AI)', () => {
     const nextIdStart = start.nextEntityId;
     const entityCount0 = Object.keys(start.entities).length;
 
-    // Snapshot tower max-HP at the start so we can detect any chip during the
-    // run (towers regen 7 HP/s, so a transient hit may heal off by end-of-cap —
-    // poll for "ever damaged" rather than reading only the final snapshot).
-    const towerMaxHp = new Map<number, number>();
-    for (const id of sortedNumericKeys(start.entities)) {
-      const e = start.entities[id];
-      if (e && e.kind === 'structure' && e.role === 'tower') towerMaxHp.set(e.id, e.maxHp);
-    }
-    const damagedTowers = new Set<number>();
+    let clashContact = false;
 
     runtime.start();
-    // Poll the live state for durable signals (inventory growth). The buyItem
-    // commands the brain emitted survive in the runtime's deterministic replay
-    // log, which we read after the run.
+    // Poll the live state for durable signals (inventory growth + the lane
+    // clash). The buyItem commands the brain emitted survive in the runtime's
+    // deterministic replay log, which we read after the run.
     for (;;) {
       const s = runtime.getState();
       if (s.status.phase === 'ended' || s.tick >= TICK_CAP) break;
@@ -242,13 +258,7 @@ describe('bot-vs-bot match (real brain, both teams AI)', () => {
         const inv = s.players[slot]!.inventory.filter((i) => i !== null).length;
         invPeak.set(slot, Math.max(invPeak.get(slot) ?? 0, inv));
       }
-      for (const id of sortedNumericKeys(s.entities)) {
-        const e = s.entities[id];
-        if (e && e.kind === 'structure' && e.role === 'tower') {
-          const max = towerMaxHp.get(e.id);
-          if (max !== undefined && e.hp < max) damagedTowers.add(e.id);
-        }
-      }
+      if (!clashContact && opposingCreepsInContact(s, 600)) clashContact = true;
       await new Promise<void>((resolve) => setTimeout(resolve, 0));
     }
 
@@ -272,15 +282,14 @@ describe('bot-vs-bot match (real brain, both teams AI)', () => {
     void invStartSouth;
     void invPeak;
 
-    // PREMISE SHIFT (creep hold-at-tower fix, docs/TERRAIN.md §4/§5): creeps now
-    // hold at and grind the frontmost enemy TOWER instead of ghosting to the HQ,
-    // so within this short cap the HQ is no longer the thing taking creep chip —
-    // the tower chokepoint is. We therefore assert the funnel's real signal: at
-    // least one enemy tower lost HP from the held creeps (the same behavior the
-    // dedicated funnel test above asserts; checked here too so this push test
-    // fails loud if the funnel ever stops engaging). A full HQ kill needs the
-    // towers down first, which is far beyond this cap.
-    expect(damagedTowers.size).toBeGreaterThan(0);
+    // PREMISE SHIFT (creep wave clash, docs/TERRAIN.md §4/§5): opposing waves now
+    // halt and BRAWL where they meet (movement.ts arc-halt) before any survivor
+    // leaks to a tower, so within this short cap the durable funnel signal is the
+    // clash itself — the two waves came into firing contact in the contested
+    // lane. (Tower chip is now slow + emergent with one captain per team; it is
+    // pinned by the 9000-tick terrain-integration core test.) Fails loud here if
+    // the funnel ever stops bringing the waves together.
+    expect(clashContact).toBe(true);
 
     // Creeps spawn and die: nextEntityId grows by hundreds (every spawned
     // creep/projectile claims a fresh id) while the live entity population

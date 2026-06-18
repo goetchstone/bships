@@ -5,7 +5,36 @@ Snapshot for picking the project up in a new session. Durable rules are in
 engine semantics in [SEMANTICS.md](SEMANTICS.md); balance audit in
 [BALANCE.md](BALANCE.md).
 
-_Last updated: 2026-06-18 (AI captains progress: learn/cast abilities + buy ship types)._
+_Last updated: 2026-06-18 (creep waves CLASH mid-lane + AI captains progress)._
+
+## Done this session (creep waves clash mid-lane)
+
+The owner playtest: "the creeps didn't fight each other" — opposing waves marched
+PAST one another to the towers instead of brawling where they met. Root cause:
+the hold-at-tower gate ordered every creep to attack-move onto the frontmost
+enemy STRUCTURE, and movement only halted a creep AT a structure — so mid-lane,
+with no structure between them, the two waves slid through each other (trading a
+few passing shots) on the way to opposite towers.
+
+Fix (`movement.ts` `enemyUnitInAttackArc`): an attack-moving CREEP now HOLDS while
+a living enemy unit sits within its attack range and forward arc (WC3 attack-move
+stop-to-engage) — so the waves halt and fight where they meet. Combat auto-fires
+from the hold; the arc gate (ahead-only) lets a creep that breaks through keep
+pushing, so the front is DYNAMIC: survivors leak on and pressure towers over time
+rather than forming a permanent wall. Deterministic (ascending-id scan + dCos/
+dSin arc test, no RNG). Probe (real mask, hard AI): the west-lane wave clusters
+mid-lane with ~186 creep deaths at the contact line AND ~328 tower hits across
+lanes from leakers. Towers still only fall to heroes (creeps just chip).
+
+Tests updated to the new clash-then-leak dynamic (the old "creeps grind the
+tower" milestones now come LATER, after the brawl): the open-sea creep unit test
+disables one side's spawn buildings so the other wave reaches a tower unopposed
+(deterministic, not emergent-leak-timed); the terrain-integration grind-tower
+window is 9000 ticks; the two server bot-vs-bot tests assert the CLASH (opposing
+creeps in firing contact + churn) rather than the now-slow tower leakage. The
+AI-siege resolution test now PASSES again (ships siege; creeps chip on leak).
+
+## Done this session (AI captains progress: abilities + ship types)
 
 ## Where it stands
 
