@@ -580,6 +580,19 @@ function buyShip(state: SimState, ruleset: Ruleset, cmd: BuyShipCommand): void {
   ship.typeId = cmd.shipTypeId;
   ship.submerged = false;
   ship.casting = null;
+  // Change_Ship keeps the HERO: xp/level are untouched ("level is level"), and
+  // skill points TRANSFER. A learned rank in a skill the NEW hull also has is
+  // kept; a rank in a skill the new hull lacks is REFUNDED to unspentSkillPoints
+  // (each rank cost exactly 1 point, applyLearnSkill) so it can be re-spent on
+  // the new hull's skills. Without this the points spent on the old hull's skills
+  // were stranded on abilities the new hull can't use — the player lost them on
+  // every ship change. Order-independent sum/delete -> deterministic.
+  const newHullSkills = new Set(ruleset.ships[cmd.shipTypeId]?.abilityIds ?? []);
+  for (const abilityId of Object.keys(player.heroSkillLevels)) {
+    if (newHullSkills.has(abilityId)) continue; // shared skill -> keep the rank
+    player.unspentSkillPoints += player.heroSkillLevels[abilityId] ?? 0;
+    delete player.heroSkillLevels[abilityId];
+  }
   // The permanent dive ghost belongs to the submerged form only — strip it
   // so a dive -> buyShip chain cannot yield a permanently invisible hull
   // (mirrors castDive's surfacing filter).

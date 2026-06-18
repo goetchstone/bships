@@ -73,6 +73,14 @@ new abilities**. The combat brain (`ai.ts`, `computeAiCommands`) now:
   Deterministic (ascending-id scan, fixed `spec.ships` order); the engine
   re-validates range/sold-here/disabled-by-mode, so a borderline pick degrades to
   a harmless rejected buy. Two economy tests updated to the new (better) priority.
+- **Skill points TRANSFER on Change Ship** (`economy.ts` `buyShip`): the hero's
+  `xp`/`level` were already kept, but `heroSkillLevels` is keyed by abilityId, so
+  the points SPENT on the old hull's skills were stranded on abilities the new
+  hull can't use — the player (and AI) "lost" them on every ship change. Now a
+  rank in a skill the new hull also has is kept; a rank in one it lacks is
+  refunded to `unspentSkillPoints` (1 point/rank) to re-spend on the new hull.
+  "Level is level"; no points lost. (This also lets the AI actually learn its new
+  hull's abilities after an upgrade.)
 
 Still open: the **AI-vs-AI mirror stalemate** ("towers only fall to heroes" needs
 full combat AI — combos/ganks/pickoffs to actually kill an equal-tank enemy hero).
