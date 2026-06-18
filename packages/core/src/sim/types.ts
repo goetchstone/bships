@@ -1488,9 +1488,18 @@ export interface XpRules {
   heroKillXpPerLevelAbove: number;
   shareRadius: number;
   summonFactor: number;
-  /** Provisional 12 — top OPEN question (SEMANTICS §6). */
+  /** MaxHeroLevel from war3mapMisc.txt (20). */
   heroLevelCap: number;
   skillPointsPerLevel: number;
+  /**
+   * Whether learning a hero-skill rank requires the WC3 hero level for that rank
+   * (arlv + alsk·(rank-1)). The map data is alsk=2 (a rank every 2 levels), but
+   * the owner plays with FREE skill spending (any point into any un-maxed skill,
+   * capped only by its rank count) — so Classic ships this `false`. Flip to
+   * `true` to restore the faithful WC3/alsk level gate. OWNER-DIRECTED divergence
+   * from the extracted data (docs/SEMANTICS §6 / docs/BALANCE).
+   */
+  skillLevelGated: boolean;
 }
 
 export interface RespawnRules {
@@ -2223,6 +2232,16 @@ export interface RawDataFiles {
    * keep their open-sea behavior. Server + client load it; see TERRAIN.md.
    */
   terrain?: RawTerrainFile;
+  /**
+   * Gameplay-constant overrides (data/json/gameplay-constants.json, the parsed
+   * war3mapMisc.txt [Misc] section). OPTIONAL: only the keys the map author
+   * changed from the WC3 engine defaults are present, and a missing file means
+   * "all engine defaults" — so the compiler reads each key with its engine
+   * default as the fallback (compileConstants/compileXpRules/spells table).
+   * This is the source of truth for hero HP/armor/regen, speed clamps, the hero
+   * level cap, the spells-vs-hero multiplier, and XP ranges (SEMANTICS §1/§3/§6).
+   */
+  gameplayConstants?: { misc?: Record<string, unknown> };
   units: unknown;
   abilities: unknown;
   items: unknown;

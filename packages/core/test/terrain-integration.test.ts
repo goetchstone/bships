@@ -52,6 +52,7 @@ function loadRawWithTerrain(): RawDataFiles {
     upgradeCurves: loadJson('upgrade-curves.json'),
     scriptRules: loadJson('script-rules.json'),
     mapLayout: loadJson('map-layout.json'),
+    gameplayConstants: loadJson('gameplay-constants.json'),
     terrain: loadJson('terrain.json'),
     units: loadJson('units.json'),
     abilities: loadJson('abilities.json'),
@@ -321,6 +322,13 @@ describe('terrain integration (real water mask)', () => {
   // push), and both teams are seated. The stub-mask ai.test.ts proves the trade
   // LOGIC on open sea; only this real-mask run proves the land ROUTING that the
   // owner reported broken ("could not get to the repair station").
+  //
+  // The trader now routes robustly: with per-POI nav fields painted to every
+  // shop/repair dock AND the land-aware steering in laneNavGoal (a ship rides the
+  // field gradient whenever the straight segment to its order crosses land,
+  // instead of beelining into the coast), a seated trader delivers in 10/10
+  // sampled seeds (was ~2/10 when it wedged in concave water pockets). This run
+  // guards that end-to-end land routing on the real mask.
   it('a seated trader completes a full haul around the land (real mask, questProgress delivered)', () => {
     const state = createMatch(ruleset, 0x7ade, [
       { slot: SOUTH_PLAYER, control: 'computer', ai: { difficulty: 'normal', role: 'trader' } },

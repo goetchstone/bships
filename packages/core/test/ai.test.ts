@@ -58,6 +58,7 @@ function loadRaw(): RawDataFiles {
     upgradeCurves: loadJson('upgrade-curves.json'),
     scriptRules: loadJson('script-rules.json'),
     mapLayout: loadJson('map-layout.json'),
+    gameplayConstants: loadJson('gameplay-constants.json'),
     units: loadJson('units.json'),
     abilities: loadJson('abilities.json'),
     items: loadJson('items.json'),
@@ -333,26 +334,29 @@ describe('AI economy', () => {
     expect(buys).toBeGreaterThan(0);
   }, 30000);
 
-  it('economy climbs the BALANCE ladder past the opening: inventory grows beyond 2 items', () => {
+  it('economy climbs past the opening: more items AND a bigger HULL TYPE', () => {
     // Regression for the economy lockout / ladder wedge: over a bot-vs-bot match
     // the south bot must accumulate MORE than its opening cannon + first hull
     // (the old bots froze at exactly 2 items and banked all their gold).
-    // PREMISE SHIFT (creep hold-at-tower fix): creeps now hold + grind at the
-    // frontmost enemy tower instead of ghosting to the HQ, so the battlefield —
-    // and the bot's bounty/survival economy that rides on it — plays out on a
-    // later clock. At seed 0x1234 hard-vs-hard it now reaches 3 items by ~tick
-    // 1610 and a Bronze/Gold hull by ~tick 4185 (was ~1315 / ~2350); 6000 ticks
-    // clears both with margin. The milestones themselves are unchanged.
-    const { state } = driveAiMatch(0x1234, [
-      { slot: SOUTH_SLOT, difficulty: 'hard' },
-      { slot: NORTH_SLOT, difficulty: 'hard' },
-    ], 6000);
+    // BEHAVIOR SHIFT (hull-TYPE buying): a captain now banks toward the next
+    // SHIP TYPE (H000 frigate -> Crusader -> Destroyer -> ...) before padding the
+    // current hull with armor ITEMS — a bigger ship is strictly tankier than
+    // armor on a small one, and carries the cannons over. So the milestone is no
+    // longer "owns a Bronze/Gold hull item" but "swapped to a tankier hull
+    // TYPE". 6000 ticks at seed 0x1234 hard-vs-hard clears both with margin.
+    const configs = [
+      { slot: SOUTH_SLOT, difficulty: 'hard' as const },
+      { slot: NORTH_SLOT, difficulty: 'hard' as const },
+    ];
+    const startType = makeAiMatch(0x1234, configs).players[SOUTH_SLOT]!.shipTypeId;
+    const { state } = driveAiMatch(0x1234, configs, 6000);
     const inv = state.players[SOUTH_SLOT]!.inventory.filter((i) => i !== null);
     expect(inv.length).toBeGreaterThan(2);
-    // And it climbed a hull beyond the cheapest Stone Hull (drop-then-upgrade
-    // through the one-per-ship stack cap actually works).
-    const hulls = inv.map((i) => i!.itemId).filter((id) => ['I016', 'I00A'].includes(id));
-    expect(hulls.length).toBeGreaterThan(0);
+    // And it bought a bigger SHIP TYPE than it started in (the buyShip swap +
+    // the in-range/detour machinery actually fire for hulls, not just items).
+    const finalType = state.players[SOUTH_SLOT]!.shipTypeId;
+    expect(finalType).not.toBe(startType);
+    expect(ruleset.ships[finalType]!.maxHp).toBeGreaterThan(ruleset.ships[startType]!.maxHp);
   }, 30000);
 
   it('skips an out-of-stock ladder rung instead of re-issuing a doomed buy', () => {
@@ -397,15 +401,25 @@ describe('AI economy', () => {
     expect(cmds.some((c) => c.type === 'buyItem' && c.itemId === 'I00A')).toBe(false);
   });
 
-  it('researches a team upgrade once it owns the top hull and banks a surplus', () => {
-    // Empire research: the lowest-slot living team bot, holding the top hull and
+  it('researches a team upgrade once it maxes its ship and banks a surplus', () => {
+    // Empire research: the lowest-slot living team bot, in the TANKIEST hull type
+    // (no ship upgrade left to bank for) and holding the top hull-armor item plus
     // plenty of gold, issues a research command for a team upgrade (R000-R005).
+    // Research is the LAST sink — it only fires once both the ship-type ladder
+    // and the item ladder are spent, so the bot must be in the top hull TYPE or
+    // it would buyShip with the surplus instead.
     const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
     const player = state.players[SOUTH_SLOT]!;
+    // Put the bot in the tankiest ship type so nextHullUpgrade has nothing left.
+    const topHull = Object.keys(ruleset.ships).reduce((a, b) =>
+      ruleset.ships[b]!.maxHp > ruleset.ships[a]!.maxHp ? b : a,
+    );
+    player.shipTypeId = topHull;
+    shipOf(state, SOUTH_SLOT).typeId = topHull; // no tankier hull to upgrade to
     player.gold = 50000; // well above the surplus reserve
     player.inventory = [
       { itemId: 'I001', charges: null, readyAtTick: 0 },
-      { itemId: 'I00A', charges: null, readyAtTick: 0 }, // top hull owned
+      { itemId: 'I00A', charges: null, readyAtTick: 0 }, // top hull-armor owned
       { itemId: 'I008', charges: null, readyAtTick: 0 },
       { itemId: 'I00B', charges: null, readyAtTick: 0 },
       null,
@@ -803,9 +817,13 @@ describe('AI siege resolves the match', () => {
     );
     expect(towers.length).toBeGreaterThan(0);
     const mostDamaged = Math.max(...towers.map((t) => (t.dead ? t.maxHp : t.maxHp - t.hp)));
-    // Deliberate siege removes thousands of tower HP; a comfortable floor that
-    // incidental chip alone would not reach.
-    expect(mostDamaged).toBeGreaterThan(2000);
+    // Deliberate siege removes well over a thousand tower HP — a floor that
+    // incidental Phoenix-Fire chip (which left HQs at ~99%) never approaches.
+    // NOTE: the bots now also LEARN + CAST hero abilities (Captain's Cannon) at
+    // each other, so they fight more and pure-siege marginally less (~1930 HP at
+    // this seed vs ~2000+ for the old siege-only bot); 1500 keeps the "real
+    // deliberate siege, not chip" signal robust to that and to seed variance.
+    expect(mostDamaged).toBeGreaterThan(1500);
   }, 60000);
 });
 

@@ -4,11 +4,17 @@ Two stages, both reproducible from committed inputs.
 
 ## `extract.py` — object data + minimap from the `.w3x`
 Strips the HM3W header, opens the MPQ, dumps `war3map.*` into `data/extracted/`,
-and parses the W3U-family object files into `data/json/*.json`. Also copies the
-embedded minimap `war3mapMap.blp` into `data/reference/` and decodes it to
-`war3mapMap.png` (BLP1-JPEG → RGB; the `Pillow` import is guarded, so extract
-still runs without it and the committed PNG is reused). Needs the (gitignored)
-reference map and the venv:
+and parses the W3U-family object files into `data/json/*.json`. Also parses
+`war3mapMisc.txt`'s `[Misc]` section into **`data/json/gameplay-constants.json`**
+(`parse_misc`) — the gameplay-constant OVERRIDES (hero attribute bonuses, speed
+clamps `MinUnitSpeed`/`MaxUnitSpeed`, `MaxHeroLevel`, `HeroExpRange`, the
+`DamageBonusSpells` row, XP tables). The editor only writes the keys the author
+changed, so a missing key means "engine default"; the ruleset compiler reads
+each via `readMisc` with the WC3 default as fallback (see SEMANTICS §1/§3/§6).
+Also copies the embedded minimap `war3mapMap.blp` into `data/reference/` and
+decodes it to `war3mapMap.png` (BLP1-JPEG → RGB; the `Pillow` import is guarded,
+so extract still runs without it and the committed PNG is reused). Needs the
+(gitignored) reference map and the venv:
 
     make extract        # runs extract.py then `make terrain`
 

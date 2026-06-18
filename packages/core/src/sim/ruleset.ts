@@ -13,14 +13,19 @@
  * - seconds -> ticks via secondsToTicks(s, tickRate); tickRate = TICK_RATE.
  * - moveSpeed stays units/sec in specs (movement divides per tick);
  *   projectile speeds are precompiled to units/TICK.
- * - Hero effective stats (all BSP ships str=agi=1): maxHp = uhpm + 25,
- *   armor = udef - 1.7; raw fields preserved on ShipSpec for audit.
- * - TFT attack-vs-defense table baked in: spells row x0.70 vs hero, x1.00
- *   otherwise; normal/pierce/siege rows per SEMANTICS §1.
+ * - Hero effective stats (all BSP ships str=agi=1): war3mapMisc.txt zeroes
+ *   EVERY attribute bonus (StrHitPointBonus/AgiDefenseBase/AgiDefenseBonus/
+ *   StrRegenBonus = 0), so maxHp = uhpm, armor = udef, regen = uhpr — no +25
+ *   HP, no -1.7 armor, no +0.05 regen. Raw fields preserved on ShipSpec.
+ * - TFT attack-vs-defense table baked in: BSP's DamageBonusSpells override
+ *   makes the spells row x1.00 vs hero (the engine default 0.70 does NOT
+ *   apply) and x0.05 vs divine; normal/pierce/siege rows per SEMANTICS §1.
  * - PF buff gates: Acid BNab 20 s, Nuke B016 4 s, everything else 0.01 s
  *   (compiles to 1 tick, effectively ungated) — all read from abilities.json.
  * - Classic constants: missileExplodeOnDeathDoubling=false, sellbackRate=0,
- *   friendlyFire=false, speed clamps 150/400, heroLevelCap=12 (provisional).
+ *   friendlyFire=false. war3mapMisc.txt resolves the speed clamps (10/522),
+ *   the hero level cap (MaxHeroLevel=20) and the XP share radius
+ *   (HeroExpRange=1500) — all read from gameplay-constants.json (readMisc).
  * - Stable instanceKeys for structures: use the map-data id when present
  *   ('n003_0024'), else `${typeId}@${x},${y}`.
  *
@@ -28,7 +33,6 @@
  * questions; each is a named constant below):
  * - lane-ship attack/defense types (pierce/heavy) and tower/HQ (siege/
  *   fortified) pending the 1.24 SLK extraction; unextracted unit armor 0.
- * - heroLevelCap 12 pending war3mapMisc.txt.
  * - AIlf hull-skill and Arll mechanics-skill rank curves: object data only
  *   carries levels 7-10 (slope 30 HP / 1 HP/s per rank); ranks 1-6 are the
  *   linear extension of that slope.
@@ -112,7 +116,8 @@ import { NAV_UNREACHABLE, pointInRegion, secondsToTicks } from './types.js';
 // header; changing any of these is a balance change, not a refactor)
 // ---------------------------------------------------------------------------
 
-/** SEMANTICS §6: cap unknown, >= 11 certain; 12 covers every learnable rank. */
+/** Fallback hero level cap when war3mapMisc.txt is absent (the engine default is
+ *  10, the previous provisional guess was 12); the real map ships MaxHeroLevel=20. */
 const PROVISIONAL_HERO_LEVEL_CAP = 12;
 /** SLK defaults not extracted (SEMANTICS §1) — lane ships (hdes base). */
 const PROVISIONAL_CREEP_ATTACK_TYPE: AttackType = 'pierce';
@@ -147,7 +152,9 @@ const PROVISIONAL_SENTRY_WARD_SIGHT = 1600;
 /** WC3 engine: 0.20 rad per 0.03 s frame is the effective turn-rate cap. */
 const TURN_RATE_FRAME_CAP = 0.2;
 const ENGINE_FRAME_SECONDS = 0.03;
-/** Gameplay-constant defaults (no war3mapMisc.txt found — SEMANTICS §3). */
+/** Speed-clamp fallbacks when gameplay-constants.json is absent (WC3 editor
+ *  validation defaults). The real map overrides these: MinUnitSpeed=10,
+ *  MaxUnitSpeed=522 (read via readMisc in compileConstants). SEMANTICS §3. */
 const DEFAULT_MIN_MOVE_SPEED = 150;
 const DEFAULT_MAX_MOVE_SPEED = 400;
 
@@ -193,6 +200,35 @@ function sortedRecord<T>(entries: [string, T][]): Record<string, T> {
     out[k] = v;
   }
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// Gameplay-constant overrides (war3mapMisc.txt [Misc], via
+// data/json/gameplay-constants.json). The WC3 World Editor only writes the
+// constants the author CHANGED from the engine defaults, so every read passes
+// the engine default as its fallback: present key -> map value, absent key ->
+// engine default. See SEMANTICS §1/§3/§6.
+// ---------------------------------------------------------------------------
+
+interface MiscConstants {
+  /** Scalar constant, or `fallback` when the map left it at the engine default. */
+  num(key: string, fallback: number): number;
+  /** Comma-list constant (damage tables, XP curves) as numbers, else null. */
+  arr(key: string): number[] | null;
+}
+
+function readMisc(raw: RawDataFiles): MiscConstants {
+  const misc = (raw.gameplayConstants?.misc ?? {}) as Record<string, unknown>;
+  return {
+    num(key, fallback) {
+      const v = misc[key];
+      return typeof v === 'number' && Number.isFinite(v) ? v : fallback;
+    },
+    arr(key) {
+      const v = misc[key];
+      return Array.isArray(v) && v.every((x) => typeof x === 'number') ? (v as number[]) : null;
+    },
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -302,7 +338,7 @@ function parseTargetFilter(text: string, what: string): TargetFilter {
 // Attack-vs-defense table (TFT defaults; SEMANTICS §1)
 // ---------------------------------------------------------------------------
 
-function tftAttackTypeVsDefense(): Record<AttackType, Record<DefenseType, number>> {
+function tftAttackTypeVsDefense(misc: MiscConstants): Record<AttackType, Record<DefenseType, number>> {
   const row = (
     unarmored: number,
     light: number,
@@ -321,14 +357,35 @@ function tftAttackTypeVsDefense(): Record<AttackType, Record<DefenseType, number
     divine,
     normal: 1.0,
   });
+  // war3mapMisc.txt DamageBonus<Type> column order (verified against the
+  // known-default Pierce row 2,0.75,1,0.35,1,0.5,0.05,1.5):
+  // [Light, Medium, Heavy, Fortified, Normal, Hero, Divine, Unarmored].
+  const damageRow = (key: string, fallback: Record<DefenseType, number>): Record<DefenseType, number> => {
+    const a = misc.arr(key);
+    if (a === null || a.length < 8) return fallback;
+    return {
+      light: a[0]!,
+      medium: a[1]!,
+      heavy: a[2]!,
+      fortified: a[3]!,
+      normal: a[4]!,
+      hero: a[5]!,
+      divine: a[6]!,
+      unarmored: a[7]!,
+    };
+  };
   return {
     normal: row(1.0, 1.0, 1.5, 1.0, 0.7, 1.0, 0.05),
     pierce: row(1.5, 2.0, 0.75, 1.0, 0.35, 0.5, 0.05),
     siege: row(1.5, 1.0, 0.5, 1.0, 1.5, 0.5, 0.05),
     magic: row(1.0, 1.25, 0.75, 2.0, 0.35, 0.5, 0.05),
     chaos: row(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.4),
-    /** All BSP weapons: x0.70 vs hero, x1.00 otherwise (divine n/a). */
-    spells: row(1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 1.0),
+    // BSP overrides DamageBonusSpells to x1.00 vs hero (the engine default is
+    // x0.70) and x0.05 vs divine: every BSP weapon is spell damage, so this
+    // means item cannons/torpedoes deal FULL damage to the hero-armor ships
+    // (no 30% reduction). Falls back to the engine default when the map data
+    // is absent. SEMANTICS §1.
+    spells: damageRow('DamageBonusSpells', row(1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 1.0)),
     hero: row(1.0, 1.0, 1.0, 1.0, 0.5, 1.0, 0.05),
   };
 }
@@ -1256,6 +1313,21 @@ function compileUpgradeRow(
 
 const LANE_CREEP_LEVELS_PROVISIONAL: Record<string, number> = { h00B: PROVISIONAL_H00B_LEVEL };
 
+/**
+ * OWNER-DIRECTED divergence: make ALL lane creeps pay bounty. In the original
+ * map the post-harbor reinforcement twins h00E/h00F/h00G ship `ubba/ubdi/ubsi`
+ * = 0 (no gold once you've destroyed the enemy harbor — an anti-farm twist, see
+ * SEMANTICS §7 / creeps.ts wave.zeroBountyTypeId). The owner wants every lane
+ * creep kill to pay, so each zero-bounty twin inherits its paying counterpart's
+ * bounty (matched by hull tier: Rowboat/Battle Ship/Cruiser). Delete an entry to
+ * restore the faithful zero-bounty behaviour for that twin.
+ */
+const BOUNTY_TWIN_COUNTERPART: Record<string, string> = {
+  h00E: 'h00I', // Imperial Rowboat   -> 5 + 2d10
+  h00F: 'h00B', // Imperial Battle Ship -> 12 + 2d25
+  h00G: 'h00H', // Imperial Cruiser   -> 25 + 2d50
+};
+
 function compileUnitType(
   ctx: CompileCtx,
   typeId: string,
@@ -1323,7 +1395,7 @@ function compileUnitType(
     collisionRadius: fieldNum(u, typeId, 'ucol') ?? 0,
     isStructure,
     level: fieldNum(u, typeId, 'ulev') ?? LANE_CREEP_LEVELS_PROVISIONAL[typeId] ?? 0,
-    bounty: bountyOf(u, typeId),
+    bounty: bountyOf(u, BOUNTY_TWIN_COUNTERPART[typeId] ?? typeId),
     hpRegenPerTick: (fieldNum(u, typeId, 'uhpr') ?? 0) / ctx.tickRate,
     sightRadius: fieldNum(u, typeId, 'usid') ?? fieldNum(u, typeId, 'usin') ?? 0,
     detectionRadius: uabi.includes('Atru')
@@ -1836,12 +1908,20 @@ const PERISHABLE_QUEST_ITEM_IDS = new Set<string>(['I02G', 'I030']);
 // XP / respawn / income
 // ---------------------------------------------------------------------------
 
-function compileXpRules(): XpRules {
-  const cap = PROVISIONAL_HERO_LEVEL_CAP;
-  // Cumulative XP to REACH level n: 50*(n^2 + n - 2)  (SEMANTICS §6).
+function compileXpRules(misc: MiscConstants): XpRules {
+  // war3mapMisc.txt MaxHeroLevel=20 (resolves SEMANTICS §6's top open question;
+  // the editor default is 10, the previous PROVISIONAL guess was 12).
+  const cap = misc.num('MaxHeroLevel', PROVISIONAL_HERO_LEVEL_CAP);
+  // Cumulative XP to REACH level n: 50*(n^2 + n - 2). NeedHeroXP is NOT in the
+  // map's overrides, so the engine-default curve applies (SEMANTICS §6).
   const xpToLevel: number[] = [0];
   for (let n = 1; n <= cap; n++) xpToLevel.push(50 * (n * n + n - 2));
   // Kill XP by victim level: 25, then xp(L) = xp(L-1) + 5L + 5.
+  // NOTE (Phase 2, SEMANTICS §6): the map overrides GrantNormalXP=15,
+  // GrantHeroXP=50..240 and HeroFactorXP — these scale the magnitudes below.
+  // Left at the engine-default magnitudes pending a war3map.j check of whether
+  // BSP awards kill XP through the engine or via triggers; captured already in
+  // gameplay-constants.json so the wiring is a data read, not a guess.
   const killXpByVictimLevel: number[] = [0, 25];
   for (let level = 2; level <= cap; level++) {
     killXpByVictimLevel.push(mustNum(killXpByVictimLevel[level - 1], 'kill xp') + 5 * level + 5);
@@ -1851,10 +1931,15 @@ function compileXpRules(): XpRules {
     killXpByVictimLevel,
     heroKillXpByVictimLevel: [0, 100, 120, 160, 220, 300],
     heroKillXpPerLevelAbove: 100,
-    shareRadius: 1200,
+    // war3mapMisc.txt HeroExpRange=1500 (the editor default is 1200).
+    shareRadius: misc.num('HeroExpRange', 1200),
     summonFactor: 0.5,
     heroLevelCap: cap,
     skillPointsPerLevel: 1,
+    // Owner-directed: spend skill points freely (no per-rank hero-level gate),
+    // capped only by each skill's rank count. The map data is alsk=2; set this
+    // true to restore the faithful WC3 gate. SEMANTICS §6.
+    skillLevelGated: false,
   };
 }
 
@@ -2280,6 +2365,22 @@ function compileMap(mapLayout: RawMapLayoutFile, tickRate: number, terrain?: Raw
     if (region === undefined) continue;
     navToRegion[name] = compileNavField(waterMask, region.centerX, region.centerY);
   }
+  // Paint a navigable route to EVERY repair station and EVERY shop, not just the
+  // trade pickups: a ship ordered to any shop/repair POI then has a gradient to
+  // follow on its final approach instead of beelining into the coast (the owner
+  // reported ships "could not get to the repair station" — the repair bays and
+  // many shops are not trade-pickup regions, so they had no field at all).
+  // nearestFieldStep picks whichever field's goal is nearest the order point, so
+  // each POI's own field wins when a ship heads there. Built once, deterministic;
+  // compileNavField snaps a land-centred goal to the adjacent water and no-ops a
+  // goal that is nowhere near water.
+  for (const name of ['Repair_Station_South', 'Repair_Station_North']) {
+    const region = regions[name];
+    if (region !== undefined) navToRegion[name] = compileNavField(waterMask, region.centerX, region.centerY);
+  }
+  for (const s of structures) {
+    if (s.role === 'shop') navToRegion[`shop:${s.instanceKey}`] = compileNavField(waterMask, s.x, s.y);
+  }
 
   return {
     bounds,
@@ -2311,18 +2412,26 @@ function compileMap(mapLayout: RawMapLayoutFile, tickRate: number, terrain?: Raw
 // Constants
 // ---------------------------------------------------------------------------
 
-function compileConstants(mapLayout: RawMapLayoutFile, tickRate: number): RulesetConstants {
+function compileConstants(mapLayout: RawMapLayoutFile, tickRate: number, misc: MiscConstants): RulesetConstants {
   return {
     startingGold: mustNum(mapLayout.playerStarts.startingGold, 'startingGold'),
-    minMoveSpeed: DEFAULT_MIN_MOVE_SPEED,
-    maxMoveSpeed: DEFAULT_MAX_MOVE_SPEED,
+    // war3mapMisc.txt: MinUnitSpeed=10, MaxUnitSpeed=522 (the engine hard cap).
+    // BSP raised the max to 522 and dropped the min to 10 — sail/propeller
+    // stacks are NOT capped at the editor-default 400, and slows floor at 10.
+    minMoveSpeed: misc.num('MinUnitSpeed', DEFAULT_MIN_MOVE_SPEED),
+    maxMoveSpeed: misc.num('MaxUnitSpeed', DEFAULT_MAX_MOVE_SPEED),
     turnRateCapRadPerTick: turnRateRadPerTick(null, tickRate),
     armorFactorPerPoint: 0.06,
     negativeArmorBase: 0.94,
-    heroStrHpBonus: 25,
-    heroAgiArmorPerPoint: 0.3,
-    heroArmorBaseOffset: -2,
-    heroStrRegenPerSecond: 0.05,
+    // war3mapMisc.txt zeroes every hero-attribute bonus (StrHitPointBonus=0,
+    // AgiDefenseBase=0, AgiDefenseBonus=0, StrRegenBonus=0): ships' Str/Agi/Int
+    // contribute NOTHING. So maxHp = uhpm exactly (no +25), effective armor =
+    // udef exactly (no -2 base, no +0.3/agi), regen = uhpr only. Fallbacks are
+    // the WC3 engine defaults for an absent file. SEMANTICS §1/§6.
+    heroStrHpBonus: misc.num('StrHitPointBonus', 25),
+    heroAgiArmorPerPoint: misc.num('AgiDefenseBonus', 0.3),
+    heroArmorBaseOffset: misc.num('AgiDefenseBase', -2),
+    heroStrRegenPerSecond: misc.num('StrRegenBonus', 0.05),
     missileExplodeOnDeathDoubling: false, // OPEN (BALANCE §9.4) — Classic ships Dda2 once
     sellbackRate: 0, // no shop carries Asid (SEMANTICS §8)
     friendlyFire: false, // Dont_Attack_Friends
@@ -2456,9 +2565,10 @@ function compileGameModes(): Record<string, GameModeSpec> {
  */
 export function compileClassicRuleset(raw: RawDataFiles): Ruleset {
   const tickRate = TICK_RATE;
+  const misc = readMisc(raw);
   const ctx: CompileCtx = {
     tickRate,
-    constants: compileConstants(raw.mapLayout, tickRate),
+    constants: compileConstants(raw.mapLayout, tickRate, misc),
     units: indexObjectData(raw.units, 'units.json'),
     abilities: indexObjectData(raw.abilities, 'abilities.json'),
     items: indexObjectData(raw.items, 'items.json'),
@@ -2643,7 +2753,7 @@ export function compileClassicRuleset(raw: RawDataFiles): Ruleset {
     name: 'classic-1.187',
     tickRate,
     constants: ctx.constants,
-    attackTypeVsDefense: tftAttackTypeVsDefense(),
+    attackTypeVsDefense: tftAttackTypeVsDefense(misc),
     weapons,
     equipment,
     abilities,
@@ -2657,7 +2767,7 @@ export function compileClassicRuleset(raw: RawDataFiles): Ruleset {
     suicideQuests,
     contracts,
     questSystems,
-    xp: compileXpRules(),
+    xp: compileXpRules(misc),
     respawn: compileRespawnRules(raw.mapLayout, tickRate),
     income: compileIncomeRules(raw.mapLayout, tickRate),
     gameModes: compileGameModes(),

@@ -1,0 +1,63 @@
+{
+ "misc": {
+  "StrAttackBonus": 0.0,
+  "AgiDefenseBase": 0.0,
+  "AgiDefenseBonus": 0.0,
+  "StrRegenBonus": 0.0,
+  "StrHitPointBonus": 0.0,
+  "IntManaBonus": 0.0,
+  "IntRegenBonus": 0.0,
+  "MaxUnitSpeed": 522.0,
+  "MinUnitSpeed": 10.0,
+  "GlobalExperience": 0,
+  "MaxLevelHeroesDrainExp": 0,
+  "HeroFactorXP": [
+   80,
+   70,
+   60,
+   50,
+   40,
+   30,
+   20,
+   10
+  ],
+  "BuildingKillsGiveExp": 1,
+  "MaxHeroLevel": 20,
+  "GrantHeroXP": [
+   50,
+   60,
+   70,
+   80,
+   90,
+   100,
+   110,
+   120,
+   130,
+   140,
+   150,
+   160,
+   170,
+   180,
+   190,
+   200,
+   210,
+   220,
+   230,
+   240
+  ],
+  "GrantNormalXP": 15,
+  "DamageBonusSpells": [
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   1.0,
+   0.05,
+   1.0
+  ],
+  "AgiAttackSpeedBonus": 0.0,
+  "HeroExpRange": 1500.0,
+  "FoodCeiling": 300
+ }
+}

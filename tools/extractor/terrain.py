@@ -180,6 +180,15 @@ SOFT_COST = 2      # Dijkstra cost to carve a neck through a faint-tan cell.
 LAND_COST = 30     # Dijkstra cost to carve a neck through solid land (keeps the
 #                    carved neck as short as possible for far-flank shops).
 
+# Repair-area REGIONS the sim routes ships into (a damaged ship sails into the
+# repair bay; the trader visits the repair station). These are regions in
+# map-layout, NOT role=="shop" structures, so the shop-neck pass below misses
+# them -- the owner reported ships "could not get to the repair station" because
+# the classifier left each repair bay on a tiny isolated water pocket. We carve a
+# neck connecting each one's water to the main sea, and the fidelity gate fails
+# loud if any stays unreachable.
+CONNECT_REGIONS = ["Repair_Station_South", "Repair_Station_North"]
+
 # --- west sail-around island loops (owner-approved; see WEST-ISLAND LOOPS) ------
 # The two far-WEST shops sit on ISLANDS the owner sails AROUND through a single
 # narrow entrance. The minimap tan is too faint there to trace the loop, so we
@@ -663,15 +672,40 @@ def carve_connectivity(rows: list[list[int]], soft: list[list[int]], layout: dic
         }
         shop_added += _carve_neck(rows, soft, cols, nrows, seed, ring)
 
+    # (5) repair-area regions: a ship must be able to SAIL INTO each repair bay.
+    #     These are REGIONS (not role=="shop" structures), so steps (1)-(4) miss
+    #     them; connect each region's water to the main sea via the SAME neck
+    #     machinery as shops (snap to nearest water, then carve if off the sea).
+    region_by_name = {r["name"]: r for r in layout.get("regions", [])}
+    region_added = 0
+    for name in CONNECT_REGIONS:
+        reg = region_by_name.get(name)
+        if reg is None:
+            continue
+        c, r = cell(reg["centerX"], reg["centerY"])
+        if _shop_reachable(_main_sea(rows, cols, nrows, seed), cols, nrows, c, r):
+            continue
+        target = _nearest_water(rows, cols, nrows, c, r) or (c, r)
+        if not rows[target[1]][target[0]]:
+            rows[target[1]][target[0]] = 1
+            region_added += 1
+        region_added += _carve_neck(rows, soft, cols, nrows, seed, {target})
+
     main = _main_sea(rows, cols, nrows, seed)
     n_reach = sum(_shop_reachable(main, cols, nrows, *cell(s["x"], s["y"])) for s in shops)
+    n_region_reach = sum(
+        _shop_reachable(main, cols, nrows, *cell(region_by_name[n]["centerX"], region_by_name[n]["centerY"]))
+        for n in CONNECT_REGIONS if n in region_by_name
+    )
     return {
         "basePlatformCellsAdded": base_added,
         "connectivityNeckCellsAdded": neck_added,
         "shopNeckCellsAdded": shop_added,
+        "repairRegionNeckCellsAdded": region_added,
         "waterFractionBefore": round(before, 4),
         "waterFractionAfter": round(water_fraction(rows), 4),
         "shopsReachable": f"{n_reach}/{len(shops)}",
+        "repairRegionsReachable": f"{n_region_reach}/{sum(1 for n in CONNECT_REGIONS if n in region_by_name)}",
     }
 
 
@@ -1126,6 +1160,32 @@ def validate(rows: list[list[int]], layout: dict, geom: dict) -> dict:
         report["shopReach"] = shop_report
         if unreachable:
             raise SystemExit(f"terrain: {len(unreachable)} shop(s) NOT sea-reachable (G3): {unreachable}")
+
+    # (G3b) ALL REPAIR-AREA REGIONS sea-reachable (the owner's "could not get to
+    # the repair station"): the repair bays are regions, not shops, so G3 above
+    # never covered them. carve_connectivity step (5) connects each one; this
+    # gate guarantees it stuck.
+    region_by_name = {r["name"]: r for r in layout.get("regions", [])}
+    if south_hq is not None:
+        main = _main_sea(rows, cols, nrows, cell(south_hq["x"], south_hq["y"]))
+        region_report = []
+        region_unreachable = []
+        for name in CONNECT_REGIONS:
+            reg = region_by_name.get(name)
+            if reg is None:
+                continue
+            rc, rr = cell(reg["centerX"], reg["centerY"])
+            ok = _shop_reachable(main, cols, nrows, rc, rr)
+            region_report.append(f"{name}: reachable={ok}")
+            if not ok:
+                region_unreachable.append(name)
+        report["repairRegionsReachable"] = (
+            f"{len([n for n in CONNECT_REGIONS if n in region_by_name]) - len(region_unreachable)}"
+            f"/{len([n for n in CONNECT_REGIONS if n in region_by_name])}"
+        )
+        report["repairRegionReach"] = region_report
+        if region_unreachable:
+            raise SystemExit(f"terrain: {len(region_unreachable)} repair region(s) NOT sea-reachable (G3b): {region_unreachable}")
 
     # (G1) Water fraction. Under the owner's CONFIRMED colour key (sailable water
     # = NON-BLUE = yellow deep + green shallow + pink passable; LAND = blue-

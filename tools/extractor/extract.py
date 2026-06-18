@@ -44,6 +44,7 @@ KNOWN_FILES = [
     ("war3map.w3h", "war3map.w3h", False),
     ("war3map.w3q", "war3map.w3q", False),
     ("war3map.wts", "war3map.wts", False),
+    ("war3mapMisc.txt", "war3mapMisc.txt", False),
     ("war3map.w3i", "war3map.w3i", False),
     ("war3map.w3e", "war3map.w3e", False),
     ("war3map.w3r", "war3map.w3r", False),
@@ -89,6 +90,50 @@ def extract_raw(map_path: Path, raw_dir: Path) -> dict[str, bytes]:
                 (raw_dir / output_name).write_bytes(contents)
                 out[output_name] = contents
         return out
+
+
+def parse_misc(raw: bytes) -> dict[str, object]:
+    """Parse war3mapMisc.txt's [Misc] gameplay-constant overrides.
+
+    The file is an INI-style override of GameplayConstants.slk: only the
+    constants the map author CHANGED from the WC3 defaults are present. Each
+    `Key=value` becomes a number, or a list of numbers when comma-separated
+    (the damage tables, HeroFactorXP, GrantHeroXP). Non-numeric values are
+    kept as raw strings. Other sections ([Errors], [CustomSkin], ...) are
+    ignored — only [Misc] carries gameplay constants. This is the single most
+    important file for hero stats/XP/speed fidelity (SEMANTICS.md §1/§3/§6),
+    and the WC3 World Editor only writes the overridden keys, so a missing key
+    means "engine default applies".
+    """
+    text = raw.decode("utf-8-sig", errors="replace").replace("\r\n", "\n")
+    out: dict[str, object] = {}
+    in_misc = False
+    for line in text.split("\n"):
+        line = line.strip()
+        if not line or line.startswith("//"):
+            continue
+        if line.startswith("["):
+            in_misc = line.lower() == "[misc]"
+            continue
+        if not in_misc or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        parts = [p.strip() for p in value.split(",")]
+
+        def as_num(s: str):
+            try:
+                f = float(s)
+                return int(f) if f.is_integer() and "." not in s else round(f, 6)
+            except ValueError:
+                return None
+
+        nums = [as_num(p) for p in parts]
+        if all(n is not None for n in nums):
+            out[key] = nums[0] if len(nums) == 1 else nums
+        else:
+            out[key] = value.strip()
+    return out
 
 
 def parse_wts(raw: bytes) -> dict[int, str]:
@@ -229,6 +274,17 @@ def main() -> None:
 
     strings = parse_wts(raw_files.get("war3map.wts", b""))
     args.out_json.mkdir(parents=True, exist_ok=True)
+
+    # Gameplay constants (war3mapMisc.txt [Misc]) — the hero stat/XP/speed
+    # overrides. Only present keys are written; downstream readers treat a
+    # missing key as the WC3 engine default.
+    misc_raw = raw_files.get("war3mapMisc.txt")
+    misc = parse_misc(misc_raw) if misc_raw else {}
+    (args.out_json / "gameplay-constants.json").write_text(
+        json.dumps({"misc": misc}, indent=1, ensure_ascii=False) + "\n"
+    )
+    print(f"parsed {len(misc)} gameplay constants -> gameplay-constants.json")
+
     (args.out_json / "strings.json").write_text(
         json.dumps({str(k): v for k, v in sorted(strings.items())},
                    indent=1, ensure_ascii=False) + "\n"

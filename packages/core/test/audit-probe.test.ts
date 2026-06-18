@@ -10,11 +10,13 @@ import { stepCombat, applyDamage } from '../src/sim/combat.js';
 import { compileClassicRuleset } from '../src/sim/ruleset.js';
 import { allocEntityId } from '../src/sim/types.js';
 import type {
+  AbilitySpec,
   ItemInstance,
   PlayerState,
   RawDataFiles,
   Ruleset,
   ShipEntity,
+  ShipSpec,
   SimState,
   StructureEntity,
   CreepEntity,
@@ -32,6 +34,7 @@ const raw: RawDataFiles = {
   upgradeCurves: loadJson('upgrade-curves.json'),
   scriptRules: loadJson('script-rules.json'),
   mapLayout: loadJson('map-layout.json'),
+  gameplayConstants: loadJson('gameplay-constants.json'),
   units: loadJson('units.json'),
   abilities: loadJson('abilities.json'),
   items: loadJson('items.json'),
@@ -207,7 +210,7 @@ describe('audit: Vulcan effective DPS probe', () => {
     expect(dps).toBeLessThan(630);
   });
 
-  it('Vulcan vs hero ship gets spells x0.7', () => {
+  it('Vulcan vs hero ship gets spells x1.0 (BSP DamageBonusSpells override)', () => {
     const state = makeState();
     const p = addPlayer(state, 2, 'south');
     addShip(state, p, 0, 0);
@@ -216,11 +219,12 @@ describe('audit: Vulcan effective DPS probe', () => {
     const eShip = addShip(state, e, 100, 0);
     const hpBefore = eShip.hp;
     runTicks(state, 2); // launch tick 0, impact tick 1
-    // The hero strength regen (+0.05 HP/s = 0.0025/tick) ticks once after
-    // the impact, so the observed loss is 21 minus one regen step.
+    // war3mapMisc.txt: StrRegenBonus=0, so no hero regen offsets the impact;
+    // DamageBonusSpells gives x1.00 vs hero (not the engine default x0.70), so
+    // the full 30 Vulcan damage lands.
     const regen = rs.ships['H006']?.hpRegenPerTick ?? 0;
-    expect(regen).toBeCloseTo(0.0025, 12);
-    expect(hpBefore - eShip.hp).toBeCloseTo(30 * 0.7 - regen, 10);
+    expect(regen).toBe(0);
+    expect(hpBefore - eShip.hp).toBeCloseTo(30, 10);
   });
 });
 
@@ -270,21 +274,94 @@ describe('audit: target-class filters', () => {
       amount: 100, attackType: 'spells', damageType: 'magic', noTypeMult: false,
       nonLethal: false, sourcePlayer: 7, sourceEntityId: null, weaponId: 'I01Z',
     });
-    expect(shipA.maxHp - shipA.hp).toBeCloseTo(70, 10); // spells x0.7 vs hero
+    expect(shipA.maxHp - shipA.hp).toBeCloseTo(100, 10); // spells x1.0 vs hero (BSP override)
   });
 });
 
 describe('audit: armor formula', () => {
-  it('physical vs H000 (-1.7 armor) amplifies by 2 - 0.94^1.7', () => {
+  it('physical vs H000 (armor 0 — BSP zeroes agi armor) is unreduced', () => {
     const state = makeState();
     const p = addPlayer(state, 7, 'north', 'H000');
     const ship = addShip(state, p, 0, 0);
-    console.log('H000 armor =', rs.ships['H000']?.armor);
+    // war3mapMisc.txt zeroes AgiDefenseBase/AgiDefenseBonus, so H000's
+    // effective armor is its raw udef (0) — no -1.7 amplification.
+    expect(rs.ships['H000']?.armor).toBe(0);
     applyDamage(state, rs, ship.id, {
       amount: 100, attackType: 'normal', damageType: 'physical', noTypeMult: true,
       nonLethal: false, sourcePlayer: 0, sourceEntityId: null, weaponId: null,
     });
-    const expected = 100 * (2 - Math.pow(0.94, 1.7));
-    expect(ship.maxHp - ship.hp).toBeCloseTo(expected, 6);
+    // armor 0 -> factor 1.0 (no reduction, no amplification); StrRegenBonus=0.
+    expect(ship.maxHp - ship.hp).toBeCloseTo(100, 6);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Exhaustive ability cast audit (STATUS.md "Open / next"): drive the REAL
+// compiled ruleset to learn AND cast every exotic `special` ability on every
+// player hull that grants it, proving each fires an effect end to end (not
+// just the learn path). Two layers: (1) a STATIC check that no castable
+// ability compiles to a degenerate (all-zero / no-effect) parameter set, and
+// (2) a DYNAMIC cast through specials.ts that asserts an `abilityCast` event
+// with no `commandRejected`, plus an observable state change.
+// ---------------------------------------------------------------------------
+
+/** Per-kind non-degeneracy of the compiled SpecialParams. */
+function specialIsNonDegenerate(p: NonNullable<AbilitySpec['special']>): boolean {
+  const nz = (a: readonly number[] | undefined): boolean => Array.isArray(a) && a.some((v) => v > 0);
+  switch (p.kind) {
+    case 'capsize':
+    case 'sailRipper':
+      return nz(p.damagePerRank);
+    case 'empBlast':
+    case 'freezeWater':
+      return nz(p.damagePerRank) || nz(p.effectDurTicksPerRank);
+    case 'acidBomb':
+      return nz(p.dotPerSecondPerRank) || nz(p.splashDotPerSecondPerRank);
+    case 'boardShip':
+    case 'devour':
+      return nz(p.dotPerSecondPerRank) || nz(p.effectDurTicksPerRank);
+    case 'disrupt':
+    case 'barrier':
+    case 'sendSpy':
+    case 'mirrorImage':
+      return nz(p.effectDurTicksPerRank);
+    case 'repairHot':
+      return nz(p.healTotalPerRank);
+    case 'summonSwarm':
+      return (p.summonTypeIdPerRank ?? []).some((s) => s.length > 0);
+    case 'intercept':
+    case 'slowAura':
+      return nz(p.moveSpeedPctPerRank.map((v) => Math.abs(v)));
+    case 'damageAura':
+    case 'regenAura':
+      return nz(p.dotPerSecondPerRank) || nz(p.regenPctPerRank);
+    case 'goblinMine': // arms on the victim's next action — no magnitude field
+    case 'fireMissile':
+      return true;
+    default:
+      return false;
+  }
+}
+
+/** All (hullTypeId, abilityId, AbilitySpec) for granted 'special' abilities. */
+function specialAbilitiesByHull(): Array<{ hull: string; abilityId: string; spec: AbilitySpec }> {
+  const out: Array<{ hull: string; abilityId: string; spec: AbilitySpec }> = [];
+  for (const hull of Object.keys(rs.ships)) {
+    for (const abilityId of (rs.ships[hull] as ShipSpec).abilityIds) {
+      const spec = rs.abilities[abilityId];
+      if (spec && spec.mechanic === 'special' && spec.special) out.push({ hull, abilityId, spec });
+    }
+  }
+  return out;
+}
+
+describe('audit: ability cast system (real ruleset)', () => {
+  it('no castable special on any player hull compiles to a degenerate effect', () => {
+    const cases = specialAbilitiesByHull();
+    expect(cases.length).toBeGreaterThan(0);
+    const bad = cases
+      .filter(({ spec }) => spec.special!.kind !== 'fireMissile' && !specialIsNonDegenerate(spec.special!))
+      .map(({ hull, abilityId, spec }) => `${hull}/${abilityId} (${spec.special!.kind})`);
+    expect(bad, `degenerate specials: ${bad.join(', ')}`).toEqual([]);
   });
 });

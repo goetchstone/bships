@@ -56,11 +56,13 @@
 import { dAtan2, dCos, dist, dSin, HALF_PI } from '../math.js';
 import { Rng } from '../rng.js';
 import type {
+  AbilitySpec,
   AiConfig,
   AiDifficulty,
   Combatant,
   Command,
   Entity,
+  PlayerState,
   Ruleset,
   ShipEntity,
   SimState,
@@ -327,27 +329,50 @@ export function computeAiCommands(
   // while PUSHING we detour to dock; while RETREATING we only opportunistically
   // buy when already in range (the retreat route below owns positioning).
   const spendable = player.gold - tuning.reserveGold;
-  const wantItem = spendable > 0 ? nextDesiredItem(state, ruleset, team, player.inventory, spendable) : null;
-  if (wantItem !== null && rng.next() < tuning.economyEfficiency) {
-    const shop = nearestSellingShop(state, ruleset, team, wantItem.itemId);
+  // A new HULL takes priority over the next item: it's a big effective-HP jump
+  // that ALSO unlocks the hull's own abilities (auto-learned/cast in 4d) and
+  // carries the existing cannons over (inventory transfers on Change_Ship), so a
+  // captain that can bank the next tier buys the ship before topping up cheap
+  // items. When no hull is affordable it falls through to the item ladder (and
+  // keeps buying cannons while it saves). Both share ONE economyEfficiency draw
+  // and the SAME in-range/detour machinery below — the base Main Harbor that
+  // sells the hull ladder also sells the cannons, so the detour target is the
+  // same dock either way.
+  const wantHull = spendable > 0 ? nextHullUpgrade(state, ruleset, team, player, spendable) : null;
+  const wantItem =
+    wantHull === null && spendable > 0
+      ? nextDesiredItem(state, ruleset, team, player.inventory, spendable)
+      : null;
+  if ((wantHull !== null || wantItem !== null) && rng.next() < tuning.economyEfficiency) {
+    const shop =
+      wantHull !== null ? wantHull.shop : nearestSellingShop(state, ruleset, team, wantItem!.itemId);
     if (shop) {
       const spec = ruleset.shops[shop.typeId];
       const reach = spec ? spec.interactRadius : 0;
       if (dist(ship.x, ship.y, shop.x, shop.y) <= reach) {
         memory.shopApproachStuck = 0; // docked: clear the abandon counter
-        if (wantItem.dropSlot !== null) {
+        if (wantHull !== null) {
+          // Swap to the better hull in place: keeps the inventory (cannons),
+          // unlocks the new hull's abilities, and full-heals (economy.ts).
+          commands.push({
+            type: 'buyShip',
+            player: slot,
+            shopId: shop.id,
+            shipTypeId: wantHull.shipTypeId,
+          });
+        } else if (wantItem!.dropSlot !== null) {
           // Upgrading within a one-per-ship group (e.g. Stone -> Bronze hull):
           // drop the lower tier first (no sell-back in Classic) so the buy is
           // not auto-refunded next think. Drop AT the shop position.
           commands.push({
             type: 'dropItem',
             player: slot,
-            slot: wantItem.dropSlot,
+            slot: wantItem!.dropSlot,
             x: ship.x,
             y: ship.y,
           });
         } else {
-          commands.push({ type: 'buyItem', player: slot, shopId: shop.id, itemId: wantItem.itemId });
+          commands.push({ type: 'buyItem', player: slot, shopId: shop.id, itemId: wantItem!.itemId });
         }
         // A buy/drop is the whole think — re-evaluate next cadence.
         updateProgress(state, memory, ship);
@@ -419,6 +444,13 @@ export function computeAiCommands(
   // brain PRNG order — the replay contract — is untouched. The research command
   // is ADDITIVE (the bot still pushes this think). Issued only while pushing.
   maybeResearch(state, ruleset, slot, team, player, commands);
+
+  // --- 4d. Use abilities: learn a hero build + cast offensive skills ---------
+  // Spend skill points (offensive first) and CAST learned actives at a nearby
+  // enemy ship. This is the burst the bot was missing — a gank now converts to a
+  // kill instead of a futile chase. Additive, no rng draw.
+  maybeLearnSkill(ruleset, slot, player, commands);
+  maybeCastOffensive(state, ruleset, slot, ship, team, player, commands);
 
   // --- 5. Lane pick / keep (loose teammate anti-stacking) -------------------
   const laneId = chooseLane(state, ruleset, slot, team, memory, rng);
@@ -569,6 +601,31 @@ const UPGRADE_GROUPS: readonly (readonly string[])[] = [
   ['I009', 'I016', 'I00A'], // hulls
   ['I017', 'I00B'], // repair crews
 ];
+
+/**
+ * Hull TYPES the combat captain must never auto-buy: the two trade carriers
+ * (Trade Boat / Trade Ship — driven only by the dedicated `trader` role) and
+ * the submarines (their value is the dive/ambush kit the combat brain has no
+ * micro for; buying one would strand a captain in a hull it can't fight in).
+ * A captain already sitting in one of these (it never should be) is also left
+ * alone — `nextHullUpgrade` returns null rather than swapping it to a frigate.
+ */
+const NON_COMBAT_HULLS: ReadonlySet<string> = new Set([
+  'H005', // Trade Ship
+  'H00D', // Trade Boat
+  'H00V', // submarine
+  'H00W', // submarine
+]);
+
+/**
+ * Minimum effective-HP multiple a new hull must clear over the current one to
+ * be worth buying. A hull swap is a big gold sink AND carries the existing
+ * cannons over (inventory transfers on Change_Ship), so the bot only spends on
+ * a MEANINGFUL jump (e.g. starter 200hp -> Crusader 750hp = 3.75x) and never
+ * sidegrades between two similarly-tanky frigates. Set just under the smallest
+ * real tier gap so every genuine upgrade qualifies while sidegrades don't.
+ */
+const HULL_UPGRADE_MIN_RATIO = 1.4;
 
 // ---------------------------------------------------------------------------
 // Internal helpers (all deterministic — no Math.random/Date/state.rngState,
@@ -789,6 +846,84 @@ function shopSideOf(ruleset: Ruleset, shop: StructureEntity): TeamId | null {
     if (placement.instanceKey === shop.instanceKey) return placement.shopSide;
   }
   return null;
+}
+
+/**
+ * Nearest structure that SELLS ANY HULL and is on this team's side (or open to
+ * both). Like the trader's `nearestShipShop` it does NOT require role 'shop':
+ * the combat ladder is sold by the team HQ n000 (role 'hq'). Same stable
+ * ranking as `nearestSellingShop` — distance from the team base, not the ship —
+ * so a captain doesn't thrash between two vendors, and (because the base Main
+ * Harbor carries the full combat ladder) the upgrade detour stays pointed home
+ * rather than at a far supership dock. null if none placed.
+ */
+function nearestHullVendor(state: SimState, ruleset: Ruleset, team: TeamId): StructureEntity | null {
+  let best: StructureEntity | null = null;
+  let bestDist = Infinity;
+  const base = ownBasePoint(team);
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.kind !== 'structure' || e.dead) continue;
+    const spec = ruleset.shops[e.typeId];
+    if (!spec || spec.ships.length === 0) continue;
+    const side = shopSideOf(ruleset, e);
+    if (side !== null && side !== team) continue; // enemy-side: would reject
+    const d = dist(base.x, base.y, e.x, e.y);
+    if (d < bestDist) {
+      bestDist = d;
+      best = e;
+    }
+  }
+  return best;
+}
+
+/**
+ * The best affordable HULL upgrade for this captain, with the shop that sells
+ * it — or null if there's nothing worth buying. "Worth buying" = a combat hull
+ * (not a trader/sub, {@link NON_COMBAT_HULLS}) the player can afford in gold
+ * (within `budget`, which already excludes the operating reserve) AND lumber,
+ * whose effective HP clears {@link HULL_UPGRADE_MIN_RATIO}× the current hull's.
+ * Among qualifying hulls it takes the tankiest (ties -> cheaper, then ascending
+ * typeId) so the captain skips straight to the strongest tier it can bank.
+ *
+ * Fully deterministic: ascending-id shop scan, fixed `spec.ships` order, no rng.
+ * The actual purchase is validated again in `economy.ts` (range/sold-here/
+ * disabled-by-mode), so a borderline pick degrades to a harmless rejected buy.
+ */
+function nextHullUpgrade(
+  state: SimState,
+  ruleset: Ruleset,
+  team: TeamId,
+  player: PlayerState,
+  budget: number,
+): { shipTypeId: string; shop: StructureEntity } | null {
+  if (NON_COMBAT_HULLS.has(player.shipTypeId)) return null;
+  const shop = nearestHullVendor(state, ruleset, team);
+  if (!shop) return null;
+  const spec = ruleset.shops[shop.typeId];
+  if (!spec) return null;
+  const curHp = ruleset.ships[player.shipTypeId]?.maxHp ?? 0;
+  let bestId: string | null = null;
+  let bestHp = -1;
+  let bestGold = Infinity;
+  for (const entry of spec.ships) {
+    if (entry.shipTypeId === player.shipTypeId) continue; // already in it
+    if (NON_COMBAT_HULLS.has(entry.shipTypeId)) continue;
+    if (entry.gold > budget) continue;
+    const lumberNeeded = Math.max(
+      entry.lumberCost,
+      ruleset.contracts.lumberCosts[entry.shipTypeId] ?? 0,
+    );
+    if (player.lumber < lumberNeeded) continue;
+    const hp = ruleset.ships[entry.shipTypeId]?.maxHp ?? 0;
+    if (hp < curHp * HULL_UPGRADE_MIN_RATIO) continue; // not a meaningful jump
+    if (hp > bestHp || (hp === bestHp && entry.gold < bestGold)) {
+      bestId = entry.shipTypeId;
+      bestHp = hp;
+      bestGold = entry.gold;
+    }
+  }
+  return bestId === null ? null : { shipTypeId: bestId, shop };
 }
 
 /**
@@ -1033,6 +1168,108 @@ const ENGAGE_PUSH_THROUGH = 400;
 /** A team's vision over an entity, the way a human's targeting sees it. */
 function visibleToTeam(target: Entity, team: TeamId): boolean {
   return 'vision' in target ? target.vision[team] : true;
+}
+
+// --- Use abilities: learn a sensible hero build + cast offensive skills -------
+/** Unit-targeted offensive 'special' kinds the bot casts at an enemy ship. */
+const OFFENSIVE_SPECIAL_KINDS = new Set([
+  'empBlast',
+  'capsize',
+  'acidBomb',
+  'freezeWater',
+  'sailRipper',
+  'boardShip',
+  'devour',
+  'disrupt',
+]);
+/** Range within which the bot casts a learned offensive ability at an enemy
+ *  ship; the sim re-validates the ability's exact range + cooldown. */
+const ABILITY_CAST_RADIUS = 1000;
+
+/** Learn priority for a hull's hero skills: offensive actives first (so the bot
+ *  gets BURST to win fights/ganks), then hull HP (survive), then regen/sails. */
+function skillLearnPriority(spec: AbilitySpec): number {
+  if (spec.mechanic === 'stormBoltWeapon' || spec.mechanic === 'ensnare') return 4;
+  if (spec.mechanic === 'special' && spec.special && OFFENSIVE_SPECIAL_KINDS.has(spec.special.kind)) return 3;
+  if (spec.mechanic === 'hullHp') return 2;
+  if (spec.mechanic === 'mechanicsRegen') return 1.5;
+  if (spec.mechanic === 'sailSpeed') return 1;
+  return 0.5;
+}
+
+/** Spend ONE skill point this think on the best-priority learnable hero skill
+ *  (offensive first). Additive — no rng draw (replay contract untouched). */
+function maybeLearnSkill(ruleset: Ruleset, slot: number, player: PlayerState, commands: Command[]): void {
+  if (player.unspentSkillPoints <= 0) return;
+  const ship = ruleset.ships[player.shipTypeId];
+  if (!ship) return;
+  let bestId: string | null = null;
+  let bestPri = -Infinity;
+  for (const id of ship.abilityIds) {
+    const spec = ruleset.abilities[id];
+    if (!spec?.skill) continue;
+    if ((player.heroSkillLevels[id] ?? 0) >= spec.skill.ranks) continue; // maxed
+    const pri = skillLearnPriority(spec);
+    if (pri > bestPri) {
+      bestPri = pri;
+      bestId = id;
+    }
+  }
+  if (bestId !== null) commands.push({ type: 'learnSkill', player: slot, abilityId: bestId });
+}
+
+/** Cast every LEARNED unit-targeted offensive hero skill (Captain's Cannon,
+ *  Fishing Net, EMP, Capsize...) at the nearest visible enemy SHIP in reach —
+ *  the burst/catch that turns a gank into a kill. The sim gates cooldown + exact
+ *  range, so issuing each think is safe; no rng draw here. */
+function maybeCastOffensive(
+  state: SimState,
+  ruleset: Ruleset,
+  slot: number,
+  ship: ShipEntity,
+  team: TeamId,
+  player: PlayerState,
+  commands: Command[],
+): void {
+  const shipSpec = ruleset.ships[player.shipTypeId];
+  if (!shipSpec) return;
+  // Prefer the nearest enemy SHIP (burst a hero); when none is in reach, fall
+  // back to the frontmost enemy STRUCTURE (tower/HQ) so the abilities ADD siege
+  // damage instead of fueling a futile hero-duel and pulling the bot off the
+  // push. Ascending-id; no rng.
+  let prey: Entity | null = null;
+  let preyD = Infinity;
+  let structurePrey: Entity | null = null;
+  let structureD = Infinity;
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.dead || e.team === null || e.team === team) continue;
+    if (!visibleToTeam(e, team)) continue;
+    const d = dist(ship.x, ship.y, e.x, e.y);
+    if (d > ABILITY_CAST_RADIUS) continue;
+    if (e.kind === 'ship') {
+      if (d < preyD) {
+        preyD = d;
+        prey = e;
+      }
+    } else if (e.kind === 'structure' && (e.role === 'tower' || e.role === 'hq')) {
+      if (d < structureD) {
+        structureD = d;
+        structurePrey = e;
+      }
+    }
+  }
+  const target = prey ?? structurePrey;
+  if (target === null) return;
+  for (const id of shipSpec.abilityIds) {
+    const spec = ruleset.abilities[id];
+    if (!spec || (player.heroSkillLevels[id] ?? 0) <= 0) continue; // not learned
+    const offensive =
+      spec.mechanic === 'stormBoltWeapon' ||
+      spec.mechanic === 'ensnare' ||
+      (spec.mechanic === 'special' && spec.special !== null && OFFENSIVE_SPECIAL_KINDS.has(spec.special.kind));
+    if (offensive) commands.push({ type: 'castAbility', player: slot, abilityId: id, targetId: target.id });
+  }
 }
 
 /**
@@ -1420,6 +1657,7 @@ function traderEnsureCarrier(
     if (cost !== null && player.gold >= cost) {
       commands.push({ type: 'buyShip', player: slot, shopId: shop.id, shipTypeId: targetHull });
     }
+    memory.shopApproachStuck = 0; // reached the shop: clear the abandon counter
     updateProgress(state, memory, ship);
     return true;
   }
@@ -1430,6 +1668,25 @@ function traderEnsureCarrier(
     ship.y,
     Math.max(0, reach - TRADER_SHOP_APPROACH_OFFSET),
   );
+  // For the OPTIONAL upgrade hull, give up on an unreachable upgrade shop after
+  // a bounded number of no-progress thinks so the trader keeps hauling with its
+  // current carrier instead of wedging on the shop forever (mirrors the captain
+  // push's shopApproachStuck abandon at §4a). The ESSENTIAL entry carrier is
+  // bought at the team HQ — always reachable from spawn — so it is never
+  // abandoned. Runs the stuck detector once here (traderSail would call it a
+  // second time and corrupt the progress anchor).
+  if (targetHull === TRADER_UPGRADE_HULL) {
+    const epsilonSq = stuckEpsilonSq(ruleset, ship, AI_TUNING[memory.difficulty].thinkIntervalTicks);
+    const stuck = bumpStuck(state, memory, ship, epsilonSq);
+    if (stuck) memory.shopApproachStuck += 1;
+    if (memory.shopApproachStuck >= SHOP_APPROACH_ABANDON) {
+      memory.shopApproachStuck = 0;
+      return false; // upgrade unreachable for now — haul with the current carrier
+    }
+    const dest = stuck ? stuckDetour(ship, approach.x, approach.y, rng) : approach;
+    issueMove(commands, memory, slot, 'move', dest.x, dest.y, stuck);
+    return true;
+  }
   traderSail(state, ruleset, memory, slot, ship, approach.x, approach.y, commands, rng);
   return true;
 }

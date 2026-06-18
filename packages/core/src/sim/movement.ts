@@ -46,6 +46,7 @@
 
 import { dAtan2, dCos, dSin, HALF_PI, wrapAngle } from '../math.js';
 import { isUnitEntity, isWater, navStepToward, sortedNumericKeys } from './types.js';
+import { compileNavField } from './ruleset.js';
 import type {
   Entity,
   MovementCommandU,
@@ -497,7 +498,13 @@ function stepUnitKinematics(state: SimState, ruleset: Ruleset, entity: UnitEntit
     // NavField / docs/TERRAIN.md §3). Near the goal (or with no field, e.g. a
     // stub mask) navStepToward returns null and we steer the true order point,
     // preserving exact arrival/idle behaviour and all legacy open-sea tests.
-    const nav = laneNavGoal(ruleset, entity, order.x, order.y);
+    const nav = laneNavGoal(
+      ruleset,
+      entity,
+      order.x,
+      order.y,
+      state.players[entity.owner]?.control === 'user',
+    );
     goalX = nav.x;
     goalY = nav.y;
   }
@@ -605,6 +612,7 @@ function laneNavGoal(
   entity: UnitEntity,
   orderX: number,
   orderY: number,
+  playerControlled: boolean,
 ): { x: number; y: number } {
   if (entity.kind !== 'ship' && entity.kind !== 'creep' && entity.kind !== 'summon') {
     return { x: orderX, y: orderY };
@@ -643,10 +651,119 @@ function laneNavGoal(
   // micro/short repositions (below NAV_SHIP_MIN_HAUL) stay straight-line so they
   // reach their exact point without a cell-granular detour.
   const orderDistSq = (orderX - entity.x) ** 2 + (orderY - entity.y) ** 2;
-  if (orderDistSq < NAV_SHIP_MIN_HAUL * NAV_SHIP_MIN_HAUL) return { x: orderX, y: orderY };
+  const isShortApproach = orderDistSq < NAV_SHIP_MIN_HAUL * NAV_SHIP_MIN_HAUL;
+  // Straight-line ONLY when the direct path is genuinely CLEAR WATER and it is a
+  // short hop — the common close-range / open-sea case (also the stub-mask case,
+  // where isWater is always true so this always wins and legacy replays are
+  // unchanged). When the straight segment crosses land — or it's a genuine haul —
+  // ride the nearest-goal field gradient (which the per-POI navToRegion fields
+  // paint up to each dock), following it to within 1 cell on a blocked short
+  // approach so the ship rounds the spit onto the dock instead of beelining in.
+  const mask = ruleset.map.waterMask;
+  const blocked = segmentCrossesLand(mask, entity.x, entity.y, orderX, orderY);
+  if (isShortApproach && !blocked) return { x: orderX, y: orderY };
 
-  const step = nearestFieldStep(ruleset, entity, orderX, orderY, entity.x, entity.y);
+  // PLAYER SHIPS: route via a flow field computed to the EXACT clicked point
+  // whenever the straight line is blocked. A field to the destination ALWAYS
+  // flows toward where the human actually clicked (unlike the nearest-base/region
+  // heuristic, which mis-routes a mid-map click toward a base and leaves the ship
+  // oscillating / wedged against the central land — "it just sits there"). Used
+  // CONSISTENTLY (not just as a null-fallback) so the ship never flip-flops
+  // between this and a wrong-way field. compileNavField is pure → the cache never
+  // affects determinism (see fieldToPoint). GATED to players: the AI (captains +
+  // the delicately-tuned trader) keeps the exact path below, so its routing and
+  // every AI/determinism test is byte-unchanged.
+  if (playerControlled) {
+    // Clear water all the way (any distance) → straight to the exact click.
+    if (!blocked) return { x: orderX, y: orderY };
+    // Blocked → route around the land via a field to the exact destination.
+    const field = fieldToPoint(mask, orderX, orderY);
+    if (field !== null) {
+      const step = navStepToward(
+        field,
+        entity.x,
+        entity.y,
+        isShortApproach ? DOCK_APPROACH_LOCAL_GOAL_CELLS : undefined,
+      );
+      if (step !== null) return step;
+    }
+    return { x: orderX, y: orderY };
+  }
+
+  // AI SHIPS (and players on a clear long haul): the nearest-goal field gradient
+  // that routes around the central landmass, then the straight-line final
+  // approach. Exactly the verified-green behaviour.
+  const step = nearestFieldStep(
+    ruleset,
+    entity,
+    orderX,
+    orderY,
+    entity.x,
+    entity.y,
+    isShortApproach ? DOCK_APPROACH_LOCAL_GOAL_CELLS : undefined,
+  );
   return step ?? { x: orderX, y: orderY };
+}
+
+/** Per-mask memo of on-demand flow fields keyed by goal CELL, used only by the
+ *  laneNavGoal RESCUE path (an order whose straight line beaches and which no
+ *  precompiled field reaches). compileNavField is a PURE function of (mask,
+ *  goal), so cached results are identical regardless of cache state or eviction
+ *  order — determinism is preserved (the cache is a memo, never in SimState /
+ *  hashState). A per-mask cap bounds memory; eviction just forces a recompute
+ *  that yields the same field. Keyed on the WaterMask object (WeakMap) so
+ *  distinct masks never collide and entries GC with their mask. */
+const fieldToPointCache = new WeakMap<WaterMask, Map<number, NavField>>();
+const FIELD_TO_POINT_CAP = 128;
+
+function fieldToPoint(mask: WaterMask, x: number, y: number): NavField | null {
+  if (mask.cells.length === 0) return null; // stub mask -> straight-line caller
+  const col = Math.floor((x - mask.bounds.minX) / mask.cellSizeX);
+  const row = Math.floor((mask.bounds.maxY - y) / mask.cellSizeY);
+  if (col < 0 || col >= mask.cols || row < 0 || row >= mask.rows) return null;
+  const key = row * mask.cols + col;
+  let perMask = fieldToPointCache.get(mask);
+  if (perMask === undefined) {
+    perMask = new Map();
+    fieldToPointCache.set(mask, perMask);
+  }
+  const cached = perMask.get(key);
+  if (cached !== undefined) return cached;
+  const field = compileNavField(mask, x, y);
+  if (perMask.size >= FIELD_TO_POINT_CAP) {
+    const oldest = perMask.keys().next().value;
+    if (oldest !== undefined) perMask.delete(oldest);
+  }
+  perMask.set(key, field);
+  return field;
+}
+
+/** Hand-off distance (in cells) for a SHIP rounding land onto a dock: follow the
+ *  field gradient to within ONE cell of the goal's water-access cell before the
+ *  straight-line final step, so the ship rounds the coastal spit instead of
+ *  beelining into it. Open hauls keep navStepToward's default (6). */
+const DOCK_APPROACH_LOCAL_GOAL_CELLS = 1;
+
+/** True if the straight segment (x0,y0)->(x1,y1) passes over any LAND cell
+ *  (sampled at half-cell resolution incl. the endpoint), i.e. a naive
+ *  straight-line move would beach the ship. The source cell is skipped so a
+ *  coast-hugging start is not a false positive. On a stub mask (isWater always
+ *  true) this is always false — open-sea movement is unchanged. Pure arithmetic
+ *  + isWater: deterministic. */
+function segmentCrossesLand(mask: WaterMask, x0: number, y0: number, x1: number, y1: number): boolean {
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  if (len === 0) return false;
+  const step = Math.min(mask.cellSizeX, mask.cellSizeY) * 0.5 || 64;
+  const n = Math.max(1, Math.ceil(len / step));
+  for (let i = 1; i <= n; i++) {
+    const t = (i * step) / len;
+    const tt = t > 1 ? 1 : t;
+    if (!isWater(mask, x0 + dx * tt, y0 + dy * tt)) return true;
+    if (t >= 1) break;
+  }
+  return false;
 }
 
 /**
@@ -679,6 +796,7 @@ function nearestFieldStep(
   towardY: number,
   fromX: number,
   fromY: number,
+  localGoalDistCells?: number,
 ): { x: number; y: number } | null {
   let best: NavField | null = null;
   let bestGapSq = Infinity;
@@ -699,7 +817,7 @@ function nearestFieldStep(
   // builds it from a fixed allowlist array).
   for (const name in ruleset.map.navToRegion) consider(ruleset.map.navToRegion[name]);
   if (best === null) return null;
-  return navStepToward(best, fromX, fromY);
+  return navStepToward(best, fromX, fromY, localGoalDistCells);
 }
 
 /** Minimum straight-line order distance for a SHIP to use lane-field steering.

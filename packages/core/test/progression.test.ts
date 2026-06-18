@@ -838,7 +838,10 @@ describe('bounty', () => {
     expect(state.rngState).toBe(expected.state);
   });
 
-  it('zero-bounty creep twins (h00E) pay nothing and consume no rng', () => {
+  // A zero-bounty unit pays nothing and draws no rng. The fixture's h00E is a
+  // FORCED-zero stand-in for the mechanism (wards/missile dummies are 0 too); the
+  // real Classic h00E now PAYS via the owner BOUNTY_TWIN_COUNTERPART override.
+  it('a zero-bounty unit pays nothing and consumes no rng', () => {
     const rs = fixtureRuleset();
     const state = makeState();
     addCreep(state, 5, 'h00E', 'north');
@@ -973,8 +976,23 @@ describe('learnSkill', () => {
     expect(eventsOf(state, 'commandRejected')).toHaveLength(0);
   });
 
-  it('rank 2 requires hero level 3 (alsk=2)', () => {
+  it('free spending (Classic default, skillLevelGated=false): rank 2 at hero level 1', () => {
     const rs = fixtureRuleset();
+    rs.xp.skillLevelGated = false; // owner-directed default: no per-rank level gate
+    const state = makeState();
+    const p = player(state, 2);
+    p.heroSkillLevels['A01Y'] = 1;
+    p.unspentSkillPoints = 1;
+    p.level = 1; // would be too low for rank 2 under the WC3 alsk gate
+    applyProgressionCommand(state, rs, { type: 'learnSkill', player: 2, abilityId: 'A01Y' });
+    expect(p.heroSkillLevels['A01Y']).toBe(2);
+    expect(p.unspentSkillPoints).toBe(0);
+    expect(eventsOf(state, 'commandRejected')).toHaveLength(0);
+  });
+
+  it('rank 2 requires hero level 3 (alsk=2) when the level gate is enabled', () => {
+    const rs = fixtureRuleset();
+    rs.xp.skillLevelGated = true; // faithful WC3 alsk ladder (off by default)
     const state = makeState();
     const p = player(state, 2);
     p.heroSkillLevels['A01Y'] = 1;
@@ -997,8 +1015,9 @@ describe('learnSkill', () => {
     expect(p.heroSkillLevels['A01Y']).toBe(2);
   });
 
-  it('rank 6 requires hero level 11', () => {
+  it('rank 6 requires hero level 11 when the level gate is enabled', () => {
     const rs = fixtureRuleset();
+    rs.xp.skillLevelGated = true;
     const state = makeState();
     const p = player(state, 2);
     p.heroSkillLevels['A01Y'] = 5;
@@ -1023,8 +1042,9 @@ describe('learnSkill', () => {
     expect(eventsOf(state, 'commandRejected')[0]?.reason).toBe('maxRank');
   });
 
-  it('Goblin Bomber (arlv=8) unlocks at hero level 8, not 7', () => {
+  it('Goblin Bomber (arlv=8) unlocks at hero level 8, not 7, when the level gate is enabled', () => {
     const rs = fixtureRuleset();
+    rs.xp.skillLevelGated = true;
     const state = makeState();
     const p = player(state, 2);
     p.shipTypeId = 'H00D';
