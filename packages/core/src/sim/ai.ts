@@ -302,7 +302,18 @@ export function computeAiCommands(
     RETREAT_RECOVER_BAND_CAP,
     tuning.retreatHpFraction + RETREAT_HYSTERESIS_BAND,
   );
-  if (tuning.retreatHpFraction > 0 && hpFraction < tuning.retreatHpFraction) {
+  // KILL-COMMIT: suppress the push->retreat flip while a strictly WEAKER
+  // (lower hp fraction) enemy ship is visible in aggro range — turning at the
+  // threshold in a fight you are winning hands the enemy a free heal-reset and
+  // is the core of the AI-mirror stalemate (both sides disengage at 40% and
+  // full-heal forever). Floored at half the retreat threshold so a bot still
+  // flees a losing race at deep HP. Deterministic scan, no rng.
+  const weakestFoe = weakestEnemyShipFraction(state, ship, team);
+  const killCommit =
+    weakestFoe !== null &&
+    weakestFoe < hpFraction &&
+    hpFraction >= tuning.retreatHpFraction * 0.5;
+  if (tuning.retreatHpFraction > 0 && hpFraction < tuning.retreatHpFraction && !killCommit) {
     if (memory.stance !== 'retreat') {
       memory.stance = 'retreat';
       memory.retreatSinceTick = state.tick;
@@ -1085,6 +1096,8 @@ function pickCombatTarget(
   const radius = AGGRO_TARGET_RADIUS;
   let bestShip: Combatant | null = null;
   let bestShipDist = Infinity;
+  let finisher: Combatant | null = null;
+  let finisherHp = Infinity;
   let bestCreep: Combatant | null = null;
   let bestCreepDist = Infinity;
   for (const id of sortedNumericKeys(state.entities)) {
@@ -1095,16 +1108,56 @@ function pickCombatTarget(
     const d = dist(ship.x, ship.y, e.x, e.y);
     if (d > radius) continue;
     if (e.kind === 'ship') {
+      // NEAREST ship steers the MOVEMENT waypoint: weapons auto-fire on their
+      // own, so this target mostly shapes sailing, and staying in the brawl
+      // maximizes damage uptime (probed: always-chase-the-weakest LOWERED
+      // hero kills — bots trailed retreaters out of the fight).
       if (d < bestShipDist) {
         bestShipDist = d;
         bestShip = e;
+      }
+      // FINISHER exception: a ship already inside the kill window (below
+      // FINISH_HP_FRACTION) is worth leaving the brawl for — that is the
+      // wounded hero that otherwise disengages at its retreat threshold and
+      // full-heals at the repair bay, which is exactly the escape loop behind
+      // the AI-mirror stalemate. HP-gated so healthy ships never bait a
+      // chase; weakest-first so teammates converge on the same kill.
+      if (e.hp < e.maxHp * FINISH_HP_FRACTION && e.hp < finisherHp) {
+        finisherHp = e.hp;
+        finisher = e;
       }
     } else if (d < bestCreepDist) {
       bestCreepDist = d;
       bestCreep = e;
     }
   }
-  return bestShip ?? bestCreep;
+  return finisher ?? bestShip ?? bestCreep;
+}
+
+/**
+ * A visible enemy ship below this HP fraction becomes a FINISH target the bot
+ * will chase (see pickCombatTarget). Sits just ABOVE the highest (hard, 0.40)
+ * retreat threshold so a hero that flips to retreat is already inside the
+ * window — the chase starts as the escape starts.
+ */
+const FINISH_HP_FRACTION = 0.45;
+
+/**
+ * Lowest hp/maxHp among visible enemy ships within aggro range, or null when
+ * none. Feeds the KILL-COMMIT retreat suppression (see the stance block).
+ * Ascending-id scan; no rng.
+ */
+function weakestEnemyShipFraction(state: SimState, ship: ShipEntity, team: TeamId): number | null {
+  let weakest: number | null = null;
+  for (const id of sortedNumericKeys(state.entities)) {
+    const e = state.entities[id];
+    if (!e || e.kind !== 'ship' || e.dead || e.team === null || e.team === team) continue;
+    if (!visibleToTeam(e, team)) continue;
+    if (dist(ship.x, ship.y, e.x, e.y) > AGGRO_TARGET_RADIUS) continue;
+    const frac = e.maxHp > 0 ? e.hp / e.maxHp : 1;
+    if (weakest === null || frac < weakest) weakest = frac;
+  }
+  return weakest;
 }
 
 /** Engagement radius for explicit targeting (≈ start-ship sight). */
@@ -1236,9 +1289,11 @@ function maybeCastOffensive(
   // Prefer the nearest enemy SHIP (burst a hero); when none is in reach, fall
   // back to the frontmost enemy STRUCTURE (tower/HQ) so the abilities ADD siege
   // damage instead of fueling a futile hero-duel and pulling the bot off the
-  // push. Ascending-id; no rng.
+  // push. Ship prey uses the same FOCUS-FIRE rule as pickCombatTarget (lowest
+  // current HP, not nearest) so a team's ability bursts land on the shared
+  // focal target and convert to kills. Ascending-id; no rng.
   let prey: Entity | null = null;
-  let preyD = Infinity;
+  let preyHp = Infinity;
   let structurePrey: Entity | null = null;
   let structureD = Infinity;
   for (const id of sortedNumericKeys(state.entities)) {
@@ -1248,8 +1303,8 @@ function maybeCastOffensive(
     const d = dist(ship.x, ship.y, e.x, e.y);
     if (d > ABILITY_CAST_RADIUS) continue;
     if (e.kind === 'ship') {
-      if (d < preyD) {
-        preyD = d;
+      if (e.hp < preyHp) {
+        preyHp = e.hp;
         prey = e;
       }
     } else if (e.kind === 'structure' && (e.role === 'tower' || e.role === 'hq')) {
