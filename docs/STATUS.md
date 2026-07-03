@@ -207,45 +207,57 @@ sail speed, mechanics/repair regen, auras — ranked in the SKILLS strip) and
 cast from the quick-key bar) are leveled with points. Innate abilities (Shore
 Leave, True Sight) have no skill rule and are always available.
 
-## Open / next
+## Roadmap (revised 2026-07-03, owner-approved)
 
-- **Phase 2 — engine kill-XP magnitude overrides.** war3mapMisc.txt (captured in
-  gameplay-constants.json) overrides the ENGINE kill-XP magnitudes: GrantNormalXP=15
-  (×0.15 of the 25/40/60… table), GrantHeroXP=50..240 (victim-level lookup),
-  HeroFactorXP=80,70,…,10 (per-killer-level % scaling — a NEW mechanic, likely
-  clamp-to-last = 10% for killer level ≥8), BuildingKillsGiveExp=1. **Confirmed from
-  war3map.j that kill XP is engine-driven** (no AddHeroXP kill trigger; AddHeroXPSwapped
-  is only quest/contract rewards). NOT yet wired — the exact WC3 formula is
-  medium-confidence; verify against a primary source before changing leveling pace.
-  `compileXpRules(misc)` already threads the data. (Leaving it at engine-default
-  magnitudes was a deliberate "don't ship a half-verified balance number" call.)
-- **Movement wobble / extreme cross-map player routing (cosmetic + edge).** Normal
-  lane play is smooth (owner-confirmed live) and the AI trader now delivers 10/10
-  (the old wedge is fixed — reachability + dock-approach + per-POI fields). REMAINS:
-  (a) a faint flow-field heading wobble on long hauls (cell-granular following; the
-  smoothing experiments were reverted because they regressed the trader — needs a
-  trader-safe lookahead/string-pulling pass); (b) 1–2 EXTREME player targets
-  (south ship → enemy-far-corner) still wedge ~2/10. Both are edge/cosmetic, not the
-  "can't reach my shops/repair" blocker (that's fixed).
-- **Minimap right-click doesn't issue a move order** (only left-click pans). Minor
-  QoL gap noticed in the live playtest; the canvas right-click works fine.
-- **Per-player gold/K-D breakdown.** Owner asked to see gold earned-from-kills /
-  given-on-deaths and "each player, not just the team." Own running total is in the
-  gold tooltip; a full per-player scoreboard breakdown needs a small server-side
-  tally — confirm the exact ask first.
-- **Phase 2 — engine kill-XP magnitude overrides** (see above; data captured, not
-  wired — verify the WC3 formula against a primary source first).
-- **In-game crash (task #15) — still unreproduced.** Likely client-side render/HUD.
-  Capture *what action* triggered it (buy/cast/shop/level-up/death) to narrow it.
-- **Map fidelity (task #14) — PARTIAL.** The owner noted "the map is not 100%
-  correct"; wants to keep testing before a fidelity pass. Connectivity is now solid
-  (all shops + repair + bases sea-connected, gated). Topology polish (lanes, islands,
-  entrances) still owner-described and pending.
+Owner priorities from the 2026-07-03 check-in: **"I am not sure the interface
+works all the time"** and **"the map is not 100% accurate — it's better, but it's
+missing the nuances."** Scope decision: work ALL open items, in this order.
 
-DONE this session: war3mapMisc constant recovery + ability cast-system audit (above),
-the reachability/HUD/cross-land-routing work (top section), and the AI-trader-wedge
-task — the terrain-integration trader test now runs on the natural seed 0x7ade (10/10
-sampled seeds), un-pinned from the old fragile 0x3.
+1. **Docker dev server (verified).** The committed Dockerfile runs the whole game
+   non-watch (stats + WS server + `vite preview`) so live dev on the host never
+   restarts a running match. Fixes: `.dockerignore` must exclude
+   `packages/stats/.data/` (a local played-on stats.db was being baked into the
+   image); bump `node:22-slim` → `node:24-slim` to match CI/toolchain; document
+   the optional `-v` mount for stats persistence. Verify by playing a solo match
+   through the container (DOM + state reads, not screenshots). Rebuild the image
+   at the end of each later phase so the owner's stable server carries the fixes.
+2. **Interface reliability (owner's #1).** (a) Crash trap for task #15: global
+   `error`/`unhandledrejection` handler keeping a ring buffer of recent player
+   actions (buy/cast/shop/learn/death/respawn) dumped on crash — makes the
+   unreproduced crash diagnosable. (b) Live HUD sweep: drive a full solo match
+   exercising every HUD surface, verify each via DOM + `store.match` reads, fix
+   what breaks (pure logic fixes land in `hudmath.ts` with unit tests).
+   (c) Minimap right-click move order (`hud/minimap.ts:327` only handles
+   `button===0`; mirror `render/pointer.ts`'s contextmenu + move-command
+   pattern). (d) Per-player gold/K-D scoreboard: cumulative gold-earned tally
+   from existing bounty events (mirror the kills/deaths Maps in
+   `server/src/match.ts`; `goldEarned` on MatchEnded is stubbed to 0 today), new
+   field on `PublicPlayerStat`, scoreboard column.
+3. **Map fidelity nuances (owner's #2, task #14).** Connectivity is solid; the
+   gap is topology (lanes, islands, entrances). Regenerate the terrain compare
+   artifacts, produce an annotated original-vs-mask divergence report, get the
+   owner's eye on WHICH nuances matter, then adjust `terrain.py`
+   classify/carve parameters and regenerate `terrain.json`. Canaries: NavField /
+   creep-lane / AI-trader tests.
+4. **Kill-XP magnitude overrides (research-gated).** Data is captured in
+   gameplay-constants.json (GrantNormalXP=15, GrantHeroXP=50..240,
+   HeroFactorXP=80..10, BuildingKillsGiveExp=1) and kill XP is confirmed
+   engine-driven, but the exact WC3 formula is medium-confidence. Verify against
+   a primary source FIRST; then wire through `compileXpRules`
+   (`ruleset.ts:1911`) + `awardKillXp` (`progression.ts:303`), update the
+   magnitude-asserting tests, document in SEMANTICS §6. If no primary source:
+   leave unwired (the standing "don't ship a half-verified balance number" call).
+5. **AI-vs-AI hero-kill aggression (largest, last).** Scoped slice of the mirror
+   -stalemate fix: focus-fire target selection (lowest-effective-HP enemy hero,
+   deterministic ascending-id scan, NO new RNG draws) + local numbers-advantage
+   gank/disengage via the existing retreat machinery. Acceptance: a hard-vs-hard
+   AI-only match resolves (an HQ falls) in bounded ticks on sampled seeds;
+   determinism replay test + trader 10/10 probe stay green.
+6. **Movement wobble / extreme cross-map routing (edge/cosmetic, opportunistic).**
+   (a) faint flow-field heading wobble on long hauls — needs a trader-safe
+   lookahead pass confined to the player-only `fieldToPoint` branch (three prior
+   shared-path attempts regressed the trader and were reverted); (b) 1–2 extreme
+   south→enemy-far-corner player targets still wedge ~2/10.
 
 ## Verifying UX reliably (lesson learned)
 
