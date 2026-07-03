@@ -6,6 +6,6 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     testTimeout: 120_000,
-    ...(process.env.CI ? { minWorkers: 1, maxWorkers: 2 } : {}),
+    ...(process.env.CI ? { fileParallelism: false } : {}),
   },
 });
