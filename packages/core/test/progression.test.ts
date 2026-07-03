@@ -29,6 +29,7 @@ import type {
   SummonEntity,
   TeamId,
   UnitTypeSpec,
+  WardEntity,
 } from '../src/sim/types.js';
 
 // ---------------------------------------------------------------------------
@@ -517,6 +518,29 @@ function addStructure(state: SimState, id: number, typeId: string, team: TeamId)
   return structure;
 }
 
+function addWard(state: SimState, id: number, typeId: string, owner: number): WardEntity {
+  const player = state.players[owner];
+  const team = player ? player.team : 'south';
+  const ward: WardEntity = {
+    id,
+    kind: 'ward',
+    typeId,
+    owner,
+    team,
+    x: 0,
+    y: 0,
+    facingRad: 0,
+    dead: false,
+    expiresAtTick: null,
+    sightRadius: 800,
+    detectionRadius: null,
+    invisible: false,
+    invulnerable: true,
+  };
+  addEntity(state, ward);
+  return ward;
+}
+
 function addSummon(state: SimState, id: number, typeId: string, owner: number): SummonEntity {
   const player = state.players[owner];
   const team = player ? player.team : 'south';
@@ -739,8 +763,9 @@ describe('kill XP', () => {
     expect(player(state, 3).xp).toBe(0);
   });
 
-  it('structures grant no kill XP but pay their bounty (n004 -> 500 gold)', () => {
+  it('structures grant no kill XP with buildingKillsGiveXp off, but pay their bounty (n004 -> 500 gold)', () => {
     const rs = fixtureRuleset();
+    rs.xp.buildingKillsGiveXp = false; // engine default
     const state = makeState();
     addStructure(state, 5, 'n004', 'south');
     addShip(state, 10, 7, 0, 0);
@@ -752,6 +777,33 @@ describe('kill XP', () => {
     expect(eventsOf(state, 'bounty')).toEqual([
       { type: 'bounty', tick: 100, player: 7, amount: 500, victimEntityId: 5 },
     ]);
+  });
+
+  it('war3mapMisc.txt BuildingKillsGiveExp=1: a structure kill grants normal-table XP at its own level (n004 level 2 -> 40), plus its bounty', () => {
+    const rs = fixtureRuleset();
+    rs.xp.buildingKillsGiveXp = true; // war3mapMisc.txt override
+    const state = makeState();
+    addStructure(state, 5, 'n004', 'south'); // fixture unitType level 2
+    addShip(state, 10, 7, 0, 0);
+    pushDeath(state, 5, 7);
+    stepProgression(state, rs);
+    expect(player(state, 7).xp).toBe(40); // killXpByVictimLevel[2] (fixture table)
+    expect(player(state, 7).gold).toBe(500); // 499 + 1d1, unaffected by the flag
+    expect(eventsOf(state, 'xpGained')).toEqual([
+      { type: 'xpGained', tick: 100, player: 7, amount: 40, reason: 'kill' },
+    ]);
+  });
+
+  it('wards grant no kill XP even with buildingKillsGiveXp on', () => {
+    const rs = fixtureRuleset();
+    rs.xp.buildingKillsGiveXp = true;
+    const state = makeState();
+    addWard(state, 5, 'n004', 1); // ward entity kind, not a structure, regardless of typeId
+    addShip(state, 10, 7, 0, 0);
+    pushDeath(state, 5, 7);
+    stepProgression(state, rs);
+    expect(eventsOf(state, 'xpGained')).toHaveLength(0);
+    expect(player(state, 7).xp).toBe(0);
   });
 
   it('summons pay floor(normalXp × summonFactor) (level 6 -> 75)', () => {

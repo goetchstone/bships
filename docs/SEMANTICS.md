@@ -278,16 +278,29 @@ fade/transition times (~0.6 s) are collapsed to instant at tick boundaries.
 
 - Cumulative XP to reach level *n*: `50·(n² + n − 2)` → 200 / 500 / 900 / 1400 / 2000 /
   2700 / 3500 / 4400 / 5400 …
-- Kill XP from a normal unit of level L: 25, 40, 60, 85, 115, 150 … (`xp(L) = xp(L−1) +
-  5L + 5`). Hero kills: 100/120/160/220/300, +100 per victim level above 5. Summons 50%.
-  **war3mapMisc.txt overrides the magnitudes** (`GrantNormalXP=15`, `GrantHeroXP=50..240`
-  one per victim level, `HeroFactorXP=80,70,…,10` scaling by killer level) and sets
-  `BuildingKillsGiveExp=1` — so structures DO grant kill XP. These are captured in
-  gameplay-constants.json; the per-kill MAGNITUDE wiring is **Phase 2** (pending a
-  war3map.j check of whether BSP awards kill XP through the engine or its own triggers),
-  so the sim currently still uses the engine-default magnitudes above. The "creeps stop
-  giving XP at hero 5" melee rule is irrelevant here: the Imperial lane ships are owned by
-  the team lead *players* (P0/P1), not neutral hostile, so they pay full XP at any level.
+- Kill XP from a normal unit of level L: WC3's "Experience gained – normal units" is a
+  **TABLE seeded by `GrantNormalXP`**, not a multiplier — the level-1 entry is the seed and
+  every later entry follows the map-default recurrence `xp(L) = xp(L−1) + 5·L + 5` (formula
+  constants A=1/B=5/C=5, which BSP does not override). Engine default seed 25 → 25, 40, 60,
+  85, 115, 150 …. **war3mapMisc.txt sets `GrantNormalXP=15`** → 15, 30, 50, 75, 105, 140,
+  180, 225, 275, 330 … to the level cap. Hero kills read **`GrantHeroXP`** as the full
+  victim-hero-level table verbatim (20 entries, one per hero level 1..20): 50, 60, 70, …,
+  240; a beyond-cap clamp (dead code while the table already reaches `heroLevelCap`) adds
+  the table's own terminal step (10) per level past it. Summons pay 50% of the normal-unit
+  value at the summon's level. **`HeroFactorXP=80,70,…,10` is deliberately NOT wired**: it's
+  WC3's creep-XP-reduction table — percentage of NORMAL-unit kill XP by KILLER hero level —
+  applied ONLY to victims owned by Neutral Hostile (`PLAYER_NEUTRAL_AGGRESSIVE`). BSP has
+  **zero** Neutral Hostile units (`grep PLAYER_NEUTRAL_AGGRESSIVE data/extracted/war3map.j`
+  → 0 hits; lane creeps spawn for Player(0)/Player(1), the team-lead empire players, and
+  merchants are Neutral Passive), so the table is dead data in this map; wiring it would
+  wrongly discount kill XP the engine never discounts here. **`BuildingKillsGiveExp=1`**:
+  a killed structure now grants normal-unit-table XP at the structure's own `ulev` (wards
+  still grant none). In BSP's actual unit data no structure carries a `ulev` override, so
+  this presently computes to 0 XP for every real structure — the flag is correctly wired
+  but a no-op on today's data; it only pays out if a future structure gets a `ulev`. The
+  "creeps stop giving XP at hero 5" melee rule is irrelevant here regardless: the Imperial
+  lane ships are owned by the team lead *players* (P0/P1), not neutral hostile, so they pay
+  full XP at any level.
 - Distribution: heroes of the killing side within **`HeroExpRange`** of the dying unit
   split the XP evenly; if none is in range the killing player's heroes receive it anyway
   (global fallback). **RESOLVED (war3mapMisc.txt): HeroExpRange=1500** (not the 1200 guess).
@@ -312,27 +325,34 @@ fade/transition times (~0.6 s) are collapsed to instant at tick boundaries.
   seconds (war3map.j:1836).
 
 **SOURCE.** XP tables/formulas: liquipedia.net/warcraft/Experience, thehelper gameplay-
-constants tutorial 68382; 1200 share radius: warcraft3.info article 232. Skill fields
+constants tutorial 68382; thehelper.net "Hero XP Gain – Factors" thread (GrantNormalXP as
+table seed, HeroFactorXP as the Neutral Hostile creep-XP-reduction table);
+world-editor-tutorials Hero Experience constants page (GrantHeroXP as the full per-level
+table). 1200 share radius (engine default): warcraft3.info article 232. Skill fields
 `alsk`/`arlv`/`alev`: `abilities.json`. Trigger XP & death timer: `war3map.j`.
-Attributes: wowpedia Hero (Warcraft III).
+Attributes: wowpedia Hero (Warcraft III). Neutral Hostile absence: `grep
+PLAYER_NEUTRAL_AGGRESSIVE data/extracted/war3map.j` (0 hits).
 
 **CONFIDENCE.** XP-to-level curve (NeedHeroXP not overridden): **high**. Share radius
 (1500), level cap (20), attribute-bonus zeroing: **high** — all read from the recovered
-war3mapMisc.txt. Per-kill XP MAGNITUDE under the GrantNormalXP/GrantHeroXP/HeroFactorXP
-overrides: **medium** — captured in data, formula wiring deferred to Phase 2 (verify vs
-war3map.j).
+war3mapMisc.txt. Per-kill XP magnitudes (GrantNormalXP table seed, GrantHeroXP full table,
+HeroFactorXP dead in this map, BuildingKillsGiveExp): **high** — cross-checked against two
+independent WC3-engine references plus a direct war3map.j grep, not a guess.
 
 **SIM DECISION.** Ruleset carries `xpToLevel[]` (default-formula table to level 20),
-`killXpByVictimLevel[]`, `heroKillXp[]`, `shareRadius = HeroExpRange (1500)`,
-`summonFactor = 0.5`, `heroLevelCap = MaxHeroLevel (20)` — the speed/HP/armor/cap/range
-constants now read from gameplay-constants.json (`readMisc` in ruleset.ts), not hardcoded.
-On kill: collect the killing team's heroes within `shareRadius` of the death (ascending
-id), split evenly (integer division, remainder to lowest id); if empty, full XP to the
-killing player's hero. Trigger XP applied verbatim from script-rules. Skill points:
-1/level, learn rules from `alsk`/`arlv`. Death timer uses the match Rng for the 0–3 roll.
-**Phase 2 (OPEN):** apply GrantNormalXP=15 / GrantHeroXP / HeroFactorXP killer-level
-scaling + BuildingKillsGiveExp to the per-kill magnitudes once the war3map.j XP path is
-confirmed (engine vs trigger).
+`killXpByVictimLevel[]` (seeded `GrantNormalXP`, default-recurrence table),
+`heroKillXpByVictimLevel[]` (verbatim `GrantHeroXP`), `heroKillXpPerLevelAbove` (the
+table's own terminal step — dead code once the table reaches `heroLevelCap`),
+`shareRadius = HeroExpRange (1500)`, `summonFactor = 0.5`, `heroLevelCap = MaxHeroLevel
+(20)`, `buildingKillsGiveXp = BuildingKillsGiveExp != 0` — all read from
+gameplay-constants.json (`readMisc`/`compileXpRules` in ruleset.ts), not hardcoded.
+`HeroFactorXP` is intentionally left unread (see RULE). On kill: collect the killing team's
+heroes within `shareRadius` of the death (ascending id), split evenly (integer division,
+remainder to lowest id); if empty, full XP to the killing player's hero. Structures pay
+`killXpByVictimLevel[ulev]` when `buildingKillsGiveXp`, else 0; wards always 0
+(`progression.ts victimKillXp`). Trigger XP applied verbatim from script-rules. Skill
+points: 1/level, learn rules from `alsk`/`arlv`. Death timer uses the match Rng for the
+0–3 roll.
 
 ---
 
@@ -545,9 +565,12 @@ These never fire in default NormalPlay, so the solo-vs-AI match loop is unaffect
    attribute bonuses = 0 (§1: no +25 HP, no −1.7 armor, no +0.05 regen), MinUnitSpeed=10 /
    MaxUnitSpeed=522 (§3), MaxHeroLevel=20, HeroExpRange=1500 (§6), and the
    DamageBonusSpells override (×1.00 vs hero). The compiler reads each via `readMisc` with
-   the WC3 engine default as fallback. **Remaining Phase 2:** the per-kill XP magnitude
-   overrides (GrantNormalXP=15, GrantHeroXP, HeroFactorXP, BuildingKillsGiveExp=1) are
-   captured but not yet wired into kill-XP awards — verify against war3map.j first.
+   the WC3 engine default as fallback. **The per-kill XP magnitude overrides are also
+   RESOLVED and wired** (§6): GrantNormalXP=15 is a table SEED for the default recurrence
+   (not a multiplier), GrantHeroXP=50..240 is the full victim-hero-level table, and
+   BuildingKillsGiveExp=1 makes structure kills pay normal-table XP at the structure's
+   `ulev`. HeroFactorXP=80..10 is confirmed dead data for this map (zero Neutral Hostile
+   units) and is intentionally left unwired.
 2. **Missile effective damage 2×** (BALANCE.md §9.4) — gates W7–W9.
 3. **PF buff retarget gate & DoT 1-HP clamp** — changes Acid Bomber/Nuke behavior (§2).
 4. **`hdes`/`nmer` SLK defaults** (attack type, defense type, armor, attack cooldown) for

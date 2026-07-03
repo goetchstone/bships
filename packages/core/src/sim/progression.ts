@@ -284,8 +284,15 @@ function victimKillXp(state: SimState, ruleset: Ruleset, victim: Entity): number
   const xp = ruleset.xp;
   switch (victim.kind) {
     case 'structure':
+      // war3mapMisc.txt BuildingKillsGiveExp=1: a killed structure grants
+      // normal-unit-table XP at the structure's own ulev; engine default (flag
+      // off) is bounty only (SEMANTICS §6). A structure type with no ulev
+      // compiles to level 0, which correctly yields 0 XP here too.
+      return xp.buildingKillsGiveXp
+        ? normalKillXp(xp, ruleset.unitTypes[victim.typeId]?.level ?? 0)
+        : 0;
     case 'ward':
-      // Structures grant bounty only; wards grant nothing (SEMANTICS §6).
+      // Wards grant nothing, regardless of BuildingKillsGiveExp (SEMANTICS §6).
       return 0;
     case 'ship': {
       const owner = state.players[victim.owner];

@@ -1483,8 +1483,9 @@ export interface XpRules {
   xpToLevel: number[];
   /** Kill XP from a normal unit by victim level (index = level). */
   killXpByVictimLevel: number[];
-  /** Hero kill XP by victim level 1..5; +heroKillXpPerLevelAbove beyond. */
+  /** Hero kill XP by victim level (index = level), to heroLevelCap. */
   heroKillXpByVictimLevel: number[];
+  /** Applied past the table's last index; the table normally reaches heroLevelCap. */
   heroKillXpPerLevelAbove: number;
   shareRadius: number;
   summonFactor: number;
@@ -1500,6 +1501,12 @@ export interface XpRules {
    * from the extracted data (docs/SEMANTICS §6 / docs/BALANCE).
    */
   skillLevelGated: boolean;
+  /**
+   * war3mapMisc.txt BuildingKillsGiveExp=1: a killed STRUCTURE grants normal-
+   * unit-table kill XP at the structure's `ulev`. WARDS still grant 0 always
+   * (SEMANTICS §6). false = engine default (structures grant bounty only).
+   */
+  buildingKillsGiveXp: boolean;
 }
 
 export interface RespawnRules {
