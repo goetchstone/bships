@@ -12,6 +12,7 @@
  * flips match.phase back to 'idle', which re-shows #screens and hides #hud.
  */
 
+import { installCrashTrap, setCrashContextProvider } from './debug/crashtrap.js';
 import { initLobby } from './lobby/lobby.js';
 import { getIdentity } from './net/identity.js';
 import { connect } from './net/socket.js';
@@ -33,6 +34,15 @@ function requireRoot(id: string): HTMLElement {
   if (node === null) throw new Error(`missing #${id} root`);
   return node;
 }
+
+// 0. Crash trap, before anything else can throw (STATUS.md task #15).
+installCrashTrap();
+setCrashContextProvider(() => ({
+  phase: store.match.phase,
+  mySlot: store.match.mySlot,
+  latestTick: store.match.latestTick,
+  selectedEntityId: store.ui.selectedEntityId,
+}));
 
 const screens = requireRoot('screens');
 const stage = requireRoot('stage');

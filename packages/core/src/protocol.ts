@@ -127,8 +127,10 @@ export interface RoomPlayer {
 
 /**
  * Public per-player scoreboard line, included in keyframes (and in deltas
- * when changed). Kills/deaths are tallied by the server from death events
- * (ship victims with non-null players).
+ * when changed). Kills/deaths/goldEarned are tallied by the server from sim
+ * events (death events for K/D; 'bounty' events for cumulative gold earned —
+ * a running total, distinct from the live spendable `gold` balance on
+ * PlayerState/SnapshotYou).
  */
 export interface PublicPlayerStat {
   slot: number;
@@ -138,6 +140,7 @@ export interface PublicPlayerStat {
   level: number;
   kills: number;
   deaths: number;
+  goldEarned: number;
   connected: boolean;
 }
 

@@ -49,7 +49,7 @@ export function initBanner(ctx: HudContext): void {
     const table = el('table', 'bh-score-table', endPanel);
     const thead = el('thead', undefined, table);
     thead.innerHTML =
-      '<tr><th class="bh-l">Player</th><th class="bh-l">Ship</th><th>Lv</th><th>K</th><th>D</th></tr>';
+      '<tr><th class="bh-l">Player</th><th class="bh-l">Ship</th><th>Lv</th><th>K</th><th>D</th><th>Gold</th></tr>';
     const tbody = el('tbody', undefined, table);
     const players: PublicPlayerStat[] = [...store.match.players].sort(
       (a, b) => a.team.localeCompare(b.team) || b.kills - a.kills || a.slot - b.slot,
@@ -62,6 +62,7 @@ export function initBanner(ctx: HudContext): void {
       el('td', undefined, tr).textContent = String(p.level);
       el('td', undefined, tr).textContent = String(p.kills);
       el('td', undefined, tr).textContent = String(p.deaths);
+      el('td', undefined, tr).textContent = String(p.goldEarned);
     }
 
     const back = el('button', 'bh-back-btn', endPanel);

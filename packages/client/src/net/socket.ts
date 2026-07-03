@@ -16,6 +16,7 @@
 import { DEFAULT_PORT, PROTOCOL_VERSION } from '@bships/core';
 import type { ClientMessage, ServerMessage } from '@bships/core';
 
+import { labelClientMessage, recordAction } from '../debug/crashtrap.js';
 import { getIdentity } from './identity.js';
 import { applyServerMessage, emitChange, store } from './store.js';
 
@@ -208,8 +209,13 @@ export function isOpen(): boolean {
  * open — callers treat that as a dropped message; there is no outbox queue
  * (lobby actions are user-retryable, sim commands are only valid in a live
  * match anyway).
+ *
+ * This is the single chokepoint every player-initiated command/action passes
+ * through (commands.ts's `sendCommand` and lobby senders all funnel here), so
+ * it doubles as the crash-trap ring-buffer hook (STATUS.md task #15).
  */
 export function send(msg: ClientMessage): boolean {
+  recordAction(labelClientMessage(msg), performance.now());
   if (ws === null || ws.readyState !== WebSocket.OPEN) {
     console.warn(`[net] dropped ${msg.type}: socket not open`);
     return false;

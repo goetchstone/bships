@@ -500,6 +500,12 @@ export const HUD_CSS = `
   display: flex; gap: 5px; flex: none; pointer-events: auto;
   padding-top: 2px;
 }
+/* The explicit display:flex above beats the UA's hidden-attribute default,
+   so restate it — otherwise the "hidden until Enter" input row is always
+   visible AND clickable, and one stray click swallows every game hotkey into
+   chat (the live-play "interface stops working" trap). NOTE: keep braces out
+   of comments here — csslint's ruleBody extractor is brace-naive. */
+.bh-chat-input[hidden] { display: none; }
 .bh-chat-scope {
   flex: none; cursor: pointer; border-radius: var(--bh-radius-sm); font-size: 12px;
   background: var(--bg-panel-raised); border: 1px solid var(--border); color: var(--text);

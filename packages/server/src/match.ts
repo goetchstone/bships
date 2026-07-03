@@ -10,8 +10,9 @@
  *   catches up on subsequent fires without starving the event loop).
  * - Per tick: drain the queued commands (sorted ascending slot, FIFO within
  *   slot — matches applyCommands' "sorted by player" replay contract),
- *   applyCommands, stepTick, tally K/D from death events, build + send the
- *   per-team vision-filtered payloads (snapshot.ts / visibility.ts).
+ *   applyCommands, stepTick, tally K/D from death events and cumulative gold
+ *   earned from bounty events, build + send the per-team vision-filtered
+ *   payloads (snapshot.ts / visibility.ts).
  * - Cadence: keyframe on start, on setConnected(true) and every
  *   KEYFRAME_INTERVAL_TICKS; snapshotDelta otherwise.
  * - Determinism: wall clock only decides WHEN ticks run. Sim state depends
@@ -87,7 +88,7 @@ export interface MatchRuntimeDeps {
     rulesetId: string;
     /** Match length in sim ticks. */
     durationTicks: number;
-    /** Gold earned per seat slot (slot -> gold); 0 when untracked (see finish). */
+    /** Cumulative gold earned per seat slot (slot -> gold), tallied from bounty events. */
     goldEarned: Map<number, number>;
   }): void;
   /**
@@ -151,6 +152,8 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
   const connected = new Map<number, boolean>(seats.map((s) => [s.slot, true]));
   const kills = new Map<number, number>();
   const deaths = new Map<number, number>();
+  /** Cumulative gold earned (bounty payouts), separate from the live balance. */
+  const goldEarned = new Map<number, number>();
 
   let status: 'running' | 'ended' = 'running';
   let started = false;
@@ -182,6 +185,7 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
         level: player.level,
         kills: kills.get(seat.slot) ?? 0,
         deaths: deaths.get(seat.slot) ?? 0,
+        goldEarned: goldEarned.get(seat.slot) ?? 0,
         connected: connected.get(seat.slot) ?? false,
       });
     }
@@ -192,8 +196,14 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
     return JSON.stringify(state.players[slot]);
   }
 
-  function tallyKillsDeaths(events: readonly SimEvent[]): void {
+  function tallyStats(events: readonly SimEvent[]): void {
     for (const ev of events) {
+      if (ev.type === 'bounty') {
+        if (seatSlots.has(ev.player)) {
+          goldEarned.set(ev.player, (goldEarned.get(ev.player) ?? 0) + ev.amount);
+        }
+        continue;
+      }
       if (ev.type !== 'death' || ev.victimPlayer === null) continue;
       // Ship victims only (creeps also carry a non-null AI owner slot).
       if (!(ev.entityTypeId in ruleset.ships)) continue;
@@ -371,7 +381,7 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
 
     applyCommands(state, ruleset, commands);
     const events = stepTick(state, ruleset);
-    tallyKillsDeaths(events);
+    tallyStats(events);
     broadcastTick(events);
 
     if (state.status.phase === 'ended') finish(state.status.winner);
@@ -393,24 +403,16 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
         console.error(`[match] matchEnded send to slot ${seat.slot} threw:`, err);
       }
     }
-    // goldEarned is reported as 0 (untracked): the sim keeps only a live `gold`
-    // BALANCE (decremented by purchases/upgrades, zeroed by `golddump`), not a
-    // cumulative-earned tally. Reporting the final balance under a
-    // "cumulative earned" label was both wrong (a player who spent everything
-    // reads ~0) and trivially gamed, so we ship an honest 0 rather than a
-    // misleading number. Adding a real tally would require a counter in the
-    // deterministic core (out of scope here); see MatchParticipantIngest.
-    const goldEarned = new Map<number, number>();
-    for (const seat of seats) {
-      goldEarned.set(seat.slot, 0);
-    }
+    // goldEarned: cumulative bounty payouts tallied from 'bounty' events (see
+    // tallyStats), NOT the live spendable `gold` balance — a player who
+    // spent everything still reports what they earned.
     onEnded({
       winnerTeam,
       stats,
       seed,
       rulesetId: ruleset.name,
       durationTicks: state.tick,
-      goldEarned,
+      goldEarned: new Map(goldEarned),
     });
   }
 
