@@ -15,6 +15,8 @@
  */
 
 import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import { mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { STARTING_RATING } from '@bships/core';
 import type {
@@ -230,6 +232,10 @@ export interface StatsRepository {
  * (':memory:' for tests), apply schema.sql, and return the repository.
  */
 export function openDatabase(path: string): StatsRepository {
+  // SQLite creates a missing FILE but not a missing DIRECTORY — and the
+  // default .data/ dir only exists where its gitignored contents happen to
+  // (a fresh Docker image has neither), so ensure it before opening.
+  if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
   const db = new DatabaseSync(path);
 
   // Wait briefly for a lock instead of failing instantly with SQLITE_BUSY. The

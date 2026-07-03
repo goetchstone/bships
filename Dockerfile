@@ -3,7 +3,14 @@
 # Build:  docker build -t bships .
 # Run:    docker run --rm -p 5173:5173 -p 8787:8787 -p 8088:8088 bships
 # Then open http://localhost:5173  ->  Create room -> Play vs AI.
-FROM node:22-slim
+# Stats (ladder/accounts) are wiped with the container; to keep them across
+# runs, mount the DB dir:  -v "$(pwd)/packages/stats/.data:/app/packages/stats/.data"
+# node:24 matches CI and the dev toolchain (both Node 24).
+FROM node:24-slim
+# procps provides `ps`, which concurrently's -k needs to tear the other
+# processes down cleanly when one of the three exits (slim images omit it).
+RUN apt-get update && apt-get install -y --no-install-recommends procps \
+    && rm -rf /var/lib/apt/lists/*
 RUN corepack enable
 WORKDIR /app
 COPY . .

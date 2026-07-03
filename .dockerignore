@@ -9,3 +9,6 @@ data/extracted
 data/reference
 *.log
 .claude
+# Never bake a local, played-on stats database into the image (mirrors
+# packages/stats/.data/.gitignore for the docker build context).
+packages/stats/.data
