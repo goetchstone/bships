@@ -38,8 +38,9 @@ import type {
   SimEvent,
   SimState,
   StructureEntity,
+  TeamId,
 } from '../src/sim/types.js';
-import { sortedNumericKeys } from '../src/sim/types.js';
+import { allocEntityId, sortedNumericKeys } from '../src/sim/types.js';
 
 // ---------------------------------------------------------------------------
 // Real-data fixtures
@@ -141,6 +142,49 @@ function findFirstStructure(
 /** Run a single think for a slot at the current tick (server-runner contract). */
 function think(state: SimState, slot: number): Command[] {
   return computeAiCommands(state, ruleset, slot, memoryOf(state, slot));
+}
+
+/**
+ * Spawn a synthetic ENEMY ship entity (not tied to a player slot) at (x, y)
+ * with the given hp fraction, visible to `team` — the shape the hero-kill
+ * targeting/KILL-COMMIT/ability tests need to place a "prey" ship without
+ * standing up a whole second player (mirrors combat.test.ts / ability-cast.
+ * test.ts's addShip pattern, using the real compiled H000 spec for maxHp).
+ * `owner` is an arbitrary unused player slot (no PlayerState is created).
+ */
+function addEnemyShip(
+  state: SimState,
+  team: TeamId,
+  x: number,
+  y: number,
+  hpFraction: number,
+  visibleTo: TeamId,
+): ShipEntity {
+  const spec = ruleset.ships['H000']!;
+  const id = allocEntityId(state);
+  const ship: ShipEntity = {
+    id,
+    typeId: spec.typeId,
+    x,
+    y,
+    facingRad: 0,
+    dead: false,
+    kind: 'ship',
+    owner: -1,
+    team,
+    hp: Math.max(1, Math.floor(spec.maxHp * hpFraction)),
+    maxHp: spec.maxHp,
+    order: { type: 'idle' },
+    statuses: [],
+    vision: { south: visibleTo === 'south', north: visibleTo === 'north' },
+    attackReadyAtTick: 0,
+    casting: null,
+    pausedUntilTick: 0,
+    invulnerableUntilTick: 0,
+    submerged: false,
+  };
+  state.entities[id] = ship;
+  return ship;
 }
 
 /**
@@ -721,6 +765,156 @@ describe('AI stuck breaking', () => {
       expect(mem.stuckCount).toBeLessThan(3); // never crosses the threshold
     }
     expect(detourSeen).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Hero-kill aggression: KILL-COMMIT retreat suppression, the finisher chase,
+// and casting learned offensive abilities at the weakest visible prey. All
+// three read a visible enemy ship's hp fraction within AGGRO_TARGET_RADIUS
+// (1100) / ABILITY_CAST_RADIUS (1000), so fixtures place a synthetic enemy
+// ship via `addEnemyShip` rather than a full second player.
+// ---------------------------------------------------------------------------
+
+describe('AI hero-kill aggression', () => {
+  describe('KILL-COMMIT: suppress the push->retreat flip while winning a fight', () => {
+    it('a hard bot at 35% hp stays in "push" with a visible weaker (20% hp) enemy in aggro range', () => {
+      const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
+      state.players[SOUTH_SLOT]!.gold = 0;
+      const ship = shipOf(state, SOUTH_SLOT);
+      ship.x = 0;
+      ship.y = 0;
+      ship.hp = Math.floor(ship.maxHp * 0.35); // below hard's retreatHpFraction 0.40
+      // Weaker enemy well within AGGRO_TARGET_RADIUS (1100).
+      addEnemyShip(state, 'north', 500, 0, 0.2, 'south');
+      const mem = memoryOf(state, SOUTH_SLOT);
+      expect(mem.stance).toBe('push'); // initAiMemory default
+      think(state, SOUTH_SLOT);
+      expect(mem.stance).toBe('push');
+    });
+
+    it('same setup WITHOUT the weak enemy visible flips to "retreat"', () => {
+      const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
+      state.players[SOUTH_SLOT]!.gold = 0;
+      const ship = shipOf(state, SOUTH_SLOT);
+      ship.x = 0;
+      ship.y = 0;
+      ship.hp = Math.floor(ship.maxHp * 0.35);
+      // No enemy ship placed at all: weakestEnemyShipFraction is null, killCommit
+      // is false, so the ordinary retreat threshold applies.
+      think(state, SOUTH_SLOT);
+      expect(memoryOf(state, SOUTH_SLOT).stance).toBe('retreat');
+    });
+
+    it('same setup but the bot at 15% hp (below the 0.5x retreat floor) retreats even with the weak enemy visible', () => {
+      const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
+      state.players[SOUTH_SLOT]!.gold = 0;
+      const ship = shipOf(state, SOUTH_SLOT);
+      ship.x = 0;
+      ship.y = 0;
+      ship.hp = Math.floor(ship.maxHp * 0.15); // below 0.40 * 0.5 = 0.20 floor
+      addEnemyShip(state, 'north', 500, 0, 0.2, 'south');
+      think(state, SOUTH_SLOT);
+      expect(memoryOf(state, SOUTH_SLOT).stance).toBe('retreat');
+    });
+
+    it('an enemy ship OUTSIDE vision does not count toward kill-commit (retreats normally)', () => {
+      const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
+      state.players[SOUTH_SLOT]!.gold = 0;
+      const ship = shipOf(state, SOUTH_SLOT);
+      ship.x = 0;
+      ship.y = 0;
+      ship.hp = Math.floor(ship.maxHp * 0.35);
+      // Weaker enemy in range but NOT visible to south -> must not suppress retreat.
+      addEnemyShip(state, 'north', 500, 0, 0.2, 'north');
+      think(state, SOUTH_SLOT);
+      expect(memoryOf(state, SOUTH_SLOT).stance).toBe('retreat');
+    });
+  });
+
+  describe('FINISHER CHASE: pickCombatTarget favors a sub-45%-hp visible enemy', () => {
+    it('with a healthy NEAR enemy and a wounded FARTHER enemy, the attack-move waypoint is pulled toward the wounded one', () => {
+      const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
+      const player = state.players[SOUTH_SLOT]!;
+      player.gold = 0; // skip economy -> straight to push/targeting
+      const ship = shipOf(state, SOUTH_SLOT);
+      ship.x = 0;
+      ship.y = 0;
+      // Healthy enemy NEAR the bot (would win nearest-ship targeting alone).
+      const near = addEnemyShip(state, 'north', 200, 0, 1.0, 'south');
+      // Wounded (sub-45%-hp) enemy FARTHER away but still within aggro range
+      // (1100), on the opposite (+y, toward the enemy HQ) side from `near`.
+      const wounded = addEnemyShip(state, 'north', 200, 900, 0.3, 'south');
+      const cmds = think(state, SOUTH_SLOT);
+      const am = cmds.find((c) => c.type === 'attackMove');
+      expect(am).toBeDefined();
+      if (am && am.type === 'attackMove') {
+        // The push-through point steps from the wounded ship toward the HQ
+        // (ENGAGE_PUSH_THROUGH = 400 past it), so the waypoint must be further
+        // along +y than the near ship and at least as far as the wounded ship.
+        expect(am.y).toBeGreaterThan(near.y);
+        expect(am.y).toBeGreaterThanOrEqual(wounded.y);
+      }
+    });
+
+    it('with BOTH enemies healthy, the waypoint tracks the NEAR one (nearest-ship targeting preserved)', () => {
+      const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
+      const player = state.players[SOUTH_SLOT]!;
+      player.gold = 0;
+      const ship = shipOf(state, SOUTH_SLOT);
+      ship.x = 0;
+      ship.y = 0;
+      const near = addEnemyShip(state, 'north', 200, 0, 1.0, 'south');
+      const far = addEnemyShip(state, 'north', 200, 900, 1.0, 'south'); // healthy, no finisher exception
+      const cmds = think(state, SOUTH_SLOT);
+      const am = cmds.find((c) => c.type === 'attackMove');
+      expect(am).toBeDefined();
+      if (am && am.type === 'attackMove') {
+        // Pushed through the NEAR ship (small +y step past it), well short of
+        // the far ship's y — proof the near, not the far, ship is the target.
+        expect(am.y).toBeGreaterThan(near.y);
+        expect(am.y).toBeLessThan(far.y);
+      }
+    });
+  });
+
+  describe('CAST AT WEAKEST: maybeCastOffensive targets the weakest visible enemy in range', () => {
+    it('emits castAbility with targetId of the FARTHER, WEAKER ship over a nearer healthy one', () => {
+      const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
+      const player = state.players[SOUTH_SLOT]!;
+      player.gold = 0; // skip the economy branch
+      // South's starting hull H000 carries A01Y (Captain's Cannon,
+      // stormBoltWeapon — an offensive skill); learn it directly (mirrors
+      // ability-cast.test.ts's heroSkillLevels grant) rather than round-tripping
+      // through the learnSkill command flow.
+      player.heroSkillLevels['A01Y'] = 1;
+      const ship = shipOf(state, SOUTH_SLOT);
+      ship.x = 0;
+      ship.y = 0;
+      // Nearer, healthy enemy.
+      addEnemyShip(state, 'north', 100, 0, 1.0, 'south');
+      // Farther, weaker enemy, still within ABILITY_CAST_RADIUS (1000).
+      const weaker = addEnemyShip(state, 'north', 900, 0, 0.25, 'south');
+      const cmds = think(state, SOUTH_SLOT);
+      const cast = cmds.find((c) => c.type === 'castAbility' && c.abilityId === 'A01Y');
+      expect(cast).toBeDefined();
+      if (cast && cast.type === 'castAbility') {
+        expect(cast.targetId).toBe(weaker.id);
+      }
+    });
+
+    it('does not emit castAbility for an unlearned offensive ability', () => {
+      const state = makeAiMatch(42, [{ slot: SOUTH_SLOT, difficulty: 'hard' }]);
+      const player = state.players[SOUTH_SLOT]!;
+      player.gold = 0;
+      // heroSkillLevels left empty: A01Y is NOT learned.
+      const ship = shipOf(state, SOUTH_SLOT);
+      ship.x = 0;
+      ship.y = 0;
+      addEnemyShip(state, 'north', 400, 0, 0.25, 'south');
+      const cmds = think(state, SOUTH_SLOT);
+      expect(cmds.some((c) => c.type === 'castAbility')).toBe(false);
+    });
   });
 });
 

@@ -5,9 +5,53 @@ Snapshot for picking the project up in a new session. Durable rules are in
 engine semantics in [SEMANTICS.md](SEMANTICS.md); balance audit in
 [BALANCE.md](BALANCE.md).
 
-_Last updated: 2026-06-18 (creep waves CLASH mid-lane + AI captains progress)._
+_Last updated: 2026-07-03 (roadmap executed: Docker verified, interface
+reliability, kill-XP wired, AI hero-kill slice)._
 
-## Done this session (creep waves clash mid-lane)
+## Done this session (2026-07-03: roadmap phases 0-5)
+
+- **CI actually runs now.** The branch's first-ever CI runs surfaced that the
+  heavy sim probes blow vitest's 5s default on the slow shared runners (all
+  tests were passing; only timeouts + a vitest worker-IPC artifact failed the
+  runs). core/server `vitest.config.ts`: testTimeout=120s, CI-serial files,
+  CI-gated ignore of the known "onTaskUpdate" birpc artifact. PRs #2-#5 merged
+  green.
+- **Docker dev server VERIFIED end-to-end** (played through the container in a
+  real browser: lobby connect, Play vs AI, right-click move, skill-learn
+  round-trip, income ticks, stats endpoints). Fixes: stats `openDatabase` now
+  mkdirs its DB dir (a clean image crashed: "unable to open database file");
+  `.dockerignore` excludes `packages/stats/.data` (a local played-on stats.db
+  was being baked into the image); node:24-slim (matches CI/toolchain);
+  procps for `concurrently -k`; documented `-v` mount for stats persistence.
+- **THE interface bug (owner's "not sure the interface works all the time"):**
+  the chat input row is designed to be hidden until Enter, but its explicit
+  `display:flex` beat the UA's `[hidden]` default — always visible AND
+  clickable; one stray click focused it and every game hotkey silently typed
+  into chat until Esc. Fixed via `[hidden]{display:none}` restatements
+  (`.bh-chat-input`, `.bh-objective`) + a CSS layout-contract regression test.
+  Verified live through the container.
+- **Crash trap for task #15**: `client/src/debug/crashtrap.ts` — window
+  error/unhandledrejection handlers dump the error + a ring buffer of the last
+  20 player actions + match context to the console and show a toast. Next
+  crash is diagnosable; capture the console dump.
+- **Minimap right-click move order** + **per-player gold-earned column** (Tab
+  scoreboard AND end-of-match panel; server tallies 'bounty' events — the
+  MatchEnded goldEarned stub is now real).
+- **Kill-XP magnitude overrides WIRED** (the old "Phase 2" item, SEMANTICS §6
+  rewritten): GrantNormalXP=15 is the normal-kill TABLE SEED (15,30,50,75,... —
+  the earlier "×0.15" note was a wrong guess), GrantHeroXP is the full 20-entry
+  victim-level table used verbatim, HeroFactorXP is DEAD DATA in BSP (zero
+  Neutral Hostile units in war3map.j — do not re-wire), BuildingKillsGiveExp=1
+  wired (currently 0 XP in practice: no BSP structure overrides ulev).
+- **AI hero-kill slice** (`ai.ts`, all deterministic, no new RNG draws):
+  offensive casts burst the WEAKEST in-range enemy ship; movement chases a
+  sub-45%-HP finisher (HP-gated so healthy ships never bait a chase; probed:
+  unconditional chase-weakest LOWERED kills); KILL-COMMIT suppresses the
+  push→retreat flip while a strictly weaker enemy is visible (floored at half
+  the retreat threshold). Probe (hard-vs-hard, seed 12345, 48k ticks):
+  hero kills 14→24, towers destroyed 0→1 vs pre-slice baseline.
+
+## Done earlier (2026-06-18: creep waves clash mid-lane)
 
 The owner playtest: "the creeps didn't fight each other" — opposing waves marched
 PAST one another to the towers instead of brawling where they met. Root cause:
@@ -207,11 +251,33 @@ sail speed, mechanics/repair regen, auras — ranked in the SKILLS strip) and
 cast from the quick-key bar) are leveled with points. Innate abilities (Shore
 Leave, True Sight) have no skill rule and are always available.
 
-## Roadmap (revised 2026-07-03, owner-approved)
+## Roadmap (revised 2026-07-03, owner-approved; items 1-2 and 4-5 DONE same day)
 
 Owner priorities from the 2026-07-03 check-in: **"I am not sure the interface
 works all the time"** and **"the map is not 100% accurate — it's better, but it's
 missing the nuances."** Scope decision: work ALL open items, in this order.
+
+**Still open after the 2026-07-03 push:**
+- **Map nuances (item 3) — BLOCKED ON OWNER.** Divergence report published
+  (original minimap vs sim mask, annotated, with options A/B/C):
+  https://claude.ai/code/artifact/8f9ff3c9-7e3a-412b-b043-70a2b6abb7e7
+  Recommended first step is render-side shoreline smoothing (zero sim change).
+  Awaiting the owner's answers to the report's three questions before touching
+  terrain.py/terrain.json.
+- **AI mirror stalemate — root cause is now MEASURED, not guessed.** Probes
+  show the early game is sustain-dominated: in 16k ticks only ~7 ships ever
+  dip below 35% HP (retreat-at-40% + repair-bay full heal), so targeting
+  tweaks land in noise; kills only flow late (0 by 12k ticks, 24 by 48k) as
+  damage outscales sustain. The hero-kill slice (above) improves late
+  conversion (+71% kills, first tower kill at 48k). A full resolution
+  (HQ falls) still needs the 60k+ tick horizon or an economy/sustain-side
+  change — deliberately NOT balance-tweaked (fidelity rule). Next candidates:
+  longer-horizon acceptance probes; teammate gank convergence (share the
+  finisher target across a team's bots).
+- **Owner-flagged for review: passive income pace.** A ~20-min idle solo match
+  banked ~44k gold from income alone — worth checking against the original's
+  income cadence before any ladder play matters (fidelity check, not a tweak).
+- Movement wobble / extreme cross-map routing edge cases (unchanged, edge).
 
 1. **Docker dev server (verified).** The committed Dockerfile runs the whole game
    non-watch (stats + WS server + `vite preview`) so live dev on the host never
