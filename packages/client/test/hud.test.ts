@@ -40,14 +40,16 @@ import {
   shipActiveAbilityId,
   shipLearnableSkills,
   shipPassiveLearnableSkills,
+  sortScoreboardRows,
   sweepFraction,
   targetingCueText,
   xpProgress,
 } from '../src/hud/hudmath.js';
 import type { PendingTargetLike } from '../src/hud/hudmath.js';
-import type { SimEvent, TeamId } from '@bships/core';
+import type { PublicPlayerStat, SimEvent, TeamId } from '@bships/core';
 import { getCatalog } from '../src/catalog.js';
 import { HUD_CSS } from '../src/hud/hud.js';
+import { BH_ONBOARD_CSS } from '../src/hud/onboarding.js';
 import { declares, ruleBody, valueOf } from '../src/hud/csslint.js';
 import {
   OPENING_TIP_TEXT,
@@ -314,6 +316,42 @@ describe('hudmath: kill feed', () => {
     expect(killFeedLine(death(null, 8), nameOf)).toBeNull();
     const ev: SimEvent = { type: 'levelUp', tick: 1, player: 3, level: 4 };
     expect(killFeedLine(ev, nameOf)).toBeNull();
+  });
+});
+
+describe('hudmath: sortScoreboardRows', () => {
+  const stat = (
+    slot: number,
+    team: TeamId,
+    kills: number,
+    goldEarned = 0,
+  ): PublicPlayerStat => ({
+    slot,
+    name: `P${slot}`,
+    team,
+    shipTypeId: 'H001',
+    level: 1,
+    kills,
+    deaths: 0,
+    goldEarned,
+    connected: true,
+  });
+
+  it('filters to the requested team and sorts kills descending', () => {
+    const players = [stat(2, 'south', 1), stat(7, 'north', 5), stat(3, 'south', 4)];
+    expect(sortScoreboardRows(players, 'south').map((p) => p.slot)).toEqual([3, 2]);
+    expect(sortScoreboardRows(players, 'north').map((p) => p.slot)).toEqual([7]);
+  });
+
+  it('breaks kill ties by ascending slot (stable ordering)', () => {
+    const players = [stat(6, 'south', 2), stat(2, 'south', 2), stat(4, 'south', 2)];
+    expect(sortScoreboardRows(players, 'south').map((p) => p.slot)).toEqual([2, 4, 6]);
+  });
+
+  it('carries goldEarned through untouched (a per-player cumulative tally)', () => {
+    const players = [stat(2, 'south', 0, 1500), stat(3, 'south', 1, 800)];
+    const rows = sortScoreboardRows(players, 'south');
+    expect(rows.map((p) => p.goldEarned)).toEqual([800, 1500]); // kills desc: slot 3 first
   });
 });
 
@@ -775,6 +813,18 @@ describe('HUD layout contract (regression guards for the reported bugs)', () => 
     expect(declares(ruleBody(HUD_CSS, '.bh-chat'), 'pointer-events', 'none')).toBe(true);
     expect(declares(ruleBody(HUD_CSS, '.bh-chat-log'), 'pointer-events', 'none')).toBe(true);
     expect(declares(ruleBody(HUD_CSS, '.bh-chat-input'), 'pointer-events', 'auto')).toBe(true);
+  });
+
+  it('hidden-toggled elements with an explicit display keep a [hidden] override', () => {
+    // An author `display:` rule beats the UA's [hidden]{display:none}, so any
+    // class both toggled via el.hidden and declaring display MUST restate the
+    // hidden state. Live-play bug: the chat input row (meant to be summoned by
+    // Enter) was always visible AND clickable, and one stray click focused it —
+    // silently swallowing every game hotkey into chat until Escape.
+    expect(declares(ruleBody(HUD_CSS, '.bh-chat-input[hidden]'), 'display', 'none')).toBe(true);
+    expect(declares(ruleBody(BH_ONBOARD_CSS, '.bh-objective[hidden]'), 'display', 'none')).toBe(
+      true,
+    );
   });
 
   it('minimap docks to the bottom-left corner with a framed panel', () => {

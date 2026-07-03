@@ -301,8 +301,8 @@ describe('room manager stats integration', () => {
     entry.deps.onEnded({
       winnerTeam: 'south',
       stats: [
-        { slot: 2, name: 'Host', team: 'south', shipTypeId: 'H00A', level: 5, kills: 3, deaths: 1, connected: true },
-        { slot: 7, name: 'Guest', team: 'north', shipTypeId: 'H00B', level: 4, kills: 1, deaths: 2, connected: true },
+        { slot: 2, name: 'Host', team: 'south', shipTypeId: 'H00A', level: 5, kills: 3, deaths: 1, goldEarned: 1500, connected: true },
+        { slot: 7, name: 'Guest', team: 'north', shipTypeId: 'H00B', level: 4, kills: 1, deaths: 2, goldEarned: 800, connected: true },
       ],
       seed: TEST_SEED,
       rulesetId: 'classic',

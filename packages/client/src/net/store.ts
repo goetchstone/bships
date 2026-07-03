@@ -20,6 +20,7 @@ import type {
   TeamId,
 } from '@bships/core';
 
+import { labelSimEvent, recordAction } from '../debug/crashtrap.js';
 import { clockJitterMs, ingestDelta, ingestSnapshot, resetInterpolation } from './interpolation.js';
 
 export type ConnectionStatus = 'connecting' | 'open' | 'closed';
@@ -112,6 +113,10 @@ export function onEvent(fn: (e: SimEvent) => void): () => void {
 
 function fanOutEvents(events: SimEvent[]): void {
   for (const event of events) {
+    // Crash-trap ring buffer (STATUS.md task #15): death/respawn/levelUp are
+    // cheap, player-visible signposts for diagnosing a crash after the fact.
+    const label = labelSimEvent(event);
+    if (label !== null) recordAction(label, performance.now());
     for (const fn of eventListeners) fn(event);
   }
 }

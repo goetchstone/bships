@@ -205,6 +205,9 @@ export const BH_ONBOARD_CSS = `
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
   font-size: 13px; pointer-events: none;
 }
+/* display:flex beats the UA's hidden-attribute default; restate it so the
+   pre-match hidden state actually hides (same trap as .bh-chat-input). */
+.bh-objective[hidden] { display: none; }
 .bh-objective-icon { font-size: 14px; line-height: 1; }
 .bh-objective-label { color: var(--text-dim); }
 .bh-objective-goal { color: var(--text); font-weight: 700; }

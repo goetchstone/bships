@@ -3,7 +3,7 @@
  * Everything here is unit-tested in test/hud.test.ts without a browser.
  */
 
-import type { AbilitySpec, Ruleset, SimEvent } from '@bships/core';
+import type { AbilitySpec, PublicPlayerStat, Ruleset, SimEvent, TeamId } from '@bships/core';
 
 // ---------------------------------------------------------------------------
 // Key labels
@@ -698,6 +698,17 @@ export function killFeedLine(
   const victim = nameOf(ev.victimPlayer);
   if (ev.killerPlayer === null) return `${victim} was sunk`;
   return `${nameOf(ev.killerPlayer)} sunk ${victim}`;
+}
+
+/**
+ * Scoreboard rows for one team: this team's players, kills descending then
+ * slot ascending (stable ordering for ties, matches the WC3 -ping-style
+ * leaderboard feel).
+ */
+export function sortScoreboardRows(players: readonly PublicPlayerStat[], team: TeamId): PublicPlayerStat[] {
+  return players
+    .filter((p) => p.team === team)
+    .sort((a, b) => b.kills - a.kills || a.slot - b.slot);
 }
 
 /** Seconds string for a remaining-ticks countdown ('12' / '3.4'). */

@@ -1,14 +1,15 @@
 /**
  * Scoreboard: hold-Tab overlay listing both teams' PublicPlayerStat rows
- * (name, ship, level, K/D, connected). Shown on scoreboard keydown, hidden
- * on keyup.
+ * (name, ship, level, K/D, gold earned, connected). Shown on scoreboard
+ * keydown, hidden on keyup.
  */
 
-import type { PublicPlayerStat, TeamId } from '@bships/core';
+import type { TeamId } from '@bships/core';
 import { store } from '../net/store.js';
 import { onAction } from '../input/keymap.js';
 import type { HudContext } from './context.js';
 import { el } from './context.js';
+import { sortScoreboardRows } from './hudmath.js';
 
 const TEAMS: readonly TeamId[] = ['south', 'north'];
 const TEAM_LABEL: Record<TeamId, string> = { south: 'South Empire', north: 'North Empire' };
@@ -29,11 +30,9 @@ export function initScoreboard(ctx: HudContext): void {
       const table = el('table', 'bh-score-table', panel);
       const thead = el('thead', undefined, table);
       thead.innerHTML =
-        '<tr><th class="bh-l">Player</th><th class="bh-l">Ship</th><th>Lv</th><th>K</th><th>D</th></tr>';
+        '<tr><th class="bh-l">Player</th><th class="bh-l">Ship</th><th>Lv</th><th>K</th><th>D</th><th>Gold</th></tr>';
       const tbody = el('tbody', undefined, table);
-      const players: PublicPlayerStat[] = store.match.players
-        .filter((p) => p.team === team)
-        .sort((x, y) => y.kills - x.kills || x.slot - y.slot);
+      const players = sortScoreboardRows(store.match.players, team);
       for (const p of players) {
         const tr = el('tr', p.connected ? undefined : 'bh-dc', tbody);
         if (p.slot === store.match.mySlot) tr.classList.add('bh-me');
@@ -44,11 +43,12 @@ export function initScoreboard(ctx: HudContext): void {
         el('td', undefined, tr).textContent = String(p.level);
         el('td', undefined, tr).textContent = String(p.kills);
         el('td', undefined, tr).textContent = String(p.deaths);
+        el('td', undefined, tr).textContent = String(p.goldEarned);
       }
       if (players.length === 0) {
         const tr = el('tr', 'bh-dc', tbody);
         const td = el('td', 'bh-l', tr);
-        td.colSpan = 5;
+        td.colSpan = 6;
         td.textContent = '(no players)';
       }
     }

@@ -275,6 +275,58 @@ describe('private state and scoreboard cadence', () => {
     expect(deltas.length).toBe(19);
     expect(deltas.every((d) => d.players === undefined)).toBe(true);
   });
+
+  it('tallies cumulative goldEarned (bounty) into the scoreboard, distinct from the live gold balance', () => {
+    const h = makeHarness();
+    h.runtime.start();
+    vi.advanceTimersByTime(50); // tick 1
+
+    // Inject a kill: slot 7's ship dies to slot 2, exactly as combat.ts's
+    // flagDeath would queue it (state.pendingDeaths is drained by
+    // stepProgression next tick, which pays bounty into killer.gold and
+    // emits the 'bounty' event this tally reads).
+    const state = h.runtime.getState();
+    const victimShipId = state.players[7]?.shipId;
+    if (victimShipId === null || victimShipId === undefined) throw new Error('north ship not found');
+    const victim = state.entities[victimShipId];
+    if (!victim) throw new Error('north ship entity not found');
+    const bounty = ruleset.ships[victim.typeId]?.bounty;
+    if (!bounty || (bounty.base <= 0 && bounty.dice <= 0)) {
+      throw new Error('fixture ship carries no bounty; pick a bounty-paying hull');
+    }
+    const goldBefore = state.players[2]?.gold ?? 0;
+    victim.dead = true;
+    state.pendingDeaths.push({
+      entityId: victimShipId,
+      victimPlayer: 7,
+      killerPlayer: 2,
+      killerEntityId: null,
+      scripted: false,
+    });
+
+    vi.advanceTimersByTime(50); // tick 2: stepProgression consumes the death
+
+    const goldAfter = h.runtime.getState().players[2]?.gold ?? 0;
+    const earned = goldAfter - goldBefore;
+    expect(earned).toBeGreaterThan(0);
+
+    // Scoreboard reflects it live.
+    const last = h.snapshots(2).at(-1) as SnapshotDeltaMessage;
+    expect(last.players?.find((p) => p.slot === 2)?.goldEarned).toBe(earned);
+
+    // Match end reports the same cumulative tally via onEnded's goldEarned map.
+    const northHq = Object.values(h.runtime.getState().entities).find(
+      (e): e is StructureEntity => e.kind === 'structure' && e.role === 'hq' && e.team === 'north',
+    );
+    if (!northHq) throw new Error('north HQ not found');
+    northHq.hp = 0;
+    northHq.dead = true;
+    vi.advanceTimersByTime(50);
+
+    expect(h.onEnded).toHaveBeenCalledTimes(1);
+    const report = h.onEnded.mock.calls[0]?.[0] as { goldEarned: Map<number, number> };
+    expect(report.goldEarned.get(2)).toBe(earned);
+  });
 });
 
 describe('vision boundary over live play', () => {

@@ -3,11 +3,14 @@
  * getCatalog().map.bounds — y flipped, NO foreshortening (the camera's 2.5D
  * squash is a render-only effect). Structures draw as role glyphs, newest-
  * frame units as team dots, the camera's viewportWorldRect as a rectangle;
- * click/drag pans via getCamera().panTo.
+ * left-click/drag pans via getCamera().panTo, right-click issues a plain move
+ * order (no entity hit-testing on the minimap — see render/pointer.ts for the
+ * field's attackTarget-vs-move split).
  */
 
 import type { SnapshotEntity, TeamId } from '@bships/core';
 import { isWater } from '@bships/core';
+import { sendCommand } from '../net/commands.js';
 import { getCamera } from '../render/camera.js';
 import {
   contestedBandFromLanes,
@@ -313,18 +316,32 @@ export function initMinimap(ctx: HudContext): void {
 
   ctx.onFrame(draw);
 
-  // -- click / drag to pan ---------------------------------------------------
+  // -- click / drag to pan; right-click to move --------------------------
   let dragging = false;
 
-  function panToEvent(e: PointerEvent): void {
+  /** Event pixel -> world point, via the same linear transform the dots use. */
+  function eventWorld(e: PointerEvent): { x: number; y: number } {
     const box = canvas.getBoundingClientRect();
     const mx = ((e.clientX - box.left) / box.width) * canvas.width;
     const my = ((e.clientY - box.top) / box.height) * canvas.height;
-    const world = transform.toWorld(mx, my);
+    return transform.toWorld(mx, my);
+  }
+
+  function panToEvent(e: PointerEvent): void {
+    const world = eventWorld(e);
     getCamera().panTo(world.x, world.y);
   }
 
+  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
   canvas.addEventListener('pointerdown', (e) => {
+    if (e.button === 2) {
+      // Right-click: plain move order (no hit-testing — the minimap has no
+      // entity picking, unlike the field's attackTarget-vs-move split).
+      const world = eventWorld(e);
+      sendCommand({ type: 'move', x: world.x, y: world.y });
+      return;
+    }
     if (e.button !== 0) return;
     dragging = true;
     canvas.setPointerCapture(e.pointerId);
