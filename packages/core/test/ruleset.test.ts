@@ -620,10 +620,21 @@ describe('compileClassicRuleset — xp/respawn/income/constants', () => {
     expect(rs.xp.xpToLevel[2]).toBe(200);
     expect(rs.xp.xpToLevel[3]).toBe(500);
     expect(rs.xp.xpToLevel[4]).toBe(900);
-    expect(rs.xp.killXpByVictimLevel[1]).toBe(25);
-    expect(rs.xp.killXpByVictimLevel[2]).toBe(40);
-    expect(rs.xp.killXpByVictimLevel[6]).toBe(150);
-    expect(rs.xp.heroKillXpByVictimLevel).toEqual([0, 100, 120, 160, 220, 300]);
+    // war3mapMisc.txt GrantNormalXP=15 is the table SEED (not a multiplier of
+    // the engine-default 25/40/60 table); same recurrence xp(L)=xp(L-1)+5L+5.
+    expect(rs.xp.killXpByVictimLevel.slice(0, 11)).toEqual([
+      0, 15, 30, 50, 75, 105, 140, 180, 225, 275, 330,
+    ]);
+    // war3mapMisc.txt GrantHeroXP is the full victim-hero-level table (20
+    // entries, index 0 unused).
+    expect(rs.xp.heroKillXpByVictimLevel).toEqual([
+      0, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240,
+    ]);
+    // Table reaches heroLevelCap, so the per-level-above step is only the
+    // table's own terminal step (240 - 230), never actually applied in play.
+    expect(rs.xp.heroKillXpPerLevelAbove).toBe(10);
+    // war3mapMisc.txt BuildingKillsGiveExp=1: structure kills grant kill XP.
+    expect(rs.xp.buildingKillsGiveXp).toBe(true);
     // war3mapMisc.txt: HeroExpRange=1500, MaxHeroLevel=20 (was guessed 1200/12).
     expect(rs.xp.shareRadius).toBe(1500);
     expect(rs.xp.summonFactor).toBe(0.5);

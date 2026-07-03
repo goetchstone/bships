@@ -1916,21 +1916,46 @@ function compileXpRules(misc: MiscConstants): XpRules {
   // map's overrides, so the engine-default curve applies (SEMANTICS §6).
   const xpToLevel: number[] = [0];
   for (let n = 1; n <= cap; n++) xpToLevel.push(50 * (n * n + n - 2));
-  // Kill XP by victim level: 25, then xp(L) = xp(L-1) + 5L + 5.
-  // NOTE (Phase 2, SEMANTICS §6): the map overrides GrantNormalXP=15,
-  // GrantHeroXP=50..240 and HeroFactorXP — these scale the magnitudes below.
-  // Left at the engine-default magnitudes pending a war3map.j check of whether
-  // BSP awards kill XP through the engine or via triggers; captured already in
-  // gameplay-constants.json so the wiring is a data read, not a guess.
-  const killXpByVictimLevel: number[] = [0, 25];
+  // Kill XP by victim level: WC3's "Experience gained - normal units" is a
+  // TABLE, not a formula constant — GrantNormalXP is only the SEED (index-1
+  // entry); every subsequent entry is the map-default recurrence
+  // xp(L) = xp(L-1) + 5L + 5 (formula constants A=1,B=5,C=5, not overridden by
+  // BSP). Engine default seed is 25 (-> 25,40,60,85,...); war3mapMisc.txt sets
+  // GrantNormalXP=15 (-> 15,30,50,75,105,...). Verified against thehelper.net
+  // "Hero XP Gain - Factors" and world-editor-tutorials' Hero Experience
+  // constants page, cross-checked with the extracted misc data.
+  const killXpByVictimLevel: number[] = [0, misc.num('GrantNormalXP', 25)];
   for (let level = 2; level <= cap; level++) {
     killXpByVictimLevel.push(mustNum(killXpByVictimLevel[level - 1], 'kill xp') + 5 * level + 5);
   }
+  // Hero kill XP by victim level: war3mapMisc.txt GrantHeroXP is the full
+  // victim-hero-level table (20 entries = MaxHeroLevel), not a 1..5 stub +
+  // per-level formula — use it verbatim when present. heroKillXpPerLevelAbove
+  // only matters past the table's last index; with a full table to the cap it
+  // never actually applies in play, so set it to the table's terminal step
+  // (last - second-to-last) so a beyond-cap clamp stays sane rather than reusing
+  // the unrelated engine-default step of 100.
+  const heroXpTable = misc.arr('GrantHeroXP');
+  const heroKillXpByVictimLevel = heroXpTable ? [0, ...heroXpTable] : [0, 100, 120, 160, 220, 300];
+  const heroTableLen = heroKillXpByVictimLevel.length;
+  const heroKillXpPerLevelAbove = heroXpTable
+    ? mustNum(heroKillXpByVictimLevel[heroTableLen - 1], 'hero xp last') -
+      mustNum(heroKillXpByVictimLevel[heroTableLen - 2], 'hero xp second-to-last')
+    : 100;
+  // HeroFactorXP is deliberately NOT wired: it's WC3's creep-reduction table
+  // (% of normal-unit kill XP, indexed by KILLER hero level, clamped to the
+  // last entry) applied ONLY to units owned by Neutral Hostile
+  // (PLAYER_NEUTRAL_AGGRESSIVE). BSP has ZERO Neutral Hostile units — grep for
+  // PLAYER_NEUTRAL_AGGRESSIVE in war3map.j is 0 hits; every lane creep spawns
+  // for Player(0)/Player(1) (the team-lead empire players) and the merchants
+  // are Neutral Passive. So HeroFactorXP is dead data in this map; wiring it
+  // would incorrectly discount normal-unit kill XP that the engine never
+  // discounts here. Left unread on purpose — do not re-guess this.
   return {
     xpToLevel,
     killXpByVictimLevel,
-    heroKillXpByVictimLevel: [0, 100, 120, 160, 220, 300],
-    heroKillXpPerLevelAbove: 100,
+    heroKillXpByVictimLevel,
+    heroKillXpPerLevelAbove,
     // war3mapMisc.txt HeroExpRange=1500 (the editor default is 1200).
     shareRadius: misc.num('HeroExpRange', 1200),
     summonFactor: 0.5,
@@ -1940,6 +1965,9 @@ function compileXpRules(misc: MiscConstants): XpRules {
     // capped only by each skill's rank count. The map data is alsk=2; set this
     // true to restore the faithful WC3 gate. SEMANTICS §6.
     skillLevelGated: false,
+    // war3mapMisc.txt BuildingKillsGiveExp=1: a killed structure grants kill
+    // XP (engine default is 0, bounty only).
+    buildingKillsGiveXp: misc.num('BuildingKillsGiveExp', 0) !== 0,
   };
 }
 
