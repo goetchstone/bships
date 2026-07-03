@@ -610,16 +610,23 @@ describe('AI players', () => {
     expect(h.runtime.getState().aiMemory[7]?.nextThinkTick).toBe(20);
   });
 
-  it('keeps the AI seat out of seatSlots: no snapshots, no scoreboard line', () => {
+  it('keeps the AI seat out of seatSlots (no snapshots) but ON the scoreboard', () => {
     const h = makeHarness([2], 0xa2, [{ slot: 7, ai: { difficulty: 'normal' } }]);
     h.runtime.start();
     vi.advanceTimersByTime(200);
 
-    // The AI slot receives nothing.
+    // The AI slot receives nothing (not a human seat).
     expect(h.sent.get(7)).toBeUndefined();
-    // The scoreboard only lists the human seat (AI is not a participant).
+    // The scoreboard lists the human seat AND the AI captain — the owner's
+    // per-player K/D/gold breakdown must cover every captain (a solo-vs-AI
+    // board with only the human row was useless).
     const snap = h.messages(2)[0] as SnapshotMessage;
-    expect(snap.players.map((p) => p.slot)).toEqual([2]);
+    expect(snap.players.map((p) => p.slot)).toEqual([2, 7]);
+    const aiRow = snap.players.find((p) => p.slot === 7);
+    expect(aiRow?.name).toBe('Computer 7 (normal)');
+    expect(aiRow?.connected).toBe(true);
+    expect(aiRow?.kills).toBe(0);
+    expect(aiRow?.goldEarned).toBe(0);
   });
 
   it('merges AI commands into the per-tick batch ascending-slot / FIFO', () => {

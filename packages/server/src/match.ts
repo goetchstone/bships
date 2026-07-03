@@ -50,13 +50,16 @@ export interface MatchSeat {
 
 /**
  * A computer-controlled captain seat. AI seats are NOT human seats: they are
- * never added to `seatSlots`, receive no snapshots, take no `enqueueCommand`,
- * and are excluded from the K/D scoreboard. They exist only to (a) be created
- * as `control: 'computer'` PlayerConfigs with an AI config (so `createMatch`
- * seeds `state.aiMemory[slot]` via `initAiMemory`) and (b) have the server AI
- * runner think for them each cadence. `slot` must be a real player slot
- * (2-11); slots 0/1 are the AI empire (creep) owners and `createMatch` rejects
- * an AI config on them.
+ * never added to `seatSlots`, receive no snapshots, and take no
+ * `enqueueCommand`. They DO get scoreboard lines (K/D/gold/level via
+ * `statSlots` — owner ask: the per-player breakdown must cover every captain,
+ * and a solo-vs-AI board with one row is useless), but stay out of ladder
+ * ingest (rooms' onEnded drops stats rows with no human identity). They are
+ * created as `control: 'computer'` PlayerConfigs with an AI config (so
+ * `createMatch` seeds `state.aiMemory[slot]` via `initAiMemory`) and the
+ * server AI runner thinks for them each cadence. `slot` must be a real player
+ * slot (2-11); slots 0/1 are the AI empire (creep) owners and `createMatch`
+ * rejects an AI config on them.
  */
 export interface AiSeat {
   slot: number;
@@ -73,9 +76,9 @@ export interface MatchRuntimeDeps {
   /**
    * Computer-controlled captain seats (optional). Each is created as a
    * `control: 'computer'` player with an AI config so the deterministic core
-   * brain drives it; they are not human seats (no snapshots, no input, no
-   * scoreboard line). Slots must be disjoint from `seats` and from the AI
-   * empire slots 0/1 (createMatch enforces the latter).
+   * brain drives it; they are not human seats (no snapshots, no input) but DO
+   * get scoreboard lines (see AiSeat). Slots must be disjoint from `seats`
+   * and from the AI empire slots 0/1 (createMatch enforces the latter).
    */
   aiSeats?: AiSeat[];
   sendToSlot(slot: number, msg: ServerMessage): void;
@@ -142,6 +145,14 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
   const state = createMatch(ruleset, seed, playerConfigs);
 
   const seatSlots = new Set(seats.map((s) => s.slot));
+  /**
+   * Slots whose K/D/gold are tallied and shown on the scoreboard: humans AND
+   * AI captains (the owner wants the per-player breakdown to cover the whole
+   * match, and a solo-vs-AI board with only the human row is useless). The AI
+   * empire creep-owner slots (0/1) are in neither set. Snapshot/input/
+   * reconnect/ladder-identity semantics still key off `seatSlots` alone.
+   */
+  const statSlots = new Set([...seatSlots, ...aiSeats.map((s) => s.slot)]);
   /** Teams that have at least one seat, in fixed south-then-north order. */
   const seatedTeams: TeamId[] = (['south', 'north'] as const).filter((team) =>
     seats.some((s) => state.players[s.slot]?.team === team),
@@ -189,6 +200,25 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
         connected: connected.get(seat.slot) ?? false,
       });
     }
+    // AI captains get scoreboard lines too (kills/deaths/gold/level), WC3
+    // "Computer" style — they stay out of seats/slotIdentity, so snapshots,
+    // input, reconnect, and ladder ingest are unaffected (rooms' onEnded drops
+    // stats rows with no human identity).
+    for (const seat of aiSeats) {
+      const player = state.players[seat.slot];
+      if (!player) continue; // unreachable: createMatch created every AI seat
+      stats.push({
+        slot: seat.slot,
+        name: `Computer ${seat.slot} (${seat.ai.difficulty})`,
+        team: player.team,
+        shipTypeId: player.shipTypeId,
+        level: player.level,
+        kills: kills.get(seat.slot) ?? 0,
+        deaths: deaths.get(seat.slot) ?? 0,
+        goldEarned: goldEarned.get(seat.slot) ?? 0,
+        connected: true,
+      });
+    }
     return stats;
   }
 
@@ -199,7 +229,7 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
   function tallyStats(events: readonly SimEvent[]): void {
     for (const ev of events) {
       if (ev.type === 'bounty') {
-        if (seatSlots.has(ev.player)) {
+        if (statSlots.has(ev.player)) {
           goldEarned.set(ev.player, (goldEarned.get(ev.player) ?? 0) + ev.amount);
         }
         continue;
@@ -207,10 +237,10 @@ export function createMatchRuntime(deps: MatchRuntimeDeps): MatchRuntime {
       if (ev.type !== 'death' || ev.victimPlayer === null) continue;
       // Ship victims only (creeps also carry a non-null AI owner slot).
       if (!(ev.entityTypeId in ruleset.ships)) continue;
-      if (seatSlots.has(ev.victimPlayer)) {
+      if (statSlots.has(ev.victimPlayer)) {
         deaths.set(ev.victimPlayer, (deaths.get(ev.victimPlayer) ?? 0) + 1);
       }
-      if (ev.killerPlayer !== null && seatSlots.has(ev.killerPlayer)) {
+      if (ev.killerPlayer !== null && statSlots.has(ev.killerPlayer)) {
         kills.set(ev.killerPlayer, (kills.get(ev.killerPlayer) ?? 0) + 1);
       }
     }
