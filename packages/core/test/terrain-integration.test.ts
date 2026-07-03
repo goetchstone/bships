@@ -271,7 +271,7 @@ describe('terrain integration (real water mask)', () => {
     expect(creepHeldAtTower).toBe(true);
     // ... and that engagement chipped at least one enemy tower's HP.
     expect(damagedTowers.size).toBeGreaterThan(0);
-  }, 30000);
+  });
 
   // Guards the core pathfinding fix (B) on the REAL mask for an ARBITRARY,
   // NON-base destination: AleFactory sits on the far EAST edge (x≈4720), NOT
@@ -315,7 +315,7 @@ describe('terrain integration (real water mask)', () => {
     expect(minDist).toBeLessThan(500);
     // And it genuinely travelled across the map (not a short hop).
     expect(Math.hypot(ship.x - spawnX, ship.y - spawnY)).toBeGreaterThan(3000);
-  }, 30000);
+  });
 
   // Guards the AI TRADER fix (C) end-to-end on the REAL mask: a SEATED trader
   // (role auto-assigned by the server; here set explicitly) must buy a carrier +

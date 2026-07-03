@@ -332,7 +332,7 @@ describe('AI economy', () => {
       }
     }
     expect(buys).toBeGreaterThan(0);
-  }, 30000);
+  });
 
   it('economy climbs past the opening: more items AND a bigger HULL TYPE', () => {
     // Regression for the economy lockout / ladder wedge: over a bot-vs-bot match
@@ -357,7 +357,7 @@ describe('AI economy', () => {
     const finalType = state.players[SOUTH_SLOT]!.shipTypeId;
     expect(finalType).not.toBe(startType);
     expect(ruleset.ships[finalType]!.maxHp).toBeGreaterThan(ruleset.ships[startType]!.maxHp);
-  }, 30000);
+  });
 
   it('skips an out-of-stock ladder rung instead of re-issuing a doomed buy', () => {
     // Regression for the shop-stuck infinite loop: the bot wanted the Gold Hull
@@ -987,7 +987,7 @@ describe('AI trader role', () => {
         expect(['move', 'buyItem', 'buyShip']).toContain(c.type);
       }
     }
-  }, 30000);
+  });
 
   it('a full all-AI match WITH A TRADER fires questProgress (trade deliveries)', () => {
     // The combat brain alone fires zero quests in an all-AI match (the deferred
@@ -1004,7 +1004,7 @@ describe('AI trader role', () => {
     expect(run.questEvents.some((e) => e.type === 'questProgress' && e.stage === 'delivered')).toBe(
       true,
     );
-  }, 30000);
+  });
 
   it('a full match WITH A TRADER on both teams replays bit-identically (hashState)', () => {
     const configs: AiSlotCfg[] = [
@@ -1026,5 +1026,5 @@ describe('AI trader role', () => {
     expect(run.questEvents.some((e) => e.type === 'questProgress' && e.stage === 'delivered')).toBe(
       true,
     );
-  }, 30000);
+  });
 });

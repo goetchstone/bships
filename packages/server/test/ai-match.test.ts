@@ -418,5 +418,5 @@ describe('bot-vs-bot match (real brain, both teams AI)', () => {
     // The bots are NOT trapped in retreat (observed south ~9% of thinks).
     const southRetreatFrac = (retreatThinks.get(SOUTH_SLOT) ?? 0) / (totalThinks.get(SOUTH_SLOT) ?? 1);
     expect(southRetreatFrac).toBeLessThan(0.5);
-  }, 30000);
+  });
 });
