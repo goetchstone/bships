@@ -841,8 +841,9 @@ export function createRoomManager(ruleset: Ruleset, options: RoomManagerOptions)
       ]),
     );
 
-    // AI seats are NOT human seats: excluded from `seated`/`slotIdentity`/stats
-    // participants above; they only seed `control: 'computer'` AI players.
+    // AI seats are NOT human seats: excluded from `seated`/`slotIdentity` (so
+    // onEnded's ladder participants drop their stats rows); they seed
+    // `control: 'computer'` AI players and get scoreboard-only stats lines.
     //
     // Trader designation (docs/AI.md "one trader per team"): the combat brain
     // never trades, so in solo-vs-AI the faithful trade-route / refinery /
