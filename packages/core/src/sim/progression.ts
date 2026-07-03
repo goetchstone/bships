@@ -164,11 +164,15 @@ function applyLearnSkill(state: SimState, ruleset: Ruleset, cmd: LearnSkillComma
     reject(state, cmd.player, 'learnSkill', 'maxRank');
     return;
   }
-  /** Next rank = rank + 1; WC3 gate: heroLevel >= arlv + alsk·(nextRank − 1). */
-  const requiredLevel = rule.minHeroLevel + rule.levelsPerRank * rank;
-  if (player.level < requiredLevel) {
-    reject(state, cmd.player, 'learnSkill', 'levelTooLow');
-    return;
+  /** Next rank = rank + 1; WC3 gate: heroLevel >= arlv + alsk·(nextRank − 1).
+   *  Skipped when the ruleset disables the level gate (free skill spending —
+   *  owner-directed, see XpRules.skillLevelGated). */
+  if (ruleset.xp.skillLevelGated) {
+    const requiredLevel = rule.minHeroLevel + rule.levelsPerRank * rank;
+    if (player.level < requiredLevel) {
+      reject(state, cmd.player, 'learnSkill', 'levelTooLow');
+      return;
+    }
   }
   if (player.unspentSkillPoints <= 0) {
     reject(state, cmd.player, 'learnSkill', 'noSkillPoints');

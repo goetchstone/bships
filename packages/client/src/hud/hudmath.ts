@@ -379,10 +379,14 @@ export function canLearnSkill(
   currentRank: number,
   heroLevel: number,
   unspentSkillPoints: number,
+  levelGated = true,
 ): boolean {
   if (unspentSkillPoints <= 0) return false;
   if (currentRank >= skill.ranks) return false;
-  // arlv (minHeroLevel) gates rank 1; alsk (levelsPerRank) spaces later ranks.
+  // The WC3 level gate (arlv + alsk·rank) only applies when the ruleset enables
+  // it (catalog.xp.skillLevelGated). With free spending it's just "have a point
+  // + below max rank". Mirrors the sim's applyLearnSkill gate.
+  if (!levelGated) return true;
   const requiredLevel = skill.minHeroLevel + currentRank * skill.levelsPerRank;
   return heroLevel >= requiredLevel;
 }

@@ -124,7 +124,19 @@ export const HUD_CSS = `
   background: var(--border); opacity: 0.6;
 }
 .bh-gold .bh-stat-value { color: var(--gold); }
+.bh-gold { position: relative; }
+.bh-goldgain {
+  position: absolute; left: 50%; top: -14px; transform: translateX(-50%);
+  color: var(--gold); font-size: 12px; font-weight: 900; white-space: nowrap;
+  opacity: 0; transition: opacity 0.15s ease-out, top 0.6s ease-out;
+  text-shadow: 0 1px 3px var(--bg-deep); pointer-events: none;
+}
+.bh-goldgain.bh-show { opacity: 1; top: -20px; }
 .bh-lumber .bh-stat-value { color: var(--lumber); }
+.bh-kd .bh-stat-value { color: var(--text); font-variant-numeric: tabular-nums; }
+.bh-respawn[hidden] { display: none; }
+.bh-respawn .bh-stat-value { color: var(--danger, #ff6b6b); font-weight: 800; }
+.bh-respawn .bh-stat-icon { color: var(--danger, #ff6b6b); }
 .bh-level { gap: 8px; }
 .bh-xpbar {
   width: 80px; height: 7px; border-radius: 4px; overflow: hidden;
@@ -199,23 +211,24 @@ export const HUD_CSS = `
    (.bh-can-learn) it grows into a glowing "+1pt" pill so the affordance is
    impossible to miss. */
 .bh-slot-plus {
-  position: absolute; top: -6px; right: -6px;
-  min-width: 17px; height: 17px; border-radius: 999px;
+  position: absolute; top: -9px; right: -9px; z-index: 6;
+  min-width: 24px; height: 24px; border-radius: 999px;
   display: none; align-items: center; justify-content: center;
-  background: var(--ready); border: 1px solid var(--bg-deep);
-  color: var(--bg-deep); font-size: 11px; font-weight: 900; line-height: 1;
-  cursor: pointer; padding: 0 4px;
+  background: var(--ready); border: 2px solid var(--bg-deep);
+  color: var(--bg-deep); font-size: 12px; font-weight: 900; line-height: 1;
+  cursor: pointer; padding: 0 6px;
   box-shadow: 0 0 8px rgba(106, 222, 138, 0.7);
 }
 .bh-slot-plus.bh-show { display: flex; }
+/* Glow pulse only — never a transform/scale, so the click target stays put
+   (a moving target is hard to hit; the owner had to "click weird"). */
 .bh-slot-plus.bh-can-learn {
-  box-shadow: 0 0 0 2px rgba(106, 222, 138, 0.55), 0 0 12px rgba(106, 222, 138, 0.95);
   animation: bh-plus-pulse 1.1s ease-in-out infinite;
 }
 .bh-slot-plus:hover { background: var(--text); }
 @keyframes bh-plus-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.16); }
+  0%, 100% { box-shadow: 0 0 0 2px rgba(106, 222, 138, 0.5), 0 0 10px rgba(106, 222, 138, 0.8); }
+  50% { box-shadow: 0 0 0 3px rgba(106, 222, 138, 0.75), 0 0 16px rgba(106, 222, 138, 1); }
 }
 
 /* An UNLEARNED hero skill (rank 0): desaturate + dim the icon and stamp a lock
@@ -252,7 +265,9 @@ export const HUD_CSS = `
    the same "+1pt" badge as the cast bar, so every learnable skill has exactly
    one place to spend a point. Hidden when the hull has no passive skills. */
 .bh-skillstrip {
-  position: absolute; bottom: 84px; left: 50%; transform: translateX(-50%);
+  /* Own row above the shop-cue + ability bar — clear of the W/E/R/A/S/D item
+     slots (it used to float on top of them; verified in-browser at 168px). */
+  position: absolute; bottom: 168px; left: 50%; transform: translateX(-50%);
   display: flex; align-items: center; gap: 9px; max-width: 92vw;
   padding: 4px 10px; border-radius: 10px;
   background: linear-gradient(180deg, var(--bg-panel), var(--bg-panel-raised));

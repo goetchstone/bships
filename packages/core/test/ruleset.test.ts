@@ -20,6 +20,7 @@ function loadRaw(): RawDataFiles {
     upgradeCurves: loadJson('upgrade-curves.json'),
     scriptRules: loadJson('script-rules.json'),
     mapLayout: loadJson('map-layout.json'),
+    gameplayConstants: loadJson('gameplay-constants.json'),
     units: loadJson('units.json'),
     abilities: loadJson('abilities.json'),
     items: loadJson('items.json'),
@@ -125,14 +126,16 @@ describe('compileClassicRuleset — weapons', () => {
 });
 
 describe('compileClassicRuleset — ships', () => {
-  it('compiles H000 starter: 200 hp + 25 str, armor -1.7, speed 170, 6 slots', () => {
+  it('compiles H000 starter: 200 hp (no str bonus), armor 0, speed 170, 6 slots', () => {
     const h000 = rs.ships['H000'];
     expect(h000).toBeDefined();
     expect(h000?.gold).toBe(200);
     expect(h000?.rawHp).toBe(200);
-    expect(h000?.maxHp).toBe(225);
+    // war3mapMisc.txt StrHitPointBonus=0 -> maxHp == rawHp (no +25);
+    // AgiDefenseBase/Bonus=0 -> armor == rawArmor (no -1.7).
+    expect(h000?.maxHp).toBe(200);
     expect(h000?.rawArmor).toBe(0);
-    expect(h000?.armor).toBeCloseTo(-1.7, 10);
+    expect(h000?.armor).toBe(0);
     expect(h000?.moveSpeed).toBe(170);
     expect(h000?.inventorySlots).toBe(6);
     expect(h000?.defenseType).toBe('hero');
@@ -163,13 +166,13 @@ describe('compileClassicRuleset — ships', () => {
     expect(rs.ships['H000']?.detectionRadius).toBeNull();
   });
 
-  it('adds the hero strength regen (+0.05 HP/s) on top of uhpr for every ship', () => {
-    // Most hulls have uhpr 0 -> exactly the strength regen.
-    expect(rs.ships['H000']?.hpRegenPerTick).toBeCloseTo(0.05 / 20, 12);
-    // H00A overrides uhpr 5 -> (5 + 0.05) / 20.
-    expect(rs.ships['H00A']?.hpRegenPerTick).toBeCloseTo(5.05 / 20, 12);
+  it('regen is uhpr only — BSP zeroes the hero strength regen (StrRegenBonus=0)', () => {
+    // Most hulls have uhpr 0 -> no passive regen at all.
+    expect(rs.ships['H000']?.hpRegenPerTick).toBe(0);
+    // H00A overrides uhpr 5 -> 5 / 20 (no +0.05 str bonus).
+    expect(rs.ships['H00A']?.hpRegenPerTick).toBeCloseTo(5 / 20, 12);
     for (const id of Object.keys(rs.ships)) {
-      expect(rs.ships[id]!.hpRegenPerTick, id).toBeGreaterThanOrEqual(0.05 / 20 - 1e-12);
+      expect(rs.ships[id]!.hpRegenPerTick, id).toBeGreaterThanOrEqual(0);
     }
   });
 
@@ -475,7 +478,7 @@ describe('compileClassicRuleset — equipment', () => {
 });
 
 describe('compileClassicRuleset — unit types', () => {
-  it('compiles lane creeps with native attack dice and verbatim bounty asymmetry', () => {
+  it('compiles lane creeps with native attack dice; all twins pay bounty (owner override)', () => {
     const rowboat = rs.unitTypes['h00I'];
     expect(rowboat?.maxHp).toBe(100);
     expect(rowboat?.level).toBe(2);
@@ -488,9 +491,12 @@ describe('compileClassicRuleset — unit types', () => {
       rangeUnits: 550,
     });
     expect(rowboat?.moveSpeed).toBe(250);
-    // Zero-bounty mirror twin: same combat stats, no bounty, level 1.
+    // Owner-directed: ALL lane creeps pay bounty. The post-harbor mirror twin
+    // h00E ships ubba/ubdi/ubsi = 0 in the map (anti-farm); BOUNTY_TWIN_COUNTERPART
+    // makes it inherit its paying counterpart h00I's bounty. Same combat stats,
+    // level 1.
     const mirror = rs.unitTypes['h00E'];
-    expect(mirror?.bounty).toEqual({ base: 0, dice: 0, sides: 0 });
+    expect(mirror?.bounty).toEqual({ base: 5, dice: 2, sides: 10 });
     expect(mirror?.level).toBe(1);
     expect(mirror?.attack?.damageBase).toBe(3);
     expect(rs.unitTypes['h00H']?.level).toBe(6);
@@ -618,9 +624,13 @@ describe('compileClassicRuleset — xp/respawn/income/constants', () => {
     expect(rs.xp.killXpByVictimLevel[2]).toBe(40);
     expect(rs.xp.killXpByVictimLevel[6]).toBe(150);
     expect(rs.xp.heroKillXpByVictimLevel).toEqual([0, 100, 120, 160, 220, 300]);
-    expect(rs.xp.shareRadius).toBe(1200);
+    // war3mapMisc.txt: HeroExpRange=1500, MaxHeroLevel=20 (was guessed 1200/12).
+    expect(rs.xp.shareRadius).toBe(1500);
     expect(rs.xp.summonFactor).toBe(0.5);
-    expect(rs.xp.heroLevelCap).toBe(12); // provisional — SEMANTICS §6
+    expect(rs.xp.heroLevelCap).toBe(20);
+    expect(rs.xp.xpToLevel).toHaveLength(21); // index 0..20
+    // Owner-directed: Classic spends skill points freely (no per-rank level gate).
+    expect(rs.xp.skillLevelGated).toBe(false);
   });
 
   it('parses the respawn formula 2L + 5 + rand(0,3) with 5 s invulnerability', () => {
@@ -651,16 +661,23 @@ describe('compileClassicRuleset — xp/respawn/income/constants', () => {
     });
   });
 
-  it('bakes the Classic constants and the TFT spells row', () => {
+  it('bakes the Classic constants (war3mapMisc overrides) and the TFT spells row', () => {
     expect(rs.constants.startingGold).toBe(200);
-    expect(rs.constants.minMoveSpeed).toBe(150);
-    expect(rs.constants.maxMoveSpeed).toBe(400);
+    // war3mapMisc.txt: MinUnitSpeed=10, MaxUnitSpeed=522 (not the editor 150/400).
+    expect(rs.constants.minMoveSpeed).toBe(10);
+    expect(rs.constants.maxMoveSpeed).toBe(522);
+    expect(rs.constants.heroStrHpBonus).toBe(0);
+    expect(rs.constants.heroAgiArmorPerPoint).toBe(0);
+    expect(rs.constants.heroArmorBaseOffset).toBe(0);
+    expect(rs.constants.heroStrRegenPerSecond).toBe(0);
     expect(rs.constants.sellbackRate).toBe(0);
     expect(rs.constants.friendlyFire).toBe(false);
     expect(rs.constants.missileExplodeOnDeathDoubling).toBe(false);
     expect(rs.constants.pfDotNonLethal).toBe(true);
-    expect(rs.attackTypeVsDefense.spells.hero).toBe(0.7);
+    // DamageBonusSpells override: x1.00 vs hero (not 0.70), x0.05 vs divine.
+    expect(rs.attackTypeVsDefense.spells.hero).toBe(1.0);
     expect(rs.attackTypeVsDefense.spells.fortified).toBe(1.0);
+    expect(rs.attackTypeVsDefense.spells.divine).toBe(0.05);
     expect(rs.attackTypeVsDefense.siege.fortified).toBe(1.5);
     expect(rs.attackTypeVsDefense.pierce.hero).toBe(0.5);
     expect(rs.attackTypeVsDefense.normal.fortified).toBe(0.7);
@@ -926,11 +943,11 @@ describe('applyRulesetPatch', () => {
     expect(patched.name).toBe('balanced-test');
     expect(patched.constants.startingGold).toBe(500);
     // untouched siblings survive the merge
-    expect(patched.constants.maxMoveSpeed).toBe(400);
+    expect(patched.constants.maxMoveSpeed).toBe(522);
     expect(patched.weapons['I01Z']?.damage).toBe(30);
     // arrays replaced wholesale
     expect(patched.xp.xpToLevel).toEqual([0, 0, 100]);
-    expect(patched.xp.shareRadius).toBe(1200);
+    expect(patched.xp.shareRadius).toBe(1500);
     // base untouched
     expect(rs.name).toBe('classic-1.187');
     expect(rs.constants.startingGold).toBe(200);
@@ -944,7 +961,7 @@ describe('applyRulesetPatch', () => {
       changes: { ships: { H000: { moveSpeed: 250 } } },
     });
     expect(patched.ships['H000']?.moveSpeed).toBe(250);
-    expect(patched.ships['H000']?.maxHp).toBe(225);
+    expect(patched.ships['H000']?.maxHp).toBe(200);
     expect(patched.ships['H003']?.moveSpeed).toBe(230);
   });
 });

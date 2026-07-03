@@ -52,6 +52,7 @@ function loadRawWithTerrain(): RawDataFiles {
     upgradeCurves: loadJson('upgrade-curves.json'),
     scriptRules: loadJson('script-rules.json'),
     mapLayout: loadJson('map-layout.json'),
+    gameplayConstants: loadJson('gameplay-constants.json'),
     terrain: loadJson('terrain.json'),
     units: loadJson('units.json'),
     abilities: loadJson('abilities.json'),
@@ -218,7 +219,12 @@ describe('terrain integration (real water mask)', () => {
     const creepRange = (c: CreepEntity): number =>
       ruleset.unitTypes[c.typeId]?.attack?.rangeUnits ?? 0;
 
-    for (let t = 0; t < 4000; t++) {
+    // Longer window than the original 4000: opposing waves now CLASH mid-lane
+    // first (movement.ts halts an attack-moving creep while an enemy is in its
+    // arc), so a creep only reaches the enemy tower once its lane's front breaks
+    // through — the AI captains pushing a lane tip it. 9000 ticks clears both the
+    // hold-at-tower contact and the resulting tower chip with margin.
+    for (let t = 0; t < 9000; t++) {
       const batch: Command[] = [];
       for (const slot of sortedNumericKeys(state.aiMemory)) {
         const mem = state.aiMemory[slot];
@@ -265,7 +271,7 @@ describe('terrain integration (real water mask)', () => {
     expect(creepHeldAtTower).toBe(true);
     // ... and that engagement chipped at least one enemy tower's HP.
     expect(damagedTowers.size).toBeGreaterThan(0);
-  }, 30000);
+  });
 
   // Guards the core pathfinding fix (B) on the REAL mask for an ARBITRARY,
   // NON-base destination: AleFactory sits on the far EAST edge (x≈4720), NOT
@@ -309,7 +315,7 @@ describe('terrain integration (real water mask)', () => {
     expect(minDist).toBeLessThan(500);
     // And it genuinely travelled across the map (not a short hop).
     expect(Math.hypot(ship.x - spawnX, ship.y - spawnY)).toBeGreaterThan(3000);
-  }, 30000);
+  });
 
   // Guards the AI TRADER fix (C) end-to-end on the REAL mask: a SEATED trader
   // (role auto-assigned by the server; here set explicitly) must buy a carrier +
@@ -321,6 +327,13 @@ describe('terrain integration (real water mask)', () => {
   // push), and both teams are seated. The stub-mask ai.test.ts proves the trade
   // LOGIC on open sea; only this real-mask run proves the land ROUTING that the
   // owner reported broken ("could not get to the repair station").
+  //
+  // The trader now routes robustly: with per-POI nav fields painted to every
+  // shop/repair dock AND the land-aware steering in laneNavGoal (a ship rides the
+  // field gradient whenever the straight segment to its order crosses land,
+  // instead of beelining into the coast), a seated trader delivers in 10/10
+  // sampled seeds (was ~2/10 when it wedged in concave water pockets). This run
+  // guards that end-to-end land routing on the real mask.
   it('a seated trader completes a full haul around the land (real mask, questProgress delivered)', () => {
     const state = createMatch(ruleset, 0x7ade, [
       { slot: SOUTH_PLAYER, control: 'computer', ai: { difficulty: 'normal', role: 'trader' } },

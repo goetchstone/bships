@@ -271,6 +271,14 @@ export function initInventory(ctx: HudContext): void {
     // before — the sim still re-validates them (e.g. notAtMainHarbour).
     const learn = learnById.get(slot.abilityId) ?? null;
     if (learn !== null && (you.heroSkillLevels[slot.abilityId] ?? 0) <= 0) {
+      // Clicking an UNLEARNED hero skill's whole slot LEARNS rank 1 when a point
+      // is available (a big, forgiving hit target — the tiny + badge was hard to
+      // click). The sim re-validates. Falls back to the named hint when there's
+      // no point to spend.
+      if (canLearnSkill(learn, 0, you.level, you.unspentSkillPoints, ctx.catalog.xp.skillLevelGated)) {
+        learnSkill(slot.abilityId);
+        return;
+      }
       const name = ctx.catalog.abilities[slot.abilityId]?.name ?? slot.abilityId;
       noticeLine(rejectionMessage('notLearned', name));
       return;
@@ -410,7 +418,8 @@ export function initInventory(ctx: HudContext): void {
       // Hero skills show "rank/max"; non-skill innates (Shore Leave) have no rank.
       dom.rank.textContent = maxRanks > 0 ? `${rank}/${maxRanks}` : '';
       const canRank =
-        learn !== null && canLearnSkill(learn, rank, you.level, you.unspentSkillPoints);
+        learn !== null &&
+        canLearnSkill(learn, rank, you.level, you.unspentSkillPoints, ctx.catalog.xp.skillLevelGated);
       dom.plus.classList.toggle('bh-show', canRank);
       // While a point can be spent, label the badge with the cost and make it
       // glow (bh-can-learn) so the affordance is unmissable.
@@ -458,7 +467,9 @@ export function initInventory(ctx: HudContext): void {
       dom.icon.textContent = abilityIcon(ctx.catalog, skill.abilityId);
       const rank = you.heroSkillLevels[skill.abilityId] ?? 0;
       dom.rank.textContent = `${rank}/${skill.ranks}`;
-      const canRank = canLearnSkill(skill, rank, you.level, you.unspentSkillPoints);
+      const canRank = canLearnSkill(
+        skill, rank, you.level, you.unspentSkillPoints, ctx.catalog.xp.skillLevelGated,
+      );
       dom.plus.classList.toggle('bh-show', canRank);
       dom.plus.classList.toggle('bh-can-learn', canRank);
       dom.plus.textContent = canRank ? '+1pt' : '+';

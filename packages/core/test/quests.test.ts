@@ -30,6 +30,7 @@ const ruleset: Ruleset = compileClassicRuleset({
   upgradeCurves: loadJson('upgrade-curves.json'),
   scriptRules: loadJson('script-rules.json'),
   mapLayout: loadJson('map-layout.json'),
+  gameplayConstants: loadJson('gameplay-constants.json'),
   units: loadJson('units.json'),
   abilities: loadJson('abilities.json'),
   items: loadJson('items.json'),

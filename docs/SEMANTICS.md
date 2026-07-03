@@ -31,8 +31,11 @@ Conventions used throughout:
   `2 − 0.94^(−armor)` (amplification). Magic/spell damage **ignores armor value entirely**.
 - All standard WC3 abilities deal `ATTACK_TYPE_SPELLS` + `DAMAGE_TYPE_MAGIC` — this covers
   every BSP item cannon (Phoenix Fire `Apxf`) and torpedo/Captain's Cannon (Storm Bolt
-  `AHtb`). Spells attack type: **×0.70 vs Hero defense type, ×1.00 vs everything else**
-  (Divine n/a in BSP). Blocked by spell immunity (no spell-immune units in BSP).
+  `AHtb`). **RESOLVED (war3mapMisc.txt recovered):** the map OVERRIDES `DamageBonusSpells`
+  to **×1.00 vs Hero** (the engine default ×0.70 does *not* apply) and ×0.05 vs Divine
+  (Divine n/a in BSP) — so spell damage is **×1.00 vs every BSP defense type**. The old
+  "70% to hero-armor ships" model is wrong for this map. Blocked by spell immunity (no
+  spell-immune units in BSP).
 - **Kaboom (`Asds`/`Asdg`, the missile warheads) is the exception:** physical damage —
   reduced by the target's armor *value*, with **no** attack-type/defense-type multiplier.
   Building damage factor `DataE = 1` (not overridden), so structures take listed damage
@@ -41,14 +44,17 @@ Conventions used throughout:
   spell damage multiplicatively **after** the type multiplier. Since BSP's weapons are all
   spell damage, hull reduction is the real "armor" of this game. Hulls/Kraken are
   trigger-exclusive, so reductions never stack.
-- Hero ships' *effective* armor value = `udef − 2 + 0.3 × agility` (gameplay-constant hero
-  agility armor: +0.30/point with a −2 base). Every BSP ship has Agi 1 ⇒ **effective armor
-  = udef − 1.7** (e.g. starter H000: −1.7 → physical damage amplified ~10%). This only
-  matters vs physical sources (lane ships, towers, native attacks, Kaboom).
+- Hero ships' *effective* armor value: **RESOLVED (war3mapMisc.txt)** — the map sets
+  `AgiDefenseBase=0` AND `AgiDefenseBonus=0` (and `StrHitPointBonus=0`, `StrRegenBonus=0`),
+  so agility/strength contribute **nothing**: effective armor = `udef` exactly (no −2 base,
+  no +0.3/agi), max HP = `uhpm` exactly (no +25), regen = `uhpr` only (no +0.05). Starter
+  H000 ⇒ armor **0** (not −1.7), HP **200** (not 225). This only matters vs physical
+  sources (lane ships, towers, native attacks, Kaboom).
 - Defense types in BSP (`udty`): `fort` overridden on H00V, H00W, H00L, H00K, H00X, H00A,
-  H00C; all other player ships keep the `Hpal` default **hero**. Consequence: item cannons
-  and torpedoes deal **70%** to the small/mid ships and trade boats (hero armor) and
-  **100%** to subs, flagships, Leviathan, Royal, Pirate (fort).
+  H00C; all other player ships keep the `Hpal` default **hero**. With the DamageBonusSpells
+  override (×1.00 vs both hero and fortified), spell weapons now deal **100% to ALL ships**;
+  the hero-vs-fort defense distinction only changes outcomes vs the non-spell rows (pierce/
+  siege native/Kaboom). The `udty` overrides are still compiled for those.
 - TFT physical rows that matter (attack → hero / fortified / heavy / unarmored):
   normal 100/70/100/100 · pierce 50/35/100/150 · siege 50/150/100/150.
   The lane ships (`hdes` Frigate base) and tower/HQ (`nmer` Mercenary Camp base with
@@ -64,18 +70,21 @@ liquipedia.net/warcraft/Goblin_Sapper. Hero attribute constants (25 HP/Str, 0.3 
 wowpedia "Hero (Warcraft III)". `udty`/`udef`/attribute fields: `units.json`. AIsr-applies-to-cannons:
 `equipment.json` audit + Battle Ships community lore.
 
-**CONFIDENCE.** Formula, Spells×0.70-vs-hero, magic-ignores-armor-value: **high**.
-Kaboom physical: **medium-high**. Agility −2 base offset: **medium** (standard constant,
-verify the map didn't ship a `war3mapMisc.txt`). nmer/hdes attack-type defaults: **low**
-until SLK extraction.
+**CONFIDENCE.** magic-ignores-armor-value: **high**. Kaboom physical: **medium-high**.
+Spells-vs-hero, the agility/strength offsets and the speed/level/XP constants are no longer
+guesses — **war3mapMisc.txt was recovered from the map** (`data/json/gameplay-constants.json`)
+and pins them: Spells ×1.00 vs hero, all attribute bonuses 0. nmer/hdes attack-type
+defaults: **low** until SLK extraction.
 
 **SIM DECISION.** Implement the full pipeline: attackType × defenseType table (TFT
 defaults baked into the Ruleset, overridable), armor-value factor gated on damage type
 `physical`, AIsr as a post-multiplier. Tag Phoenix-Fire and Storm-Bolt weapons
 `spells/magic`; Kaboom warheads `physical (no type mult)`; unit attacks `physical` with
-their data attack type. Compute hero HP/armor as `uhpm + 25·str` and `udef − 2 + 0.3·agi`
-in the Ruleset compiler (Classic keeps the engine math, so ships.json's `hp`/`armor`
-columns are raw fields, not effective values — document this in the ruleset). Extract
+their data attack type. Compute hero HP/armor/regen from the recovered gameplay constants:
+`maxHp = uhpm + StrHitPointBonus·str`, `armor = udef + AgiDefenseBase + AgiDefenseBonus·agi`,
+`regen = uhpr + StrRegenBonus·str` — and BSP's war3mapMisc.txt sets all four attribute
+bonuses to 0, so effective = raw. The spells row reads `DamageBonusSpells` from the same
+file (×1.00 vs hero). ships.json's `hp`/`armor` columns stay raw fields, not effective. Extract
 `hdes`/`nmer`/`hpea` SLK defaults (attack type, defense type, armor, cooldown) into
 `data/json` as a follow-up task; until then mark lane/tower attack types `pierce`/`siege`
 provisional. The missile 2× question (BALANCE.md §9.4) stays open: Classic ships `Dda2`
@@ -146,10 +155,11 @@ override and the Hpal base value awaits the 1.24 SLK extraction (PROVISIONAL lis
 
 - `umvs` is **map units per second** (ships 100–280). Speed modifiers: Endurance-aura
   style bonuses (`Oae1`, sails/ship-sails skill) are % of base speed, additive with each
-  other before clamping. Engine clamps: gameplay-constant min/max default **150 / 400**
-  (hard engine cap 522). BSP ships no `war3mapMisc.txt` was found in the extraction, so
-  defaults presumably apply — meaning Silk Sail/Propeller stacks **cap at 400**, and slow
-  effects floor at 150.
+  other before clamping. Engine clamps: **RESOLVED (war3mapMisc.txt)** — the map sets
+  `MinUnitSpeed=10`, `MaxUnitSpeed=522` (the hard engine cap). So Silk Sail/Propeller
+  stacks cap at **522** (not the editor-default 400), and slow effects floor at **10**
+  (not 150). NOTE: the old 150 floor was artificially speeding up every sub-150 hull — a
+  faithfulness bug now fixed.
 - Turn rate `umvr` is **radians per 0.03 s engine frame**; effective rotation is capped at
   ~0.20 rad/frame (≈382°/s). All BSP ships have `umvr` ≥ 0.25, i.e. **every ship turns at
   the engine cap** — the per-ship differences (1.0 starter vs 0.25 cruiser) only affect
@@ -164,17 +174,16 @@ turning mechanics"). Speed cap 400 default / 522 hard: hiveworkshop 324497,
 thehelper.net 110865, liquipedia Movement_Speed. Fields: `units.json` (`umvs`, `umvr`,
 `ucol`, `umvt`). Pathing: `war3map.wpm`/`war3map.w3e` (extracted).
 
-**CONFIDENCE.** Speed units & 522 hard cap: **high**. 400 soft cap applying to BSP:
-**medium** (hinges on absent gameplay constants — verify the original MPQ really has no
-`war3mapMisc.txt`). Turn-rate semantics: **medium-high**; "all ships at cap": **medium**.
-Min-speed 150: **medium**.
+**CONFIDENCE.** Speed clamps now **high** — `war3mapMisc.txt` recovered (MinUnitSpeed=10,
+MaxUnitSpeed=522), so there is no 400 soft cap and the floor is 10. Turn-rate semantics:
+**medium-high**; "all ships at cap": **medium**.
 
 **SIM DECISION.** Point-mass kinematics: position + heading per ship. Desired heading =
 direction to current path waypoint; rotate by `min(umvr, 0.20) × (0.05/0.03)` rad/tick
 (≈0.333 rad/tick for every ship); move `effSpeed/20` units along *current* heading each
 tick when |heading error| ≤ 90°, else rotate in place. Speed = `umvs × (1 + Σ aura%)
-× (1 + Σ item%)`, clamped to `[150, 400]` (Ruleset constants `minSpeed`/`maxSpeed` —
-overridable if the misc.txt turns up). Collision: circle-vs-circle pushout (equal split,
+× (1 + Σ item%)`, clamped to `[10, 522]` (Ruleset constants `minMoveSpeed`/`maxMoveSpeed`,
+read from war3mapMisc.txt via gameplay-constants.json — MinUnitSpeed/MaxUnitSpeed). Collision: circle-vs-circle pushout (equal split,
 deterministic entity-id processing order) + circle-vs-water-mask clamp from the extracted
 pathing map. **Divergences (accepted):** no WC3 A*/grid pathing — open water makes
 straight-line + pushout adequate; document that bridges/land funnels rely on the water
@@ -271,12 +280,17 @@ fade/transition times (~0.6 s) are collapsed to instant at tick boundaries.
   2700 / 3500 / 4400 / 5400 …
 - Kill XP from a normal unit of level L: 25, 40, 60, 85, 115, 150 … (`xp(L) = xp(L−1) +
   5L + 5`). Hero kills: 100/120/160/220/300, +100 per victim level above 5. Summons 50%.
-  Structures grant **no** kill XP (bounty only). The "creeps stop giving XP at hero 5"
-  melee rule is irrelevant here: the Imperial lane ships are owned by the team lead
-  *players* (P0/P1), not neutral hostile, so they pay full XP at any level.
-- Distribution: heroes of the killing side within **1200** of the dying unit split the XP
-  evenly; if none is in range the killing player's heroes receive it anyway (global
-  fallback).
+  **war3mapMisc.txt overrides the magnitudes** (`GrantNormalXP=15`, `GrantHeroXP=50..240`
+  one per victim level, `HeroFactorXP=80,70,…,10` scaling by killer level) and sets
+  `BuildingKillsGiveExp=1` — so structures DO grant kill XP. These are captured in
+  gameplay-constants.json; the per-kill MAGNITUDE wiring is **Phase 2** (pending a
+  war3map.j check of whether BSP awards kill XP through the engine or its own triggers),
+  so the sim currently still uses the engine-default magnitudes above. The "creeps stop
+  giving XP at hero 5" melee rule is irrelevant here: the Imperial lane ships are owned by
+  the team lead *players* (P0/P1), not neutral hostile, so they pay full XP at any level.
+- Distribution: heroes of the killing side within **`HeroExpRange`** of the dying unit
+  split the XP evenly; if none is in range the killing player's heroes receive it anyway
+  (global fallback). **RESOLVED (war3mapMisc.txt): HeroExpRange=1500** (not the 1200 guess).
 - Lane-ship levels (`ulev`): h00I = 2 (25 XP? no — level 2 ⇒ 40), h00B default, h00H = 6
   (⇒ 150 XP); mirror-side h00E/h00F/h00G are `ulev` 1/1/1 — XP values come straight from
   `units.json` levels at compile time.
@@ -286,12 +300,14 @@ fade/transition times (~0.6 s) are collapsed to instant at tick boundaries.
 - Hero skills consume 1 skill point/level; BSP skills have `alsk = 2` (a new skill rank
   every 2 hero levels): Captain's Cannon & Hide & hulls/sails/mechanics are 6-rank →
   maxing needs **hero level 11**; "Basic Cannons" (A000 doubling as a 4-rank hero skill)
-  needs level 7; Goblin Bomber unlocks at hero level 8 (`arlv = 8`). Therefore the map's
-  hero level cap was raised above the melee default 10 — the gameplay-constants file with
-  the exact cap and any XP-table overrides **was not extracted**.
-- Attributes: every ship is Str/Agi/Int 1 with 0 growth ⇒ flat +25 max HP, −1.7 net armor
-  (§1), +15 mana (unused; all costs 0), +0.05 HP/s regen, +1 native-attack damage.
-  Attributes never change, so they're compile-time constants per ship.
+  needs level 7; Goblin Bomber unlocks at hero level 8 (`arlv = 8`). **RESOLVED
+  (war3mapMisc.txt): `MaxHeroLevel=20`** (the map raised the cap to 20, well above the
+  melee default 10; the previous provisional guess was 12). `NeedHeroXP` is NOT overridden,
+  so the default cumulative curve above applies.
+- Attributes: every ship is Str/Agi/Int 1 with 0 growth, and **war3mapMisc.txt zeroes every
+  attribute bonus** (`StrHitPointBonus`/`AgiDefenseBase`/`AgiDefenseBonus`/`StrRegenBonus`/
+  `StrAttackBonus`/`IntManaBonus` = 0) ⇒ attributes contribute **nothing**: no +25 HP, no
+  −1.7 armor (§1), no +0.05 regen, no native-attack damage bonus. Compile-time per ship.
 - Death timer (scripted, not engine): respawn delay = `2 × heroLevel + 5 + random(0,3)`
   seconds (war3map.j:1836).
 
@@ -300,18 +316,23 @@ constants tutorial 68382; 1200 share radius: warcraft3.info article 232. Skill f
 `alsk`/`arlv`/`alev`: `abilities.json`. Trigger XP & death timer: `war3map.j`.
 Attributes: wowpedia Hero (Warcraft III).
 
-**CONFIDENCE.** Curves/tables: **high** (assuming default constants — same misc.txt
-caveat). Share radius & global fallback: **medium**. Level cap: **unknown value**,
-≥ 11 certain.
+**CONFIDENCE.** XP-to-level curve (NeedHeroXP not overridden): **high**. Share radius
+(1500), level cap (20), attribute-bonus zeroing: **high** — all read from the recovered
+war3mapMisc.txt. Per-kill XP MAGNITUDE under the GrantNormalXP/GrantHeroXP/HeroFactorXP
+overrides: **medium** — captured in data, formula wiring deferred to Phase 2 (verify vs
+war3map.j).
 
-**SIM DECISION.** Ruleset carries `xpToLevel[]` (default-formula table), `killXpByLevel[]`,
-`heroKillXp[]`, `xpShareRadius = 1200`, `summonXpFactor = 0.5`, `heroLevelCap` (set to
-**12** provisionally — covers every learnable rank; single most important value to
-recover from the original map's `war3mapMisc.txt`, flagged OPEN). On kill: collect the
-killing team's heroes within 1200 of the death (ascending id), split evenly (integer
-division, remainder to lowest id); if empty, full XP to the killing player's hero.
-Trigger XP applied verbatim from script-rules. Skill points: 1/level, learn rules from
-`alsk`/`arlv`. Death timer uses the match Rng for the 0–3 roll.
+**SIM DECISION.** Ruleset carries `xpToLevel[]` (default-formula table to level 20),
+`killXpByVictimLevel[]`, `heroKillXp[]`, `shareRadius = HeroExpRange (1500)`,
+`summonFactor = 0.5`, `heroLevelCap = MaxHeroLevel (20)` — the speed/HP/armor/cap/range
+constants now read from gameplay-constants.json (`readMisc` in ruleset.ts), not hardcoded.
+On kill: collect the killing team's heroes within `shareRadius` of the death (ascending
+id), split evenly (integer division, remainder to lowest id); if empty, full XP to the
+killing player's hero. Trigger XP applied verbatim from script-rules. Skill points:
+1/level, learn rules from `alsk`/`arlv`. Death timer uses the match Rng for the 0–3 roll.
+**Phase 2 (OPEN):** apply GrantNormalXP=15 / GrantHeroXP / HeroFactorXP killer-level
+scaling + BuildingKillsGiveExp to the per-kill magnitudes once the war3map.j XP path is
+confirmed (engine vs trigger).
 
 ---
 
@@ -338,8 +359,11 @@ difference for lane ships; we roll per-die (matches attack-dice convention).
 **SIM DECISION.** On death: if dying unit's bounty fields nonzero, pay
 `ubba + Σ rng.int(1, ubsi)` (ubdi independent draws) to the killing player. Killer =
 owner of the damage source of the killing blow; scripted deaths (suicide bombs, Goblin
-Bomber) follow the script's explicit payouts instead. Keep the h00E/F/G zero-bounty
-asymmetry verbatim in Classic.
+Bomber) follow the script's explicit payouts instead. **OWNER-DIRECTED divergence: ALL
+lane creeps pay.** The post-harbor twins h00E/h00F/h00G still ship `0/0d0` in the data,
+but `ruleset.ts BOUNTY_TWIN_COUNTERPART` makes each inherit its paying counterpart's
+bounty (h00E←h00I, h00F←h00B, h00G←h00H), so every lane-creep kill pays gold. Remove a
+map entry to restore the faithful zero-bounty-after-harbor anti-farm behaviour.
 
 ---
 
@@ -515,8 +539,15 @@ These never fire in default NormalPlay, so the solo-vs-AI match loop is unaffect
 
 ## Open questions (in-engine / extraction follow-ups)
 
-1. **Hero level cap + any gameplay-constant overrides** — recover `war3mapMisc.txt` from
-   the original MPQ (affects §1 agility offset, §3 speed clamps, §6 cap & XP tables).
+1. ~~**Hero level cap + any gameplay-constant overrides** — recover `war3mapMisc.txt`.~~
+   **RESOLVED.** war3mapMisc.txt was recovered from the map and is extracted to
+   `data/json/gameplay-constants.json` (extract.py `parse_misc`). It pins: all hero
+   attribute bonuses = 0 (§1: no +25 HP, no −1.7 armor, no +0.05 regen), MinUnitSpeed=10 /
+   MaxUnitSpeed=522 (§3), MaxHeroLevel=20, HeroExpRange=1500 (§6), and the
+   DamageBonusSpells override (×1.00 vs hero). The compiler reads each via `readMisc` with
+   the WC3 engine default as fallback. **Remaining Phase 2:** the per-kill XP magnitude
+   overrides (GrantNormalXP=15, GrantHeroXP, HeroFactorXP, BuildingKillsGiveExp=1) are
+   captured but not yet wired into kill-XP awards — verify against war3map.j first.
 2. **Missile effective damage 2×** (BALANCE.md §9.4) — gates W7–W9.
 3. **PF buff retarget gate & DoT 1-HP clamp** — changes Acid Bomber/Nuke behavior (§2).
 4. **`hdes`/`nmer` SLK defaults** (attack type, defense type, armor, attack cooldown) for

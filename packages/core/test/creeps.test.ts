@@ -391,6 +391,7 @@ function loadRaw(): RawDataFiles {
     upgradeCurves: loadJson('upgrade-curves.json'),
     scriptRules: loadJson('script-rules.json'),
     mapLayout: loadJson('map-layout.json'),
+    gameplayConstants: loadJson('gameplay-constants.json'),
     units: loadJson('units.json'),
     abilities: loadJson('abilities.json'),
     items: loadJson('items.json'),
@@ -417,18 +418,43 @@ describe('stepCreeps — end-to-end on the compiled Classic ruleset', () => {
   const baseline = run(7);
 
   it('creeps engage enemy towers: an enemy tower takes hit damage', () => {
-    // Towers (instanceKey starts with the n004 tower placement key) are hit by
-    // creeps that hold at the chokepoint. Find any hit on a tower entity.
-    const towerIds = new Set<number>();
-    for (const id of sortedNumericKeys(baseline.state.entities)) {
-      const e = baseline.state.entities[id];
-      if (e && e.kind === 'structure' && e.role === 'tower') towerIds.add(e.id);
-    }
-    const towerHits = baseline.events.filter(
-      (e): e is Extract<SimEvent, { type: 'hit' }> =>
-        e.type === 'hit' && towerIds.has(e.targetEntityId),
+    // Opposing waves now CLASH where they meet (movement.ts halts an attack-
+    // moving creep while an enemy is in its arc), so in a PERFECTLY symmetric
+    // open-sea mirror — no hero to tip a lane, no land funnel to break the
+    // symmetry — the front sits at mid-lane and creeps may never leak to a tower.
+    // To pin the creep->tower engagement deterministically we disable the NORTH
+    // spawn buildings so SOUTH creeps advance UNOPPOSED to the north towers and
+    // hold + fire on them. ownHarborKey resolves to role 'spawnBuilding' (not the
+    // HQ), so the match does not end; the dead buildings are reaped next tick and
+    // structureAlive then gates north spawning off. (The mid-lane clash itself is
+    // pinned by the 'opposing creeps still fight' case below + terrain-integration.)
+    const state = createMatch(ruleset, 7, []);
+    const northSpawnKeys = new Set(
+      ruleset.map.lanes.filter((l) => l.team === 'north').map((l) => l.ownHarborKey),
     );
-    expect(towerHits.length).toBeGreaterThan(0);
+    for (const id of sortedNumericKeys(state.entities)) {
+      const e = state.entities[id];
+      if (e && e.kind === 'structure' && northSpawnKeys.has(e.instanceKey)) {
+        e.dead = true;
+        e.hp = 0;
+      }
+    }
+    const northTowerIds = new Set<number>();
+    for (const id of sortedNumericKeys(state.entities)) {
+      const e = state.entities[id];
+      if (e && e.kind === 'structure' && e.role === 'tower' && e.team === 'north') {
+        northTowerIds.add(e.id);
+      }
+    }
+    expect(northTowerIds.size).toBeGreaterThan(0);
+    let towerHits = 0;
+    for (let t = 0; t < 6000; t++) {
+      applyCommands(state, ruleset, []);
+      for (const ev of stepTick(state, ruleset)) {
+        if (ev.type === 'hit' && northTowerIds.has(ev.targetEntityId)) towerHits += 1;
+      }
+    }
+    expect(towerHits).toBeGreaterThan(0);
   });
 
   it('opposing creeps still fight: cross-team creep deaths with kill credit', () => {

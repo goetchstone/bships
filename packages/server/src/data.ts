@@ -29,6 +29,7 @@ export function loadRawDataFiles(): RawDataFiles {
     scriptRules: loadJson('script-rules.json'),
     mapLayout: loadJson('map-layout.json'),
     terrain: loadJson('terrain.json'),
+    gameplayConstants: loadJson('gameplay-constants.json'),
     units: loadJson('units.json'),
     abilities: loadJson('abilities.json'),
     items: loadJson('items.json'),

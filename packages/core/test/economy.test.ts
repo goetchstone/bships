@@ -1277,6 +1277,34 @@ describe('buyShip', () => {
     expect(eventsOfType(state, 'commandRejected')[0]?.reason).toBe('notSoldHere');
     expect(state.players[2]!.shipTypeId).toBe('H000');
   });
+
+  it('Change Ship keeps the level and TRANSFERS skill points (refunds ranks the new hull lacks)', () => {
+    const p = state.players[2]!;
+    p.gold = 1200;
+    p.level = 5;
+    p.xp = 1234;
+    p.unspentSkillPoints = 1;
+    // A learnable skill on the starting hull (H000) that H003 does NOT have, so
+    // its spent ranks would otherwise be stranded on a now-unusable ability.
+    const h000 = ruleset.ships['H000']!;
+    const h003 = ruleset.ships['H003']!;
+    const orphanSkill = h000.abilityIds.find(
+      (id) => ruleset.abilities[id]?.skill && !h003.abilityIds.includes(id),
+    );
+    expect(orphanSkill, 'fixture needs a starting-hull skill the H003 lacks').toBeDefined();
+    p.heroSkillLevels = { [orphanSkill!]: 2 }; // 2 ranks spent (2 points)
+
+    applyEconomyCommand(state, ruleset, { type: 'buyShip', player: 2, shopId: SHIPYARD_ID, shipTypeId: 'H003' });
+
+    // Level/xp untouched ("level is level"); the 2 stranded ranks are refunded to
+    // the 1 already-unspent point => 3 points to re-spend on the new hull, and the
+    // orphan rank is cleared (no longer counted against a skill you can't use).
+    expect(p.shipTypeId).toBe('H003');
+    expect(p.level).toBe(5);
+    expect(p.xp).toBe(1234);
+    expect(p.unspentSkillPoints).toBe(3);
+    expect(p.heroSkillLevels[orphanSkill!]).toBeUndefined();
+  });
 });
 
 // ---------------------------------------------------------------------------

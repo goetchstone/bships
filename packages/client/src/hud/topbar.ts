@@ -5,7 +5,7 @@
  * needs to capture clicks, so game clicks under it still reach the canvas.
  */
 
-import { store } from '../net/store.js';
+import { onEvent, store } from '../net/store.js';
 import type { HudContext } from './context.js';
 import { el } from './context.js';
 import { xpProgress } from './hudmath.js';
@@ -14,6 +14,27 @@ export function initTopbar(ctx: HudContext): void {
   const bar = el('div', 'bh-topbar', ctx.root);
 
   const gold = stat(bar, 'bh-gold', '\u{1FA99}', 'Gold');
+  // Bounty (gold-on-kill) feedback: a brief "+Ng" floater by the gold counter
+  // that ACCUMULATES rapid kills into one number (so a creep-wave burst reads as
+  // one "+45g", not a flicker), plus a running total earned from kills this life
+  // surfaced in the gold tooltip. Client-only, driven by the 'bounty' sim event.
+  const goldGain = el('span', 'bh-goldgain', gold.value.parentElement ?? bar);
+  let gainAcc = 0;
+  let totalFromKills = 0;
+  let gainTimer: ReturnType<typeof setTimeout> | null = null;
+  onEvent((ev) => {
+    if (ev.type !== 'bounty' || ev.player !== store.match.mySlot) return;
+    gainAcc += ev.amount;
+    totalFromKills += ev.amount;
+    goldGain.textContent = `+${gainAcc}`;
+    goldGain.classList.add('bh-show');
+    gold.value.parentElement?.setAttribute('title', `Gold (earned from kills: ${totalFromKills})`);
+    if (gainTimer !== null) clearTimeout(gainTimer);
+    gainTimer = setTimeout(() => {
+      goldGain.classList.remove('bh-show');
+      gainAcc = 0;
+    }, 1400);
+  });
   divider(bar);
   const lumber = stat(bar, 'bh-lumber', '\u{1FAB5}', 'Lumber (contracts)');
   divider(bar);
@@ -29,6 +50,12 @@ export function initTopbar(ctx: HudContext): void {
 
   const kd = stat(bar, 'bh-kd', '\u{2694}', 'Kills / Deaths');
   divider(bar);
+
+  // Respawn countdown: shown only while your ship is dead (you.respawnAtTick in
+  // the future). Hidden when alive so it never clutters the live bar.
+  const respawn = stat(bar, 'bh-respawn', '\u{2620}', 'Respawning');
+  const respawnCell = respawn.value.parentElement as HTMLElement;
+  const respawnDivider = el('span', 'bh-divider bh-respawn', bar);
 
   // Connection: a colored dot plus the numeric RTT for at-a-glance health.
   const rttWrap = el('div', 'bh-stat bh-rtt', bar);
@@ -53,7 +80,17 @@ export function initTopbar(ctx: HudContext): void {
     }
     const slot = store.match.mySlot;
     const me = slot === null ? undefined : store.match.players.find((p) => p.slot === slot);
-    kd.value.textContent = me !== undefined ? `${me.kills}/${me.deaths}` : '0/0';
+    kd.value.textContent = me !== undefined ? `${me.kills} / ${me.deaths}` : '0 / 0';
+
+    // Respawn timer: count down from you.respawnAtTick using the latest sim tick.
+    const respawnAt = you?.respawnAtTick ?? null;
+    const dead = respawnAt !== null && respawnAt > store.match.latestTick;
+    respawnCell.hidden = !dead;
+    respawnDivider.hidden = !dead;
+    if (dead && respawnAt !== null) {
+      const secs = Math.max(0, Math.ceil((respawnAt - store.match.latestTick) / ctx.catalog.tickRate));
+      respawn.value.textContent = `${secs}s`;
+    }
 
     const { status, rttMs } = store.connection;
     let cls = 'bh-rtt-dot ';
