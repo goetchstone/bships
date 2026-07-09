@@ -94,6 +94,7 @@ import {
   rollInt,
   sortedNumericKeys,
 } from './types.js';
+import { GEM_TRUE_SIGHT_ITEM_ID, GEM_TRUE_SIGHT_RADIUS, invalidateVisionMemo } from './vision.js';
 import type {
   AbilitySpec,
   CastAbilityCommand,
@@ -140,8 +141,6 @@ const REPAIR_BAY_SERVICE_TICKS = 30;
  * stock gemt radius live here as PROVISIONAL constants (SEMANTICS §5,
  * confidence medium) — open question to move into the Ruleset.
  */
-const GEM_TRUE_SIGHT_ITEM_ID = 'I00F';
-const GEM_TRUE_SIGHT_RADIUS = 900;
 
 /**
  * Warhead WeaponSpecs always carry a projectile speed (dummy umvs 200-400);
@@ -194,10 +193,13 @@ interface DetectorPoint {
 /**
  * Recompute entity.vision for every unit from invisibility statuses,
  * detectors and detection zones. Exported for tests; stepSpecials calls it
- * after all status/position changes of this phase. Fog-of-war is not
- * modeled — a non-invisible unit is visible to both teams.
+ * after all status/position changes of this phase. These flags track ONLY
+ * invisibility-vs-detection; the sight-radius FOG layer is vision.ts
+ * (composed on top by combat targeting, the AI scans and the server
+ * snapshot filter).
  */
 export function recomputeVisibility(state: SimState, ruleset: Ruleset): void {
+  invalidateVisionMemo(state); // fresh fog verdicts for the combat phase
   const detectors: Record<TeamId, DetectorPoint[]> = { south: [], north: [] };
 
   for (const id of sortedNumericKeys(state.entities)) {

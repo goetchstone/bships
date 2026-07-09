@@ -24,7 +24,7 @@ import type {
   Status,
   TeamId,
 } from '@bships/core';
-import { computeTeamVision, collectVisibleEntities, coveredBy, isProjectileVisible } from './visibility.js';
+import { computeTeamVision, collectVisibleEntities, coveredSight, isProjectileVisible } from './visibility.js';
 import type { TeamVision } from './visibility.js';
 
 /** Round to 0.1 (display precision; shrinks payloads). */
@@ -268,7 +268,7 @@ export function filterEventsForSeat(
         if (
           playerTeam(ev.victimPlayer) === team ||
           visibleIds.has(ev.entityId) ||
-          coveredBy(vision.sight, ev.x, ev.y)
+          coveredSight(vision.sight, vision.mask, ev.x, ev.y)
         ) {
           out.push(ev);
           break;

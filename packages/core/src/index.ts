@@ -9,6 +9,7 @@ export * from './sim/types.js';
 export * from './sim/ruleset.js';
 export * from './sim/sim.js';
 export * from './sim/ai.js';
+export * from './sim/vision.js';
 
 // Client<->server wire protocol (shared by @bships/server and @bships/client).
 export * from './protocol.js';
