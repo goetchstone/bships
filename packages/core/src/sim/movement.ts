@@ -792,7 +792,7 @@ const DOCK_APPROACH_LOCAL_GOAL_CELLS = 1;
  *  coast-hugging start is not a false positive. On a stub mask (isWater always
  *  true) this is always false — open-sea movement is unchanged. Pure arithmetic
  *  + isWater: deterministic. */
-function segmentCrossesLand(mask: WaterMask, x0: number, y0: number, x1: number, y1: number): boolean {
+export function segmentCrossesLand(mask: WaterMask, x0: number, y0: number, x1: number, y1: number): boolean {
   const dx = x1 - x0;
   const dy = y1 - y0;
   const len = Math.sqrt(dx * dx + dy * dy);

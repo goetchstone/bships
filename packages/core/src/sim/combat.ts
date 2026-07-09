@@ -61,6 +61,7 @@
 
 import { dist } from '../math.js';
 import { breakInvisibilityOnAction } from './specials.js';
+import { isVisibleToTeamFog } from './vision.js';
 import {
   allocEntityId,
   isCombatant,
@@ -196,8 +197,16 @@ function armorFactor(ruleset: Ruleset, armor: number): number {
 // Target validity
 // ---------------------------------------------------------------------------
 
-function visibleToTeam(target: Entity, team: TeamId): boolean {
-  return 'vision' in target ? target.vision[team] : true;
+/**
+ * Team-fog target validity (owner-reported fix: weapons could acquire
+ * targets INTO the fog — ranges reach 2500u vs 1800u max sight, and the
+ * invisibility flags alone gated nothing at distance). A unit may only
+ * acquire/cast at what its TEAM currently sees: the sim-owned invisibility
+ * flag AND the shared sight-circle fog (structures are public map
+ * knowledge). Memoized per (state, tick) — see vision.ts.
+ */
+function visibleToTeam(state: SimState, ruleset: Ruleset, target: Entity, team: TeamId): boolean {
+  return isVisibleToTeamFog(state, ruleset, target, team);
 }
 
 function matchesFilter(filter: TargetFilter, target: Combatant): boolean {
@@ -248,7 +257,7 @@ function isValidWeaponTarget(
   if (weapon.rangeUnits !== null && dist(x, y, target.x, target.y) > weapon.rangeUnits) {
     return false;
   }
-  return visibleToTeam(target, team);
+  return visibleToTeam(state, ruleset, target, team);
 }
 
 // ---------------------------------------------------------------------------
@@ -624,7 +633,7 @@ export function castStormBolt(
   ) {
     return fail('invalidTarget');
   }
-  if (!visibleToTeam(target, caster.team)) return fail('targetNotVisible');
+  if (!visibleToTeam(state, ruleset, target, caster.team)) return fail('targetNotVisible');
   if (
     weapon.rangeUnits !== null &&
     dist(caster.x, caster.y, target.x, target.y) > weapon.rangeUnits
@@ -737,7 +746,7 @@ function selectAttackTarget(
     target.team !== team &&
     matchesFilter(attack.targets, target) &&
     !isInvulnerableTarget(state, ruleset, target) &&
-    visibleToTeam(target, team) &&
+    visibleToTeam(state, ruleset, target, team) &&
     dist(attacker.x, attacker.y, target.x, target.y) <= attack.rangeUnits;
   if (isUnitEntity(attacker)) {
     const order = attacker.order;

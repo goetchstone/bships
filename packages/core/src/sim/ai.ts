@@ -70,6 +70,7 @@ import type {
   TeamId,
 } from './types.js';
 import { enemyTeam, sortedNumericKeys } from './types.js';
+import { isVisibleToTeamFog } from './vision.js';
 import type { AiMemory } from './types.js';
 
 // ---------------------------------------------------------------------------
@@ -308,7 +309,7 @@ export function computeAiCommands(
   // is the core of the AI-mirror stalemate (both sides disengage at 40% and
   // full-heal forever). Floored at half the retreat threshold so a bot still
   // flees a losing race at deep HP. Deterministic scan, no rng.
-  const weakestFoe = weakestEnemyShipFraction(state, ship, team);
+  const weakestFoe = weakestEnemyShipFraction(state, ruleset, ship, team);
   const killCommit =
     weakestFoe !== null &&
     weakestFoe < hpFraction &&
@@ -477,7 +478,7 @@ export function computeAiCommands(
   let targetX = laneCorridorX(ruleset, laneId, enemyHq.x);
   let targetY = enemyHq.y;
   if (rng.next() < tuning.microQuality) {
-    const target = pickCombatTarget(state, ship, team);
+    const target = pickCombatTarget(state, ruleset, ship, team);
     if (target) {
       // Step from the ship through the target and a little beyond, toward the
       // HQ, so the attack-move advances through the brawl rather than stalling.
@@ -492,7 +493,7 @@ export function computeAiCommands(
       // takes incidental chip and never falls). Targeting the structure
       // directly (not the distant HQ point) is what makes carried weapons fire
       // at it. Runs for ALL difficulties so every match can end.
-      const siege = pickSiegeTarget(state, ship, team);
+      const siege = pickSiegeTarget(state, ruleset, ship, team);
       if (siege) {
         targetX = siege.x;
         targetY = siege.y;
@@ -502,9 +503,9 @@ export function computeAiCommands(
     // Below the micro gate the bot still sieges when no fight is nearby — the
     // micro gate only governs the finer "aim past the brawl" step, not whether
     // the bot bothers to attack the structures blocking its push.
-    const near = pickCombatTarget(state, ship, team);
+    const near = pickCombatTarget(state, ruleset, ship, team);
     if (!near) {
-      const siege = pickSiegeTarget(state, ship, team);
+      const siege = pickSiegeTarget(state, ruleset, ship, team);
       if (siege) {
         targetX = siege.x;
         targetY = siege.y;
@@ -1090,6 +1091,7 @@ function maybeResearch(
  */
 function pickCombatTarget(
   state: SimState,
+  ruleset: Ruleset,
   ship: ShipEntity,
   team: TeamId,
 ): Combatant | null {
@@ -1104,7 +1106,7 @@ function pickCombatTarget(
     const e = state.entities[id];
     if (!e || (e.kind !== 'ship' && e.kind !== 'creep')) continue;
     if (e.dead || e.team === null || e.team === team) continue;
-    if (!visibleToTeam(e, team)) continue;
+    if (!visibleToTeam(state, ruleset, e, team)) continue;
     const d = dist(ship.x, ship.y, e.x, e.y);
     if (d > radius) continue;
     if (e.kind === 'ship') {
@@ -1147,12 +1149,12 @@ const FINISH_HP_FRACTION = 0.45;
  * none. Feeds the KILL-COMMIT retreat suppression (see the stance block).
  * Ascending-id scan; no rng.
  */
-function weakestEnemyShipFraction(state: SimState, ship: ShipEntity, team: TeamId): number | null {
+function weakestEnemyShipFraction(state: SimState, ruleset: Ruleset, ship: ShipEntity, team: TeamId): number | null {
   let weakest: number | null = null;
   for (const id of sortedNumericKeys(state.entities)) {
     const e = state.entities[id];
     if (!e || e.kind !== 'ship' || e.dead || e.team === null || e.team === team) continue;
-    if (!visibleToTeam(e, team)) continue;
+    if (!visibleToTeam(state, ruleset, e, team)) continue;
     if (dist(ship.x, ship.y, e.x, e.y) > AGGRO_TARGET_RADIUS) continue;
     const frac = e.maxHp > 0 ? e.hp / e.maxHp : 1;
     if (weakest === null || frac < weakest) weakest = frac;
@@ -1181,6 +1183,7 @@ const SIEGE_TARGET_RADIUS = 2200;
  */
 function pickSiegeTarget(
   state: SimState,
+  ruleset: Ruleset,
   ship: ShipEntity,
   team: TeamId,
 ): StructureEntity | null {
@@ -1193,7 +1196,7 @@ function pickSiegeTarget(
     if (!e || e.kind !== 'structure' || e.dead) continue;
     if (e.team === null || e.team === team) continue; // own/neutral: skip
     if (e.role !== 'tower' && e.role !== 'hq') continue;
-    if (!visibleToTeam(e, team)) continue;
+    if (!visibleToTeam(state, ruleset, e, team)) continue;
     const d = dist(ship.x, ship.y, e.x, e.y);
     if (d > SIEGE_TARGET_RADIUS) continue;
     if (e.role === 'tower') {
@@ -1218,9 +1221,14 @@ function pickSiegeTarget(
  */
 const ENGAGE_PUSH_THROUGH = 400;
 
-/** A team's vision over an entity, the way a human's targeting sees it. */
-function visibleToTeam(target: Entity, team: TeamId): boolean {
-  return 'vision' in target ? target.vision[team] : true;
+/**
+ * A team's vision over an entity, the way a human's targeting sees it:
+ * invisibility flags AND the shared sight-circle fog (vision.ts) — the bot
+ * may only react to what its team actually sees (owner-reported fix: the AI
+ * used to see through the fog of war). Memoized per (state, tick).
+ */
+function visibleToTeam(state: SimState, ruleset: Ruleset, target: Entity, team: TeamId): boolean {
+  return isVisibleToTeamFog(state, ruleset, target, team);
 }
 
 // --- Use abilities: learn a sensible hero build + cast offensive skills -------
@@ -1299,7 +1307,7 @@ function maybeCastOffensive(
   for (const id of sortedNumericKeys(state.entities)) {
     const e = state.entities[id];
     if (!e || e.dead || e.team === null || e.team === team) continue;
-    if (!visibleToTeam(e, team)) continue;
+    if (!visibleToTeam(state, ruleset, e, team)) continue;
     const d = dist(ship.x, ship.y, e.x, e.y);
     if (d > ABILITY_CAST_RADIUS) continue;
     if (e.kind === 'ship') {
