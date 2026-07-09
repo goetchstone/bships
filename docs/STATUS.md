@@ -299,12 +299,16 @@ missing the nuances."** Scope decision: work ALL open items, in this order.
    from existing bounty events (mirror the kills/deaths Maps in
    `server/src/match.ts`; `goldEarned` on MatchEnded is stubbed to 0 today), new
    field on `PublicPlayerStat`, scoreboard column.
-3. **Map fidelity nuances (owner's #2, task #14).** Connectivity is solid; the
-   gap is topology (lanes, islands, entrances). Regenerate the terrain compare
-   artifacts, produce an annotated original-vs-mask divergence report, get the
-   owner's eye on WHICH nuances matter, then adjust `terrain.py`
-   classify/carve parameters and regenerate `terrain.json`. Canaries: NavField /
-   creep-lane / AI-trader tests.
+3. **Map fidelity nuances (owner's #2, task #14) — ROOT CAUSE FIXED 2026-07-08.**
+   Owner: "the top right lane should not merge into the one just south along the
+   east edge." The minimap NON-BLUE colour key over-watered (~0.66): green
+   'shallow' paint is often visually-wet-but-UNSAILABLE, merging lanes the real
+   map separates. Sailability now comes from **war3map.wpm** (the pathing map,
+   bit 0x40 = no-water — the engine's own truth): ~0.55 sailable, 26/26 anchors
+   sailable, colour key agreed with it on only 68% of cells. All gates pass with
+   near-zero carving (2 neck cells vs 17 before) and the full 1,240-test suite
+   passed UNCHANGED on the new topology. The minimap colours remain as depth
+   render metadata. Remaining nuance polish is owner-eye-driven from here.
 4. **Kill-XP magnitude overrides (research-gated).** Data is captured in
    gameplay-constants.json (GrantNormalXP=15, GrantHeroXP=50..240,
    HeroFactorXP=80..10, BuildingKillsGiveExp=1) and kill XP is confirmed

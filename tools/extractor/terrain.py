@@ -205,6 +205,51 @@ WEST_ISLAND_CORE_R = 2   # filled (2R+1)x(2R+1) land core; moat ring at chebyshe
 # ---------------------------------------------------------------------------
 
 
+def parse_wpm(raw: bytes) -> dict:
+    """Parse war3map.wpm (the PATHING MAP): 'MP3W' magic, version i32, width
+    i32, height i32, then width*height flag bytes, row 0 = SOUTH (same as the
+    w3e). Cells are 32x32 world units (4x4 per 128u terrain tile). Bit 0x40 =
+    NO WATER: floating units (ships) cannot occupy the cell. This is the
+    ENGINE'S OWN sailability truth -- what the original map actually enforced
+    in play -- and it is the authority for the `water` mask (owner-confirmed
+    2026-07-08: the minimap colour key over-waters, merging lanes that the
+    real map separates with unsailable painted-water bands)."""
+    if raw[:4] != b"MP3W":
+        raise SystemExit("not a war3map.wpm (missing 'MP3W' magic)")
+    version, width, height = struct.unpack_from("<iii", raw, 4)
+    if version != 0:
+        print(f"terrain: warning: unexpected wpm version {version} (expected 0)", file=sys.stderr)
+    flags = raw[16 : 16 + width * height]
+    if len(flags) != width * height:
+        raise SystemExit(f"terrain: wpm truncated ({len(flags)} of {width * height} cells)")
+    return {"width": width, "height": height, "flags": flags}
+
+
+def wpm_sailable_grid(geom: dict, wpm: dict, map_min_x: float, map_min_y: float) -> list[list[int]]:
+    """North-first 0/1 SAILABILITY grid per playable tilepoint: majority of the
+    16 wpm subcells (4x4 x 32u) under the 128u cell that do NOT carry the
+    no-water bit. Same shape/orientation as classify_grid's output."""
+    cols, nrows = geom["cols"], geom["rows"]
+    ww, wh, flags = wpm["width"], wpm["height"], wpm["flags"]
+    grid: list[list[int]] = []
+    for r in range(nrows):
+        line: list[int] = []
+        for c in range(cols):
+            x, y = cell_center(c, r, geom)
+            total = sailable = 0
+            for oy in (-48.0, -16.0, 16.0, 48.0):
+                for ox in (-48.0, -16.0, 16.0, 48.0):
+                    wx = int((x + ox - map_min_x) // 32)
+                    wy = int((y + oy - map_min_y) // 32)
+                    if 0 <= wx < ww and 0 <= wy < wh:
+                        total += 1
+                        if not (flags[wy * ww + wx] & 0x40):
+                            sailable += 1
+            line.append(1 if (total > 0 and sailable / total >= 0.5) else 0)
+        grid.append(line)
+    return grid
+
+
 def parse_w3e(raw: bytes) -> dict:
     """Parse war3map.w3e -> width/height/centerOffset. We only need the grid
     dimensions and origin to crop the playable tilepoint rectangle; the water
@@ -1197,9 +1242,10 @@ def validate(rows: list[list[int]], layout: dict, geom: dict) -> dict:
     # trace. Band [0.55, 0.70] (target the playable-crop NON-BLUE read).
     wf = water_fraction(rows)
     report["waterFraction"] = round(wf, 4)
-    if not (0.55 <= wf <= 0.70):
-        raise SystemExit(f"terrain: water fraction {wf:.3f} out of NON-BLUE range [0.55, 0.70] "
-                         "(land = blue-dominant pixels only; NOT the old ~0.29 yellow-only trace)")
+    if not (0.50 <= wf <= 0.62):
+        raise SystemExit(f"terrain: water fraction {wf:.3f} out of the wpm band [0.50, 0.62] "
+                         "(the pathing map reads ~0.55 sailable over the playable crop; "
+                         "well above = colour-key-style over-watering, well below = over-dry)")
 
     def lane_runs(col_range, row_range) -> list[int]:
         out: list[int] = []
@@ -1595,8 +1641,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--w3e", type=Path, default=Path("data/extracted/war3map.w3e"))
+    parser.add_argument("--wpm", type=Path, default=Path("data/extracted/war3map.wpm"),
+                        help="THE sailability authority: the map's pathing map (bit 0x40 = no-water)")
     parser.add_argument("--minimap", type=Path, default=Path("data/reference/war3mapMap.png"),
-                        help="THE picture to classify (NON-BLUE = sailable water; blue = land)")
+                        help="the minimap picture: depth RENDER metadata + informational colour key")
     parser.add_argument("--layout", type=Path, default=Path("data/json/map-layout.json"))
     parser.add_argument("--out", type=Path, default=Path("data/json/terrain.json"))
     parser.add_argument("--compare", type=Path, default=Path("data/reference/colorkey-compare.png"),
@@ -1609,7 +1657,10 @@ def main() -> None:
     args = parser.parse_args()
 
     if not args.minimap.exists():
-        raise SystemExit(f"terrain: minimap {args.minimap} not found -- it is the trace authority")
+        raise SystemExit(f"terrain: minimap {args.minimap} not found -- needed for depth metadata")
+    if not args.wpm.exists():
+        raise SystemExit(f"terrain: pathing map {args.wpm} not found -- it is the sailability "
+                         "authority (run `make extract` to decode it from your .w3x)")
 
     w3e = parse_w3e(args.w3e.read_bytes())
     layout = json.loads(args.layout.read_text())
@@ -1618,19 +1669,25 @@ def main() -> None:
 
     mm_w, mm_h, mm_px = decode_png_rgb(args.minimap)
 
-    # 1. raw NON-BLUE water classification (the owner's confirmed colour key:
-    # sailable water = yellow deep + green shallow + pink passable; LAND = only
-    # the blue-dominant ridge pixels). `nonblue` is the immutable minimap-key
-    # reference G2 compares the final mask against.
+    # 1. SAILABILITY from the pathing map (war3map.wpm bit 0x40 = no-water):
+    # the engine's own truth for where ships could sail in the original. The
+    # prior NON-BLUE minimap colour key over-watered (~0.66 vs the wpm's
+    # ~0.55): green "shallow" paint is often visually-wet-but-UNSAILABLE, which
+    # merged lanes the real map separates (owner-reported: the NE lane must NOT
+    # merge into the east-edge lane; the wpm separates them, 26/26 known
+    # anchors -- HQs/harbours/spawns/lane waypoints -- sit sailable).
+    wpm = parse_wpm(args.wpm.read_bytes())
+    sail = wpm_sailable_grid(geom, wpm, w3e["centerX"], w3e["centerY"])
+    # The colour key stays for depth RENDER metadata + an informational
+    # agreement stat (how far the picture is from the pathing truth).
     nonblue = classify_grid(geom, mm_w, mm_h, mm_px, is_water)
     # The connectivity-neck Dijkstra biases toward existing water (cost 1) over
-    # land (LAND_COST); under the NON-BLUE key there is no separate faint band, so
-    # the bias grid IS the water classification itself.
-    soft = nonblue
+    # land (LAND_COST); the bias grid IS the sailability grid itself.
+    soft = sail
 
-    # rows = the working mask; keep `nonblue` (after the same denoise) as the
-    # colour-key reference for the G2 agreement.
-    rows = [list(r) for r in nonblue]
+    # rows = the working mask; keep the denoised raw wpm grid as the reference
+    # the G2 agreement compares the final (carved) mask against.
+    rows = [list(r) for r in sail]
     removed = drop_singletons(rows, geom["cols"], geom["rows"])
     ref_after_denoise = [list(r) for r in rows]  # the reference G2 compares against
 
@@ -1668,16 +1725,26 @@ def main() -> None:
     }
     compare_report = agreement_and_compare(rows, ref_after_denoise, depth, geom,
                                            mm_w, mm_h, mm_px, args.compare)
-    report["minimapAgreement"] = compare_report["agreement"]
-    report["minimapConfusion"] = (
+    report["wpmAgreement"] = compare_report["agreement"]
+    report["wpmConfusion"] = (
         f"agree={compare_report['agreeFrac']} ours-only(necks/moats)={compare_report['oursOnlyFrac']} "
         f"ref-only(denoised)={compare_report['refOnlyFrac']}"
     )
     report["depthSplitLandDeepShallowPink"] = compare_report["landDeepShallowPink"]
-    # (G2) hard gate: per-tile land-vs-water agreement vs the minimap colour key.
-    if compare_report["agreement"] < 0.90:
-        raise SystemExit(f"terrain: minimap colour-key agreement {compare_report['agreement']:.3f} "
-                         "< 0.90 (the rebuilt land/water mask does not match the minimap, G2)")
+    # (G2) hard gate: the final mask must stay close to the RAW wpm sailability
+    # (only the minimal carved necks/moats may differ).
+    if compare_report["agreement"] < 0.97:
+        raise SystemExit(f"terrain: wpm sailability agreement {compare_report['agreement']:.3f} "
+                         "< 0.97 (the carved mask drifted from the pathing-map truth, G2)")
+    # Informational: how far the minimap colour key sits from the pathing
+    # truth (the old authority; ~0.68 -- the picture over-waters).
+    ck_agree = sum(
+        1
+        for r in range(geom["rows"])
+        for c in range(geom["cols"])
+        if bool(rows[r][c]) == bool(nonblue[r][c])
+    ) / (geom["rows"] * geom["cols"])
+    report["colourKeyAgreement"] = round(ck_agree, 4)
 
     # Deliverable: zoomed [before | after] of the two west sail-around loops.
     if args.westloop is not None:
@@ -1685,44 +1752,43 @@ def main() -> None:
 
     out = {
         "_comment": (
-            "Static land/water mask. SAILABLE WATER = the embedded minimap's "
-            "NON-BLUE region (data/reference/war3mapMap.png; the owner-confirmed "
-            "picture): the YELLOW/tan DEEP-water cross + the GREEN SHALLOW-water "
-            "rings + the PINK/magenta passable shallows. LAND = ONLY the "
-            "blue-dominant ridge pixels (B>R). Classified per terrain tile (3x3 "
-            "patch majority, letterbox-aware registration). This is the faithful "
-            "~half-water silhouette; it REPLACES the prior yellow-only 'tan' trace "
-            "that kept only the deep cross (~0.29) and called the green+pink land "
-            "-- far too dry. The green shallow water RINGS the blue ridge cores, so "
-            "the west sail-around island loops + the side routes emerge naturally. "
-            "The ONLY additions on top of the raw classification are MINIMAL 1-cell "
-            "connectivity necks (so every shop + dock/spawn reaches the sea and the "
-            "two bases stay water-connected) PLUS the two owner-approved WEST "
-            "sail-around island moats: each of the two west-island shops (Swedish "
-            "Lumber Mill, Goblin Potion Dealer) sits on a compact land core ringed "
-            "by a thin 1-cell navigable water loop with EXACTLY ONE narrow entrance "
-            "(sail in, loop around the island, sail out the same way; CARVED as a "
-            "deterministic post-step). water=true is ship-navigable. The OPTIONAL "
-            "`depth` field (0=land,1=deep,2=shallow,3=pink) is additive render "
-            "metadata the SIM IGNORES (sailability is purely water-vs-land); it "
-            "lets a client paint the three water shades + land like the minimap. "
-            "Regenerate with: make terrain (tools/extractor/terrain.py; pure "
-            "stdlib, reads the committed PNG+w3e, no venv). yOrientation 'top-down' "
-            "means rle row 0 is the NORTH (max-Y) edge."
+            "Static land/water mask. SAILABLE WATER = the map's own PATHING MAP "
+            "(data/extracted/war3map.wpm, bit 0x40 = no-water, 4x4 32u subcells "
+            "per 128u tile, majority vote): the engine's truth for where ships "
+            "could actually sail in the original. This REPLACES the minimap "
+            "NON-BLUE colour key (~0.66 water), which over-watered: green "
+            "'shallow' paint is often visually-wet-but-UNSAILABLE, merging lanes "
+            "the real map separates (owner-reported 2026-07-08: the NE lane must "
+            "NOT merge into the east-edge lane; the wpm separates them). The wpm "
+            "reads ~0.55 sailable over the playable crop and all 26 known "
+            "anchors (HQs, harbours, spawns, lane waypoints) sit sailable. The "
+            "ONLY additions on top of the raw wpm grid are MINIMAL 1-cell "
+            "connectivity necks (so every shop + dock/spawn reaches the sea and "
+            "the two bases stay water-connected) PLUS the two owner-approved "
+            "WEST sail-around island moats (Swedish Lumber Mill, Goblin Potion "
+            "Dealer: land core + thin 1-cell navigable ring + EXACTLY ONE "
+            "entrance; deterministic post-step). water=true is ship-navigable. "
+            "The OPTIONAL `depth` field (0=land,1=deep,2=shallow,3=pink) is "
+            "additive render metadata the SIM IGNORES; the minimap colours "
+            "band each FINAL water cell so a client paints the water shades "
+            "like the original. Regenerate with: make terrain "
+            "(tools/extractor/terrain.py; pure stdlib, reads wpm+w3e+PNG, no "
+            "venv). yOrientation 'top-down' means rle row 0 is the NORTH "
+            "(max-Y) edge."
         ),
-        "source": "data/reference/war3mapMap.png (embedded minimap, NON-BLUE=water) + data/extracted/war3map.w3e (grid geometry only)",
-        "target": "data/reference/war3mapMap.png (the minimap is BOTH the source and the target -- we classify it directly by the owner's colour key)",
+        "source": "data/extracted/war3map.wpm (pathing map, bit 0x40=no-water; THE sailability authority) + data/extracted/war3map.w3e (grid geometry) + data/reference/war3mapMap.png (depth render metadata only)",
+        "target": "the original map's enforced ship-pathing (wpm no-water), cropped to the playable rectangle",
         "rule": (
-            "water = minimap NON-BLUE per tile (LAND iff B>R among non-white "
-            "content; WATER = yellow deep + green shallow + pink passable; 3x3 "
-            "patch majority; letterbox-aware registration calibrated on dock "
-            "coords) MINUS singleton speckle, PLUS minimal 1-cell connectivity "
-            "necks (Dijkstra cost 1 water / 30 land) for shops, docks/spawns and "
-            "base-to-base, PLUS the two carved WEST sail-around island moats "
-            "(compact land core + thin 1-cell water ring + exactly one entrance) "
-            "around the Swedish Lumber Mill and Goblin Potion Dealer shops. depth "
-            "sub-classifies water for RENDER only: DEEP (R-B>35 AND R>=G), PINK "
-            "(R>150 AND B>120 AND R-G>15), else SHALLOW (green)."
+            "water = wpm NOT-no-water majority over the 16 32u subcells per "
+            "128u tile, MINUS singleton speckle, PLUS minimal 1-cell "
+            "connectivity necks (Dijkstra cost 1 water / 30 land) for shops, "
+            "docks/spawns and base-to-base, PLUS the two carved WEST "
+            "sail-around island moats (compact land core + thin 1-cell water "
+            "ring + exactly one entrance) around the Swedish Lumber Mill and "
+            "Goblin Potion Dealer shops. depth sub-classifies FINAL water cells "
+            "from the minimap colours for RENDER only: DEEP (R-B>35 AND R>=G), "
+            "PINK (R>150 AND B>120 AND R-G>15), else SHALLOW; a water cell "
+            "whose pixels read land-blue falls back to SHALLOW."
         ),
         "playableBounds": PLAYABLE,
         "bounds": geom["bounds"],
