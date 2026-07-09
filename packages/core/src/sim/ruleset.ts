@@ -2138,6 +2138,59 @@ export function compileWaterMask(bounds: MapSpec['bounds'], terrain?: RawTerrain
  * gradient routes around the landmass without any per-tick search. See
  * docs/TERRAIN.md §3 (integrator reconciliation of SEMANTICS §3's "no A*").
  */
+
+/**
+ * Largest 8-connected water component of a mask ("the main sea"), memoized per
+ * mask instance. Pure derivation of static data (deterministic scan order, no
+ * RNG) — the same per-mask WeakMap pattern as movement.ts `fieldToPoint`.
+ */
+const MAIN_SEA_MEMO = new WeakMap<WaterMask, Uint8Array>();
+
+function mainSeaOf(mask: WaterMask): Uint8Array {
+  const memo = MAIN_SEA_MEMO.get(mask);
+  if (memo !== undefined) return memo;
+  const { cols, rows, cells } = mask;
+  const comp = new Int32Array(cols * rows).fill(-1);
+  const sizes: number[] = [];
+  const queue = new Int32Array(cols * rows);
+  for (let start = 0; start < cols * rows; start++) {
+    if (cells[start] !== 1 || comp[start] !== -1) continue;
+    const id = sizes.length;
+    let size = 0;
+    let head = 0;
+    let tail = 0;
+    comp[start] = id;
+    queue[tail++] = start;
+    while (head < tail) {
+      const idx = queue[head++] ?? 0;
+      size++;
+      const c = idx % cols;
+      const r = (idx - c) / cols;
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          if (dc === 0 && dr === 0) continue;
+          const nc = c + dc;
+          const nr = r + dr;
+          if (nc < 0 || nc >= cols || nr < 0 || nr >= rows) continue;
+          const nidx = nr * cols + nc;
+          if (cells[nidx] === 1 && comp[nidx] === -1) {
+            comp[nidx] = id;
+            queue[tail++] = nidx;
+          }
+        }
+      }
+    }
+    sizes.push(size);
+  }
+  let biggest = 0;
+  for (let i = 1; i < sizes.length; i++) {
+    if ((sizes[i] ?? 0) > (sizes[biggest] ?? 0)) biggest = i;
+  }
+  const main = new Uint8Array(cols * rows);
+  for (let i = 0; i < comp.length; i++) main[i] = comp[i] === biggest ? 1 : 0;
+  MAIN_SEA_MEMO.set(mask, main);
+  return main;
+}
 export function compileNavField(mask: WaterMask, goalX: number, goalY: number): NavField {
   const { cols, rows, cellSizeX, cellSizeY, bounds, cells } = mask;
   const base: NavField = { cols, rows, cellSizeX, cellSizeY, bounds, goalX, goalY, dist: new Int32Array(0) };
@@ -2146,31 +2199,46 @@ export function compileNavField(mask: WaterMask, goalX: number, goalY: number): 
   const dist = new Int32Array(cols * rows).fill(NAV_UNREACHABLE);
   const isWaterCell = (c: number, r: number): boolean =>
     c >= 0 && c < cols && r >= 0 && r < rows && cells[r * cols + c] === 1;
+  // Main-sea membership (largest water component): a POI's field must seed on
+  // water a ship can actually REACH. The real map keeps decorative unsailable
+  // ponds beside some shops (e.g. the SE Elven Library's dock strip); seeding
+  // the spiral on the nearest pond cell made the whole gradient live inside
+  // the pond, so ships approaching over the main sea had no guidance and the
+  // effective buy spot drifted to the wrong lane. Prefer the nearest MAIN-SEA
+  // cell; fields whose old seed was already main-sea pick the SAME cell and
+  // stay byte-identical (the delicate AI-trader paths are untouched).
+  const mainSea = mainSeaOf(mask);
+  const isMainSeaCell = (c: number, r: number): boolean =>
+    c >= 0 && c < cols && r >= 0 && r < rows && mainSea[r * cols + c] === 1;
 
   // Goal cell via the shared transform; clamp into range so a goal placed in an
   // off-by-one shore cell still seeds the flood from the nearest valid cell.
   const gc = Math.max(0, Math.min(cols - 1, Math.floor((goalX - bounds.minX) / cellSizeX)));
   const gr = Math.max(0, Math.min(rows - 1, Math.floor((bounds.maxY - goalY) / cellSizeY)));
-  // If the exact goal cell is land (HQ footprints read as walkable dock = water,
-  // but be defensive), seed from the nearest water cell in a small spiral so the
-  // field is still anchored at the base.
-  let seedC = gc;
-  let seedR = gr;
-  if (!isWaterCell(seedC, seedR)) {
-    let found = false;
-    for (let radius = 1; radius <= 8 && !found; radius++) {
-      for (let dr = -radius; dr <= radius && !found; dr++) {
-        for (let dc = -radius; dc <= radius && !found; dc++) {
-          if (isWaterCell(gc + dc, gr + dr)) {
+  // Seed from the nearest main-sea water cell in a small spiral (the goal cell
+  // itself when it qualifies); fall back to any-water only when no main-sea
+  // cell is near (defensive: a POI nowhere near the sea keeps its local field).
+  let seedC = -1;
+  let seedR = -1;
+  for (const qualifies of [isMainSeaCell, isWaterCell]) {
+    if (qualifies(gc, gr)) {
+      seedC = gc;
+      seedR = gr;
+      break;
+    }
+    for (let radius = 1; radius <= 8 && seedC < 0; radius++) {
+      for (let dr = -radius; dr <= radius && seedC < 0; dr++) {
+        for (let dc = -radius; dc <= radius && seedC < 0; dc++) {
+          if (qualifies(gc + dc, gr + dr)) {
             seedC = gc + dc;
             seedR = gr + dr;
-            found = true;
           }
         }
       }
     }
-    if (!found) return base; // goal not near any water -> no usable field
+    if (seedC >= 0) break;
   }
+  if (seedC < 0) return base; // goal not near any water -> no usable field
 
   // 8-connected BFS flood from the seed cell. A plain queue with a head index
   // (no shift) keeps it O(cells); neighbour order is fixed for determinism.

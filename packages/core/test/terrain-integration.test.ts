@@ -370,4 +370,56 @@ describe('terrain integration (real water mask)', () => {
     expect(reachedAle).toBe(true); // the trader rounded the land to the far pickup corner
     expect(delivered).toBe(true); // and brought the goods back to the reward zone
   }, 60000);
+
+  // Owner-reported (2026-07-08): the SE Elven Library must be approached from
+  // the BOTTOM lane, not the brewery channel. Root cause was compileNavField
+  // seeding a POI's gradient on the nearest water cell even when that cell is
+  // a decorative unsailable pond (the Library's dock strip) — the field then
+  // covered only the pond and gave main-sea ships no guidance. Every POI field
+  // must cover the main sea a ship actually navigates.
+  it('every POI nav field seeds on the main sea (no pond-trapped gradients)', () => {
+    const map = ruleset.map;
+    const mask = map.waterMask;
+    const totalWater = (() => {
+      let n = 0;
+      for (const cell of mask.cells) if (cell === 1) n++;
+      return n;
+    })();
+    const fields: [string, (typeof map.navByTeam)['south']][] = [
+      ...Object.entries(map.navToRegion),
+      ['navByTeam.south', map.navByTeam.south],
+      ['navByTeam.north', map.navByTeam.north],
+      ['navHome.south', map.navHomeByTeam.south],
+      ['navHome.north', map.navHomeByTeam.north],
+    ];
+    expect(fields.length).toBeGreaterThan(30); // every shop + repair + trade POI
+    for (const [name, field] of fields) {
+      let covered = 0;
+      for (const d of field.dist) if (d >= 0) covered++;
+      // A main-sea-seeded field reaches (nearly) all navigable water; a
+      // pond-trapped one covers a handful of cells.
+      expect(covered / totalWater, `${name} covers the main sea`).toBeGreaterThan(0.5);
+    }
+  });
+
+  it('the SE Elven Library docks on its bottom-lane (south-west) side', () => {
+    const field = ruleset.map.navToRegion['shop:n00B_0009'];
+    expect(field).toBeDefined();
+    if (!field) return;
+    const { cols, rows, cellSizeX, cellSizeY, bounds, dist } = field;
+    let seed: { c: number; r: number } | null = null;
+    for (let r = 0; r < rows && seed === null; r++) {
+      for (let c = 0; c < cols && seed === null; c++) {
+        if (dist[r * cols + c] === 0) seed = { c, r };
+      }
+    }
+    expect(seed).not.toBeNull();
+    if (!seed) return;
+    const x = bounds.minX + (seed.c + 0.5) * cellSizeX;
+    const y = bounds.maxY - (seed.r + 0.5) * cellSizeY;
+    // The original map's nearest main-sea water is ~370u SW of the shop (the
+    // bottom lane); the decorative pond NE of it is unsailable.
+    expect(x, 'docking cell west of the shop').toBeLessThan(4704);
+    expect(y, 'docking cell south of the shop').toBeLessThan(-4960);
+  });
 });
