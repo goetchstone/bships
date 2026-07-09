@@ -76,32 +76,27 @@ function shipOf(state: SimState, slot: number): ShipEntity {
 describe('terrain integration (real water mask)', () => {
   it('compiles a real mask (not the open-sea stub) and per-team nav fields', () => {
     expect(ruleset.map.waterMask.cells.length).toBeGreaterThan(0);
-    // The mask is the embedded minimap classified by the owner's CONFIRMED colour
-    // key — SAILABLE WATER = NON-BLUE (yellow deep + green shallow + pink passable),
-    // LAND = only the blue-dominant ridge pixels — per tile, cropped to the 81x113
-    // PLAYABLE tilepoint grid (the unplayable border removed; the WEST bound extended
-    // 3 cells west of the camera bounds so the Goblin Potion Dealer shop sits off the
-    // grid edge — see docs/TERRAIN.md WEST-BOUND EXTENSION), PLUS only MINIMAL 1-cell
-    // connectivity necks (so every shop + dock/spawn reaches the sea and the two
-    // bases stay water-connected) PLUS the two owner-approved carved WEST
-    // sail-around island moats: each is a closed 1-cell water ring (24-cell cycle)
-    // around a 25-cell land core with EXACTLY ONE entrance. After the west-bound
-    // extension BOTH west shops sit ON their island LAND core (Goblin at grid col 3,
-    // Lumber Mill at grid col 6) — true sail-around islands you loop around through a
-    // single narrow entrance. Water fraction is the NON-BLUE classification + necks +
-    // moats ~0.66 (here 0.656), the faithful ~half-water silhouette — NOT the prior
-    // too-dry ~0.29 yellow-only trace.
+    // The mask is SAILABILITY from the map's own PATHING MAP (war3map.wpm bit
+    // 0x40 = no-water — the engine's enforced truth; see terrain.py), cropped
+    // to the 81x113 PLAYABLE tilepoint grid (the unplayable border removed;
+    // the WEST bound extended 3 cells west of the camera bounds so the Goblin
+    // Potion Dealer shop sits off the grid edge — see docs/TERRAIN.md
+    // WEST-BOUND EXTENSION), PLUS only MINIMAL 1-cell connectivity necks (so
+    // every shop + dock/spawn reaches the sea and the two bases stay
+    // water-connected) PLUS the two owner-approved carved WEST sail-around
+    // island moats: each is a closed 1-cell water ring (24-cell cycle) around
+    // a 25-cell land core with EXACTLY ONE entrance. The wpm replaced the
+    // minimap NON-BLUE colour key (~0.66 water), which over-watered — green
+    // 'shallow' paint is often visually-wet-but-UNSAILABLE, merging lanes the
+    // real map separates.
     const water = ruleset.map.waterMask.cells.reduce((n, c) => n + c, 0);
     const total = ruleset.map.waterMask.cells.length;
     expect(total).toBe(81 * 113);
-    // ~0.66: the NON-BLUE colour-key classification (sailable water = yellow deep
-    // + green shallow + pink passable; LAND = only the blue-dominant ridge pixels)
-    // + minimal necks + the two west moats. Over the playable crop this reads
-    // honestly higher than the ~0.535 measured over the WHOLE minimap content box,
-    // because the playable rectangle excludes the land-heavy outer borders. Stays
-    // inside [0.55, 0.70]; NOT the prior too-dry ~0.29 yellow-only trace.
-    expect(water / total).toBeGreaterThan(0.55);
-    expect(water / total).toBeLessThan(0.7);
+    // ~0.553: the wpm sailable fraction over the playable crop (+ necks +
+    // moats). Same band as the extractor's fail-loud gate [0.50, 0.62]:
+    // well above = colour-key-style over-watering, well below = over-dry.
+    expect(water / total).toBeGreaterThan(0.5);
+    expect(water / total).toBeLessThan(0.62);
     // Nav fields are populated (a real flood from each base goal).
     expect(ruleset.map.navByTeam.south.dist.length).toBe(total);
     expect(ruleset.map.navByTeam.north.dist.length).toBe(total);

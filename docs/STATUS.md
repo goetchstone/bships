@@ -323,11 +323,26 @@ missing the nuances."** Scope decision: work ALL open items, in this order.
    gank/disengage via the existing retreat machinery. Acceptance: a hard-vs-hard
    AI-only match resolves (an HQ falls) in bounded ticks on sampled seeds;
    determinism replay test + trader 10/10 probe stay green.
-6. **Movement wobble / extreme cross-map routing (edge/cosmetic, opportunistic).**
-   (a) faint flow-field heading wobble on long hauls — needs a trader-safe
-   lookahead pass confined to the player-only `fieldToPoint` branch (three prior
-   shared-path attempts regressed the trader and were reverted); (b) 1–2 extreme
-   south→enemy-far-corner player targets still wedge ~2/10.
+6. **Movement wobble / extreme cross-map routing — CLOSED 2026-07-09 (measured).**
+   (a) The extreme-corner wedge is GONE: a deterministic probe (south user ship
+   ordered to the farthest main-sea cell of each map quadrant, 2 seeds) reaches
+   every corner with zero wedges — the wpm mask + main-sea field seeding fixed
+   the old ~2/10 failures (NE/NW runs end in death-by-enemy-fire, which is
+   combat, not routing). (b) The faint long-haul wobble stays AS IS, on
+   evidence: a 4th and 5th smoothing attempt (player-only lookahead
+   string-pulling; mean-direction carrot — both confined to the
+   `fieldToPoint` branch, trader untouched) were built and MEASURED to make
+   smoothness WORSE (total heading turn ~2x, large zigzags up: baseline
+   17.8/8.4/7.5 rad per haul vs 34.5/14.5/14.5 and 33.1/14.5/16.7) because any
+   per-tick recomputed aim point makes the turn-limited kinematics chase a
+   moving carrot, while the baseline's cell-center target stays FIXED for many
+   ticks. Both reverted. A real improvement needs stateful steering
+   (persistent carrot in SimState) — not worth the determinism-surface churn
+   for a cosmetic issue. Also done 2026-07-09: a systematic POI-approach audit
+   (all 28 nav-field docking bearings vs the wpm's nearest-main-sea bearing) —
+   clean everywhere except the two owner-approved west-island moats
+   (deliberate divergence) and the Ale Brewery (false alarm: it sits on one
+   open water body; which adjacent cell docks is arbitrary).
 
 ## Verifying UX reliably (lesson learned)
 
