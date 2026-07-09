@@ -76,32 +76,27 @@ function shipOf(state: SimState, slot: number): ShipEntity {
 describe('terrain integration (real water mask)', () => {
   it('compiles a real mask (not the open-sea stub) and per-team nav fields', () => {
     expect(ruleset.map.waterMask.cells.length).toBeGreaterThan(0);
-    // The mask is the embedded minimap classified by the owner's CONFIRMED colour
-    // key — SAILABLE WATER = NON-BLUE (yellow deep + green shallow + pink passable),
-    // LAND = only the blue-dominant ridge pixels — per tile, cropped to the 81x113
-    // PLAYABLE tilepoint grid (the unplayable border removed; the WEST bound extended
-    // 3 cells west of the camera bounds so the Goblin Potion Dealer shop sits off the
-    // grid edge — see docs/TERRAIN.md WEST-BOUND EXTENSION), PLUS only MINIMAL 1-cell
-    // connectivity necks (so every shop + dock/spawn reaches the sea and the two
-    // bases stay water-connected) PLUS the two owner-approved carved WEST
-    // sail-around island moats: each is a closed 1-cell water ring (24-cell cycle)
-    // around a 25-cell land core with EXACTLY ONE entrance. After the west-bound
-    // extension BOTH west shops sit ON their island LAND core (Goblin at grid col 3,
-    // Lumber Mill at grid col 6) — true sail-around islands you loop around through a
-    // single narrow entrance. Water fraction is the NON-BLUE classification + necks +
-    // moats ~0.66 (here 0.656), the faithful ~half-water silhouette — NOT the prior
-    // too-dry ~0.29 yellow-only trace.
+    // The mask is SAILABILITY from the map's own PATHING MAP (war3map.wpm bit
+    // 0x40 = no-water — the engine's enforced truth; see terrain.py), cropped
+    // to the 81x113 PLAYABLE tilepoint grid (the unplayable border removed;
+    // the WEST bound extended 3 cells west of the camera bounds so the Goblin
+    // Potion Dealer shop sits off the grid edge — see docs/TERRAIN.md
+    // WEST-BOUND EXTENSION), PLUS only MINIMAL 1-cell connectivity necks (so
+    // every shop + dock/spawn reaches the sea and the two bases stay
+    // water-connected) PLUS the two owner-approved carved WEST sail-around
+    // island moats: each is a closed 1-cell water ring (24-cell cycle) around
+    // a 25-cell land core with EXACTLY ONE entrance. The wpm replaced the
+    // minimap NON-BLUE colour key (~0.66 water), which over-watered — green
+    // 'shallow' paint is often visually-wet-but-UNSAILABLE, merging lanes the
+    // real map separates.
     const water = ruleset.map.waterMask.cells.reduce((n, c) => n + c, 0);
     const total = ruleset.map.waterMask.cells.length;
     expect(total).toBe(81 * 113);
-    // ~0.66: the NON-BLUE colour-key classification (sailable water = yellow deep
-    // + green shallow + pink passable; LAND = only the blue-dominant ridge pixels)
-    // + minimal necks + the two west moats. Over the playable crop this reads
-    // honestly higher than the ~0.535 measured over the WHOLE minimap content box,
-    // because the playable rectangle excludes the land-heavy outer borders. Stays
-    // inside [0.55, 0.70]; NOT the prior too-dry ~0.29 yellow-only trace.
-    expect(water / total).toBeGreaterThan(0.55);
-    expect(water / total).toBeLessThan(0.7);
+    // ~0.553: the wpm sailable fraction over the playable crop (+ necks +
+    // moats). Same band as the extractor's fail-loud gate [0.50, 0.62]:
+    // well above = colour-key-style over-watering, well below = over-dry.
+    expect(water / total).toBeGreaterThan(0.5);
+    expect(water / total).toBeLessThan(0.62);
     // Nav fields are populated (a real flood from each base goal).
     expect(ruleset.map.navByTeam.south.dist.length).toBe(total);
     expect(ruleset.map.navByTeam.north.dist.length).toBe(total);
@@ -198,7 +193,7 @@ describe('terrain integration (real water mask)', () => {
   // the order straight-line); before the fix, movement steered creeps to the HQ
   // regardless of the hold-gate order and no tower was ever engaged. AI on both
   // teams so every lane spawns creeps.
-  it('lane creeps hold at a reachable enemy tower and grind it (not ghost to the HQ)', () => {
+  it('lane creeps hold at a reachable enemy tower and grind it (not ghost to the HQ)', async () => {
     const configs: PlayerConfig[] = [];
     for (let slot = 2; slot <= 11; slot++) {
       configs.push({ slot, control: 'computer', ai: { difficulty: 'normal' } });
@@ -225,6 +220,7 @@ describe('terrain integration (real water mask)', () => {
     // through — the AI captains pushing a lane tip it. 9000 ticks clears both the
     // hold-at-tower contact and the resulting tower chip with margin.
     for (let t = 0; t < 9000; t++) {
+      if (t % 2000 === 0 && t > 0) await new Promise<void>((r) => setImmediate(r));
       const batch: Command[] = [];
       for (const slot of sortedNumericKeys(state.aiMemory)) {
         const mem = state.aiMemory[slot];
@@ -282,7 +278,7 @@ describe('terrain integration (real water mask)', () => {
   // ship must round the central landmass and arrive, never crossing a land cell.
   // This is the exact leg the trader's outbound run depends on, isolated from
   // combat/respawn so it is fast + deterministic.
-  it('a ship ordered to a far non-base destination (AleFactory) rounds the land and arrives', () => {
+  it('a ship ordered to a far non-base destination (AleFactory) rounds the land and arrives', async () => {
     const state = createMatch(ruleset, 1, [{ slot: SOUTH_PLAYER, control: 'user' }]);
     const ship = shipOf(state, SOUTH_PLAYER);
     const mask = ruleset.map.waterMask;
@@ -297,6 +293,7 @@ describe('terrain integration (real water mask)', () => {
     let everOnLand = false;
     let minDist = Infinity;
     for (let t = 0; t < 2500; t++) {
+      if (t % 2000 === 0 && t > 0) await new Promise<void>((r) => setImmediate(r));
       // Re-issue periodically in case the field hands off to idle at the coast
       // edge of the (land) region center — a real ship would keep nudging in.
       if (t % 200 === 0 && ship.order.type === 'idle') {
@@ -334,7 +331,7 @@ describe('terrain integration (real water mask)', () => {
   // instead of beelining into the coast), a seated trader delivers in 10/10
   // sampled seeds (was ~2/10 when it wedged in concave water pockets). This run
   // guards that end-to-end land routing on the real mask.
-  it('a seated trader completes a full haul around the land (real mask, questProgress delivered)', () => {
+  it('a seated trader completes a full haul around the land (real mask, questProgress delivered)', async () => {
     const state = createMatch(ruleset, 0x7ade, [
       { slot: SOUTH_PLAYER, control: 'computer', ai: { difficulty: 'normal', role: 'trader' } },
       { slot: 7, control: 'computer', ai: { difficulty: 'normal', role: 'trader' } },
@@ -345,6 +342,7 @@ describe('terrain integration (real water mask)', () => {
     let reachedAle = false;
     let delivered = false;
     for (let t = 0; t < 16000 && !delivered; t++) {
+      if (t % 2000 === 0 && t > 0) await new Promise<void>((r) => setImmediate(r));
       const batch: Command[] = [];
       for (const slot of sortedNumericKeys(state.aiMemory)) {
         const mem = state.aiMemory[slot];

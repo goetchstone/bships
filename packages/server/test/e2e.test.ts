@@ -646,8 +646,18 @@ describe('e2e phase B: burst-mode match — shopping, fog of war, reconnect', ()
       y: RENDEZVOUS_NORTH.y,
     });
 
+    // Capture the enemy row INSIDE the wait predicate: the two ships sail
+    // PAST each other toward opposite bases, so "in view" is a passing
+    // window. In burst mode the sim keeps ticking between the predicate
+    // firing and any later read — on a slow (CI) runner the window has
+    // already closed by then and shipOf() reads undefined. Take the evidence
+    // at the moment of first sight.
+    let enemySeen: ReturnType<typeof south.shipOf>;
     await south.waitUntil(
-      () => south.firstShipSeenTick.has(NORTH_SLOT),
+      () => {
+        enemySeen ??= south.shipOf(NORTH_SLOT);
+        return south.firstShipSeenTick.has(NORTH_SLOT) && enemySeen !== undefined;
+      },
       'enemy ship entering the south view',
       45_000,
     );
@@ -657,15 +667,20 @@ describe('e2e phase B: burst-mode match — shopping, fog of war, reconnect', ()
     const firstSeen = south.firstShipSeenTick.get(NORTH_SLOT);
     expect(firstSeen).toBeGreaterThan(400);
 
-    const enemy = south.shipOf(NORTH_SLOT);
-    expect(enemy).toBeDefined();
-    expect(enemy?.team).toBe('north');
+    expect(enemySeen).toBeDefined();
+    expect(enemySeen?.team).toBe('north');
   }, 60_000);
 
   it('attack-move accepted; auto-fire lands hits on the enemy ship', async () => {
-    const enemy = south.shipOf(NORTH_SLOT);
-    if (!enemy) throw new Error('enemy not in view');
-    south.sendCommand({ type: 'attackMove', player: SOUTH_SLOT, x: enemy.x, y: enemy.y });
+    // Runner-speed-independent: the passing window from the previous test may
+    // be long closed on a slow runner. Halt the north ship where it is, then
+    // attack-move the south ship onto the north ship's OWN position (its
+    // client always knows its private state) so the two converge no matter
+    // how many burst ticks elapsed in between.
+    north.sendCommand({ type: 'stop', player: NORTH_SLOT });
+    const northShip = north.you;
+    if (!northShip) throw new Error('north private state missing');
+    south.sendCommand({ type: 'attackMove', player: SOUTH_SLOT, x: northShip.x, y: northShip.y });
 
     await south.waitUntil(
       () =>
