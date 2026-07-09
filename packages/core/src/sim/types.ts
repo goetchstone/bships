@@ -1773,17 +1773,22 @@ export function navStepToward(
   field: NavField,
   x: number,
   y: number,
-  localGoalDistCells = 6,
+  localGoalDistCells?: number,
 ): { x: number; y: number } | null {
   const { bounds, cols, rows, cellSizeX, cellSizeY, dist } = field;
   if (dist.length === 0) return null; // stub field (no real mask) -> straight line
+  // Default local-goal basin: ~768 WORLD UNITS (six 128u legacy cells),
+  // derived from the field's cell size so the hand-off distance is
+  // resolution-independent (the emitted grid is 64u cells as of the
+  // full-res lane deduction).
+  const localGoal = localGoalDistCells ?? Math.max(1, Math.round(768 / cellSizeX));
   if (x < bounds.minX || x >= bounds.maxX || y <= bounds.minY || y > bounds.maxY) return null;
   const col = Math.floor((x - bounds.minX) / cellSizeX);
   const row = Math.floor((bounds.maxY - y) / cellSizeY);
   if (col < 0 || col >= cols || row < 0 || row >= rows) return null;
   const here = dist[row * cols + col] ?? NAV_UNREACHABLE;
   if (here === NAV_UNREACHABLE) return null; // on land / unreachable -> let slide handle it
-  if (here <= localGoalDistCells) return null; // near the goal -> straight line in
+  if (here <= localGoal) return null; // near the goal -> straight line in
 
   // Lowest-distance navigable 8-neighbour (deterministic neighbour order).
   const NEIGHBOURS: readonly [number, number][] = [

@@ -85,7 +85,7 @@ function findPair(blocked: boolean, minD: number, maxD: number): { a: { x: numbe
     for (let c = 2; c < cols - 2; c += 2) {
       if (cells[r * cols + c] !== 1) continue;
       const a = world(c, r);
-      const reach = Math.ceil(maxD / 128) + 1;
+      const reach = Math.ceil(maxD / cellSizeX) + 1;
       for (let dr = -reach; dr <= reach; dr += 2) {
         for (let dc = -reach; dc <= reach; dc += 2) {
           const nc = c + dc;
