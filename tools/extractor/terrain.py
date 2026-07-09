@@ -170,7 +170,17 @@ EXTENT_MIN_Y, EXTENT_MAX_Y = -8192.0, 8192.0
 SAMPLE_PATCH = 3  # NxN minimap pixel patch sampled per tile (majority vote)
 
 # --- connectivity-neck knobs (kept small/explicit so additions are auditable) --
-ACCESS_CELLS = 2   # a shop is "sea-reachable" if main-sea water is within this
+# EMIT SUBDIVISION (owner-directed 2026-07-09: "the full res map is accurate if
+# you can deduce the lanes correctly"): the emitted grid is 64u cells — HALF the
+# 128u tilepoint spacing, double resolution. Measured on the wpm: real channels
+# are never narrower than 128u (4 subcells) and real walls never thinner than
+# 64u (2 subcells); a 128u grid provably cannot represent an unaligned 128u
+# channel (both straddling cells fall under 50% water -> lane LOST) nor a 64u
+# wall inside a majority-water cell (-> lanes MERGED). At 64u with land-biased
+# ties, every real channel and wall survives quantization by construction.
+EMIT_SUBDIV = 2    # 64u cells (128 / EMIT_SUBDIV)
+
+ACCESS_CELLS = 2 * EMIT_SUBDIV   # a shop is "sea-reachable" if main-sea water is within this
 #                    Manhattan radius (~256u). Kept tight so the carved neck
 #                    brings navigable water RIGHT UP to the shop on its sea-facing
 #                    side -- a shop with water only 3 cells away on the far side
@@ -197,7 +207,7 @@ CONNECT_REGIONS = ["Repair_Station_South", "Repair_Station_North"]
 # are matched by their owner-circled world coords (deterministic, explicit -- NOT
 # "western-most x", which would grab the north Pigfarm Elven Library instead).
 WEST_ISLAND_SHOPS = ((-4640.0, -928.0), (-4960.0, -5344.0))  # LumberMill, GoblinPotion
-WEST_ISLAND_CORE_R = 2   # filled (2R+1)x(2R+1) land core; moat ring at chebyshev R+1.
+WEST_ISLAND_CORE_R = 2 * EMIT_SUBDIV   # filled (2R+1)x(2R+1) land core; moat ring at chebyshev R+1.
 
 
 # ---------------------------------------------------------------------------
@@ -230,22 +240,34 @@ def wpm_sailable_grid(geom: dict, wpm: dict, map_min_x: float, map_min_y: float)
     16 wpm subcells (4x4 x 32u) under the 128u cell that do NOT carry the
     no-water bit. Same shape/orientation as classify_grid's output."""
     cols, nrows = geom["cols"], geom["rows"]
+    csx, csy = geom["csx"], geom["csy"]
     ww, wh, flags = wpm["width"], wpm["height"], wpm["flags"]
+    # Subcell sample offsets: centers of the 32u wpm cells under one emitted
+    # cell. LAND-BIASED tie (water only when STRICTLY more than half the
+    # subcells sail): preserves the original's 64u walls when they straddle a
+    # cell boundary — both straddling cells land as LAND (wall kept,
+    # conservatively thickened) instead of both as water (lanes merged). Real
+    # channels are >=128u wide (measured), so a straddling channel still owns
+    # a fully-water cell and survives.
+    nsx = max(1, round(csx / 32))
+    nsy = max(1, round(csy / 32))
+    offs_x = [(-csx / 2) + (i + 0.5) * 32 for i in range(nsx)]
+    offs_y = [(-csy / 2) + (i + 0.5) * 32 for i in range(nsy)]
     grid: list[list[int]] = []
     for r in range(nrows):
         line: list[int] = []
         for c in range(cols):
             x, y = cell_center(c, r, geom)
             total = sailable = 0
-            for oy in (-48.0, -16.0, 16.0, 48.0):
-                for ox in (-48.0, -16.0, 16.0, 48.0):
+            for oy in offs_y:
+                for ox in offs_x:
                     wx = int((x + ox - map_min_x) // 32)
                     wy = int((y + oy - map_min_y) // 32)
                     if 0 <= wx < ww and 0 <= wy < wh:
                         total += 1
                         if not (flags[wy * ww + wx] & 0x40):
                             sailable += 1
-            line.append(1 if (total > 0 and sailable / total >= 0.5) else 0)
+            line.append(1 if (total > 0 and sailable * 2 > total) else 0)
         grid.append(line)
     return grid
 
@@ -298,7 +320,10 @@ def crop_geometry(w3e: dict, cols_idx: list[int], rows_idx: list[int], playable:
     max_x = cx + cols_idx[-1] * TILE_SPACING + half
     min_y = cy + rows_idx[0] * TILE_SPACING - half
     max_y = cy + rows_idx[-1] * TILE_SPACING + half
-    cols, nrows = len(cols_idx), len(rows_idx)
+    # EMIT_SUBDIV: same playable bounds, finer cells (64u at 2) — see the
+    # constant's doc. Every downstream consumer (cell_for/cell_center, carves,
+    # gates, the sim) works off cols/rows/csx/csy generically.
+    cols, nrows = len(cols_idx) * EMIT_SUBDIV, len(rows_idx) * EMIT_SUBDIV
     bounds = {"minX": min_x, "minY": min_y, "maxX": max_x, "maxY": max_y}
     return {
         "bounds": bounds,
@@ -1104,6 +1129,189 @@ def _water_connected(rows: list[list[int]], cols: int, nrows: int,
 # ---------------------------------------------------------------------------
 
 
+def restore_straddled_channels(rows: list[list[int]], wpm: dict, geom: dict,
+                               map_min_x: float, map_min_y: float) -> int:
+    """Undo the land-biased tie's channel NARROWING without undoing its wall
+    PRESERVATION. The tie votes a half-water cell to land; when a real >=128u
+    channel straddles the 64u grid, that shaves it to a single 64u cell —
+    narrower than the original (creeps are ~60u wide; opposing waves plug a
+    64u choke that the real 128u choke lets flow). Flip a tied-to-land cell
+    back to water ONLY when every sailable wpm subcell under it AND under its
+    8-adjacent water cells belongs to ONE full-res component — then the flip
+    widens an existing channel and provably cannot bridge two distinct
+    channels (the walls the tie exists to protect). Single deterministic
+    scan; returns cells flipped."""
+    cols, nrows = geom["cols"], geom["rows"]
+    csx, csy = geom["csx"], geom["csy"]
+    ww, wh, flags = wpm["width"], wpm["height"], wpm["flags"]
+
+    def sail(sx: int, sy: int) -> bool:
+        return 0 <= sx < ww and 0 <= sy < wh and not (flags[sy * ww + sx] & 0x40)
+
+    # Full-res component labels over the whole wpm (cheap, ~200k cells).
+    lbl = [-1] * (ww * wh)
+    next_id = 0
+    for start in range(ww * wh):
+        if lbl[start] >= 0 or (flags[start] & 0x40):
+            continue
+        stack = [start]
+        lbl[start] = next_id
+        while stack:
+            idx = stack.pop()
+            x, y = idx % ww, idx // ww
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    nx, ny = x + dx, y + dy
+                    if (dx or dy) and 0 <= nx < ww and 0 <= ny < wh:
+                        nidx = ny * ww + nx
+                        if lbl[nidx] < 0 and not (flags[nidx] & 0x40):
+                            lbl[nidx] = next_id
+                            stack.append(nidx)
+        next_id += 1
+
+    nsx = max(1, round(csx / 32))
+    nsy = max(1, round(csy / 32))
+    offs_x = [(-csx / 2) + (i + 0.5) * 32 for i in range(nsx)]
+    offs_y = [(-csy / 2) + (i + 0.5) * 32 for i in range(nsy)]
+
+    def cell_labels(c: int, r: int) -> set[int]:
+        x, y = cell_center(c, r, geom)
+        out: set[int] = set()
+        for oy in offs_y:
+            for ox in offs_x:
+                sx = int((x + ox - map_min_x) // 32)
+                sy = int((y + oy - map_min_y) // 32)
+                if 0 <= sx < ww and 0 <= sy < wh and not (flags[sy * ww + sx] & 0x40):
+                    out.add(lbl[sy * ww + sx])
+        return out
+
+    flipped = 0
+    for r in range(nrows):
+        for c in range(cols):
+            if rows[r][c]:
+                continue
+            own = cell_labels(c, r)
+            if len(own) != 1:
+                continue  # no water under it, or it touches two channels: keep land
+            union = set(own)
+            for dc in (-1, 0, 1):
+                for dr in (-1, 0, 1):
+                    nc, nr = c + dc, r + dr
+                    if (dc or dr) and 0 <= nc < cols and 0 <= nr < nrows and rows[nr][nc]:
+                        union |= cell_labels(nc, nr)
+            if union == own:
+                rows[r][c] = 1
+                flipped += 1
+    return flipped
+
+
+def lane_topology_gate(rows: list[list[int]], wpm: dict, layout: dict, geom: dict,
+                       map_min_x: float, map_min_y: float) -> dict:
+    """G6 (hard gate): the emitted grid must preserve the FULL-RES lane
+    topology — for every pair of gameplay anchors (HQs, harbours, shops, lane
+    spawns), 'water-connected on the emitted grid' must equal 'water-connected
+    on the raw 32u wpm' within the playable crop. This is the owner's
+    2026-07-09 directive made permanent: the full-res map is the truth; the
+    grid is only correct if the lanes deduce correctly. Fails loud on any
+    lost channel (connected in wpm, separated in grid) or false merge
+    (separated in wpm, connected in grid)."""
+    cols, nrows = geom["cols"], geom["rows"]
+    b = geom["bounds"]
+    ww, wh, flags = wpm["width"], wpm["height"], wpm["flags"]
+
+    def sail(sx: int, sy: int) -> bool:
+        return 0 <= sx < ww and 0 <= sy < wh and not (flags[sy * ww + sx] & 0x40)
+
+    # 8-connected component labels on the emitted grid.
+    lbl_g = [[-1] * cols for _ in range(nrows)]
+    next_id = 0
+    for r0 in range(nrows):
+        for c0 in range(cols):
+            if not rows[r0][c0] or lbl_g[r0][c0] >= 0:
+                continue
+            q = deque([(c0, r0)])
+            lbl_g[r0][c0] = next_id
+            while q:
+                c, r = q.popleft()
+                for dc in (-1, 0, 1):
+                    for dr in (-1, 0, 1):
+                        nc, nr = c + dc, r + dr
+                        if (dc or dr) and 0 <= nc < cols and 0 <= nr < nrows \
+                                and rows[nr][nc] and lbl_g[nr][nc] < 0:
+                            lbl_g[nr][nc] = next_id
+                            q.append((nc, nr))
+            next_id += 1
+
+    # 8-connected component labels on the raw wpm subcells within the crop.
+    sx0, sy0 = int((b["minX"] - map_min_x) // 32), int((b["minY"] - map_min_y) // 32)
+    sx1, sy1 = int((b["maxX"] - map_min_x) // 32), int((b["maxY"] - map_min_y) // 32)
+    lbl_w: dict[tuple[int, int], int] = {}
+    wid = 0
+    for sy in range(sy0, sy1):
+        for sx in range(sx0, sx1):
+            if not sail(sx, sy) or (sx, sy) in lbl_w:
+                continue
+            q = deque([(sx, sy)])
+            lbl_w[(sx, sy)] = wid
+            while q:
+                x, y = q.popleft()
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        n = (x + dx, y + dy)
+                        if (dx or dy) and n not in lbl_w and sx0 <= n[0] < sx1 \
+                                and sy0 <= n[1] < sy1 and sail(*n):
+                            lbl_w[n] = wid
+                            q.append(n)
+            wid += 1
+
+    anchors: list[tuple[str, float, float]] = []
+    for s in layout.get("structures", []):
+        if s.get("role") in ("hq", "harbour", "shop") and s.get("x") is not None:
+            anchors.append((str(s.get("name") or s.get("role")), s["x"], s["y"]))
+    for lane in layout.get("creepSpawns", {}).get("lanes", []):
+        sp = lane.get("spawnPoint", {})
+        anchors.append((str(lane.get("id")), sp["x"], sp["y"]))
+
+    def near_g(x: float, y: float, rad: int = 6):
+        c0, r0 = cell_for(x, y, geom)
+        best = None
+        for dr in range(-rad, rad + 1):
+            for dc in range(-rad, rad + 1):
+                c, r = c0 + dc, r0 + dr
+                if 0 <= c < cols and 0 <= r < nrows and rows[r][c]:
+                    d = dc * dc + dr * dr
+                    if best is None or d < best[0]:
+                        best = (d, lbl_g[r][c])
+        return best and best[1]
+
+    def near_w(x: float, y: float, rad: int = 12):
+        s0 = (int((x - map_min_x) // 32), int((y - map_min_y) // 32))
+        best = None
+        for dy in range(-rad, rad + 1):
+            for dx in range(-rad, rad + 1):
+                n = (s0[0] + dx, s0[1] + dy)
+                if n in lbl_w:
+                    d = dx * dx + dy * dy
+                    if best is None or d < best[0]:
+                        best = (d, lbl_w[n])
+        return best and best[1]
+
+    lab_g = [near_g(x, y) for (_, x, y) in anchors]
+    lab_w = [near_w(x, y) for (_, x, y) in anchors]
+    mismatches: list[str] = []
+    for i in range(len(anchors)):
+        for j in range(i + 1, len(anchors)):
+            same_g = lab_g[i] is not None and lab_g[i] == lab_g[j]
+            same_w = lab_w[i] is not None and lab_w[i] == lab_w[j]
+            if same_g != same_w:
+                kind = "LOST CHANNEL" if same_w else "FALSE MERGE"
+                mismatches.append(f"{kind}: {anchors[i][0]} <-> {anchors[j][0]}")
+    if mismatches:
+        raise SystemExit("terrain: lane-topology gate G6 FAILED (emitted grid vs full-res wpm):\n  "
+                         + "\n  ".join(mismatches))
+    return {"anchors": len(anchors), "pairwiseMismatches": 0}
+
+
 def validate(rows: list[list[int]], layout: dict, geom: dict) -> dict:
     """Fail-loud fidelity gate (G3 shops / G5 structures+spawns / base-to-base /
     G2 lane widths / fraction band)."""
@@ -1336,7 +1544,7 @@ def confirm_side_routes(rows: list[list[int]], tan: list[list[int]], layout: dic
                             stack.append(nb)
         return groups
 
-    def island_land(world_x: float, world_y: float, max_cells: int = 60) -> set[tuple[int, int]]:
+    def island_land(world_x: float, world_y: float, max_cells: int = 60 * EMIT_SUBDIV * EMIT_SUBDIV) -> set[tuple[int, int]]:
         """4-connected LAND component containing the shop cell (the island the
         owner sails around). Capped so a connection to the mainland is not counted
         as 'the island'."""
@@ -1688,6 +1896,7 @@ def main() -> None:
     # rows = the working mask; keep the denoised raw wpm grid as the reference
     # the G2 agreement compares the final (carved) mask against.
     rows = [list(r) for r in sail]
+    restored = restore_straddled_channels(rows, wpm, geom, w3e["centerX"], w3e["centerY"])
     removed = drop_singletons(rows, geom["cols"], geom["rows"])
     ref_after_denoise = [list(r) for r in rows]  # the reference G2 compares against
 
@@ -1696,6 +1905,7 @@ def main() -> None:
     # fire; they only guarantee every shop/base/dock reaches the sea (G3/G4).
     neck_report = carve_connectivity(rows, soft, layout, geom)
     neck_report["singletonCellsDropped"] = removed
+    neck_report["straddledChannelCellsRestored"] = restored
 
     # 6. WEST-ISLAND LOOPS (owner-approved): ring each of the two west-island shops
     # with a closed 1-cell navigable moat + EXACTLY ONE entrance (deterministic
@@ -1707,10 +1917,14 @@ def main() -> None:
     west_island_report = carve_west_island_loops(rows, layout, geom)
     neck_report["westIslandLoops"] = west_island_report
 
+    # G6: lane-topology equivalence vs the full-res pathing map (hard gate).
+    topo_report = lane_topology_gate(rows, wpm, layout, geom, w3e["centerX"], w3e["centerY"])
+
     rle = [rle_encode_row(r) for r in rows]
     wf = water_fraction(rows)
     report = validate(rows, layout, geom)
     report["necks"] = neck_report
+    report["laneTopologyVsWpm"] = topo_report
     report["sideRoutes"] = confirm_side_routes(rows, ref_after_denoise, layout, geom)
 
     # OPTIONAL depth metadata (0=land,1=deep,2=shallow,3=pink): the minimap colour

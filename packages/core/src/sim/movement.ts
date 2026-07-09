@@ -725,7 +725,7 @@ function laneNavGoal(
         field,
         entity.x,
         entity.y,
-        isShortApproach ? DOCK_APPROACH_LOCAL_GOAL_CELLS : undefined,
+        isShortApproach ? dockApproachCells(mask.cellSizeX) : undefined,
       );
       if (step !== null) return step;
     }
@@ -742,7 +742,7 @@ function laneNavGoal(
     orderY,
     entity.x,
     entity.y,
-    isShortApproach ? DOCK_APPROACH_LOCAL_GOAL_CELLS : undefined,
+    isShortApproach ? dockApproachCells(ruleset.map.waterMask.cellSizeX) : undefined,
   );
   return step ?? { x: orderX, y: orderY };
 }
@@ -780,11 +780,18 @@ function fieldToPoint(mask: WaterMask, x: number, y: number): NavField | null {
   return field;
 }
 
-/** Hand-off distance (in cells) for a SHIP rounding land onto a dock: follow the
- *  field gradient to within ONE cell of the goal's water-access cell before the
- *  straight-line final step, so the ship rounds the coastal spit instead of
- *  beelining into it. Open hauls keep navStepToward's default (6). */
-const DOCK_APPROACH_LOCAL_GOAL_CELLS = 1;
+/** Hand-off distance for a SHIP rounding land onto a dock, in WORLD UNITS
+ *  (~one 128u legacy cell): follow the field gradient to within this range of
+ *  the goal's water-access cell before the straight-line final step, so the
+ *  ship rounds the coastal spit instead of beelining into it. Converted to
+ *  grid hops per-mask so behavior is resolution-independent (the emitted
+ *  grid is 64u cells as of the full-res lane deduction). Open hauls keep
+ *  navStepToward's unit-derived default. */
+const DOCK_APPROACH_LOCAL_GOAL_UNITS = 128;
+
+function dockApproachCells(cellSize: number): number {
+  return Math.max(1, Math.round(DOCK_APPROACH_LOCAL_GOAL_UNITS / cellSize));
+}
 
 /** True if the straight segment (x0,y0)->(x1,y1) passes over any LAND cell
  *  (sampled at half-cell resolution incl. the endpoint), i.e. a naive

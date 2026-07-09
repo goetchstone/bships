@@ -351,7 +351,12 @@ describe('bot-vs-bot match (real brain, both teams AI)', () => {
   // touched. The HQ-damage milestone is therefore replaced by the funnel's real
   // signal: enemy towers keep taking chip from held creeps across the run.
   it('over a long match the funnel keeps engaging the enemy towers, without idling in retreat', async () => {
-    const LONG_CAP = 6000;
+    // 9000 ticks: on the TRUE 64u map (full-res lane deduction) the lanes are
+    // tighter than the old blobby 128u mask — opposing waves clash in narrow
+    // chokes and the first tower-chipping leaker lands around tick ~5000 in a
+    // 10-captain probe (later with only these 2 captains). Same window as the
+    // core terrain-integration grind test.
+    const LONG_CAP = 9000;
     const invPeak = new Map<number, number>();
     const retreatThinks = new Map<number, number>();
     const totalThinks = new Map<number, number>();
