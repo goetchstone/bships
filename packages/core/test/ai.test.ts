@@ -192,11 +192,12 @@ function addEnemyShip(
  * ascending order whose nextThinkTick is due, call the brain BEFORE
  * applyCommands and merge its commands into the tick batch (ascending slot).
  */
-function driveAiMatch(seed: number, configs: AiSlotCfg[], ticks: number) {
+async function driveAiMatch(seed: number, configs: AiSlotCfg[], ticks: number) {
   const state = makeAiMatch(seed, configs);
   const captured: Command[][] = [];
   const questEvents: SimEvent[] = [];
   for (let t = 0; t < ticks; t++) {
+    if (t > 0 && t % 2000 === 0) await new Promise<void>((r) => setImmediate(r));
     const batch: Command[] = [];
     for (const slot of sortedNumericKeys(state.aiMemory)) {
       const mem = state.aiMemory[slot];
@@ -356,12 +357,12 @@ describe('AI economy', () => {
     expect(cmds.some((c) => c.type === 'buyItem')).toBe(false);
   });
 
-  it('every item the bot ever buys is sold by at least one shop (no un-buyable ladder rung)', () => {
+  it('every item the bot ever buys is sold by at least one shop (no un-buyable ladder rung)', async () => {
     // Regression for the I007 wedge: a ladder rung no shop carries can never be
     // bought and (walking the ladder in order) freezes every later rung. Drive
     // a long AI-only match and assert every buyItem the brain emitted targets a
     // shop that actually sells that item.
-    const { captured } = driveAiMatch(0x1234, [
+    const { captured } = await driveAiMatch(0x1234, [
       { slot: SOUTH_SLOT, difficulty: 'hard' },
       { slot: NORTH_SLOT, difficulty: 'hard' },
     ], 4000);
@@ -378,7 +379,7 @@ describe('AI economy', () => {
     expect(buys).toBeGreaterThan(0);
   });
 
-  it('economy climbs past the opening: more items AND a bigger HULL TYPE', () => {
+  it('economy climbs past the opening: more items AND a bigger HULL TYPE', async () => {
     // Regression for the economy lockout / ladder wedge: over a bot-vs-bot match
     // the south bot must accumulate MORE than its opening cannon + first hull
     // (the old bots froze at exactly 2 items and banked all their gold).
@@ -393,7 +394,7 @@ describe('AI economy', () => {
       { slot: NORTH_SLOT, difficulty: 'hard' as const },
     ];
     const startType = makeAiMatch(0x1234, configs).players[SOUTH_SLOT]!.shipTypeId;
-    const { state } = driveAiMatch(0x1234, configs, 6000);
+    const { state } = await driveAiMatch(0x1234, configs, 6000);
     const inv = state.players[SOUTH_SLOT]!.inventory.filter((i) => i !== null);
     expect(inv.length).toBeGreaterThan(2);
     // And it bought a bigger SHIP TYPE than it started in (the buyShip swap +
@@ -949,16 +950,16 @@ describe('AI determinism', () => {
     expect(mem.aiRngState).not.toBe(before);
   });
 
-  it('a full match with AI on BOTH teams replays bit-identically (hashState)', () => {
+  it('a full match with AI on BOTH teams replays bit-identically (hashState)', async () => {
     const configs = [
       { slot: SOUTH_SLOT, difficulty: 'normal' as const },
       { slot: NORTH_SLOT, difficulty: 'hard' as const },
     ];
     const TICKS = 1500;
-    const run = driveAiMatch(7, configs, TICKS);
+    const run = await driveAiMatch(7, configs, TICKS);
     // Re-driving the brain from scratch reproduces the FULL hash bit-for-bit
     // (the strict replay contract: same seed + same brain => same SimState).
-    const rerun = driveAiMatch(7, configs, TICKS);
+    const rerun = await driveAiMatch(7, configs, TICKS);
     expect(rerun.hash).toBe(run.hash);
     // Re-applying ONLY the captured command stream (no brain) reproduces the
     // entire world (entities/players/teams) — everything but the brain's
@@ -969,13 +970,13 @@ describe('AI determinism', () => {
     expect(run.captured.some((batch) => batch.length > 0)).toBe(true);
   });
 
-  it('a different seed diverges (the AI stream depends on the seed)', () => {
+  it('a different seed diverges (the AI stream depends on the seed)', async () => {
     const configs = [
       { slot: SOUTH_SLOT, difficulty: 'normal' as const },
       { slot: NORTH_SLOT, difficulty: 'normal' as const },
     ];
-    const a = driveAiMatch(7, configs, 800);
-    const b = driveAiMatch(8, configs, 800);
+    const a = await driveAiMatch(7, configs, 800);
+    const b = await driveAiMatch(8, configs, 800);
     expect(a.hash).not.toBe(b.hash);
   });
 
@@ -993,7 +994,7 @@ describe('AI determinism', () => {
 // ---------------------------------------------------------------------------
 
 describe('AI siege resolves the match', () => {
-  it('a full all-AI match deliberately SIEGES enemy structures (a tower is destroyed or heavily damaged)', () => {
+  it('a full all-AI match deliberately SIEGES enemy structures (a tower is destroyed or heavily damaged)', async () => {
     // Before the siege fix, an all-AI match only chipped enemy structures
     // incidentally (Phoenix-Fire auto-fire during a brawl) and never resolved —
     // both HQs sat at ~99% after 40k ticks. The siege fallback (pickSiegeTarget)
@@ -1005,7 +1006,7 @@ describe('AI siege resolves the match', () => {
     // that the bots siege. (A full HQ kill is slow + seed-variable in symmetric
     // all-AI play; a real solo match with a human pushing one side resolves.)
     const configs = allAiConfigs('hard');
-    const { state } = driveAiMatch(12345, configs, 16000);
+    const { state } = await driveAiMatch(12345, configs, 16000);
     const towers = Object.values(state.entities).filter(
       (e): e is StructureEntity => e !== undefined && e.kind === 'structure' && e.role === 'tower',
     );
@@ -1166,8 +1167,8 @@ describe('AI trader role', () => {
     });
   });
 
-  it('emits ONLY trade actions (never the combat brain attackMove/research/siege)', () => {
-    const run = driveAiMatch(
+  it('emits ONLY trade actions (never the combat brain attackMove/research/siege)', async () => {
+    const run = await driveAiMatch(
       7,
       [
         { slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' },
@@ -1183,11 +1184,11 @@ describe('AI trader role', () => {
     }
   });
 
-  it('a full all-AI match WITH A TRADER fires questProgress (trade deliveries)', () => {
+  it('a full all-AI match WITH A TRADER fires questProgress (trade deliveries)', async () => {
     // The combat brain alone fires zero quests in an all-AI match (the deferred
     // decision in docs/AI.md); the trader closes at least one trade route
     // (pickup -> own reward zone -> payout), so questProgress events appear.
-    const run = driveAiMatch(
+    const run = await driveAiMatch(
       7,
       [
         { slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' },
@@ -1200,16 +1201,16 @@ describe('AI trader role', () => {
     );
   });
 
-  it('a full match WITH A TRADER on both teams replays bit-identically (hashState)', () => {
+  it('a full match WITH A TRADER on both teams replays bit-identically (hashState)', async () => {
     const configs: AiSlotCfg[] = [
       { slot: SOUTH_SLOT, difficulty: 'normal', role: 'trader' },
       { slot: 3, difficulty: 'hard' },
       { slot: NORTH_SLOT, difficulty: 'hard' },
     ];
     const TICKS = 2500;
-    const run = driveAiMatch(7, configs, TICKS);
+    const run = await driveAiMatch(7, configs, TICKS);
     // Re-driving the brain reproduces the FULL hash (the trader's AiMemory too).
-    const rerun = driveAiMatch(7, configs, TICKS);
+    const rerun = await driveAiMatch(7, configs, TICKS);
     expect(rerun.hash).toBe(run.hash);
     // Re-applying ONLY the captured commands (buyShip/buyItem/move) reproduces
     // the whole world (entities/players/teams) minus the brain's private memory.
