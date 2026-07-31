@@ -578,3 +578,35 @@ These never fire in default NormalPlay, so the solo-vs-AI match loop is unaffect
 5. **Morph HP carryover** on Dive (fraction vs flat) (§5).
 6. **Ghost reveal-during-cast** exact window for H00W torpedo use (§5).
 7. **Asid absence on shop base units** — confirm during SLK extraction (§8).
+
+## Owner-directed map divergence: the north-most lane's east leg (2026-07-09)
+
+The north-most lane is a HORSESHOE — a top band whose two legs drop to the
+middle sea. The owner (a former competitive BSP player) reported, pointing at
+the spot on the original minimap: *"the lanes up north do not touch they are
+separate"*, *"you would need to enter by the spawn to get to the north most
+lane"*, and of the west side, *"you could get by without the harbor seeing you
+on both north and south"*.
+
+`terrain.py` `OWNER_LANE_GATES` therefore blocks the narrowest row of the EAST
+leg only. The WEST leg is left open: it is the way round from the bot-spawn
+harbour and the sneak-past the owner describes.
+
+**Likely original mechanism — a waterfall.** WC3 terrain is terraced and a unit
+may only change cliff layer on a RAMP. The north lane sits on layer 3 and the
+middle sea on layer 2, so a waterfall is exactly what belongs where they meet.
+`war3map.wpm` cannot express it: it stores each cell's own passability, never
+the STEP between two cells.
+
+**Why the terrace rule is not applied globally** (measured, not assumed): the
+layer-2/3 line runs through the whole map's water. Blocking every narrow
+(<=128u) non-ramp crossing of it would close **223 sites / 3,740 subcells** and
+shred the map. A one-sided "block the lip on the higher terrace" variant was
+also built and measured: it held every fidelity gate but did NOT isolate the
+lane at emit resolution. Both were reverted; only the owner-identified choke is
+gated.
+
+**Measured effect:** east-side lane -> north-most lane 2080u -> 3328u (must go
+round), while bot-spawn harbour -> north-most lane is UNCHANGED at 3200u. All
+fidelity gates still pass (16/16 shops sea-reachable, bases connected, G6 lane
+topology 0 mismatches).
