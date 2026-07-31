@@ -890,13 +890,19 @@ describe('ruleset integrity and determinism', () => {
     // NavField). Assert serializability of everything ELSE, and pin the
     // typed-array representation of the mask + every nav field.
     expect(rs.map.waterMask.cells).toBeInstanceOf(Uint8Array);
+    // `depth` shares the mask's rationale exactly: a packed render-only
+    // seabed band per cell (0=land,1=deep,2=shallow,3=pink) on the immutable
+    // Ruleset, never serialized per-match nor hashed. The SIM ignores it.
+    expect(rs.map.waterMask.depth).toBeInstanceOf(Uint8Array);
+    expect(rs.map.waterMask.depth.length).toBe(rs.map.waterMask.cells.length);
     for (const team of ['south', 'north'] as const) {
       expect(rs.map.navByTeam[team].dist).toBeInstanceOf(Int32Array);
       expect(rs.map.navHomeByTeam[team].dist).toBeInstanceOf(Int32Array);
     }
     const { waterMask, navByTeam, navHomeByTeam, navToRegion, ...mapRest } = rs.map;
-    const { cells, ...maskRest } = waterMask;
+    const { cells, depth, ...maskRest } = waterMask;
     void cells;
+    void depth;
     // Strip the typed `dist` from each nav field; keep the JSON-able metadata.
     const stripNav = (nav: (typeof navByTeam)['south']): object => {
       const { dist, ...rest } = nav;

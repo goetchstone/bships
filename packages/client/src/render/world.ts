@@ -50,6 +50,7 @@ import {
   HP_RED,
   HP_YELLOW,
   WATER_FOAM,
+  WATER_RAMP,
   mix,
   scale,
   waterAt,
@@ -130,6 +131,27 @@ export function waterDepth01(
   // here, so it must read as bright sea-blue, not a black void. Only the very
   // edge (dEdge <= 0, handled above) hits true abyss.
   return 0.1 + 0.52 * t;
+}
+
+/**
+ * Seabed-band tint for the ORIGINAL's own per-cell depth (WaterMask.depth:
+ * 1 = deep, 2 = shallow, 3 = pink passable shallows). Returned as a colour +
+ * alpha to lay OVER the base sea so the real shoals, channels and bars show
+ * through — the map's contested middle is a braid of shallows in the original,
+ * not the flat blue field a pure north-south gradient paints. Band 0 (land)
+ * returns null: land is drawn by land.ts. Pure — unit-tested.
+ */
+export function seabedBandTint(band: number): { color: number; alpha: number } | null {
+  switch (band) {
+    case 1:
+      return { color: WATER_RAMP[2] ?? 0x16526f, alpha: 0.5 }; // deep channel
+    case 2:
+      return { color: WATER_RAMP[0] ?? 0x2c7e9e, alpha: 0.42 }; // shoal / shallow
+    case 3:
+      return { color: 0x6f7fa8, alpha: 0.34 }; // pink passable shallows
+    default:
+      return null;
+  }
 }
 
 /** Base water fill color at a given world y (depth-graded). */
@@ -274,6 +296,44 @@ export function createWorld(renderer?: Renderer): WorldLayer {
         const sy0 = cam.worldToScreen(0, y0).y;
         const sy1 = cam.worldToScreen(0, y1).y;
         seaStatic.rect(left, sy0, width, sy1 - sy0 + 1).fill(waterColorAt(midY, bounds));
+      }
+
+      // TRUE SEABED: lay the ORIGINAL's own per-cell depth bands over the base
+      // grade so shoals, bars and the braided channels of the contested middle
+      // read the way they do on the real map (owner: "fix the center" — the
+      // pure north-south gradient painted it as one flat blue field). Only
+      // cells in view are drawn, so this is bounded by the viewport, not the
+      // map; it lives in the CACHED static layer (rebuilt only when the sea
+      // signature changes). Render-only: sailability is the water mask.
+      const sea = getCatalog().map.waterMask;
+      if (sea.depth.length === sea.cells.length && sea.cells.length > 0) {
+        const c0 = Math.max(0, Math.floor((minX - sea.bounds.minX) / sea.cellSizeX));
+        const c1 = Math.min(sea.cols - 1, Math.ceil((maxX - sea.bounds.minX) / sea.cellSizeX));
+        const r0 = Math.max(0, Math.floor((sea.bounds.maxY - maxY) / sea.cellSizeY));
+        const r1 = Math.min(sea.rows - 1, Math.ceil((sea.bounds.maxY - minY) / sea.cellSizeY));
+        for (let r = r0; r <= r1; r++) {
+          const wy0 = sea.bounds.maxY - r * sea.cellSizeY;
+          const wy1 = wy0 - sea.cellSizeY;
+          const sy0 = cam.worldToScreen(0, wy0).y;
+          const sy1 = cam.worldToScreen(0, wy1).y;
+          let c = c0;
+          while (c <= c1) {
+            const band = sea.depth[r * sea.cols + c] ?? 0;
+            let end = c;
+            while (end + 1 <= c1 && (sea.depth[r * sea.cols + end + 1] ?? 0) === band) end++;
+            const tint = seabedBandTint(band);
+            if (tint !== null) {
+              const wx0 = sea.bounds.minX + c * sea.cellSizeX;
+              const wx1 = sea.bounds.minX + (end + 1) * sea.cellSizeX;
+              const sx0 = cam.worldToScreen(wx0, 0).x;
+              const sx1 = cam.worldToScreen(wx1, 0).x;
+              seaStatic
+                .rect(sx0, sy0, sx1 - sx0 + 1, sy1 - sy0 + 1)
+                .fill({ color: tint.color, alpha: tint.alpha });
+            }
+            c = end + 1;
+          }
+        }
       }
 
       // Faint world-space grid.
