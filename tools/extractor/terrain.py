@@ -1205,6 +1205,61 @@ def restore_straddled_channels(rows: list[list[int]], wpm: dict, geom: dict,
     return flipped
 
 
+OWNER_LANE_GATES: tuple[tuple[float, float, float, float, str], ...] = (
+    # OWNER-DIRECTED DIVERGENCE (2026-07-09), from the owner -- a former
+    # competitive BSP player -- pointing at the spot on the original minimap:
+    # "the lanes up north do not touch they are separate", "you would need to
+    # enter by the spawn to get to the north most lane", and of the WEST side,
+    # "you could get by without the harbor seeing you on both north and south".
+    #
+    # The north-most lane is a HORSESHOE: a top band whose two legs drop to the
+    # middle sea. The WEST leg is legitimate -- it is the way round from the
+    # bot-spawn harbour, and the sneak past it the owner describes. The EAST
+    # leg is the one the arrow marks: it lets a ship step straight off the
+    # east-side lane into the north-most lane, which is why the lanes "touch".
+    #
+    # Likely original mechanism: a WATERFALL. The north lane sits on cliff
+    # layer 3, the middle sea on layer 2, and WC3 units cannot cross a terrace
+    # step except on a ramp -- a drop war3map.wpm cannot express, since it
+    # stores each cell's own passability and never the step between two cells.
+    # (The general terrace rule was implemented and measured: it held every
+    # gate but did not isolate the lane at emit resolution, so we close the one
+    # channel the owner identified rather than reshape 2000+ cells on an
+    # unproven rule.) Measured effect: east-lane -> north-most lane goes
+    # 2080u -> 3328u (round the long way), while harbour -> north-most lane is
+    # UNCHANGED at 3200u. Documented in docs/SEMANTICS.md.
+    #
+    # Each entry is a SEARCH BOX; the narrowest sailable row inside it is what
+    # gets blocked, so the gate lands on the true choke, not a hand-drawn wall.
+    (3600.0, 3900.0, 5250.0, 5560.0, "north-most lane: east leg (owner's arrow)"),
+)
+
+
+def close_owner_lane_gates(rows: list[list[int]], geom: dict) -> list[dict]:
+    """Block the narrowest sailable row inside each OWNER_LANE_GATES box (see
+    the table for why each one exists)."""
+    report: list[dict] = []
+    for x0, x1, y0, y1, label in OWNER_LANE_GATES:
+        c0, r1 = cell_for(x0, y0, geom)
+        c1, r0 = cell_for(x1, y1, geom)
+        best: tuple[int, list[int]] | None = None
+        for r in range(min(r0, r1), max(r0, r1) + 1):
+            open_cells = [c for c in range(min(c0, c1), max(c0, c1) + 1) if rows[r][c]]
+            if not open_cells:
+                continue
+            if best is None or len(open_cells) < len(best[1]):
+                best = (r, open_cells)
+        if best is None:
+            report.append({"gate": label, "blocked": 0, "note": "no sailable row in box"})
+            continue
+        r, cells = best
+        for c in cells:
+            rows[r][c] = 0
+        report.append({"gate": label, "row": r, "blocked": len(cells),
+                       "widthUnits": len(cells) * int(geom["csx"])})
+    return report
+
+
 def lane_topology_gate(rows: list[list[int]], wpm: dict, layout: dict, geom: dict,
                        map_min_x: float, map_min_y: float) -> dict:
     """G6 (hard gate): the emitted grid must preserve the FULL-RES lane
@@ -1913,6 +1968,13 @@ def main() -> None:
     # NON-BLUE key the green shallow water already RINGS the blue ridge cores, so
     # the sail-around loops largely emerge naturally; this step only guarantees the
     # closed single-entrance moat the owner wants around the two shop cores.
+    # OWNER-DIRECTED lane gate (see OWNER_LANE_GATES): close the east leg of
+    # the north-most lane's horseshoe. AFTER the connectivity carve so it is
+    # not re-opened; the gates below re-verify every shop/base is still
+    # reachable, and G6's anchor set is unaffected (no anchor is stranded).
+    gate_report = close_owner_lane_gates(rows, geom)
+    neck_report["ownerLaneGates"] = gate_report
+
     rows_before_loops = [list(r) for r in rows]  # snapshot for the westloop compare
     west_island_report = carve_west_island_loops(rows, layout, geom)
     neck_report["westIslandLoops"] = west_island_report
