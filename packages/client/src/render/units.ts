@@ -344,11 +344,23 @@ export function createUnits(): UnitLayer {
    * hull + superstructure — `selected` is no longer part of the hull redraw
    * signature. Guarded so an unchanged selection state never re-clears it.
    */
-  function drawRing(v: UnitView, selected: boolean): void {
-    const sig = selected ? `1|${v.radius}` : '0';
+  function drawRing(v: UnitView, selected: boolean, team: TeamId | null): void {
+    const sig = `${selected ? 1 : 0}|${v.radius}|${team ?? 'n'}`;
     if (sig === v.selSig) return;
     v.selSig = sig;
     v.ring.clear();
+    // TEAM IDENTITY ring — drawn under EVERY unit, always, in the owning
+    // team's colour. Hull tint alone was not enough to tell friend from foe at
+    // a glance in a brawl (owner: "I need to be able to tell what ship is what
+    // ship and what team they are on easily"); a filled disc + rim on the
+    // water plane reads instantly at any zoom and never occludes the hull.
+    const teamR = v.radius + 3;
+    const tc = teamColor(team);
+    v.ring
+      .ellipse(0, 0, teamR, teamR * FORESHORTEN)
+      .fill({ color: tc, alpha: 0.18 })
+      .ellipse(0, 0, teamR, teamR * FORESHORTEN)
+      .stroke({ width: 2, color: tc, alpha: 0.85 });
     if (selected) {
       const rr = selectionRadius(v.radius);
       v.ring.ellipse(0, 0, rr, rr * FORESHORTEN).stroke({ width: 3, color: 0xffffff, alpha: 0.9 });
@@ -361,11 +373,14 @@ export function createUnits(): UnitLayer {
     if (v.label !== null) v.label.destroy();
     const label = new Text({
       text: name,
+      // (text set by the caller; may be two lines: player then ship class)
       style: {
         fontFamily: 'Segoe UI, system-ui, sans-serif',
         fontSize: 13,
         fill: INK,
         stroke: { color: INK_OUTLINE, width: 3 },
+        align: 'center',
+        lineHeight: 14,
       },
     });
     label.resolution = 2;
@@ -487,7 +502,7 @@ export function createUnits(): UnitLayer {
         v.sig = sig;
         redraw(v, e);
       }
-      drawRing(v, selected);
+      drawRing(v, selected, e.team);
 
       const sp = cam.worldToScreen(e.x, e.y);
       v.root.position.set(sp.x, sp.y);
@@ -532,7 +547,14 @@ export function createUnits(): UnitLayer {
 
       // Name labels for player ships only; placed above the overlay zone.
       if (e.kind === 'ship' && e.ownerSlot !== null) {
-        const name = names.get(e.ownerSlot);
+        const who = names.get(e.ownerSlot);
+        // SHIP IDENTITY: the hull's distinct proper name under the captain's
+        // name, so a glance tells you WHICH ship as well as whose (owner:
+        // "I need to be able to tell what ship is what ship"). properName is
+        // the per-hull name (Juggernaut, Leviathian, ...); the generic class
+        // is a poor discriminator since several hulls share it.
+        const hull = getCatalog().ships[e.typeId]?.properName;
+        const name = who === undefined ? undefined : hull === undefined ? who : `${who}\n${hull}`;
         if (name !== undefined) {
           ensureLabel(v, name);
           if (v.label !== null) {
