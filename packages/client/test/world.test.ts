@@ -27,7 +27,7 @@ import {
   structureSilhouette,
   trimColor,
 } from '../src/render/structures.js';
-import { seaStaticSignature, waterColorAt, waterDepth01 } from '../src/render/world.js';
+import { seaStaticSignature, waterColorAt, waterDepth01, seabedBandTint } from '../src/render/world.js';
 
 const ALL_ROLES: StructureRole[] = [
   'hq',
@@ -275,5 +275,32 @@ describe('seaStaticSignature', () => {
     const a = seaStaticSignature(rect, 1, 1600, 900);
     expect(a).not.toBe(seaStaticSignature(rect, 1.25, 1600, 900));
     expect(a).not.toBe(seaStaticSignature(rect, 1, 1280, 720));
+  });
+});
+
+describe('seabed bands (the ORIGINAL per-cell depth the sea is painted from)', () => {
+  it('land (band 0) paints nothing — land.ts owns it', () => {
+    expect(seabedBandTint(0)).toBeNull();
+  });
+
+  it('every water band yields a visible, partially transparent tint', () => {
+    for (const band of [1, 2, 3]) {
+      const t = seabedBandTint(band);
+      expect(t, `band ${band}`).not.toBeNull();
+      expect(t!.alpha).toBeGreaterThan(0);
+      expect(t!.alpha).toBeLessThan(1);
+      expect(Number.isFinite(t!.color)).toBe(true);
+    }
+  });
+
+  it('deep reads darker than shallow (the channel must contrast the shoals)', () => {
+    const deep = seabedBandTint(1)!.color;
+    const shallow = seabedBandTint(2)!.color;
+    const lum = (c: number) => ((c >> 16) & 0xff) * 0.3 + ((c >> 8) & 0xff) * 0.59 + (c & 0xff) * 0.11;
+    expect(lum(deep)).toBeLessThan(lum(shallow));
+  });
+
+  it('an unknown band degrades to no tint (forward-compatible)', () => {
+    expect(seabedBandTint(9)).toBeNull();
   });
 });

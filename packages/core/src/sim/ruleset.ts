@@ -2083,6 +2083,7 @@ export function compileWaterMask(bounds: MapSpec['bounds'], terrain?: RawTerrain
       cellSizeX: 1,
       cellSizeY: 1,
       cells: new Uint8Array(0),
+      depth: new Uint8Array(0),
     };
   }
 
@@ -2110,6 +2111,25 @@ export function compileWaterMask(bounds: MapSpec['bounds'], terrain?: RawTerrain
     }
     if (col !== cols) fail(`terrain: row ${r} runs sum to ${col}, expected ${cols}`);
   }
+  // RENDER-ONLY seabed bands (value,run pairs; 0=land,1=deep,2=shallow,3=pink).
+  // Optional and never consulted by the sim: a missing/short field degrades to
+  // all-zero, which the client falls back to a flat sea for.
+  const depth = new Uint8Array(cols * rows);
+  if (Array.isArray(terrain.depth) && terrain.depth.length === rows) {
+    for (let r = 0; r < rows; r++) {
+      const rle = terrain.depth[r];
+      if (!Array.isArray(rle)) continue;
+      let col = 0;
+      for (let k = 0; k + 1 < rle.length; k += 2) {
+        const value = rle[k] ?? 0;
+        const run = rle[k + 1] ?? 0;
+        if (value > 0) {
+          for (let c = 0; c < run && col + c < cols; c++) depth[r * cols + col + c] = value;
+        }
+        col += run;
+      }
+    }
+  }
   return {
     bounds: {
       minX: mustNum(terrain.bounds.minX, 'terrain minX'),
@@ -2122,6 +2142,7 @@ export function compileWaterMask(bounds: MapSpec['bounds'], terrain?: RawTerrain
     cellSizeX: mustNum(terrain.cellSizeX, 'terrain cellSizeX'),
     cellSizeY: mustNum(terrain.cellSizeY, 'terrain cellSizeY'),
     cells,
+    depth,
   };
 }
 

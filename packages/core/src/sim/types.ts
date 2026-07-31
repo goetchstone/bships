@@ -1640,6 +1640,18 @@ export interface WaterMask {
    * is on the immutable Ruleset, never in serialized state.
    */
   cells: Uint8Array;
+  /**
+   * RENDER-ONLY seabed band per cell (0 = land, 1 = deep, 2 = shallow,
+   * 3 = pink passable shallows), row-major like `cells`, or an empty array on
+   * a stub mask. This is the ORIGINAL's own seabed painted per 64u cell — the
+   * client draws the sea from it so the map reads like the real one (the
+   * owner's "the center" complaint: the sea was painted by a synthetic
+   * north-south depth gradient that made the contested middle a featureless
+   * blue field, hiding the shoals and channels the original clearly shows).
+   * The SIM IGNORES this — sailability is `cells` alone — so it can never
+   * affect determinism.
+   */
+  depth: Uint8Array;
 }
 
 /**
@@ -2223,6 +2235,12 @@ export interface RawTerrainFile {
   yOrientation: 'top-down';
   /** Per-row run-length encoding; one entry per row (length === rows). */
   water: number[][];
+  /**
+   * OPTIONAL render-only seabed bands, per-row (value, run) pairs —
+   * 0=land, 1=deep, 2=shallow, 3=pink. The sim ignores it; the client paints
+   * the sea from it. Absent on older/stub terrain files.
+   */
+  depth?: number[][];
 }
 
 export interface RawDataFiles {
