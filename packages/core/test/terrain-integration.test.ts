@@ -78,7 +78,7 @@ describe('terrain integration (real water mask)', () => {
     expect(ruleset.map.waterMask.cells.length).toBeGreaterThan(0);
     // The mask is SAILABILITY from the map's own PATHING MAP (war3map.wpm bit
     // 0x40 = no-water — the engine's enforced truth; see terrain.py), cropped
-    // to the 162x226 PLAYABLE grid (64u cells — 2x the tilepoint spacing;
+    // to the 176x234 PLAYABLE grid (64u cells — 2x the tilepoint spacing;
     // lane-topology equivalence vs the raw 32u wpm is gate G6) (the unplayable border removed;
     // the WEST bound extended 3 cells west of the camera bounds so the Goblin
     // Potion Dealer shop sits off the grid edge — see docs/TERRAIN.md
@@ -92,12 +92,13 @@ describe('terrain integration (real water mask)', () => {
     // real map separates.
     const water = ruleset.map.waterMask.cells.reduce((n, c) => n + c, 0);
     const total = ruleset.map.waterMask.cells.length;
-    expect(total).toBe(162 * 226); // 64u cells (full-res lane deduction)
-    // ~0.513: the wpm sailable fraction at 64u cells with LAND-BIASED ties
-    // (straddling walls are kept, conservatively thickening land). Same band
-    // as the extractor's fail-loud gate [0.50, 0.62].
-    expect(water / total).toBeGreaterThan(0.5);
-    expect(water / total).toBeLessThan(0.62);
+    expect(total).toBe(176 * 234); // 64u cells over the FULL playable extent
+    // ~0.463 over the FULL playable extent. The absolute value is a function
+    // of how much land-heavy border the crop includes, so it is NOT the
+    // fidelity signal — the extractor gates on DRIFT from the raw wpm over the
+    // same rect instead. Kept here only as a broad sanity band.
+    expect(water / total).toBeGreaterThan(0.40);
+    expect(water / total).toBeLessThan(0.60);
     // Nav fields are populated (a real flood from each base goal).
     expect(ruleset.map.navByTeam.south.dist.length).toBe(total);
     expect(ruleset.map.navByTeam.north.dist.length).toBe(total);

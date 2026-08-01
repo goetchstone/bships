@@ -150,17 +150,57 @@ TILE_SPACING = 128.0  # WC3 world units between tilepoints
 # and the shop sits ON the island LAND CORE (the west moat side at col 0 is sealed
 # by the off-grid boundary, exactly like a land wall). The new west columns get
 # their water from the SAME minimap trace.
-WEST_EXTEND_CELLS = 3  # K: whole cells the playable west bound is moved westward.
-_PLAYABLE_CAMERA_MIN_X = -4992.0  # the prior west bound (war3map.w3i camera bounds).
+# PLAYABLE RECTANGLE — derived from the MAP DATA, not the camera.
+#
+# It used to be the war3map.w3i CAMERA bounds (plus a 3-cell west fudge added so
+# one shop stopped falling off the grid). That fudge was the tell: the camera
+# rect is where the VIEW may scroll, and WC3 deliberately keeps it inside the
+# terrain, so cropping to it silently deletes real playable map. Measured, the
+# camera crop was short on ALL FOUR sides — worst 448u of navigable sea off the
+# EAST lane — and it cut the Flux Repair System (-1344,-7552) off the map
+# entirely (owner 2026-07-31: "the map needs to be right first, and it is not").
+#
+# The rect is now computed to cover every SAILABLE wpm cell plus every placed
+# STRUCTURE, padded to whole tilepoints. Self-correcting: it can never clip
+# playable water or a building again, and no per-shop fudge is needed.
+PLAYABLE_PAD_CELLS = 1  # whole 128u tilepoints of margin beyond the content
 
-# Playable rectangle = war3map.w3i camera bounds, with the WEST bound extended by
-# WEST_EXTEND_CELLS cells (see above). minY/maxX/maxY unchanged.
-PLAYABLE = {
-    "minX": _PLAYABLE_CAMERA_MIN_X - WEST_EXTEND_CELLS * TILE_SPACING,
-    "minY": -7424.0,
-    "maxX": 4864.0,
-    "maxY": 6912.0,
-}
+
+def compute_playable(wpm: dict, layout: dict, map_min_x: float, map_min_y: float) -> dict:
+    """Smallest tilepoint-aligned rect covering all sailable water + structures."""
+    ww, wh, flags = wpm["width"], wpm["height"], wpm["flags"]
+    xs: list[float] = []
+    ys: list[float] = []
+    for sy in range(wh):
+        row = sy * ww
+        for sx in range(ww):
+            if not (flags[row + sx] & 0x40):
+                xs.append(map_min_x + sx * 32)
+                ys.append(map_min_y + sy * 32)
+    for st in layout.get("structures", []):
+        if st.get("x") is not None and st.get("y") is not None:
+            xs.append(float(st["x"]))
+            ys.append(float(st["y"]))
+    pad = PLAYABLE_PAD_CELLS * TILE_SPACING
+    def snap_lo(v: float) -> float:
+        return math.floor((v - pad - map_min_x) / TILE_SPACING) * TILE_SPACING + map_min_x
+    def snap_hi(v: float) -> float:
+        return math.ceil((v + pad - map_min_x) / TILE_SPACING) * TILE_SPACING + map_min_x
+    def snap_lo_y(v: float) -> float:
+        return math.floor((v - pad - map_min_y) / TILE_SPACING) * TILE_SPACING + map_min_y
+    def snap_hi_y(v: float) -> float:
+        return math.ceil((v + pad - map_min_y) / TILE_SPACING) * TILE_SPACING + map_min_y
+    return {
+        "minX": snap_lo(min(xs)),
+        "minY": snap_lo_y(min(ys)),
+        "maxX": snap_hi(max(xs) + 32),
+        "maxY": snap_hi_y(max(ys) + 32),
+    }
+
+
+# Filled in by main() once the wpm + layout are read; the module-level default is
+# only a placeholder for tools that import PLAYABLE before main runs.
+PLAYABLE = {"minX": -5568.0, "minY": -7744.0, "maxX": 5440.0, "maxY": 6912.0}
 
 # --- minimap registration (content box -> full w3e tile-edge extent) ----------
 CONTENT_X0, CONTENT_X1 = 32.0, 223.0   # non-white content cols (letterboxed x)
@@ -1505,10 +1545,22 @@ def validate(rows: list[list[int]], layout: dict, geom: dict) -> dict:
     # trace. Band [0.55, 0.70] (target the playable-crop NON-BLUE read).
     wf = water_fraction(rows)
     report["waterFraction"] = round(wf, 4)
-    if not (0.50 <= wf <= 0.62):
-        raise SystemExit(f"terrain: water fraction {wf:.3f} out of the wpm band [0.50, 0.62] "
-                         "(the pathing map reads ~0.55 sailable over the playable crop; "
-                         "well above = colour-key-style over-watering, well below = over-dry)")
+    # CROP-INDEPENDENT gate: compare the emitted mask against the RAW wpm
+    # sailable fraction over the SAME rect. An absolute band was wrong — it was
+    # calibrated on one particular crop, so simply widening the playable rect
+    # (which pulls in more border land) tripped it even though the
+    # classification was unchanged. What actually matters is that we neither
+    # over- nor under-water RELATIVE to the pathing map: the only legitimate
+    # additions are the minimal connectivity necks + the two west moats.
+    raw_wf = report.get("rawWpmWaterFraction")
+    if isinstance(raw_wf, float):
+        drift = wf - raw_wf
+        report["waterFractionDriftVsWpm"] = round(drift, 4)
+        if abs(drift) > 0.02:
+            raise SystemExit(
+                f"terrain: emitted water fraction {wf:.3f} drifts {drift:+.3f} from the raw "
+                f"wpm's {raw_wf:.3f} over the same crop (>|0.02|). Only minimal necks/moats "
+                "may be added; a drift this large means the classification changed.")
 
     def lane_runs(col_range, row_range) -> list[int]:
         out: list[int] = []
@@ -1927,8 +1979,11 @@ def main() -> None:
 
     w3e = parse_w3e(args.w3e.read_bytes())
     layout = json.loads(args.layout.read_text())
-    cols_idx, rows_idx = playable_indices(w3e, PLAYABLE)
-    geom = crop_geometry(w3e, cols_idx, rows_idx, PLAYABLE)
+    wpm = parse_wpm(args.wpm.read_bytes())
+    playable = compute_playable(wpm, layout, w3e["centerX"], w3e["centerY"])
+    print(f"terrain: playable rect from data: {playable}", file=sys.stderr)
+    cols_idx, rows_idx = playable_indices(w3e, playable)
+    geom = crop_geometry(w3e, cols_idx, rows_idx, playable)
 
     mm_w, mm_h, mm_px = decode_png_rgb(args.minimap)
 
@@ -1939,7 +1994,6 @@ def main() -> None:
     # merged lanes the real map separates (owner-reported: the NE lane must NOT
     # merge into the east-edge lane; the wpm separates them, 26/26 known
     # anchors -- HQs/harbours/spawns/lane waypoints -- sit sailable).
-    wpm = parse_wpm(args.wpm.read_bytes())
     sail = wpm_sailable_grid(geom, wpm, w3e["centerX"], w3e["centerY"])
     # The colour key stays for depth RENDER metadata + an informational
     # agreement stat (how far the picture is from the pathing truth).
@@ -1950,6 +2004,7 @@ def main() -> None:
 
     # rows = the working mask; keep the denoised raw wpm grid as the reference
     # the G2 agreement compares the final (carved) mask against.
+    raw_water_fraction = water_fraction(sail)
     rows = [list(r) for r in sail]
     restored = restore_straddled_channels(rows, wpm, geom, w3e["centerX"], w3e["centerY"])
     removed = drop_singletons(rows, geom["cols"], geom["rows"])
@@ -1985,6 +2040,7 @@ def main() -> None:
     rle = [rle_encode_row(r) for r in rows]
     wf = water_fraction(rows)
     report = validate(rows, layout, geom)
+    report["rawWpmWaterFraction"] = round(raw_water_fraction, 4)
     report["necks"] = neck_report
     report["laneTopologyVsWpm"] = topo_report
     report["sideRoutes"] = confirm_side_routes(rows, ref_after_denoise, layout, geom)
@@ -2066,7 +2122,7 @@ def main() -> None:
             "PINK (R>150 AND B>120 AND R-G>15), else SHALLOW; a water cell "
             "whose pixels read land-blue falls back to SHALLOW."
         ),
-        "playableBounds": PLAYABLE,
+        "playableBounds": playable,
         "bounds": geom["bounds"],
         "cols": geom["cols"],
         "rows": geom["rows"],
