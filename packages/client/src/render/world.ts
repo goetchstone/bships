@@ -144,11 +144,11 @@ export function waterDepth01(
 export function seabedBandTint(band: number): { color: number; alpha: number } | null {
   switch (band) {
     case 1:
-      return { color: WATER_RAMP[2] ?? 0x16526f, alpha: 0.5 }; // deep channel
+      return { color: WATER_RAMP[2] ?? 0x102a44, alpha: 0.72 }; // deep channel — near-black navy
     case 2:
-      return { color: WATER_RAMP[0] ?? 0x2c7e9e, alpha: 0.42 }; // shoal / shallow
+      return { color: WATER_RAMP[0] ?? 0x3f8f7d, alpha: 0.6 }; // shoal — bright teal-green
     case 3:
-      return { color: 0x6f7fa8, alpha: 0.34 }; // pink passable shallows
+      return { color: 0x5f7fa0, alpha: 0.45 }; // pink passable shallows
     default:
       return null;
   }

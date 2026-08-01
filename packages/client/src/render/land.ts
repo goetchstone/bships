@@ -54,12 +54,13 @@ import { COAST_ROCK, COAST_SAND, SHADOW, mix, scale, shade } from './theme.js';
 // ---------------------------------------------------------------------------
 
 /**
- * Base land color (a warm, slightly green earth tone, darker than the bright
- * lanes so the water reads as the playfield and the land as the backdrop).
+ * Base land color — the original's lush grass green (owner's screenshots of
+ * real play show green islands with rock cliffs, not the olive-slate we had).
+ * Kept darker than the shoal band so water still reads as the playfield.
  * The lit/shade variants come from theme.shade so the land obeys the same
  * top-left key light as every structure.
  */
-export const LAND_BASE = 0x3c4a3a;
+export const LAND_BASE = 0x2f5730;
 
 /**
  * Width (world units) of the sand/rock coast band drawn along the waterline.
