@@ -48,16 +48,21 @@ export const GOLD = 0xf4c95c;
 /**
  * Water depth ramp, shallowest (coast) -> deepest (open sea). The world
  * renderer interpolates along this by a per-pixel/per-band "depth" value so
- * the sea reads as layered rather than a single flat fill. All cool navies,
- * deliberately DESATURATED and a touch darker than the old ramp so the warm
- * red / cool blue team hulls read as the brightest, most saturated things on
- * screen (competitive readability: the eye goes to the ships, not the sea).
+ * the sea reads as layered rather than a single flat fill.
+ *
+ * Retuned 2026-07-31 against the owner's gameplay screenshots of the ORIGINAL:
+ * the real map is HIGH CONTRAST — near-black navy in the deep channels against
+ * bright teal-green shoals ringing every island — not the uniform mid-blue we
+ * had. That contrast is what makes the lanes legible at a glance, and it only
+ * became worth doing once the true per-cell seabed shipped (WaterMask.depth).
+ * Hulls still out-saturate the sea: the ramp stays desaturated, it just spans
+ * a much wider value range.
  */
 export const WATER_RAMP: readonly number[] = [
-  0x2c7e9e, // shallow / near coast — muted teal
-  0x1f6c8c, // mid
-  0x16526f, // deep open sea (where ships sail — a real blue, not a void)
-  0x0b3047, // abyss / map edge
+  0x3f8f7d, // shallow / near coast — the original's bright teal-green shoal
+  0x24606a, // mid
+  0x102a44, // deep open sea — the original reads near-black navy here
+  0x06121f, // abyss / map edge
 ];
 
 /** Foam / wave-crest highlight stroked on the lighter water bands. */
