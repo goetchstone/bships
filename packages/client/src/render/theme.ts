@@ -50,19 +50,23 @@ export const GOLD = 0xf4c95c;
  * renderer interpolates along this by a per-pixel/per-band "depth" value so
  * the sea reads as layered rather than a single flat fill.
  *
- * Retuned 2026-07-31 against the owner's gameplay screenshots of the ORIGINAL:
- * the real map is HIGH CONTRAST — near-black navy in the deep channels against
- * bright teal-green shoals ringing every island — not the uniform mid-blue we
- * had. That contrast is what makes the lanes legible at a glance, and it only
- * became worth doing once the true per-cell seabed shipped (WaterMask.depth).
- * Hulls still out-saturate the sea: the ramp stays desaturated, it just spans
- * a much wider value range.
+ * Retuned against the owner's gameplay screenshots of the ORIGINAL: high
+ * contrast, near-black navy in the deep channels up to a bright shoal at the
+ * coast. That range is what makes the lanes legible, and it only became worth
+ * doing once the true per-cell seabed shipped (WaterMask.depth).
+ *
+ * HUE IS LOAD-BEARING: every stop is BLUE-DOMINANT (cyan, never green). A
+ * first attempt used a teal-GREEN shoal to match the screenshots' warmth and
+ * it collided with the green land — shoals read as coastline and the map
+ * became unreadable (owner: "almost seems worse"). Without texture to
+ * separate them, hue is the only cue: water cyan, land green. Do not warm the
+ * shoal toward green again.
  */
 export const WATER_RAMP: readonly number[] = [
-  0x3f8f7d, // shallow / near coast — the original's bright teal-green shoal
-  0x24606a, // mid
-  0x102a44, // deep open sea — the original reads near-black navy here
-  0x06121f, // abyss / map edge
+  0x2b8ca6, // shallow / near coast — CYAN, blue-dominant on purpose
+  0x1b5f7d, // mid
+  0x0e2b45, // deep open sea — near-black navy
+  0x061520, // abyss / map edge
 ];
 
 /** Foam / wave-crest highlight stroked on the lighter water bands. */
